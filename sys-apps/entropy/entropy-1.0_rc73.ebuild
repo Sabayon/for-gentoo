@@ -66,9 +66,6 @@ pkg_postinst() {
 
 	python_mod_optimize "/usr/lib/entropy/lib/entropy"
 
-	# force python 2.x
-	eselect python update --ignore 3.0 --ignore 3.1 --ignore 3.2 --ignore 3.3
-
 	echo
 	elog "If you want to enable Entropy packages delta download support, please"
 	elog "install dev-util/bsdiff."
