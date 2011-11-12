@@ -1,9 +1,0 @@
-[Desktop Entry]
-Encoding=UTF-8
-Type=Application
-
-Exec=xdg-open https://www.sabayon.org/chat
-Icon=sabayon-weblink
-
-Name=Get Live Help
-
