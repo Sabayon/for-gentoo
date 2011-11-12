@@ -27,6 +27,7 @@ DEPEND="${RDEPEND}
 	dev-util/intltool"
 
 REPO_CONFPATH="${ROOT}/etc/entropy/repositories.conf"
+REPO_D_CONFPATH="${ROOT}/etc/entropy/repositories.conf.d"
 ENTROPY_CACHEDIR="${ROOT}/var/lib/entropy/caches"
 
 pkg_setup() {
@@ -52,6 +53,15 @@ src_install() {
 }
 
 pkg_postinst() {
+	for ex_conf in "${REPO_D_CONFPATH}"/_entropy_sabayon-limbo.example; do
+		real_conf="${ex_conf%.example}"
+		if [ -f "${real_conf}" ] || [ -f "${real_conf/_}" ]; then
+			# skip installation then
+			continue
+		fi
+		elog "Installing: ${real_conf}"
+		cp "${ex_conf}" "${real_conf}" -p
+	done
 
 	# Copy config file over
 	if [ -f "${REPO_CONFPATH}.example" ] && [ ! -f "${REPO_CONFPATH}" ]; then
@@ -70,7 +80,6 @@ pkg_postinst() {
 	elog "If you want to enable Entropy packages delta download support, please"
 	elog "install dev-util/bsdiff."
 	echo
-
 }
 
 pkg_postrm() {
