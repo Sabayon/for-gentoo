@@ -2,6 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
+GNOME_TARBALL_SUFFIX="bz2"
 EAPI=4
 
 inherit gnome2
