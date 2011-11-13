@@ -1,0 +1,43 @@
+--- gejengel-0.1.4.orig/src/Core/gejengel.h
++++ gejengel-0.1.4/src/Core/gejengel.h
+@@ -17,6 +17,8 @@
+ #ifndef GEJENGEL_H
+ #define GEJENGEL_H
+ 
++#include <cstddef>
++
+ #include "albumartprovider.h"
+ #include "gejengelcore.h"
+ #include "playback.h"
+--- gejengel-0.1.4.orig/src/Core/musiclibrary.h
++++ gejengel-0.1.4/src/Core/musiclibrary.h
+@@ -17,6 +17,7 @@
+ #ifndef MUSIC_LIBRARY_H
+ #define MUSIC_LIBRARY_H
+ 
++#include <cstddef>
+ #include <string>
+ #include <vector>
+ 
+--- gejengel-0.1.4.orig/src/Core/playback.h
++++ gejengel-0.1.4/src/Core/playback.h
+@@ -17,6 +17,7 @@
+ #ifndef PLAYBACK_H
+ #define PLAYBACK_H
+ 
++#include <cstddef>
+ #include <fstream>
+ #include <vector>
+ #include <sigc++/connection.h>
+--- gejengel-0.1.4.orig/src/MusicLibrary/librarychangedispatcher.cpp
++++ gejengel-0.1.4/src/MusicLibrary/librarychangedispatcher.cpp
+@@ -14,6 +14,8 @@
+ //    along with this program; if not, write to the Free Software
+ //    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ 
++#include <cstddef>
++
+ #include "librarychangedispatcher.h"
+ 
+ #include "Utils/scopedlock.h"
+
