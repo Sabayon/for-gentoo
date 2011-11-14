@@ -4,6 +4,8 @@
 
 EAPI=3
 
+inherit eutils
+
 DESCRIPTION="An instrument editor for gig files"
 HOMEPAGE="http://www.linuxsampler.org/"
 SRC_URI="http://download.linuxsampler.org/packages/${P}.tar.gz"
