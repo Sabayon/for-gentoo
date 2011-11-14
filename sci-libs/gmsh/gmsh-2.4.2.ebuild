@@ -4,7 +4,7 @@
 
 EAPI="2"
 
-inherit cmake-utils flag-o-matic toolchain-funcs
+inherit eutils cmake-utils flag-o-matic toolchain-funcs
 
 DESCRIPTION="A three-dimensional finite element mesh generator with built-in pre- and post-processing facilities."
 HOMEPAGE="http://www.geuz.org/gmsh/"
@@ -38,6 +38,10 @@ pkg_setup() {
 src_unpack() {
 	unpack ${A}
 	mv ${P}-source ${P}
+}
+
+src_prepare() {
+	epatch "${FILESDIR}/${P}-gcc46.patch"
 }
 
 src_configure() {
