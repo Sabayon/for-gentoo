@@ -1,0 +1,27 @@
+--- VisualBoyAdvance-1.7.2.orig/src/unzip.h
++++ VisualBoyAdvance-1.7.2/src/unzip.h
+@@ -60,6 +60,10 @@
+ #ifndef _unz_H
+ #define _unz_H
+ 
++#ifndef OF
++#define OF(x) x
++#endif
++
+ #ifdef __cplusplus
+ extern "C" {
+ #endif
+--- VisualBoyAdvance-1.7.2.orig/win32/include/zlib/zutil.h
++++ VisualBoyAdvance-1.7.2/win32/include/zlib/zutil.h
+@@ -13,6 +13,10 @@
+ #ifndef _Z_UTIL_H
+ #define _Z_UTIL_H
+ 
++#ifndef OF
++#define OF(x) x
++#endif
++
+ #include <zlib.h>
+ 
+ #ifdef STDC
+
