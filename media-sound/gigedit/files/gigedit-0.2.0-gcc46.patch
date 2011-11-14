@@ -1,0 +1,10 @@
+--- gigedit-0.2.0.orig/src/gigedit/gigedit.h
++++ gigedit-0.2.0/src/gigedit/gigedit.h
+@@ -22,6 +22,7 @@
+ 
+ #include <gig.h>
+ 
++#include <cstddef>
+ #include <list>
+ #include <sigc++/signal.h>
+ 
