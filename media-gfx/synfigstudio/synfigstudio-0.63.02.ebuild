@@ -14,7 +14,6 @@ IUSE=""
 DEPEND=">=sys-devel/libtool-1.3.5
 	>=dev-cpp/gtkmm-2.4.0
 	>=dev-libs/libsigc++-2.0
-	>=dev-cpp/ETL-0.04.13
 	>=media-gfx/synfig-${PV}"
 
 RDEPEND="${DEPEND}"
