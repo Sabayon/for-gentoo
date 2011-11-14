@@ -4,7 +4,7 @@
 
 DESCRIPTION="VoriaETL is a multiplatform class and template library which complements and supplements the C++ STL"
 
-HOMEPAGE="http://www.synfig.com/"
+HOMEPAGE="http://www.synfig.org"
 
 SRC_URI="mirror://sourceforge/synfig/${P}.tar.gz"
 
