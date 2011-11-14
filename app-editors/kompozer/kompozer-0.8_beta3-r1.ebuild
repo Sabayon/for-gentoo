@@ -25,8 +25,6 @@ SRC_URI="http://downloads.sourceforge.net/kompozer/${MY_P}-src.tar.bz2"
 REL_URI="http://kompozer.sourceforge.net/l10n/langpacks/kompozer-0.8b3"
 DICT_URI="http://kompozer.sourceforge.net/l10n/myspell"
 
-RESTRICT="nomirror"
-
 LICENSE="GPL-2"
 SLOT="0"
 
@@ -50,7 +48,6 @@ for X in ${LANGS} ; do
 	fi
 done
 
-
 # myspell dictionaries
 for X in ${DICTS} ; do
 	SRC_URI="${SRC_URI}
@@ -62,7 +59,6 @@ for X in ${DICTS} ; do
 		IUSE="${IUSE} linguas_${X%%-*}"
 	fi
 done
-
 
 RDEPEND="java? ( virtual/jre )
 	>=sys-devel/binutils-2.16.1
@@ -82,7 +78,6 @@ DEPEND="${RDEPEND}
 	x11-misc/makedepend
 	>=media-libs/freetype-2.1.9-r1
 	java? ( >=virtual/jdk-1.4 )"
-
 
 S=${WORKDIR}/mozilla
 
@@ -164,6 +159,8 @@ src_prepare() {
 	sed '/default spellcheck/d' -i "${S}"/.mozconfig
 	# Fixes building with libpng14. See Bug #319575 and Bug #323513.
 	epatch "${FILESDIR}"/seamonkey-libpng14.patch
+	# Fixes building with libpng15.
+	epatch "${FILESDIR}"/${PN}-libpng15.patch
 	java-pkg-opt-2_src_prepare
 	eautoreconf
 }
@@ -258,7 +255,6 @@ src_install() {
 	cp Makefile.in Makefile.in_backup
 	cat Makefile.in_backup | grep -v build2 > Makefile.in
 	cd ../..
-
 
 	emake DESTDIR="${D}" install || die "emake install failed"
 
