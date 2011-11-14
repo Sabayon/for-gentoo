@@ -1,0 +1,43 @@
+--- subtitleeditor-0.38.0.orig/src/command.cc
++++ subtitleeditor-0.38.0/src/command.cc
+@@ -20,7 +20,7 @@
+  *	along with this program. If not, see <http://www.gnu.org/licenses/>.
+  */
+ 
+-
++#include <cstddef>
+ #include "document.h"
+ #include "command.h"
+ #include "debug.h"
+--- subtitleeditor-0.38.0.orig/src/document.cc
++++ subtitleeditor-0.38.0/src/document.cc
+@@ -20,7 +20,7 @@
+  *	along with this program. If not, see <http://www.gnu.org/licenses/>.
+  */
+  
+-
++#include <cstddef>
+ #include "document.h"
+ #include "cfg.h"
+ #include <iostream>
+--- subtitleeditor-0.38.0.orig/src/documentsystem.cc
++++ subtitleeditor-0.38.0/src/documentsystem.cc
+@@ -20,6 +20,7 @@
+  *	along with this program. If not, see <http://www.gnu.org/licenses/>.
+  */
+  
++#include <cstddef>
+ #include "documentsystem.h"
+ #include "utility.h"
+ 
+--- subtitleeditor-0.38.0.orig/src/subtitleformatio.cc
++++ subtitleeditor-0.38.0/src/subtitleformatio.cc
+@@ -20,6 +20,7 @@
+  *	along with this program. If not, see <http://www.gnu.org/licenses/>.
+  */
+ 
++#include <cstddef>
+ #include "subtitleformatio.h"
+ #include "error.h"
+ #include "i18n.h"
+
