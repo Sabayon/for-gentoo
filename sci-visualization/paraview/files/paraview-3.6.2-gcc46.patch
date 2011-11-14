@@ -1,0 +1,11 @@
+--- a/ParaView3/VTK/Common/vtkPythonUtil.cxx
++++ b/ParaView3/VTK/Common/vtkPythonUtil.cxx
+@@ -26,7 +26,7 @@
+ #include "vtkTimeStamp.h"
+ #include "vtkWindows.h"
+ 
+-
++#include <cstddef>
+ #include <vtksys/ios/sstream>
+ #include <vtkstd/map>
+ #include <vtkstd/string>
