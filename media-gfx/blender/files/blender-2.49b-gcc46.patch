@@ -41,3 +41,66 @@
  #include "PHY_IPhysicsEnvironment.h"
  
  /**
+--- blender-2.49b.orig/source/gameengine/Converter/BL_ActionActuator.h
++++ blender-2.49b/source/gameengine/Converter/BL_ActionActuator.h
+@@ -30,6 +30,8 @@
+ #ifndef BL_ACTIONACTUATOR
+ #define BL_ACTIONACTUATOR
+ 
++#include <cstddef>
++
+ #include "GEN_HashedPtr.h"
+ #include "SCA_IActuator.h"
+ #include "DNA_actuator_types.h"
+--- blender-2.49b.orig/source/gameengine/GameLogic/SCA_ILogicBrick.h
++++ blender-2.49b/source/gameengine/GameLogic/SCA_ILogicBrick.h
+@@ -34,6 +34,7 @@
+ #include "BoolValue.h"
+ #include "GEN_Map.h"
+ #include "GEN_HashedPtr.h"
++#include <cstddef>
+ 
+ class SCA_ILogicBrick : public CValue
+ {
+--- blender-2.49b.orig/source/gameengine/GameLogic/SCA_ISensor.h
++++ blender-2.49b/source/gameengine/GameLogic/SCA_ISensor.h
+@@ -35,6 +35,7 @@
+ #include "SCA_IController.h"
+ 
+ #include <vector>
++#include <cstddef>
+ 
+ /**
+  * Interface Class for all logic Sensors. Implements
+--- blender-2.49b.orig/source/gameengine/GameLogic/SCA_KeyboardSensor.h
++++ blender-2.49b/source/gameengine/GameLogic/SCA_KeyboardSensor.h
+@@ -34,6 +34,7 @@
+ #include "SCA_ISensor.h"
+ #include "BoolValue.h"
+ #include <list>
++#include <cstddef>
+ 
+ /**
+  * The keyboard sensor listens to the keyboard, and passes on events
+--- blender-2.49b.orig/source/gameengine/GameLogic/SCA_RandomSensor.h
++++ blender-2.49b/source/gameengine/GameLogic/SCA_RandomSensor.h
+@@ -35,6 +35,7 @@
+ #include "SCA_ISensor.h"
+ #include "BoolValue.h"
+ #include "SCA_RandomNumberGenerator.h"
++#include <cstddef>
+ 
+ class SCA_RandomSensor : public SCA_ISensor
+ {
+--- blender-2.49b.orig/source/gameengine/Rasterizer/RAS_IPolygonMaterial.h
++++ blender-2.49b/source/gameengine/Rasterizer/RAS_IPolygonMaterial.h
+@@ -29,6 +29,8 @@
+ #ifndef __RAS_IPOLYGONMATERIAL
+ #define __RAS_IPOLYGONMATERIAL
+ 
++#include <cstddef>
++
+ #include "STR_HashedString.h"
+ 
+ /**
+
