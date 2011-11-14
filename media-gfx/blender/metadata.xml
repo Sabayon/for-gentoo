@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+
+<pkgmetadata>
+
+	<herd>graphics</herd>
+
+	<maintainer>
+		<email>lu_zero@gentoo.org</email>
+		<name>Luca Barbato</name>
+	</maintainer>
+
+	<longdescription>
+		Blender, the open source software for 3D modeling, animation,
+		rendering, post-production, interactive creation and playback.
+		Available for Windows, Linux, Irix, Sun Solaris, FreeBSD or Mac OS X.
+	</longdescription>
+	<use>
+		<flag name='blender-game'>
+			Adds Game Engine support to Blender (2.4* ebuilds).
+		</flag>
+		<flag name='game-engine'>
+			Adds Game Engine support to Blender (2.5* ebuilds).
+		</flag>
+		<flag name='contrib'>
+			Install contrib scripts.
+		</flag>
+		<flag name='collada'>
+			Add support for Collada interchange format.
+		</flag>
+		<flag name='verse'>
+			Adds verse clustering features to Blender.
+		</flag>
+		<flag name='dds'>
+			Adds DDS textures support to Blender.
+		</flag>
+		<flag name='player'>
+			Build the Blender Player.
+		</flag>
+		<flag name='elbeem'>
+			Adds surface fluid simulation to Blender using El'Beem library.
+		</flag>
+		<flag name="apidoc">
+			Build GameEngine/Python/C API documentation directly from the source
+			code using tools epydoc (dev-python/epydoc) and doxygen
+			(app-doc/doxygen).
+		</flag>
+		<flag name="tweak-mode">
+			This flag allows you to model without confirming each translation,
+			in particular it lets you grab with left mouse button (LMB) and not
+			having to confirm by another click. Blender 'Tweak Mode' is similar
+			to the 'Tweak Mode' of the Wings modeller (<pkg>media-gfx/wings</pkg>).
+		</flag>
+		<flag name="redcode">
+			This flag add support for RED CODE camera digital format (5K HD
+			images *.r3d) - EXPERIMENTAL.
+		</flag>
+	</use>
+</pkgmetadata>

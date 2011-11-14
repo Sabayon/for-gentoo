@@ -1,0 +1,20 @@
+--- release/freedesktop/blender.desktop   2010-09-12 00:05:51.000000000 -0700
++++ release/freedesktop/blender.desktop   2010-09-12 00:07:32.000000000 -0700
+@@ -1,5 +1,5 @@
+ [Desktop Entry]
+-Name=Blender
++Name=Blender-2.6
+ GenericName=3D modeller
+ GenericName[es]=modelador 3D
+ GenericName[de]=3D Modellierer
+@@ -7,8 +7,8 @@
+ GenericName[ru]=Редактор 3D-моделей
+ Comment=3D modeling, animation, rendering and post-production
+ Comment[es]=modelado 3D, animación, renderizado y post-producción
+-Exec=blender
+-Icon=blender
++Exec=blender-2.60
++Icon=blender-2.60
+ Terminal=false
+ Type=Application
+ Categories=Graphics;3DGraphics;
