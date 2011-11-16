@@ -1,0 +1,29 @@
+A patch to fix sandbox violation caused by rpm on some configurations.
+It's a hack just to make it compile (does not support another systems
+nor Gentoo Prefix...).
+diff -urp mod_gss-1.3.3.orig/configure.in mod_gss-1.3.3/configure.in
+--- mod_gss-1.3.3.orig/configure.in	2011-11-15 23:50:36.028628790 +0000
++++ mod_gss-1.3.3/configure.in	2011-11-16 00:01:39.994763419 +0000
+@@ -58,8 +58,8 @@ check_mit() {
+                            echo "configure: ##"
+                          fi
+                        else
+-                         ac_libdir=`rpm -q -l krb5 2>/dev/null | grep "/libgssapi_krb5" |  sed -e 's/\/libgssapi_krb5.*//' | head -1`
+-                         ac_includedir=`rpm -q -l krb5-devel 2>/dev/null | grep /krb5.h$ | sed -e 's/\/krb5.h//' | head -1`
++                         ac_libdir="/usr/@@LIBDIR@@"
++                         ac_includedir="/usr/include"
+                        fi
+                        if test "x$ac_includedir" != "x" ; then
+                          CPPFLAGS="$CPPFLAGS -I$ac_includedir"
+@@ -111,9 +111,9 @@ check_heimdal(){
+                            echo "configure: ##"
+                          fi
+                        else
+-                         ac_libdir=`rpm -q -l heimdal-devel 2>/dev/null | grep "/libroken" |  sed -e 's/\/libroken.*//' | head -1`
++                         ac_libdir="/usr/@@LIBDIR@@"
+ 
+-                         ac_includedir=`rpm -q -l heimdal-devel 2>/dev/null | grep /krb5.h$ | sed -e 's/\/krb5.h//' | head -1`
++                         ac_includedir="/usr/include"
+                        fi
+                        if test "x$ac_includedir" != "x" ; then
+                           CPPFLAGS="$CPPFLAGS -I$ac_includedir"
