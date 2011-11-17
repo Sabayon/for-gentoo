@@ -4,7 +4,7 @@
 
 EAPI="4"
 
-inherit fdo-mime
+inherit eutils fdo-mime
 
 DESCRIPTION="foobar2000-like music player."
 HOMEPAGE="http://deadbeef.sourceforge.net/"
@@ -51,6 +51,7 @@ DEPEND="${RDEPEND}
 	"
 
 src_prepare() {
+	epatch "${FILESDIR}/${P}-libav.patch"
 	if use midi; then
 		# set default gentoo path
 		sed -e 's;/etc/timidity++/timidity-freepats.cfg;/usr/share/timidity/freepats/timidity.cfg;g' \
