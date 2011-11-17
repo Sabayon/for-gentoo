@@ -1,0 +1,10 @@
+--- spek-0.7.orig/src/spek-audio.h
++++ spek-0.7/src/spek-audio.h
+@@ -22,6 +22,7 @@
+ #include <glib.h>
+ #include <libavformat/avformat.h>
+ #include <libavcodec/avcodec.h>
++#include <libavutil/mathematics.h>
+ 
+ typedef struct {
+        /* Internal data */
