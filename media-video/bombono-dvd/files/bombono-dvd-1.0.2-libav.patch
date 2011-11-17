@@ -1,0 +1,118 @@
+--- bombono-dvd-1.0.2.orig/src/mgui/ffviewer.cpp
++++ bombono-dvd-1.0.2/src/mgui/ffviewer.cpp
+@@ -43,7 +43,14 @@ typedef struct AVCodecTag {
+     unsigned int tag;
+ } AVCodecTag;
+ 
+-#if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(52,34,00)
++/* TODO: check preproc version check, i don't know what's
++   the first version providing the new API */
++#if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(53,00,00)
++static uint FFCodecID2Tag(AVInputFormat *iformat, CodecID codec_id)
++{
++    return av_codec_get_tag(iformat->codec_tag, codec_id);
++}
++#elif LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(52,34,00)
+ static uint FFCodecID2Tag(CodecID codec_id) 
+ {
+     unsigned int ff_codec_get_tag(const AVCodecTag *tags, int id);
+@@ -318,15 +325,15 @@ bool OpenInfo(FFData& ffi, const char* f
+     {
+         switch( av_res )
+         {
+-        case AVERROR_NOENT:
++        case AVERROR(ENOENT):
+             // :TODO: решить, ставить в конце точки или нет (сообщения пользователю
+             // показывается не HIG-ого)
+             err_str = _("No such file");
+             break;
+-        case AVERROR_NOFMT:
++        case AVERROR(EILSEQ):
+             err_str = _("Unknown file format");
+             break;
+-        case AVERROR_UNKNOWN:
++        case AVERROR(EINVAL):
+         default:
+             err_str = boost::format("FFmpeg unknown error: %1%") % av_res % bf::stop;
+             break;
+@@ -354,13 +361,13 @@ bool OpenInfo(FFData& ffi, const char* f
+         {
+             AVStream* strm = ic->streams[i];
+             AVCodecContext* avctx = strm->codec;
+-            if( SetIndex(video_idx, i, avctx->codec_type == CODEC_TYPE_VIDEO) )
++            if( SetIndex(video_idx, i, avctx->codec_type == AVMEDIA_TYPE_VIDEO) )
+                 ;
+             else
+                 // для демиксера имеет значение только NONE и ALL
+                 strm->discard = AVDISCARD_ALL;
+ 
+-            SetIndex(audio_idx, i, avctx->codec_type == CODEC_TYPE_AUDIO);
++            SetIndex(audio_idx, i, avctx->codec_type == AVMEDIA_TYPE_AUDIO);
+         }
+ 
+         if( video_idx == -1 )
+@@ -405,7 +412,13 @@ bool OpenInfo(FFData& ffi, const char* f
+         //dec->error_concealment = FF_EC_GUESS_MVS | FF_EC_DEBLOCK;
+         //dec->error_recognition = FF_ER_CAREFUL;
+     
++/* TODO: check preproc version check, i don't know what's
++   the first version providing the new API */
++#if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(53,00,00)
++        uint tag = FFCodecID2Tag(file_iformat, dec->codec_id);
++#else
+         uint tag = FFCodecID2Tag(dec->codec_id);
++#endif
+         std::string tag_str = boost::format("0x%1$04x") % tag % bf::stop;
+         unsigned char c0 = GetChar(tag, 0), c8 = GetChar(tag, 8), 
+             c16 = GetChar(tag, 16), c24 = GetChar(tag, 24);
+@@ -523,19 +536,12 @@ static double TS2Time(int64_t ts, FFView
+     return tm;
+ }
+ 
+-static bool IsInHurry(AVCodecContext* dec)
+-{
+-    return dec->hurry_up != 0;
+-}
+-
+ struct HurryModeEnabler
+ {
+     AVCodecContext* dec;
+ 
+     HurryModeEnabler(AVCodecContext* dec_): dec(dec_)
+     {
+-        // как признак (хоть и устаревший)
+-        dec->hurry_up = 1;
+         // Прирост скорости (h264): 
+         // - AVDISCARD_NONREF: 2x
+         // - AVDISCARD_BIDIR: для h264 (и других современных кодеков?) разница в скорости 
+@@ -555,7 +561,6 @@ struct HurryModeEnabler
+     }
+    ~HurryModeEnabler()
+     {
+-        dec->hurry_up = 0;
+         dec->skip_frame = AVDISCARD_DEFAULT;
+         //dec->skip_idct = AVDISCARD_DEFAULT;
+         //dec->skip_loop_filter = AVDISCARD_DEFAULT;
+@@ -691,10 +696,6 @@ static bool DoDecode(FFViewer& ffv)
+                 if( !IsTSValid(cur_pts) )
+                     // первые кадры для avi-контейнеров (не B-кадры) имеют только dts
+                     cur_pts = cur_dts;
+-                else if( IsInHurry(dec) )
+-                    // помимо не декодирования декодер еще и пропускает B-кадры,
+-                    // а значит можно пропустить pts
+-                    cur_pts = std::max(cur_pts, cur_dts);
+             }
+ 
+             UpdatePTS(ffv, cur_pts);
+--- bombono-dvd-1.0.2.orig/src/mgui/project/media-browser.cpp
++++ bombono-dvd-1.0.2/src/mgui/project/media-browser.cpp
+@@ -232,7 +232,7 @@ RTCache& GetRTC(VideoItem vi)
+         for( int i=0; i < (int)ic->nb_streams; i++ )
+         {
+             AVCodecContext* avctx = ic->streams[i]->codec;
+-            if( avctx->codec_type == CODEC_TYPE_AUDIO )
++            if( avctx->codec_type == AVMEDIA_TYPE_AUDIO )
+                 rtc.audioNum++;
+         }
+ 
+
