@@ -1,6 +1,26 @@
 --- grass-6.4.1.orig/lib/ogsf/gsd_img_mpeg.c
 +++ grass-6.4.1/lib/ogsf/gsd_img_mpeg.c
-@@ -66,7 +66,7 @@ static AVStream *add_video_stream(AVForm
+@@ -26,7 +26,9 @@
+ 
+ /* FFMPEG stuff */
+ #ifdef HAVE_FFMPEG
+-#include <avformat.h>
++#include <libavformat/avformat.h>
++#include <libavcodec/avcodec.h>
++#include <libavutil/mathematics.h>
+ 
+ /* 5 seconds stream duration */
+ #define STREAM_DURATION   5.0
+@@ -58,7 +60,7 @@
+     AVCodecContext *c;
+     AVStream *st;
+ 
+-    st = av_new_stream(oc, 0);
++    st = avformat_new_stream(oc, NULL);
+     if (!st) {
+ 	G_warning(_("Unable to allocate stream"));
+ 	return NULL;
+@@ -66,7 +68,7 @@
  
      c = st->codec;
      c->codec_id = codec_id;
@@ -9,7 +29,7 @@
  
      /* put sample parameters */
      c->bit_rate = 400000;
-@@ -215,7 +215,7 @@ static void write_video_frame(AVFormatCo
+@@ -215,7 +217,7 @@
  
  	av_init_packet(&pkt);
  
@@ -18,7 +38,7 @@
  	pkt.stream_index = st->index;
  	pkt.data = (uint8_t *) picture;
  	pkt.size = sizeof(AVPicture);
-@@ -236,7 +236,7 @@ static void write_video_frame(AVFormatCo
+@@ -236,7 +238,7 @@
  		av_rescale_q(c->coded_frame->pts, c->time_base,
  			     st->time_base);
  	    if (c->coded_frame->key_frame)
@@ -27,8 +47,7 @@
  	    pkt.stream_index = st->index;
  	    pkt.data = video_outbuf;
  	    pkt.size = out_size;
-
-@@ -301,10 +301,10 @@ int gsd_init_mpeg(const char *filename)
+@@ -301,10 +303,10 @@
      av_register_all();
  
      /* auto detect the output format from the name. default is mpeg. */
@@ -41,12 +60,47 @@
      }
      if (!fmt) {
  	G_warning(_("Unable to find suitable output format"));
-@@ -312,7 +312,7 @@ int gsd_init_mpeg(const char *filename)
+@@ -312,7 +314,7 @@
      }
  
      /* allocate the output media context */
 -    oc = av_alloc_format_context();
-+    oc = av_malloc(sizeof(AVFormatContext));
++    oc = avformat_alloc_context();
      if (!oc) {
  	G_warning(_("Out of memory"));
  	return (-1);
+@@ -338,7 +340,7 @@
+ 	return (-1);
+     }
+ 
+-    dump_format(oc, 0, filename, 1);
++    av_dump_format(oc, 0, filename, 1);
+ 
+     /* now that all the parameters are set, we can open the audio and
+        video codecs and allocate the necessary encode buffers */
+@@ -347,14 +349,14 @@
+ 
+     /* open the output file, if needed */
+     if (!(fmt->flags & AVFMT_NOFILE)) {
+-	if (url_fopen(&oc->pb, filename, URL_WRONLY) < 0) {
++	if (avio_open(&oc->pb, filename, AVIO_FLAG_WRITE) < 0) {
+ 	    G_warning(_("Unable to open <%s>"), filename);
+ 	    return (-1);
+ 	}
+     }
+ 
+     /* write the stream header, if any */
+-    av_write_header(oc);
++    avformat_write_header(oc, NULL);
+ 
+ 
+ #else
+@@ -439,7 +441,7 @@
+ #if (LIBAVFORMAT_VERSION_INT>>16) < 52
+ 	url_fclose(&oc->pb);
+ #else
+-	url_fclose(oc->pb);
++	avio_close(oc->pb);
+ #endif
+     }
+ 
