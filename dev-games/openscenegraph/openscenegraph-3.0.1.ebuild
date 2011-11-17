@@ -84,6 +84,7 @@ DOCS=(AUTHORS.txt ChangeLog NEWS.txt)
 
 src_prepare() {
 	epatch "${FILESDIR}"/${PN}-cmake.patch
+	epatch "${FILESDIR}"/${PN}-libav.patch
 }
 
 src_configure() {
