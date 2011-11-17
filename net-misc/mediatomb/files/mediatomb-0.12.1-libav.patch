@@ -1,0 +1,113 @@
+--- mediatomb-0.12.1/src/metadata/ffmpeg_handler.cc.orig
++++ mediatomb-0.12.1/src/metadata/ffmpeg_handler.cc
+@@ -86,51 +86,54 @@
+ 
+ static void addFfmpegMetadataFields(Ref<CdsItem> item, AVFormatContext *pFormatCtx) 
+ {
+-
++    AVDictionaryEntry *tag = NULL;
+ 	Ref<StringConverter> sc = StringConverter::m2i();
+     
+-	if (strlen(pFormatCtx->title) > 0) 
++    while ((tag = av_dict_get(pFormatCtx->metadata, "", tag, AV_DICT_IGNORE_SUFFIX))) {
++
++	if (!strcmp(tag->key, "title"))
+     {
+-	    log_debug("Added metadata title: %s\n", pFormatCtx->title);
++	    log_debug("Added metadata title: %s\n", tag->value);
+         item->setMetadata(MT_KEYS[M_TITLE].upnp, 
+-                          sc->convert(pFormatCtx->title));
++                          sc->convert(tag->value));
+ 	}
+-	if (strlen(pFormatCtx->author) > 0) 
++	if (!strcmp(tag->key, "author")) 
+     {
+-	    log_debug("Added metadata author: %s\n", pFormatCtx->author);
++	    log_debug("Added metadata author: %s\n", tag->value);
+         item->setMetadata(MT_KEYS[M_ARTIST].upnp, 
+-                          sc->convert(pFormatCtx->author));
++                          sc->convert(tag->value));
+ 	}
+-	if (strlen(pFormatCtx->album) > 0) 
++	if (!strcmp(tag->key, "album")) 
+     {
+-	    log_debug("Added metadata album: %s\n", pFormatCtx->album);
++	    log_debug("Added metadata album: %s\n", tag->value);
+         item->setMetadata(MT_KEYS[M_ALBUM].upnp, 
+-                          sc->convert(pFormatCtx->album));
++                          sc->convert(tag->value));
+ 	}
+-	if (pFormatCtx->year > 0) 
++	if (!strcmp(tag->key, "year")) 
+     {
+-	    log_debug("Added metadata year: %d\n", pFormatCtx->year);
++	    log_debug("Added metadata year: %s\n", tag->value);
+         item->setMetadata(MT_KEYS[M_DATE].upnp, 
+-                          sc->convert(String::from(pFormatCtx->year)));
++                          sc->convert(tag->value));
+ 	}
+-	if (strlen(pFormatCtx->genre) > 0) 
++	if (!strcmp(tag->key, "genre")) 
+     {
+-	    log_debug("Added metadata genre: %s\n", pFormatCtx->genre);
++	    log_debug("Added metadata genre: %s\n", tag->value);
+         item->setMetadata(MT_KEYS[M_GENRE].upnp, 
+-                          sc->convert(pFormatCtx->genre));
++                          sc->convert(tag->value));
+ 	}
+-	if (strlen(pFormatCtx->comment) > 0) 
++	if (!strcmp(tag->key, "comment")) 
+     {
+-	    log_debug("Added metadata comment: %s\n", pFormatCtx->comment);
++	    log_debug("Added metadata comment: %s\n", tag->value);
+         item->setMetadata(MT_KEYS[M_DESCRIPTION].upnp, 
+-                          sc->convert(pFormatCtx->comment));
++                          sc->convert(tag->value));
+ 	}
+-	if (pFormatCtx->track > 0) 
++	if (!strcmp(tag->key, "track")) 
+     {
+-	    log_debug("Added metadata track: %d\n", pFormatCtx->track);
++	    log_debug("Added metadata track: %d\n", tag->value);
+         item->setMetadata(MT_KEYS[M_TRACKNUMBER].upnp, 
+-                          sc->convert(String::from(pFormatCtx->track)));
++                          sc->convert(tag->value));
+ 	}
++    }
+ }
+ 
+ // ffmpeg library calls
+@@ -178,7 +181,7 @@
+ 	for(i=0; i<pFormatCtx->nb_streams; i++) 
+     {
+ 		AVStream *st = pFormatCtx->streams[i];
+-		if((st != NULL) && (videoset == false) && (st->codec->codec_type == CODEC_TYPE_VIDEO))
++		if((st != NULL) && (videoset == false) && (st->codec->codec_type == AVMEDIA_TYPE_VIDEO))
+         {
+             if (st->codec->codec_tag > 0)
+             {
+@@ -209,7 +212,7 @@
+                 *y = st->codec->height;
+ 			}
+ 		} 
+-		if(st->codec->codec_type == CODEC_TYPE_AUDIO) 
++		if(st->codec->codec_type == AVMEDIA_TYPE_AUDIO) 
+         {
+ 			// Increase number of audiochannels
+ 			audioch++;
+@@ -260,12 +263,12 @@
+     av_register_all();
+ 
+     // Open video file
+-    if (av_open_input_file(&pFormatCtx, 
+-                          item->getLocation().c_str(), NULL, 0, NULL) != 0)
++    if (avformat_open_input(&pFormatCtx, 
++                          item->getLocation().c_str(), NULL, NULL) != 0)
+         return; // Couldn't open file
+ 
+     // Retrieve stream information
+-    if (av_find_stream_info(pFormatCtx) < 0)
++    if (avformat_find_stream_info(pFormatCtx, NULL) < 0)
+     {
+         av_close_input_file(pFormatCtx);
+         return; // Couldn't find stream information
