@@ -1,8 +1,8 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: $
+# $Header: /var/cvsroot/gentoo-x86/media-libs/mlt/mlt-0.7.6.ebuild,v 1.1 2011/10/31 21:55:14 dilfridge Exp $
 
-EAPI=3
+EAPI=4
 PYTHON_DEPEND="python? 2:2.6"
 inherit eutils toolchain-funcs multilib python
 
@@ -27,14 +27,11 @@ RDEPEND="ffmpeg? ( virtual/ffmpeg[vdpau?] )
 		media-libs/ladspa-sdk
 		>=dev-libs/libxml2-2.5 )
 	frei0r? ( media-plugins/frei0r-plugins )
-	gtk? ( media-libs/libexif
-		x11-libs/gtk+:2
+	gtk? ( x11-libs/gtk+:2
 		x11-libs/pango )
 	quicktime? ( media-libs/libquicktime )
 	xine? ( >=media-libs/xine-lib-1.1.2_pre20060328-r7 )
-	qt4? ( media-libs/libexif
-		x11-libs/qt-gui:4
-		x11-libs/qt-svg:4 )
+	qt4? ( x11-libs/qt-gui:4 )
 	!media-libs/mlt++
 	lua? ( >=dev-lang/lua-5.1.4-r4 )
 	ruby? ( dev-lang/ruby )"
@@ -59,10 +56,11 @@ DEPEND="${RDEPEND}
 
 pkg_setup() {
 	python_set_active_version 2
+	python_pkg_setup
 }
 
 src_prepare() {
-	epatch "${FILESDIR}"/${PN}-0.5.4-asneeded.patch
+	epatch "${FILESDIR}"/${PN}-0.7.2-ruby-link.patch
 	# respect CFLAGS LDFLAGS when building shared libraries. Bug #308873
 	for x in python lua; do
 		sed -i "/mlt.so/s: -lmlt++ :& ${CFLAGS} ${LDFLAGS} :" src/swig/$x/build
@@ -96,18 +94,21 @@ src_configure() {
 		--disable-sox"
 		#$(use_enable sox)  FIXME
 
-	# see description of https://bugs.gentoo.org/show_bug.cgi?id=384225
-	myconf="${myconf} --disable-swfdec"
-
 	use ffmpeg && myconf="${myconf} --avformat-swscale"
 
 	(use quicktime && use dv) ||  myconf="${myconf} --disable-kino"
 
 	use compressed-lumas && myconf="${myconf} --luma-compress"
 
-	( use x86 || use amd64 ) && \
-		myconf="${myconf} $(use_enable mmx)" ||
+	if use x86 || use amd64; then
+		# always enable MMX for amd64
+		# depend on USE flag on x86
+		use amd64 && myconf="${myconf} --enable-mmx" || \
+			myconf="${myconf} $(use_enable mmx)"
+	else
+		# always disable MMX for non-x86 systems
 		myconf="${myconf} --disable-mmx"
+	fi
 
 	use melt || sed -i -e "s;src/melt;;" Makefile
 
@@ -127,7 +128,7 @@ src_configure() {
 
 src_install() {
 	emake DESTDIR="${D}" install || die
-	dodoc AUTHORS ChangeLog NEWS README docs/{TODO,*.txt}
+	dodoc AUTHORS ChangeLog NEWS README docs/*.txt
 
 	dodir /usr/share/${PN}
 	insinto /usr/share/${PN}
