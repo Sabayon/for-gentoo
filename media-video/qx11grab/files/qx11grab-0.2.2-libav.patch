@@ -1,0 +1,21 @@
+--- qx11grab-0.2.2.orig/src/tableeditor/tableeditor.cpp
++++ qx11grab-0.2.2/src/tableeditor/tableeditor.cpp
+@@ -67,7 +67,7 @@ void TableEditor::findVideoCodecs()
+   AVCodec *codec;
+   for ( codec = av_codec_next ( 0 ); codec != NULL; codec = av_codec_next ( codec ) )
+   {
+-    if ( ( codec->type == CODEC_TYPE_VIDEO ) && ( codec->encode ) )
++    if ( ( codec->type == AVMEDIA_TYPE_VIDEO ) && ( codec->encode ) )
+     {
+       QString itemName = QString ( "%1 (%2)" ).arg ( codec->long_name, codec->name );
+       codecSelection->addItem ( itemName, QVariant ( codec->name ) );
+@@ -86,7 +86,7 @@ void TableEditor::findAudioCodecs()
+   AVCodec *codec;
+   for ( codec = av_codec_next ( 0 ); codec != NULL; codec = av_codec_next ( codec ) )
+   {
+-    if ( ( codec->type == CODEC_TYPE_AUDIO ) && ( codec->encode ) )
++    if ( ( codec->type == AVMEDIA_TYPE_AUDIO ) && ( codec->encode ) )
+     {
+       QString itemName = QString ( "%1 (%2)" ).arg ( codec->long_name, codec->name );
+       codecSelection->addItem ( itemName, QVariant ( codec->name ) );
+
