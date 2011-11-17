@@ -87,6 +87,7 @@ pkg_setup() {
 
 src_prepare() {
 	epatch "${FILESDIR}/${P}-libav.patch"
+	vdr-plugin_src_prepare
 }
 
 src_configure() {
