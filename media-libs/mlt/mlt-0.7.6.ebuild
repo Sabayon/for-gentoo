@@ -94,6 +94,9 @@ src_configure() {
 		--disable-sox"
 		#$(use_enable sox)  FIXME
 
+	# see description of https://bugs.gentoo.org/show_bug.cgi?id=384225
+	myconf="${myconf} --disable-swfdec"
+
 	use ffmpeg && myconf="${myconf} --avformat-swscale"
 
 	(use quicktime && use dv) ||  myconf="${myconf} --disable-kino"
