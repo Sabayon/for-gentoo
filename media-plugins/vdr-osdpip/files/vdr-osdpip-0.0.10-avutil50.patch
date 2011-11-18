@@ -1,0 +1,45 @@
+Index: osdpip-0.0.10/decoder.c
+===================================================================
+--- osdpip-0.0.10.orig/decoder.c
++++ osdpip-0.0.10/decoder.c
+@@ -27,10 +27,10 @@ int cDecoder::Open()
+     }
+     m_PicDecoded = avcodec_alloc_frame();
+     m_PicResample = avcodec_alloc_frame();
+-    m_BufferResample = new unsigned char[400 * 300 * 4]; // size for RGBA32
++    m_BufferResample = new unsigned char[400 * 300 * 4]; // size for RGB32
+ #ifndef USE_SWSCALE
+     m_PicConvert = avcodec_alloc_frame();
+-    m_BufferConvert = new unsigned char[400 * 300 * 4]; // size for RGBA32
++    m_BufferConvert = new unsigned char[400 * 300 * 4]; // size for RGB32
+ #endif
+ 
+     return 0;
+@@ -82,14 +82,14 @@ int cDecoder::Resample(int width, int he
+     context = sws_getContext(m_Context->width - (OsdPipSetup.CropLeft + OsdPipSetup.CropRight),
+                              m_Context->height - (OsdPipSetup.CropTop + OsdPipSetup.CropBottom),
+                              PIX_FMT_YUV420P,
+-                             m_Width, m_Height, ConvertToRGB ? PIX_FMT_RGBA32 : PIX_FMT_YUV420P,
++                             m_Width, m_Height, ConvertToRGB ? PIX_FMT_RGB32 : PIX_FMT_YUV420P,
+                              SWS_LANCZOS, NULL, NULL, NULL);
+     if (!context) {
+         printf("Error initializing scale context.\n");
+         return -1;
+     }
+     avpicture_fill((AVPicture *) m_PicResample, m_BufferResample,
+-                   ConvertToRGB ? PIX_FMT_RGBA32 : PIX_FMT_YUV420P,
++                   ConvertToRGB ? PIX_FMT_RGB32 : PIX_FMT_YUV420P,
+                    m_Width, m_Height);
+     sws_scale(context, pic_crop.data, pic_crop.linesize,
+               0, m_Context->height - (OsdPipSetup.CropTop + OsdPipSetup.CropBottom),
+@@ -121,8 +121,8 @@ int cDecoder::Resample(int width, int he
+     if (ConvertToRGB)
+     {
+         avpicture_fill((AVPicture *) m_PicConvert, m_BufferConvert,
+-                PIX_FMT_RGBA32, m_Width, m_Height);
+-        img_convert((AVPicture *) m_PicConvert, PIX_FMT_RGBA32,
++                PIX_FMT_RGB32, m_Width, m_Height);
++        img_convert((AVPicture *) m_PicConvert, PIX_FMT_RGB32,
+                 (AVPicture *) m_PicResample, PIX_FMT_YUV420P,
+                 m_Width, m_Height);
+     }

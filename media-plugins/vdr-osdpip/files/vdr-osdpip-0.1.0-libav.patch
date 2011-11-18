@@ -1,0 +1,16 @@
+--- osdpip-0.1.0.orig/decoder.c
++++ osdpip-0.1.0/decoder.c
+@@ -69,8 +69,12 @@ int cDecoder::Close()
+ int cDecoder::Decode(unsigned char * data, int length)
+ {
+     int gotPicture, len;
++    AVPacket pkt;
++    av_init_packet(&pkt);
++    pkt.data = data;
++    pkt.size = length;
+ 
+-    len = avcodec_decode_video(m_Context, m_PicDecoded, &gotPicture, data, length);
++    len = avcodec_decode_video2(m_Context, m_PicDecoded, &gotPicture, &pkt);
+     if (len < 0)
+     {
+         printf("Error while decoding frame\n");
