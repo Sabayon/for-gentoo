@@ -48,6 +48,8 @@ src_unpack() {
 			#sed -i -e "/avformat\.h/s:ffmpeg:libavformat:" $x;
 		#done
 	#fi
+	# This fixes libav support by making configure.ac old ffmpeg detection test fail
+	epatch "${FILESDIR}/${P}-fix-old-ffmpeg-test.patch"
 	eautoreconf
 }
 
