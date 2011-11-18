@@ -14,7 +14,7 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE="alsa blowfish gpgme gtkspell libnotify mcrypt pulseaudio voice"
 
-DEPEND="
+COMMON_DEPEND="
 	dev-libs/openssl
 	dev-libs/libxml2
 	media-gfx/imagemagick
@@ -23,13 +23,18 @@ DEPEND="
 	x11-libs/gtk+:2
 	alsa? ( media-libs/alsa-lib )
 	gpgme? ( app-crypt/gpgme )
-	gtkspell? ( app-text/gtkspell )
+	gtkspell? ( app-text/gtkspell:2 )
 	libnotify? ( >=x11-libs/libnotify-0.7 )
 	mcrypt? ( dev-libs/libmcrypt )
 	pulseaudio? ( media-sound/pulseaudio )
 "
-RDEPEND="${DEPEND}
-	www-client/htmlview"
+DEPEND="${COMMON_DEPEND}
+	sys-devel/gettext
+	sys-devel/automake:1.11
+"
+RDEPEND="${COMMON_DEPEND}
+	www-client/htmlview
+"
 
 pkg_setup() {
 	if ! use x86 && use voice; then
@@ -71,7 +76,7 @@ src_configure() {
 	fi
 
 	einfo "Running provided autogen.sh script..."
-	./autogen.sh || die
+	WANT_AUTOMAKE="1.11" ./autogen.sh || die
 	econf $myconf
 }
 
