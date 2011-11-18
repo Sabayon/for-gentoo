@@ -20,6 +20,7 @@ COMMON_DEPEND="
 	media-gfx/imagemagick
 	media-libs/jasper
 	gnome-extra/gtkhtml:2
+	media-libs/libv4l
 	x11-libs/gtk+:2
 	alsa? ( media-libs/alsa-lib )
 	gpgme? ( app-crypt/gpgme )
@@ -48,6 +49,10 @@ pkg_setup() {
 src_prepare() {
 	epatch "${FILESDIR}/${PN}-gpgme-gentoo.patch"
 	epatch "${FILESDIR}/${PN}-pthread_yield-obsolete.patch"
+	sed -i -e \
+		's,#include <linux/videodev.h>,#include <libv4l1-videodev.h>,' \
+		webcam/gyacheupload-v4l.c \
+		|| die "sed failed"
 	use libnotify && epatch "${FILESDIR}/${PN}-libnotify-build-broken.patch"
 	sed -i "s/Icon=gyachi\.png/Icon=gyach-icon_48/" gyachi.desktop \
 		|| die "sed failed"
