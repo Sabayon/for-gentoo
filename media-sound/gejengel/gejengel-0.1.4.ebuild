@@ -37,7 +37,7 @@ DOCS=( AUTHORS ChangeLog README TODO )
 
 src_prepare() {
 	epatch "${FILESDIR}"/${P}-libnotify-0.7.patch
-	epatch "${FILESDIR}"/${P}-gcc46.patch
+	epatch "${FILESDIR}"/${P}-libav.patch
 }
 
 src_configure() {
