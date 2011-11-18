@@ -2,10 +2,12 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header $
 
-inherit autotools
+EAPI=2
+
+inherit eutils autotools
 
 DESCRIPTION="A DJ console for ShoutCast/IceCast streaming"
-HOMEPAGE="http://www.onlymeok.nildram.co.uk/"
+HOMEPAGE="http://idjc.sourceforge.net/"
 SRC_URI="mirror://sourceforge/idjc/${P}.tar.gz"
 
 LICENSE="GPL-3"
@@ -13,20 +15,21 @@ SLOT="0"
 KEYWORDS="amd64 x86"
 IUSE="aac ffmpeg flac mp3 mp3-streaming mp3-tagging speex"
 
-RDEPEND=">=dev-lang/python-2.4
-	dev-python/pygtk
+RDEPEND="<dev-lang/python-3
+	>=dev-python/pygtk-2.18:2
 	media-libs/libsamplerate
 	media-libs/libshout
 	media-libs/libsndfile
-	media-sound/jack-audio-connection-kit
-	media-sound/vorbis-tools
+	>=media-libs/mutagen-1.18
+	>=media-sound/jack-audio-connection-kit-0.116.0
+	>=media-sound/vorbis-tools-1.2.0
 	aac? ( media-libs/faad2 )
 	ffmpeg? ( virtual/ffmpeg )
-	flac? ( media-libs/flac )
-	mp3? ( media-libs/libmad )
+	flac? ( >=media-libs/flac-1.1.3 )
+	mp3? ( >=media-libs/libmad-0.15.1b )
 	mp3-streaming? ( media-sound/lame )
 	mp3-tagging? ( dev-python/eyeD3 )
-	speex? ( media-libs/speex )"
+	speex? ( >=media-libs/speex-1.2_rc1 )"
 DEPEND="${RDEPEND}
 	>=dev-util/pkgconfig-0.9.0"
 
@@ -45,7 +48,6 @@ src_unpack() {
 			#sed -i -e "/avformat\.h/s:ffmpeg:libavformat:" $x;
 		#done
 	#fi
-
 	eautoreconf
 }
 
