@@ -4,14 +4,14 @@
 
 EAPI=4
 
-inherit eutils
+inherit eutils versionator
 
-MY_VER="1805"
+MY_PV=$(replace_version_separator 3 '-')
 
 DESCRIPTION="POP/IMAP/SMTP/Caldav/Carddav/LDAP Exchange Gateway"
 HOMEPAGE="http://davmail.sourceforge.net/"
-SRC_URI="x86? ( mirror://sourceforge/davmail/${P/$PN/$PN-linux-x86}-${MY_VER}.tgz )
-	 amd64? ( mirror://sourceforge/davmail/${P/$PN/$PN-linux-x86_64}-${MY_VER}.tgz )"
+SRC_URI="x86? ( mirror://sourceforge/${PN}/${PN}-linux-x86-${MY_PV}.tgz )
+	 amd64? ( mirror://sourceforge/${PN}/${PN}-linux-x86_64-${MY_PV}.tgz )"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -21,8 +21,8 @@ IUSE=""
 DEPEND=">=virtual/jre-1.6"
 RDEPEND="${DEPEND}"
 
-use x86 && S="${WORKDIR}/${P/$PN/$PN-linux-x86_64}-${MY_VER}"
-use amd64 && S="${WORKDIR}/${P/$PN/$PN-linux-x86_64}-${MY_VER}"
+use x86 && S="${WORKDIR}/${PN}-linux-x86-${MY_PV}"
+use amd64 && S="${WORKDIR}/${PN}-linux-x86_64-${MY_PV}"
 
 src_install() {
 	cd "${S}"
