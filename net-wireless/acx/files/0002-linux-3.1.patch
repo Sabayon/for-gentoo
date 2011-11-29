@@ -1,0 +1,35 @@
+From 09bebfda18d7000bfeaa4d5d49db90ef601f23a3 Mon Sep 17 00:00:00 2001
+From: Oliver Winker <oliver@oli1170.net>
+Date: Sun, 30 Oct 2011 06:01:21 +0100
+Subject: [PATCH] pci: Include changes to fix kernel 3.1 build
+
+Signed-off-by: Oliver Winker <oliver@oli1170.net>
+---
+ pci.c |    7 ++++---
+ 1 files changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/pci.c b/pci.c
+index 16a922a..e46fdac 100644
+--- a/pci.c
++++ b/pci.c
+@@ -43,13 +43,14 @@
+ #include <linux/dma-mapping.h>
+ #include <linux/workqueue.h>
+ #include <linux/nl80211.h>
++#include <linux/interrupt.h>
++#include <net/iw_handler.h>
++#include <net/mac80211.h>
++
+ #ifdef CONFIG_VLYNQ
+ #include <linux/vlynq.h>
+ #endif
+ 
+-#include <net/iw_handler.h>
+-#include <net/mac80211.h>
+-
+ #include "acx.h"
+ 
+ /*
+-- 
+1.7.4.1
+
