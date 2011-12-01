@@ -42,8 +42,9 @@ RDEPEND="${MY_RDEPEND}
 			app-emulation/emul-linux-x86-xlibs )
 		x86? ( dev-libs/atk
 			media-libs/fontconfig
-			media-libs/freetype )"
-DEPEND=${RDEPEND}
+			media-libs/freetype
+			net-misc/curl )"
+DEPEND=""
 
 QA_TEXTRELS="opt/PeaZip/res/7z/Codecs/Rar29.so
 	opt/PeaZip/res/7z/7z.so"
@@ -95,9 +96,9 @@ src_install() {
 		# /opt/PeaZip/libQt4Pas.so.5
 		# unfortunately this app's helpers does not work
 		# if we make a wrapper with LD_LIBRARY_PATH
-		local my_libdir=$(ABI=x86 get_libdir)
-		mkdir -p usr/"${my_libdir}" || die
-		ln -s ../../opt/PeaZip/libQt4Pas.so usr/"${my_libdir}"/libQt4Pas.so.5 || die
+		has_multilib_profile && ABI=x86
+		mkdir -p usr/"$(get_libdir)" || die
+		ln -s ../../opt/PeaZip/libQt4Pas.so usr/"$(get_libdir)"/libQt4Pas.so.5 || die
 	fi
 }
 
