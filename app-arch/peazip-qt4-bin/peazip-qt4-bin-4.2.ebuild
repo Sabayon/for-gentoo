@@ -95,8 +95,9 @@ src_install() {
 		# /opt/PeaZip/libQt4Pas.so.5
 		# unfortunately this app's helpers does not work
 		# if we make a wrapper with LD_LIBRARY_PATH
-		mkdir -p usr/"$(get_libdir)" || die
-		ln -s ../../opt/PeaZip/libQt4Pas.so usr/"$(get_libdir)"/libQt4Pas.so.5 || die
+		local my_libdir=$(ABI=x86 get_libdir)
+		mkdir -p usr/"${my_libdir}" || die
+		ln -s ../../opt/PeaZip/libQt4Pas.so usr/"${my_libdir}"/libQt4Pas.so.5 || die
 	fi
 }
 
