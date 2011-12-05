@@ -25,3 +25,12 @@ DEPEND=">=dev-python/pygtk-2.12.0
 RDEPEND="${DEPEND}"
 
 DOCS="CHANGES README"
+
+pkg_postinst() {
+	distutils_pkg_postinst
+	echo
+	einfo "if you may happen to run ${PN} 0.7.4:"
+	ewarn "Don't run the older 0.7.4 ${PN} if you have notebooks created with"
+	ewarn "any more recent version of ${PN} (like this one) without having a backup of them."
+	ewarn "0.7.4 has an issue regarding new notebook formats, described on the \"Updates\" section on the homepage."
+}
