@@ -11,7 +11,7 @@ HOMEPAGE="http://live.gnome.org/Gedit"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="~amd64 ~x86"
 IUSE=""
 
 RDEPEND=">=app-editors/gedit-3
