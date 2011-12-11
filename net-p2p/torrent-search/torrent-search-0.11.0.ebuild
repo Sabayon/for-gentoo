@@ -9,7 +9,8 @@ inherit python
 
 DESCRIPTION="A torrent searching application"
 HOMEPAGE="http://torrent-search.sourceforge.net/"
-SRC_URI="mirror://sourceforge/torrent-search/${PN}_${PV}.tar.gz"
+SRC_URI="mirror://sourceforge/torrent-search/${PN}_${PV}-ubuntu11.10-3.tar.gz
+	-> ${PN}_${PV}.tar.gz" # wtf
 
 LICENSE="GPL-3"
 SLOT="0"
