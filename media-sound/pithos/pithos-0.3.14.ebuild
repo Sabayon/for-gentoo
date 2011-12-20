@@ -57,6 +57,6 @@ src_prepare() {
 src_install() {
 	distutils_src_install
 
-	dosym  ../icons/hicolor/scalable/apps/pithos.svg \
-		/usr/share/pixmaps/ || die "dosym failed"
+	dosym  ../icons/hicolor/scalable/apps/${PN}.svg \
+		/usr/share/pixmaps/${PN}.svg || die "dosym failed"
 }
