@@ -9,8 +9,8 @@ RESTRICT_PYTHON_ABIS="3.*"
 
 inherit eutils
 
-DESCRIPTION="internet radio browser"
-HOMEPAGE="http://milki.erphesfurt.de/streamtuner2/"
+DESCRIPTION="Internet radio browser"
+HOMEPAGE="http://sourceforge.net/projects/streamtuner2/"
 SRC_URI="mirror://sourceforge/${PN}/${P}.src.tgz"
 
 LICENSE="public-domain"
