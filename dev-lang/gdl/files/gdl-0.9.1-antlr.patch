@@ -1,0 +1,38 @@
+--- gnudatalanguage-0.9.1.orig/src/Makefile.am
++++ gnudatalanguage-0.9.1/src/Makefile.am
+@@ -1,6 +1,6 @@
+ # set the include path found by configure
+ INCLUDES = $(EXT_INCLUDES) $(all_includes)
+-SUBDIRS = antlr pro
++SUBDIRS = pro
+ noinst_HEADERS = gdlwidget.hpp prognode.hpp prognodeexpr.hpp
+ 
+ cpp_hpp_files = accessdesc.hpp arrayindex.hpp assocdata.cpp assocdata.hpp \
+@@ -57,7 +57,7 @@ gdl_SOURCES = $(cpp_hpp_files) gdl.cpp l
+ gdl_CXXFLAGS = $(AM_CXXFLAGS)
+ # the library search path.
+ gdl_LDFLAGS = $(all_libraries)
+-gdl_LDADD = $(top_builddir)/src/antlr/libantlr.a -L/usr/X11R6/lib64 -L/usr/X11R6/lib -lX11
++gdl_LDADD = -lantlr -L/usr/X11R6/lib64 -L/usr/X11R6/lib -lX11
+ endif
+ 
+ # build as library (for python module)
+@@ -73,6 +73,6 @@ else
+ libgdl_la_LDFLAGS = $(all_libraries) -Wl,-z,muldefs
+ endif 
+ 
+-libgdl_la_LIBADD = $(top_builddir)/src/antlr/libantlr.la -L/usr/X11R6/lib64 -L/usr/X11R6/lib -lX11
++libgdl_la_LIBADD = -lantlr -L/usr/X11R6/lib64 -L/usr/X11R6/lib -lX11
+ endif
+ 
+--- gnudatalanguage-0.9.orig/configure.in
++++ gnudatalanguage-0.9/configure.in
+@@ -1074,7 +1074,7 @@ dnl AC_CHECK_FUNCS(strdup strtod strtol
+ dnl perform program name transformation
+ dnl AC_ARG_PROGRAM
+ 
+-AC_CONFIG_FILES(Makefile src/Makefile src/antlr/Makefile src/pro/Makefile src/pro/dicom/Makefile testsuite/Makefile doc/Makefile)
++AC_CONFIG_FILES(Makefile src/Makefile src/pro/Makefile src/pro/dicom/Makefile testsuite/Makefile doc/Makefile)
+ AC_OUTPUT
+ 
+ dnl == summary table =======================================

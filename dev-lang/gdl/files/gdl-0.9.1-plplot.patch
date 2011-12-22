@@ -1,0 +1,140 @@
+Jan Kohnert's patch from https://bugs.gentoo.org/391667
+that fixes compilation with sci-libs/plplot-5.9.9
+diff -U 3 -H -d -r -N -x '*.kdev4' -- gdl-0.9.1/src/deviceps.hpp gdl-0.9.1-r1/src/deviceps.hpp
+--- gdl-0.9.1/src/deviceps.hpp	2010-10-17 15:22:20.000000000 +0200
++++ gdl-0.9.1-r1/src/deviceps.hpp	2011-12-07 23:26:34.311567159 +0100
+@@ -60,14 +60,14 @@
+     if (XPageSize != 0. && YPageSize == 0.) {a=XPageSize/16.5*540/720; scale=1.;}
+     char as[32];
+     sprintf(as, "%f",a);
+-    actStream->SetOpt( "a", as); // this necessary to keep labels from looking stretched (plplot bug)
++    actStream->setopt( "a", as); // this necessary to keep labels from looking stretched (plplot bug)
+                                  // but plrender -a is also buggy: aspect ratios are not exactly correct 
+     xleng=static_cast<PLINT>(floor(scale*540. +0.5));
+     yleng=static_cast<PLINT>(floor(scale*720. +0.5));
+     // setting this without plrender -a makes the labels stretched (plplot bug)
+     actStream->spage( xp, yp, xleng, yleng, xoff, yoff); 
+ 
+-    actStream->SetOpt( "ori","1"); // portrait (upright)
++    actStream->setopt( "ori","1"); // portrait (upright)
+ 
+     // no pause on destruction
+     actStream->spause( false);
+@@ -84,8 +84,8 @@
+ 
+     // default: black+white (IDL behaviour)
+     //actStream->scolor( color); // has no effect
+-    if (color == 0) { actStream->SetOpt( "drvopt","text=0,color=0"); } 
+-    else { actStream->SetOpt( "drvopt","text=0,color=1");}
++    if (color == 0) { actStream->setopt( "drvopt","text=0,color=0"); } 
++    else { actStream->setopt( "drvopt","text=0,color=1");}
+     color=0;
+ 
+     actStream->Init();
+diff -U 3 -H -d -r -N -x '*.kdev4' -- gdl-0.9.1/src/devicesvg.hpp gdl-0.9.1-r1/src/devicesvg.hpp
+--- gdl-0.9.1/src/devicesvg.hpp	2010-01-28 20:15:05.000000000 +0100
++++ gdl-0.9.1-r1/src/devicesvg.hpp	2011-12-07 23:26:58.000049128 +0100
+@@ -55,7 +55,7 @@
+     //    actStream->scmap0( r, g, b, ctSize); 
+     actStream->scmap1( r, g, b, ctSize); 
+ 
+-    actStream->SetOpt( "drvopt","text_clipping=1"); // clear drvopt
++    actStream->setopt( "drvopt","text_clipping=1"); // clear drvopt
+ 
+     actStream->Init();
+     
+diff -U 3 -H -d -r -N -x '*.kdev4' -- gdl-0.9.1/src/devicewin.hpp gdl-0.9.1-r1/src/devicewin.hpp
+--- gdl-0.9.1/src/devicewin.hpp	2010-01-28 20:15:05.000000000 +0100
++++ gdl-0.9.1-r1/src/devicewin.hpp	2011-12-07 23:27:37.829177933 +0100
+@@ -214,10 +214,10 @@
+     static char buf[ 256];
+     strncpy( buf, title.c_str(), 255);
+     buf[ 255] = 0;
+-    winList[ wIx]->SetOpt( "plwindow", buf);
++    winList[ wIx]->setopt( "plwindow", buf);
+ 
+     // we want color (and the driver options need to be overwritten)
+-    winList[ wIx]->SetOpt( "drvopt","color=1");
++    winList[ wIx]->setopt( "drvopt","color=1");
+ 
+     // set color map
+     PLINT r[ctSize], g[ctSize], b[ctSize];
+diff -U 3 -H -d -r -N -x '*.kdev4' -- gdl-0.9.1/src/devicex.hpp gdl-0.9.1-r1/src/devicex.hpp
+--- gdl-0.9.1/src/devicex.hpp	2011-03-28 19:28:48.000000000 +0200
++++ gdl-0.9.1-r1/src/devicex.hpp	2011-12-07 23:32:23.266927557 +0100
+@@ -431,10 +431,10 @@
+     static char buf[ 256];
+     strncpy( buf, title.c_str(), 255);
+     buf[ 255] = 0;
+-    winList[ wIx]->SetOpt( "plwindow", buf);
++    winList[ wIx]->setopt( "plwindow", buf);
+ 
+     // we use our own window handling
+-    winList[ wIx]->SetOpt( "drvopt","usepth=0");
++    winList[ wIx]->setopt( "drvopt","usepth=0");
+ 
+     // set color map
+     PLINT r[ctSize], g[ctSize], b[ctSize];
+diff -U 3 -H -d -r -N -x '*.kdev4' -- gdl-0.9.1/src/devicez.hpp gdl-0.9.1-r1/src/devicez.hpp
+--- gdl-0.9.1/src/devicez.hpp	2010-01-28 20:15:05.000000000 +0100
++++ gdl-0.9.1-r1/src/devicez.hpp	2011-12-07 23:33:25.100572007 +0100
+@@ -129,7 +129,7 @@
+       { r[ i] = g[ i] = b[ i] = i;}
+     actStream->scmap1( r, g, b, ctSize); 
+ 
+-    actStream->SetOpt( "drvopt","text=0"); // clear drvopt
++    actStream->setopt( "drvopt","text=0"); // clear drvopt
+ 
+     actStream->Init();
+     
+diff -U 3 -H -d -r -N -x '*.kdev4' -- gdl-0.9.1/src/gdlgstream.cpp gdl-0.9.1-r1/src/gdlgstream.cpp
+--- gdl-0.9.1/src/gdlgstream.cpp	2010-11-17 08:24:55.000000000 +0100
++++ gdl-0.9.1-r1/src/gdlgstream.cpp	2011-12-07 22:50:54.464062572 +0100
+@@ -201,7 +201,7 @@
+   // skip conversion if the string is empty
+   if (len == 0) return in;
+ 
+-  const string fonts[] = {
++  const std::string fonts[] = {
+     "#fn",      // !0  : unused
+     "#fn",      // !1  : unused
+     "#fn",      // !2  : unused
+@@ -240,7 +240,7 @@
+   int curr_lev = 0; // (incremented with #u, decremented with #d)
+   int curr_pos = 0; // (current position in string)
+   int save_pos = 0; // (position in string used in !S/!R save/restore)
+-  string out = string("");
++  std::string out = std::string("");
+ 
+   for (size_t i = 0; i < len; i++) {
+     if (in[i] == '!' && in[i + 1] != '!')
+diff -U 3 -H -d -r -N -x '*.kdev4' -- gdl-0.9.1/src/gdlgstream.hpp gdl-0.9.1-r1/src/gdlgstream.hpp
+--- gdl-0.9.1/src/gdlgstream.hpp	2010-06-11 17:09:51.000000000 +0200
++++ gdl-0.9.1-r1/src/gdlgstream.hpp	2011-12-07 22:48:03.318894381 +0100
+@@ -50,7 +50,7 @@
+   {
+ //   std::cerr << "GDLGStream()" << std::endl;
+     if (!checkPlplotDriver(driver))
+-      ThrowGDLException(string("PLplot installation lacks the requested driver: ") + driver);
++      ThrowGDLException(std::string("PLplot installation lacks the requested driver: ") + driver);
+   }
+ 
+   virtual ~GDLGStream()
+@@ -103,7 +103,7 @@
+ 
+ //     devNames = new std::vector<std::string>( numdevs_plus_one - 1);
+     for( int i = 0; i < numdevs_plus_one - 1; ++i)
+-		devNames.push_back(string(devnames[ i]));
++		devNames.push_back(std::string(devnames[ i]));
+     
+     free(devnames);
+ }
+@@ -111,7 +111,7 @@
+ // for debug
+ std::vector<std::string> devnamesDbg = devNames;
+ 
+-return std::find( devNames.begin(), devNames.end(), string( driver)) != devNames.end();
++return std::find( devNames.begin(), devNames.end(), std::string( driver)) != devNames.end();
+ 
+ //     checking if a given driver is in the list
+ //     bool supported = false;
