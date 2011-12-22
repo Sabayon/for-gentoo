@@ -1,0 +1,83 @@
+Patch from https://bugs.gentoo.org/show_bug.cgi?id=391669
+by Juergen Rose that fixes compilation with sci-libs/plplot-5.9.9.
+http://plplot.sourceforge.net/docbook-manual/plplot-html-5.9.9/plcol.html
+diff -r -u EMBOSS-6.3.1_orig/ajax/graphics/ajgraph.c EMBOSS-6.3.1/ajax/graphics/ajgraph.c
+--- EMBOSS-6.3.1_orig/ajax/graphics/ajgraph.c	2011-12-22 10:38:01.000000000 +0100
++++ EMBOSS-6.3.1/ajax/graphics/ajgraph.c	2011-12-22 10:51:00.000000000 +0100
+@@ -1648,8 +1648,8 @@
+ 
+ static void GraphSetPen(ajint colour)
+ {
+-    ajDebug("=g= plcol(%d '%s') [colour]\n", colour, graphColourName[colour]);
+-    plcol((PLINT)colour);
++    ajDebug("=g= plcol0(%d '%s') [colour]\n", colour, graphColourName[colour]);
++    plcol0((PLINT)colour);
+ 
+     return;
+ }
+diff -r -u EMBOSS-6.3.1_orig/plplot/plcore.c EMBOSS-6.3.1/plplot/plcore.c
+--- EMBOSS-6.3.1_orig/plplot/plcore.c	2007-10-24 15:14:43.000000000 +0200
++++ EMBOSS-6.3.1/plplot/plcore.c	2011-12-22 10:50:21.000000000 +0100
+@@ -1712,7 +1712,7 @@
+ /* Switch to graphics mode and set color and arrow style*/
+ 
+     plgra();
+-    plcol(1);
++    plcol0(1);
+ 
+     plstyl(0, &mk, &sp);
+     plpat(1, &inc, &del);
+diff -r -u EMBOSS-6.3.1_orig/plplot/plstripc.c EMBOSS-6.3.1/plplot/plstripc.c
+--- EMBOSS-6.3.1_orig/plplot/plstripc.c	2007-05-08 11:09:37.000000000 +0200
++++ EMBOSS-6.3.1/plplot/plstripc.c	2011-12-22 10:49:54.000000000 +0100
+@@ -156,11 +156,11 @@
+     plwind(-0.01, 1.01, -0.01, 1.01);
+     for (i=0; i<PEN; i++) {
+ 	if (mystripc->npts[i] || first) {
+-	    plcol(mystripc->colline[i]);
++	    plcol0(mystripc->colline[i]);
+ 	    pllsty(mystripc->styline[i]);
+ 	    pljoin(mystripc->xlpos, mystripc->ylpos - sc,
+ 		   mystripc->xlpos + 0.1, mystripc->ylpos - sc);
+-	    plcol(mystripc->collab);
++	    plcol0(mystripc->collab);
+ 	    plptex(mystripc->xlpos + 0.11, mystripc->ylpos - sc,
+ 		   0., 0., 0, mystripc->legline[i]);
+ 	    sc += dy;
+@@ -187,7 +187,7 @@
+ 
+     plvpor(0,1,0,1);
+     plwind(0,1,0,1);
+-    plcol(0);plpsty(0);
++    plcol0(0);plpsty(0);
+     plfill(4, &x[0], &y[0]);
+     plvsta();
+ 
+@@ -200,15 +200,15 @@
+     plwind(mystrip->xmin, mystrip->xmax, mystrip->ymin, mystrip->ymax);
+ 
+     pllsty(1);
+-    plcol(mystrip->colbox);
++    plcol0(mystrip->colbox);
+     plbox(mystrip->xspec, 0.0, 0, mystrip->yspec, 0.0, 0);
+ 
+-    plcol(mystrip->collab);
++    plcol0(mystrip->collab);
+     pllab(mystrip->labx, mystrip->laby, mystrip->labtop);
+ 
+     for (i=0; i<PEN; i++) {
+         if (mystrip->npts[i] > 0) {
+-            plcol(mystrip->colline[i]);pllsty(mystrip->styline[i]);
++            plcol0(mystrip->colline[i]);pllsty(mystrip->styline[i]);
+             plline(mystrip->npts[i], mystrip->x[i], mystrip->y[i]);
+         }
+     }
+@@ -272,7 +272,7 @@
+             /* If user has changed subwindow, make shure we have the correct one */
+                 plvsta();
+                 plwind(stripc->wxmin, stripc->wxmax, stripc->wymin, stripc->wymax); /* FIXME - can exist some redundancy here */
+-		plcol(stripc->colline[p]); pllsty(stripc->styline[p]);
++		plcol0(stripc->colline[p]); pllsty(stripc->styline[p]);
+ 		if ((stripc->npts[p]-2) < 0)
+ 		  plP_movwor(stripc->x[p][stripc->npts[p]-1], stripc->y[p][stripc->npts[p]-1]);
+ 		else
