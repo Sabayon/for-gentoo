@@ -61,8 +61,8 @@ src_compile() {
 src_install() {
 	emake DESTDIR="${D}" install || die "make install failed"
 	# fixup to avoid collisions with qemu
-	base_dir=$(dirname "${qemu_bin}")
-	for qemu_bin in "${D}/usr/bin/qemu-"*; do
+	base_dir="${D}/usr/bin"
+	for qemu_bin in "${base_dir}/qemu-"*; do
 		qemu_bin_name=$(basename "${qemu_bin}")
 		mv "${qemu_bin}" "${base_dir}"/"${qemu_bin_name/qemu-/qemu-static-}" || die
 	done
