@@ -18,7 +18,7 @@ KEYWORDS="~amd64 ~ppc ~x86 ~ppc64"
 IUSE=""
 RESTRICT="test"
 
-DEPEND="app-text/texi2html"
+DEPEND="app-text/texi2html dev-util/pkgconfig"
 RDEPEND=""
 
 S="${WORKDIR}/${MY_P}"
