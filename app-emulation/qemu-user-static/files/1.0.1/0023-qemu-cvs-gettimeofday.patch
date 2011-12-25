@@ -1,0 +1,26 @@
+From 2c1ea2bd2c59d70ca63c1d42230588b4bdeed6fd Mon Sep 17 00:00:00 2001
+From: Ulrich Hecht <uli@suse.de>
+Date: Tue, 14 Apr 2009 16:25:41 +0200
+Subject: [PATCH 23/33] qemu-cvs-gettimeofday
+
+No clue what this is for.
+---
+ linux-user/syscall.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
+
+diff --git a/linux-user/syscall.c b/linux-user/syscall.c
+index 9fabcba..cd120a4 100644
+--- a/linux-user/syscall.c
++++ b/linux-user/syscall.c
+@@ -5901,6 +5901,8 @@ abi_long do_syscall(void *cpu_env, int num, abi_long arg1,
+     case TARGET_NR_gettimeofday:
+         {
+             struct timeval tv;
++            if(copy_from_user_timeval(&tv, arg1))
++		goto efault;
+             ret = get_errno(gettimeofday(&tv, NULL));
+             if (!is_error(ret)) {
+                 if (copy_to_user_timeval(arg1, &tv))
+-- 
+1.6.0.2
+

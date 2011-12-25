@@ -1,0 +1,88 @@
+From 67c12998086c44ebef7f92a394154d6aba446178 Mon Sep 17 00:00:00 2001
+From: Alexander Graf <agraf@suse.de>
+Date: Wed, 2 Nov 2011 09:23:22 +0000
+Subject: [PATCH 03/33] linux-user: save auxv length
+
+We create our own AUXV segment on stack and save a pointer to it.
+However we don't save the length of it, so any code that wants to
+do anything useful with it later on has to walk it again.
+
+Instead, let's remember the length of our AUXV segment. This
+simplifies later uses by a lot.
+
+Signed-off-by: Alexander Graf <agraf@suse.de>
+---
+ linux-user/elfload.c |   15 ++++-----------
+ linux-user/qemu.h    |    1 +
+ 2 files changed, 5 insertions(+), 11 deletions(-)
+
+diff --git a/linux-user/elfload.c b/linux-user/elfload.c
+index 4635bb2..62bb543 100644
+--- a/linux-user/elfload.c
++++ b/linux-user/elfload.c
+@@ -1245,6 +1245,7 @@ static abi_ulong create_elf_tables(abi_ulong p, int argc, int envc,
+                                    struct image_info *interp_info)
+ {
+     abi_ulong sp;
++    abi_ulong sp_auxv;
+     int size;
+     int i;
+     abi_ulong u_rand_bytes;
+@@ -1316,6 +1317,7 @@ static abi_ulong create_elf_tables(abi_ulong p, int argc, int envc,
+         sp -= n; put_user_ual(id, sp);          \
+     } while(0)
+ 
++    sp_auxv = sp;
+     NEW_AUX_ENT (AT_NULL, 0);
+ 
+     /* There must be exactly DLINFO_ITEMS entries here.  */
+@@ -1346,6 +1348,7 @@ static abi_ulong create_elf_tables(abi_ulong p, int argc, int envc,
+ #undef NEW_AUX_ENT
+ 
+     info->saved_auxv = sp;
++    info->auxv_len = sp_auxv - sp;
+ 
+     sp = loader_build_argptr(envc, argc, sp, p, 0);
+     return sp;
+@@ -2329,9 +2332,8 @@ static void fill_auxv_note(struct memelfnote *note, const TaskState *ts)
+ {
+     elf_addr_t auxv = (elf_addr_t)ts->info->saved_auxv;
+     elf_addr_t orig_auxv = auxv;
+-    abi_ulong val;
+     void *ptr;
+-    int i, len;
++    int len = ts->info->auxv_len;
+ 
+     /*
+      * Auxiliary vector is stored in target process stack.  It contains
+@@ -2339,15 +2341,6 @@ static void fill_auxv_note(struct memelfnote *note, const TaskState *ts)
+      * strictly necessary but we do it here for sake of completeness.
+      */
+ 
+-    /* find out lenght of the vector, AT_NULL is terminator */
+-    i = len = 0;
+-    do {
+-        get_user_ual(val, auxv);
+-        i += 2;
+-        auxv += 2 * sizeof (elf_addr_t);
+-    } while (val != AT_NULL);
+-    len = i * sizeof (elf_addr_t);
+-
+     /* read in whole auxv vector and copy it to memelfnote */
+     ptr = lock_user(VERIFY_READ, orig_auxv, len, 0);
+     if (ptr != NULL) {
+diff --git a/linux-user/qemu.h b/linux-user/qemu.h
+index 55ad9d8..ef08d39 100644
+--- a/linux-user/qemu.h
++++ b/linux-user/qemu.h
+@@ -48,6 +48,7 @@ struct image_info {
+         abi_ulong       code_offset;
+         abi_ulong       data_offset;
+         abi_ulong       saved_auxv;
++        abi_ulong       auxv_len;
+         abi_ulong       arg_start;
+         abi_ulong       arg_end;
+ 	int		personality;
+-- 
+1.6.0.2
+

@@ -1,0 +1,40 @@
+From 9b3ae5bebe9635991156b6e87f61ca204b204345 Mon Sep 17 00:00:00 2001
+From: Ulrich Hecht <uli@suse.de>
+Date: Tue, 14 Apr 2009 16:38:20 +0200
+Subject: [PATCH 27/33] qemu-nonvoid_return
+
+Squelches GCC warnings about undefined return values.
+
+Signed-off-by: Ulrich Hecht <uli@suse.de>
+---
+ hw/mpcore.c             |    1 +
+ target-m68k/translate.c |    1 +
+ 2 files changed, 2 insertions(+), 0 deletions(-)
+
+diff --git a/hw/mpcore.c b/hw/mpcore.c
+index d6175cf..58dfd09 100644
+--- a/hw/mpcore.c
++++ b/hw/mpcore.c
+@@ -106,6 +106,7 @@ static uint32_t mpcore_timer_read(mpcore_timer_state *s, int offset)
+     default:
+         return 0;
+     }
++    return 0;
+ }
+ 
+ static void mpcore_timer_write(mpcore_timer_state *s, int offset,
+diff --git a/target-m68k/translate.c b/target-m68k/translate.c
+index 0e7f1fe..bfaf116 100644
+--- a/target-m68k/translate.c
++++ b/target-m68k/translate.c
+@@ -436,6 +436,7 @@ static inline int opsize_bytes(int opsize)
+         qemu_assert(0, "bad operand size");
+         return 0;
+     }
++    return 0;
+ }
+ 
+ /* Assign value to a register.  If the width is less than the register width
+-- 
+1.6.0.2
+

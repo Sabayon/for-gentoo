@@ -1,0 +1,84 @@
+From 923b1531de681940198e2c1d28c735da1efe29e2 Mon Sep 17 00:00:00 2001
+From: Alexander Graf <agraf@suse.de>
+Date: Tue, 14 Apr 2009 16:20:50 +0200
+Subject: [PATCH 20/33] qemu-cvs-alsa_bitfield
+
+Implements TYPE_INTBITFIELD partially. (required for ALSA support)
+
+Signed-off-by: Alexander Graf <agraf@suse.de>
+Signed-off-by: Ulrich Hecht <uli@suse.de>
+---
+ thunk.c |   21 +++++++++++++++++++++
+ thunk.h |    3 +++
+ 2 files changed, 24 insertions(+), 0 deletions(-)
+
+diff --git a/thunk.c b/thunk.c
+index 0657188..34bc7d1 100644
+--- a/thunk.c
++++ b/thunk.c
+@@ -41,6 +41,7 @@ static inline const argtype *thunk_type_next(const argtype *type_ptr)
+     case TYPE_CHAR:
+     case TYPE_SHORT:
+     case TYPE_INT:
++    case TYPE_INTBITFIELD:
+     case TYPE_LONGLONG:
+     case TYPE_ULONGLONG:
+     case TYPE_LONG:
+@@ -139,6 +140,26 @@ const argtype *thunk_convert(void *dst, const void *src,
+     case TYPE_INT:
+         *(uint32_t *)dst = tswap32(*(uint32_t *)src);
+         break;
++    case TYPE_INTBITFIELD:
++#if defined(TARGET_I386) && defined(__powerpc__)
++        /* powerpc uses the MSB, whereas i386 uses the LSB
++         * to store the first bit in a field */
++        {
++	    unsigned char byte = *(uint8_t *)src;
++            *(uint8_t *)dst  = ((byte >> 7) & 1)
++		             | ((byte >> 5) & 2)
++			     | ((byte >> 3) & 4)
++			     | ((byte >> 1) & 8)
++			     | ((byte << 1) & 16)
++			     | ((byte << 3) & 32)
++			     | ((byte << 5) & 64)
++			     | ((byte << 7) & 128);
++	    /* FIXME: implement for bitfields > 1 byte and other archs */
++        }
++#else
++        *(uint32_t *)dst = tswap32(*(uint32_t *)src);
++#endif
++	break;
+     case TYPE_LONGLONG:
+     case TYPE_ULONGLONG:
+         *(uint64_t *)dst = tswap64(*(uint64_t *)src);
+diff --git a/thunk.h b/thunk.h
+index 109c541..55890f3 100644
+--- a/thunk.h
++++ b/thunk.h
+@@ -37,6 +37,7 @@ typedef enum argtype {
+     TYPE_PTR,
+     TYPE_ARRAY,
+     TYPE_STRUCT,
++    TYPE_INTBITFIELD,
+ } argtype;
+ 
+ #define MK_PTR(type) TYPE_PTR, type
+@@ -90,6 +91,7 @@ static inline int thunk_type_size(const argtype *type_ptr, int is_host)
+     case TYPE_SHORT:
+         return 2;
+     case TYPE_INT:
++    case TYPE_INTBITFIELD:
+         return 4;
+     case TYPE_LONGLONG:
+     case TYPE_ULONGLONG:
+@@ -127,6 +129,7 @@ static inline int thunk_type_align(const argtype *type_ptr, int is_host)
+     case TYPE_SHORT:
+         return 2;
+     case TYPE_INT:
++    case TYPE_INTBITFIELD:
+         return 4;
+     case TYPE_LONGLONG:
+     case TYPE_ULONGLONG:
+-- 
+1.6.0.2
+

@@ -1,0 +1,72 @@
+From 1dd66fa6bb6c616b91626a51d2dff02692e83fe5 Mon Sep 17 00:00:00 2001
+From: Alexander Graf <agraf@suse.de>
+Date: Mon, 12 Dec 2011 23:16:43 +0100
+Subject: [PATCH 33/33] PPC: Fix linker scripts on ppc hosts
+
+When compiling qemu statically with multilib on PPC, we hit the
+same issue that commit 845f2c2812d9ed24b36c02a3d06ee83aeafe8b49
+is fixing. Do the same here.
+
+Signed-off-by: Alexander Graf <agraf@suse.de>
+---
+ ppc.ld   |   16 ++++++++++++++--
+ ppc64.ld |   16 ++++++++++++++--
+ 2 files changed, 28 insertions(+), 4 deletions(-)
+
+diff --git a/ppc.ld b/ppc.ld
+index 69aa3f2..2a0dcad 100644
+--- a/ppc.ld
++++ b/ppc.ld
+@@ -49,8 +49,20 @@ SECTIONS
+   .rela.sbss2     : { *(.rela.sbss2 .rela.sbss2.* .rela.gnu.linkonce.sb2.*) }
+   .rel.bss        : { *(.rel.bss .rel.bss.* .rel.gnu.linkonce.b.*) }
+   .rela.bss       : { *(.rela.bss .rela.bss.* .rela.gnu.linkonce.b.*) }
+-  .rel.plt        : { *(.rel.plt) }
+-  .rela.plt       : { *(.rela.plt) }
++  .rel.plt      :
++  {
++    *(.rel.plt)
++    PROVIDE (__rel_iplt_start = .);
++    *(.rel.iplt)
++    PROVIDE (__rel_iplt_end = .);
++  }
++  .rela.plt       :
++  {
++    *(.rela.plt)
++    PROVIDE (__rela_iplt_start = .);
++    *(.rela.iplt)
++    PROVIDE (__rela_iplt_end = .);
++  }
+   .init           :
+   {
+     KEEP (*(.init))
+diff --git a/ppc64.ld b/ppc64.ld
+index 0a7c0dd..e2dafa0 100644
+--- a/ppc64.ld
++++ b/ppc64.ld
+@@ -54,8 +54,20 @@ SECTIONS
+       *(.rela.sbss2 .rela.sbss2.* .rela.gnu.linkonce.sb2.*)
+       *(.rela.bss .rela.bss.* .rela.gnu.linkonce.b.*)
+     }
+-  .rel.plt        : { *(.rel.plt) }
+-  .rela.plt       : { *(.rela.plt) }
++  .rel.plt      :
++  {
++    *(.rel.plt)
++    PROVIDE (__rel_iplt_start = .);
++    *(.rel.iplt)
++    PROVIDE (__rel_iplt_end = .);
++  }
++  .rela.plt       :
++  {
++    *(.rela.plt)
++    PROVIDE (__rela_iplt_start = .);
++    *(.rela.iplt)
++    PROVIDE (__rela_iplt_end = .);
++  }
+   .rela.tocbss	  : { *(.rela.tocbss) }
+   .init           :
+   {
+-- 
+1.6.0.2
+

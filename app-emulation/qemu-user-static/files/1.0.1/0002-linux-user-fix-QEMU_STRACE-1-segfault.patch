@@ -1,0 +1,88 @@
+From 0588bc446fd48bdb1965a6773d008c05a4ba16c1 Mon Sep 17 00:00:00 2001
+From: Alexander Graf <agraf@suse.de>
+Date: Sun, 20 Nov 2011 13:02:54 +0100
+Subject: [PATCH 02/33] linux-user: fix QEMU_STRACE=1 segfault
+
+While debugging some issues with QEMU_STRACE I stumbled over segmentation
+faults that were pretty reproducible. Turns out we tried to treat a
+normal return value as errno, resulting in an access over array boundaries
+for the resolution.
+
+Fix this by allowing failure to resolve invalid errnos into strings.
+
+Signed-off-by: Alexander Graf <agraf@suse.de>
+
+---
+
+v1 -> v2:
+
+  - propagate fault further down, so we display the negative value
+
+v2 -> v3:
+
+  - fix boolean logic
+  - fix print_syscall_ret_addr
+---
+ linux-user/strace.c  |   18 ++++++++++++++----
+ linux-user/syscall.c |    3 +++
+ 2 files changed, 17 insertions(+), 4 deletions(-)
+
+diff --git a/linux-user/strace.c b/linux-user/strace.c
+index 90027a1..269481e 100644
+--- a/linux-user/strace.c
++++ b/linux-user/strace.c
+@@ -284,8 +284,13 @@ print_ipc(const struct syscallname *name,
+ static void
+ print_syscall_ret_addr(const struct syscallname *name, abi_long ret)
+ {
+-if( ret == -1 ) {
+-        gemu_log(" = -1 errno=%d (%s)\n", errno, target_strerror(errno));
++    char *errstr = NULL;
++
++    if (ret == -1) {
++        errstr = target_strerror(errno);
++    }
++    if ((ret == -1) && errstr) {
++        gemu_log(" = -1 errno=%d (%s)\n", errno, errstr);
+     } else {
+         gemu_log(" = 0x" TARGET_ABI_FMT_lx "\n", ret);
+     }
+@@ -1515,14 +1520,19 @@ void
+ print_syscall_ret(int num, abi_long ret)
+ {
+     int i;
++    char *errstr = NULL;
+ 
+     for(i=0;i<nsyscalls;i++)
+         if( scnames[i].nr == num ) {
+             if( scnames[i].result != NULL ) {
+                 scnames[i].result(&scnames[i],ret);
+             } else {
+-                if( ret < 0 ) {
+-                    gemu_log(" = -1 errno=" TARGET_ABI_FMT_ld " (%s)\n", -ret, target_strerror(-ret));
++                if (ret < 0) {
++                    errstr = target_strerror(-ret);
++                }
++                if (errstr) {
++                    gemu_log(" = -1 errno=" TARGET_ABI_FMT_ld " (%s)\n",
++                             -ret, errstr);
+                 } else {
+                     gemu_log(" = " TARGET_ABI_FMT_ld "\n", ret);
+                 }
+diff --git a/linux-user/syscall.c b/linux-user/syscall.c
+index f227097..f170724 100644
+--- a/linux-user/syscall.c
++++ b/linux-user/syscall.c
+@@ -731,6 +731,9 @@ static inline int is_error(abi_long ret)
+ 
+ char *target_strerror(int err)
+ {
++    if ((err >= ERRNO_TABLE_SIZE) || (err < 0)) {
++        return NULL;
++    }
+     return strerror(target_to_host_errno(err));
+ }
+ 
+-- 
+1.6.0.2
+

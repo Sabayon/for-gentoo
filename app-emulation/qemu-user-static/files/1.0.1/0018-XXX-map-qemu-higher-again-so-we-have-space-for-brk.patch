@@ -1,0 +1,39 @@
+From f8d469421d92e3abe854e565bdf4ee62b86846b6 Mon Sep 17 00:00:00 2001
+From: Alexander Graf <agraf@suse.de>
+Date: Sat, 10 Dec 2011 00:03:56 +0100
+Subject: [PATCH 18/33] XXX map qemu higher again so we have space for brk
+
+---
+ linux-user/mmap.c |    2 +-
+ x86_64.ld         |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/linux-user/mmap.c b/linux-user/mmap.c
+index 8453c0d..1e8cc38 100644
+--- a/linux-user/mmap.c
++++ b/linux-user/mmap.c
+@@ -226,7 +226,7 @@ static int mmap_frag(abi_ulong real_start,
+ /* Cygwin doesn't have a whole lot of address space.  */
+ # define TASK_UNMAPPED_BASE  0x18000000
+ #else
+-# define TASK_UNMAPPED_BASE  0x10000000
++# define TASK_UNMAPPED_BASE  0x18000000
+ #endif
+ static abi_ulong mmap_next_start = TASK_UNMAPPED_BASE;
+ 
+diff --git a/x86_64.ld b/x86_64.ld
+index 1151d8c..dc31aba 100644
+--- a/x86_64.ld
++++ b/x86_64.ld
+@@ -5,7 +5,7 @@ ENTRY(_start)
+ SECTIONS
+ {
+   /* Read-only sections, merged into text segment: */
+-  . = 0x8000000 + SIZEOF_HEADERS;
++  . = 0x10000000 + SIZEOF_HEADERS;
+   .interp         : { *(.interp) }
+   .hash           : { *(.hash) }
+   .dynsym         : { *(.dynsym) }
+-- 
+1.6.0.2
+

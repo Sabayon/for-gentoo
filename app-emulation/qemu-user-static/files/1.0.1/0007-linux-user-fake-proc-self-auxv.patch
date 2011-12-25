@@ -1,0 +1,68 @@
+From ddf0d4037b10c07d9e5b168f9f96e60a1601c75b Mon Sep 17 00:00:00 2001
+From: Alexander Graf <agraf@suse.de>
+Date: Wed, 2 Nov 2011 09:23:26 +0000
+Subject: [PATCH 07/33] linux-user: fake /proc/self/auxv
+
+Gtk tries to read /proc/self/auxv to find its auxv table instead of
+taking it from its own program memory space.
+
+However, when running with linux-user, we see the host's auxv which
+clearly exposes wrong information. so let's instead expose the guest
+memory backed auxv tables via /proc/self/auxv as well.
+
+Signed-off-by: Alexander Graf <agraf@suse.de>
+---
+ linux-user/syscall.c |   30 ++++++++++++++++++++++++++++++
+ 1 files changed, 30 insertions(+), 0 deletions(-)
+
+diff --git a/linux-user/syscall.c b/linux-user/syscall.c
+index 5eefd01..3e6f3bd 100644
+--- a/linux-user/syscall.c
++++ b/linux-user/syscall.c
+@@ -4642,6 +4642,35 @@ static int open_self_stat(void *cpu_env, int fd)
+     return 0;
+ }
+ 
++static int open_self_auxv(void *cpu_env, int fd)
++{
++    TaskState *ts = ((CPUState *)cpu_env)->opaque;
++    abi_ulong auxv = ts->info->saved_auxv;
++    abi_ulong len = ts->info->auxv_len;
++    char *ptr;
++
++    /*
++     * Auxiliary vector is stored in target process stack.
++     * read in whole auxv vector and copy it to file
++     */
++    ptr = lock_user(VERIFY_READ, auxv, len, 0);
++    if (ptr != NULL) {
++        while (len > 0) {
++            ssize_t r;
++            r = write(fd, ptr, len);
++            if (r <= 0) {
++                break;
++            }
++            len -= r;
++            ptr += r;
++        }
++        lseek(fd, 0, SEEK_SET);
++        unlock_user(ptr, auxv, len);
++    }
++
++    return 0;
++}
++
+ static int do_open(void *cpu_env, const char *pathname, int flags, mode_t mode)
+ {
+     struct fake_open {
+@@ -4652,6 +4681,7 @@ static int do_open(void *cpu_env, const char *pathname, int flags, mode_t mode)
+     static const struct fake_open fakes[] = {
+         { "/proc/self/maps", open_self_maps },
+         { "/proc/self/stat", open_self_stat },
++        { "/proc/self/auxv", open_self_auxv },
+         { NULL, NULL }
+     };
+ 
+-- 
+1.6.0.2
+

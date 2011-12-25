@@ -1,0 +1,58 @@
+From b71ee7a063f7cffdf8a2cf73fcbc1d461fbbb80e Mon Sep 17 00:00:00 2001
+From: Alexander Graf <agraf@suse.de>
+Date: Thu, 24 Nov 2011 00:39:35 +0100
+Subject: [PATCH 11/33] linux-user: fix wait* syscall status returns
+
+When calling wait4 or waitpid with a status pointer and WNOHANG, the
+syscall can potentially not modify the status pointer input. Now if we
+have guest code like:
+
+  int status = 0;
+  waitpid(pid, &status, WNOHANG);
+  if (status)
+     <breakage>
+
+then we have to make sure that in case status did not change we actually
+return the guest's initialized status variable instead of our own uninitialized.
+We fail to do so today, as we proxy everything through an uninitialized status
+variable which for me ended up always containing the last error code.
+
+This patch fixes some test cases when building yast2-core in OBS for ARM.
+
+Signed-off-by: Alexander Graf <agraf@suse.de>
+
+---
+
+v1 -> v2:
+
+  - take Peter's comment into account and just not write status back when
+    wait*'s return value is 0
+---
+ linux-user/syscall.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/linux-user/syscall.c b/linux-user/syscall.c
+index 3e6f3bd..5810e2a 100644
+--- a/linux-user/syscall.c
++++ b/linux-user/syscall.c
+@@ -4835,7 +4835,7 @@ abi_long do_syscall(void *cpu_env, int num, abi_long arg1,
+         {
+             int status;
+             ret = get_errno(waitpid(arg1, &status, arg3));
+-            if (!is_error(ret) && arg2
++            if (!is_error(ret) && arg2 && ret
+                 && put_user_s32(host_to_target_waitstatus(status), arg2))
+                 goto efault;
+         }
+@@ -6391,7 +6391,7 @@ abi_long do_syscall(void *cpu_env, int num, abi_long arg1,
+                 rusage_ptr = NULL;
+             ret = get_errno(wait4(arg1, &status, arg3, rusage_ptr));
+             if (!is_error(ret)) {
+-                if (status_ptr) {
++                if (status_ptr && ret) {
+                     status = host_to_target_waitstatus(status);
+                     if (put_user_s32(status, status_ptr))
+                         goto efault;
+-- 
+1.6.0.2
+

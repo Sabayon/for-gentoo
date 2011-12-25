@@ -32,6 +32,9 @@ src_unpack() {
 	# Alter target makefiles to accept CFLAGS set via flag-o
 	sed -i 's/^\(C\|OP_C\|HELPER_C\)FLAGS=/\1FLAGS+=/' \
 		Makefile Makefile.target
+
+	EPATCH_SOURCE="${FILESDIR}/1.0.1" EPATCH_SUFFIX="patch" \
+	EPATCH_FORCE="yes" epatch
 }
 
 src_compile() {
