@@ -1,0 +1,63 @@
+# ChangeLog for games-emulation/pcsxr
+# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
+# $Header: $
+
+  13 Dec 2011; Michał Ziąbkowski <mziab@o2.pl> pcsxr-1.9.91.ebuild,
+  pcsxr-1.9.91-r1.ebuild, pcsxr-1.9.92.ebuild:
+  Codeplex changed the URIs again. Fixed.
+
+  20 Sep 2011; Michał Ziąbkowski <mziab@o2.pl> pcsxr-9999.ebuild,
+  files/pcsxr-9999-datadir.patch:
+  Updated patch. Added openal flag and changed the audio selection order.
+
+  09 Feb 2011; Michał Ziąbkowski <mziab@o2.pl> pcsxr-1.9.92.ebuild,
+  pcsxr-9999.ebuild:
+  Fixed USE flags in live ebuild. Removed redundant whitespace.
+
+  09 Feb 2011; Michał Ziąbkowski <mziab@o2.pl> pcsxr-1.9.91.ebuild,
+  pcsxr-1.9.91-r1.ebuild, pcsxr-1.9.92.ebuild:
+  Fixed URIs... again.
+
+  03 Jan 2011; Michał Ziąbkowski <mziab@o2.pl> pcsxr-9999.ebuild,
+  +files/pcsxr-9999-datadir.patch:
+  New datadir patch for live svn ebuild.
+
+  13 Dec 2010; Michał Ziąbkowski <mziab@o2.pl> pcsxr-1.9.92.ebuild:
+  Updated URI.
+
+*pcsxr-1.9.92 (07 Aug 2010)
+
+  07 Aug 2010; Michał Ziąbkowski <mziab@o2.pl> +pcsxr-1.9.92.ebuild:
+  Bumped. Will use the sdl audio backend unless you disable it, as per the
+  upstream defaults.
+
+  01 Jul 2010; Michał Ziąbkowski <mziab@o2.pl> pcsxr-1.9.91.ebuild,
+  pcsxr-1.9.91-r1.ebuild:
+  Fixed URIs.
+
+  13 Apr 2010; Michał Ziąbkowski <mziab@o2.pl> pcsxr-9999.ebuild:
+  Dropped redundant patch in svn ebuild.
+
+  21 Feb 2010; Michał Ziąbkowski <mziab@o2.pl> pcsxr-9999.ebuild:
+  Added pulseaudio support to live ebuild.
+
+*pcsxr-1.9.91-r1 (23 Jan 2010)
+
+  23 Jan 2010; Michał Ziąbkowski <mziab@o2.pl> +pcsxr-1.9.91-r1.ebuild,
+  pcsxr-9999.ebuild, +files/pcsxr-implicit-declaration.patch:
+  Bumped with patch to fix gcc warning. Applied to the live ebuild also.
+
+  21 Jan 2010; Michał Ziąbkowski <mziab@o2.pl> pcsxr-9999.ebuild:
+  Moved ESVN_* before inherit.
+
+*pcsxr-9999 (19 Jan 2010)
+
+  19 Jan 2010; Michał Ziąbkowski <mziab@o2.pl> +pcsxr-9999.ebuild:
+  Added live SVN ebuild.
+
+*pcsxr-1.9.91 (19 Jan 2010)
+
+  19 Jan 2010; Michał Ziąbkowski <mziab@o2.pl> +pcsxr-1.9.91.ebuild,
+  +files/pcsxr-datadir.patch:
+  New ebuild. Adapted and cleaned up from Gentoo bug #282363.
+
