@@ -75,12 +75,13 @@ do_show() {
     done
 
     [[ -z "${quiet}" ]] && write_list_start "Current kernel:"
-    if [[ -L "${UIMAGE_SYM}" ]]; then
+    if [[ -L "${UIMAGE_SYM}" ]] && [[ -e "${UIMAGE_SYM}" ]]; then
         local kernel=$(canonicalise "${UIMAGE_SYM}")
+        local kernel_bn=$(basename "${kernel%/}")
         if [[ -n "${quiet}" ]]; then
-            echo "${kernel%/}"
+            echo "${kernel_bn}"
         else
-            write_kv_list_entry "${kernel%/}" ""
+            write_kv_list_entry "${kernel_bn}" ""
         fi
     else
         if [[ -z "${quiet}" ]]; then
@@ -95,17 +96,38 @@ describe_list() {
     echo "List available kernel uImages"
 }
 
+describe_list_options() {
+    echo "--quiet  : only print the actual symlink value"
+    echo "--silent : same as --quiet"
+}
+
 do_list() {
+    local quiet=""
+
+    while [[ $# -gt 0 ]]; do
+        case ${1##--} in
+            quiet|silent)
+                quiet="1"
+                ;;
+        esac
+        shift
+    done
+
     local i targets=( $(find_targets) )
 
-    write_list_start "Available kernel targets:"
+    [[ -z "${quiet}" ]] && write_list_start "Available kernel targets:"
     for (( i = 0; i < ${#targets[@]}; i++ )); do
-        # highlight the target where the symlink is pointing to
-        [[ ${targets[i]} = \
-            $(basename "$(canonicalise "${UIMAGE_SYM}")") ]] \
-                && targets[i]=$(highlight_marker "${targets[i]}")
+        if [[ -z "${quiet}" ]]; then
+            # highlight the target where the symlink is pointing to
+            [[ ${targets[i]} = \
+                $(basename "$(canonicalise "${UIMAGE_SYM}")") ]] \
+                    && targets[i]=$(highlight_marker "${targets[i]}")
+        else
+            echo "${targets[i]}"
+        fi
     done
-    write_numbered_list -m "(none found)" "${targets[@]}"
+    [[ -z "${quiet}" ]] && \
+        write_numbered_list -m "(none found)" "${targets[@]}"
 }
 
 ### set action ###
