@@ -48,6 +48,7 @@ set_symlink() {
     [[ -z "${target}" || ! -f "${BOOT_DIR}/${target}" ]] \
         && die -q "Target \"${target}\" doesn't appear to be valid!"
 
+    echo "Setting uImage to ${target}"
     ln -s "${target}" "${UIMAGE_SYM}"
 }
 
