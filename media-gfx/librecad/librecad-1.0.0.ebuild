@@ -6,7 +6,7 @@ EAPI=3
 
 inherit qt4-r2
 
-DESCRIPTION="An generic 2D CAD program"
+DESCRIPTION="free Open Source personal 2D CAD application"
 HOMEPAGE="http://www.librecad.org/"
 SRC_URI="https://nodeload.github.com/LibreCAD/LibreCAD/tarball/v${PV} -> ${P}.tar.gz"
 
