@@ -11,6 +11,7 @@ SRC_URI="http://heim.ifi.uio.no/kjetilho/hacks/${PN}-${PV}.tar.gz"
 SLOT="0"
 LICENSE="GPL-2"
 KEYWORDS="~amd64 x86"
+IUSE=""
 
 RDEPEND="dev-lang/perl
 	net-mail/mailman
@@ -18,6 +19,7 @@ RDEPEND="dev-lang/perl
 	dev-perl/HTML-TokeParser-Simple
 	dev-perl/libwww-perl
 	dev-perl/text-reform
+	dev-perl/TermReadKey
 	dev-perl/Term-ReadLine-Perl
 	virtual/perl-MIME-Base64"
 DEPEND=""
