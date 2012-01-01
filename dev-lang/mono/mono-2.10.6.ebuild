@@ -90,6 +90,10 @@ src_configure() {
 
 	local myconf=""
 	use ppc && myconf="${myconf} --with-sgen=no"
+	# Taken from Debian build file
+	# the build-system picks __thread for armel which is not working,
+	# thus we have to explicitly pick pthread
+	use arm && myconf="${myconf} --with-tls=pthread"
 	go-mono_src_configure \
 		--enable-static \
 		--disable-quiet-build \
