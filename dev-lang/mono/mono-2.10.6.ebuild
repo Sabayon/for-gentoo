@@ -58,6 +58,9 @@ pkg_setup() {
 src_prepare() {
 	go-mono_src_prepare
 
+	# due to arm patch
+	eautoreconf
+
 	# we need to sed in the paxctl -mr in the runtime/mono-wrapper.in so it don't
 	# get killed in the build proces when MPROTEC is enable. #286280
 	# RANDMMAP kill the build proces to #347365
