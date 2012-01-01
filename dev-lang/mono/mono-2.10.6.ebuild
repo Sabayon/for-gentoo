@@ -4,7 +4,7 @@
 
 EAPI="4"
 
-inherit linux-info mono eutils flag-o-matic multilib go-mono pax-utils
+inherit linux-info mono eutils flag-o-matic multilib go-mono pax-utils autotools
 
 DESCRIPTION="Mono runtime and class libraries, a C# compiler/interpreter"
 HOMEPAGE="http://www.mono-project.com/Main_Page"
