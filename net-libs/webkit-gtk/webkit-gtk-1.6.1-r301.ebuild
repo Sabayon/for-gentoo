@@ -144,7 +144,8 @@ src_compile() {
 	# Workaround for Argument list too long seen in:
 	# #300867
 	# Still there on ARM
-	env - PATH=${PATH} HOME=${HOME} emake || die "make install failed"
+	env - PATH="${PATH}" HOME="${HOME}" CFLAGS="${CFLAGS}" LDFLAGS="${LDFLAGS}" \
+		MAKEOPTS="${MAKEOPTS}" emake || die "emake failed"
 
 	# ${PN} neither ships, nor builds documentation on its own
 	if use doc; then
