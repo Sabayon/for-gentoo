@@ -10,13 +10,21 @@ VERSION="0.1"
 # Module variables
 BOOT_DIR="${EROOT}/boot"
 KERNEL_PREFIX="kernel-"
+INITRAMFS_PREFIX="initramfs-"
 UIMAGE_SYM="${BOOT_DIR}/uImage"
+UINITRD_SYM="${BOOT_DIR}/uInitrd"
 
 _is_kernel() {
     local f="${1}"
-    outcome=$(/usr/bin/file --brief "${f}" 2> /dev/null | grep "^u-boot")
+    outcome=$(LC_ALL=C /usr/bin/file --brief "${f}" 2> /dev/null | \
+        grep "^u-boot" | grep -i "kernel image")
     [[ -n "${outcome}" ]] && return 0
     return 1
+}
+
+_get_initramfs() {
+    local kernel_bn="${1}"
+    echo "${kernel_bn/${KERNEL_PREFIX}/${INITRAMFS_PREFIX}}"
 }
 
 find_targets() {
@@ -49,13 +57,23 @@ set_symlink() {
         && die -q "Target \"${target}\" doesn't appear to be valid!"
 
     echo "Setting uImage to ${target}"
-    ln -s "${target}" "${UIMAGE_SYM}"
+    ln -s "${target}" "${UIMAGE_SYM}" || die "Cannot create symlink"
+
+    local initramfs_target=$(_get_initramfs "${target}")
+    if [ -f "${BOOT_DIR}/${initramfs_target}" ]; then
+        echo "Setting uInitrd to ${initramfs_target}"
+        ln -s "${initramfs_target}" "${UINITRD_SYM}" || \
+            die "Cannot create initrd symlink"
+    elif [ -L "${UINITRD_SYM}" ]; then
+        echo "No uInitrd found, removing ${UINITRD_SYM}"
+        rm "${UINITRD_SYM}"
+    fi
 }
 
 ### show action ###
 
 describe_show() {
-    echo "Show the current /boot/uImage kernel"
+    echo "Show the current ${UIMAGE_SYM} kernel and ${UINITRD_SYM} initrd"
 }
 
 describe_show_options() {
