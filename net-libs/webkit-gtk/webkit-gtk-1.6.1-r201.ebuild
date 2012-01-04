@@ -149,7 +149,8 @@ src_compile() {
 	# #300867
 	# Still there on ARM
 	env - PATH="${PATH}" HOME="${HOME}" CFLAGS="${CFLAGS}" LDFLAGS="${LDFLAGS}" \
-		MAKEOPTS="${MAKEOPTS}" emake || die "emake failed"
+		MAKEOPTS="${MAKEOPTS}" DCCC_PATH="${DCCC_PATH}" DISTCC_SSH="${DISTCC_SSH}" \
+		FEATURES="${FEATURES}" emake || die "emake failed"
 }
 
 src_test() {
