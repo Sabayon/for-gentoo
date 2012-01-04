@@ -20,6 +20,7 @@ RDEPEND="
 	app-accessibility/caribou
 	dev-libs/glib:2
 	gnome-base/gconf
+	gnome-base/gnome-menus:3
 	gnome-extra/evolution-data-server
 	>=dev-libs/folks-0.5.2
 	>=dev-libs/gjs-1.29.18
