@@ -1,0 +1,34 @@
+--- a/Charm/CMakeLists.txt
++++ b/Charm/CMakeLists.txt
+@@ -130,7 +130,7 @@ IF( MSVC )
+         SET( Resources_SRCS ${Resources_SRCS} Charm.rc )
+ ENDIF()
+
+-ADD_EXECUTABLE( Charm WIN32 MACOSX_BUNDLE ${Charm_SRCS} ${Resources_SRCS} )
+-TARGET_LINK_LIBRARIES( Charm CharmApplication CharmCore ${QT_LIBRARIES} )
++ADD_EXECUTABLE( charmtimetracker WIN32 MACOSX_BUNDLE ${Charm_SRCS} ${Resources_SRCS} )
++TARGET_LINK_LIBRARIES( charmtimetracker CharmApplication CharmCore ${QT_LIBRARIES} )
+ MESSAGE( STATUS "Charm will be installed to ${CMAKE_INSTALL_PREFIX}" )
+
+@@ -147,7 +147,7 @@ IF( UNIX AND NOT APPLE )
+                  DESTINATION share/icons/hicolor/24x24/apps )
+ ENDIF()
+ 
+-INSTALL( TARGETS Charm DESTINATION ${BIN_INSTALL_DIR} )
++INSTALL( TARGETS charmtimetracker DESTINATION ${BIN_INSTALL_DIR} )
+ IF( APPLE )
+         SET( EXECUTABLE Charm.app )
+ ELSE()
+
+--- a/Charm/Charm.desktop
++++ b/Charm/Charm.desktop
+@@ -38,7 +38,7 @@ GenericName[sv]=Tidmätning
+ GenericName[tr]=Zaman İzleyici
+ GenericName[uk]=Інструмент стеження за часом
+ GenericName[x-test]=xxTime Trackerxx
+-Exec=Charm
++Exec=charmtimetracker
+ Icon=Charm-128x128
+ Type=Application
+ Categories=Qt;KDE;Utility;TimeUtility
+
