@@ -17,6 +17,8 @@ LICENSE="GPL-2"
 #Source location
 SRC_URI="mirror://sabayon/${CATEGORY}/${PN}/${P}.tar.gz"
 
+SLOT="0"
+
 #These make creating new ebuilds much easier
 MIN_QT_VERSION="4.6.3"
 MIN_CMAKE_VERSION_BUILD="2.6"
