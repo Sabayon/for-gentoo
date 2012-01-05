@@ -15,10 +15,7 @@ KEYWORDS="amd64 x86 ~arm ~ppc ~ia64"
 LICENSE="GPL-2"
 
 #Source location
-EGIT_REPO_URI="git://github.com/KDAB/Charm.git https://github.com/KDAB/Charm.git
-git://github.com/katrinaniolet/Charm.git
-https://github.com/katrinaniolet/Charm.git"
-EGIT_COMMIT=${PV}
+SRC_URI="mirror://sabayon/${CATEGORY}/${PN}/${P}.tar.gz"
 
 #These make creating new ebuilds much easier
 MIN_QT_VERSION="4.6.3"
@@ -35,7 +32,6 @@ fi
 CMAKE_BUILD_DIR="${WORKDIR}/${P}/build"
 CMAKE_IN_SOURCE_BUILD="disable"
 
-
 RDEPEND=">=x11-libs/qt-core-${MIN_QT_VERSION}
 	>=x11-libs/qt-gui-${MIN_QT_VERSION}
 	>=x11-libs/qt-sql-${MIN_QT_VERSION}
@@ -46,8 +42,6 @@ RDEPEND=">=x11-libs/qt-core-${MIN_QT_VERSION}
 DEPEND="${DEPEND}
 	>=dev-util/cmake-${CMAKE_MIN_VERSION}
 	"
-
-SLOT="152"
 
 src_prepare() {
 	if use !norename ; then
