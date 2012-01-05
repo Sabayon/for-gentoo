@@ -27,16 +27,14 @@ src_unpack() {
 }
 
 src_prepare() {
-sed -i -e "s:\\\$\+system(git describe --tags):1.0.0:" "${PN}.pro"
+	sed -i -e "s:\\\$\+system(git describe --tags):1.0.0:" "${PN}.pro"
 }
 
 src_install() {
 	dobin unix/librecad || die
 	insinto /usr/share/"${PN}"
 	doins -r unix/resources/* || die
-	if use doc ; then
-		dohtml -r support/doc/*
-	fi
+	use doc && dohtml -r support/doc/*
 	doicon res/main/"${PN}".png
 	make_desktop_entry "${PN}" LibreCAD "${PN}.png" Graphics
 }
