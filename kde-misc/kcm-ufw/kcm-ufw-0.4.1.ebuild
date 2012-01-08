@@ -5,6 +5,7 @@
 EAPI=4
 
 KDE_MINIMAL="4.5"
+KDE_LINGUAS="en es fr lt"
 inherit kde4-base
 
 MY_P="${P/-/_}"
