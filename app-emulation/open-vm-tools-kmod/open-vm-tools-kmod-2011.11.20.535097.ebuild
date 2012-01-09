@@ -1,15 +1,13 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-emulation/open-vm-tools-kmod/open-vm-tools-kmod-0.0.20110328.387002.ebuild,v 1.1 2011/04/19 15:28:32 vadimk Exp $
+# $Header: $
 
-EAPI="2"
+EAPI="4"
 
-inherit linux-mod versionator
+inherit eutils linux-mod versionator
 
-MY_DATE="$(get_version_component_range 3)"
-MY_BUILD="$(get_version_component_range 4)"
 MY_PN="${PN/-kmod}"
-MY_PV="${MY_DATE:0:4}.${MY_DATE:4:2}.${MY_DATE:6:2}-${MY_BUILD}"
+MY_PV="$(replace_version_separator 3 '-')"
 MY_P="${MY_PN}-${MY_PV}"
 
 DESCRIPTION="Opensourced tools for VMware guests"
@@ -51,6 +49,7 @@ pkg_setup() {
 }
 
 src_prepare() {
+	kernel_is ge 3 2 0 && epatch "${FILESDIR}/${PN}-linux-3.2.patch"
 	sed -i.bak -e '/\smake\s/s/make/$(MAKE)/g' modules/linux/{vmblock,vmci,vmhgfs,vmsync,vmxnet,vsock}/Makefile\
 		|| die "Sed failed."
 }
