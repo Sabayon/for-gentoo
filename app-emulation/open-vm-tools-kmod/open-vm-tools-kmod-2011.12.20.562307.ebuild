@@ -4,7 +4,7 @@
 
 EAPI="4"
 
-inherit eutils linux-mod versionator
+inherit linux-mod versionator
 
 MY_PN="${PN/-kmod}"
 MY_PV="$(replace_version_separator 3 '-')"
@@ -49,7 +49,6 @@ pkg_setup() {
 }
 
 src_prepare() {
-	kernel_is ge 3 2 0 && epatch "${FILESDIR}/${PN}-linux-3.2.patch"
 	sed -i.bak -e '/\smake\s/s/make/$(MAKE)/g' modules/linux/{vmblock,vmci,vmhgfs,vmsync,vmxnet,vsock}/Makefile\
 		|| die "Sed failed."
 }
