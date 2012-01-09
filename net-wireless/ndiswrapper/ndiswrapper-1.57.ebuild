@@ -7,7 +7,7 @@ inherit base linux-mod toolchain-funcs
 
 DESCRIPTION="Wrapper for using Windows drivers for some wireless cards"
 HOMEPAGE="http://ndiswrapper.sourceforge.net/"
-SRC_URI="mirror://sourceforge/${PN}/testing/${PV/_/-}/${P/_}.tar.gz"
+SRC_URI="mirror://sourceforge/${PN}/stable/${PV/_/-}/${P/_}.tar.gz"
 
 LICENSE="GPL-2"
 KEYWORDS="amd64 x86"
