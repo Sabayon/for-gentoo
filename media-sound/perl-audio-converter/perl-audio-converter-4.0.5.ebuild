@@ -11,7 +11,7 @@ RESTRICT="mirror"
 KEYWORDS="~x86 ~amd64"
 SLOT="0"
 LICENSE="GPL-3"
-IUSE="amarok bladeenc dolphin faac faad flac ffmpeg konqueror lame mac mplayer toolame tta ogg shorten speex wavpack"
+IUSE="amarok bladeenc dolphin faac faad flac ffmpeg konqueror lame mac mplayer toolame tta ogg shorten speex wavpack sox"
 
 DEPEND="dev-lang/perl"
 
