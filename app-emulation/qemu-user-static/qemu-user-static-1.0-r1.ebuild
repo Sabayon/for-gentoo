@@ -55,7 +55,7 @@ src_compile() {
 
 	filter-flags -fpie -fstack-protector
 
-	./configure ${conf_opts} || die "econf failed"
+	echo ./configure ${conf_opts} || die "econf failed"
 
 	emake || die "emake qemu failed"
 
