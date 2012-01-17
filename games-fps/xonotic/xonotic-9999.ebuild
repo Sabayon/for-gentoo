@@ -14,7 +14,7 @@ EGIT_REPO_URI="${BASE_URI}${PN}.git"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS=""
 IUSE="alsa crypt debug dedicated opengl sdl"
 
 UIRDEPEND="
