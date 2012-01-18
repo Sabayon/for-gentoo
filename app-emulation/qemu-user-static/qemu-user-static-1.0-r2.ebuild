@@ -2,7 +2,9 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-inherit eutils flag-o-matic pax-utils toolchain-funcs
+EAPI=4
+
+inherit eutils base flag-o-matic pax-utils toolchain-funcs
 
 MY_PN=${PN/-user-static/}
 MY_P=${P/-user-static/}
@@ -18,14 +20,14 @@ KEYWORDS="~amd64 ~ppc ~x86 ~ppc64"
 IUSE=""
 RESTRICT="test"
 
-DEPEND="app-text/texi2html dev-util/pkgconfig"
+DEPEND="app-text/texi2html
+	dev-util/pkgconfig
+	sys-libs/zlib[static-libs]"
 RDEPEND=""
 
 S="${WORKDIR}/${MY_P}"
 
-src_unpack() {
-	unpack ${A}
-
+src_prepare() {
 	cd "${S}"
 	# prevent docs to get automatically installed
 	sed -i '/$(DESTDIR)$(docdir)/d' Makefile
@@ -37,9 +39,10 @@ src_unpack() {
 	EPATCH_FORCE="yes" epatch
 }
 
-src_compile() {
-	local conf_opts
+src_configure() {
+	filter-flags -fpie -fstack-protector
 
+	local conf_opts
 	conf_opts="--enable-linux-user --disable-strip"
 	conf_opts+=" --disable-darwin-user --disable-bsd-user"
 	conf_opts+=" --disable-system"
@@ -53,24 +56,25 @@ src_compile() {
 	conf_opts+=" --extra-ldflags=-Wl,-z,execheap"
 	conf_opts+=" --static"
 
-	filter-flags -fpie -fstack-protector
-
 	./configure ${conf_opts} || die "econf failed"
+}
 
+src_compile() {
 	emake || die "emake qemu failed"
-
 }
 
 src_install() {
-	emake DESTDIR="${D}" install || die "make install failed"
+	emake DESTDIR="${ED}" install || die "make install failed"
+
 	# fixup to avoid collisions with qemu
-	base_dir="${D}/usr/bin"
-	for qemu_bin in "${base_dir}/qemu-"*; do
+	base_dir="${ED}/usr/bin"
+	for qemu_bin in "${base_dir}"/qemu-*; do
 		qemu_bin_name=$(basename "${qemu_bin}")
 		mv "${qemu_bin}" "${base_dir}"/"${qemu_bin_name/qemu-/qemu-static-}" || die
 	done
-	pax-mark r "${D}"/usr/bin/qemu-static-*
-	rm -fR "${D}/usr/share"
+
+	pax-mark r "${ED}"/usr/bin/qemu-static-*
+	rm -fr "${ED}/usr/share"
 	dohtml qemu-doc.html
 	dohtml qemu-tech.html
 	newinitd "${FILESDIR}/qemu-user-static.initd" qemu-user-static
