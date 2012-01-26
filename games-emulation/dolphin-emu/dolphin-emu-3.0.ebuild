@@ -27,7 +27,7 @@ RDEPEND=">=media-libs/glew-1.5
 	ao? ( media-libs/libao )
 	alsa? ( media-libs/alsa-lib )
 	bluetooth? ( net-wireless/bluez )
-	encode? ( media-video/ffmpeg[encode] )
+	encode? ( virtual/ffmpeg[encode] )
 	lzo? ( dev-libs/lzo )
 	openal? ( media-libs/openal )
 	opengl? ( virtual/opengl )
