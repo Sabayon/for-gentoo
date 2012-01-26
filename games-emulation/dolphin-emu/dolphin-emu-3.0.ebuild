@@ -41,11 +41,11 @@ DEPEND="${RDEPEND}
 	media-gfx/nvidia-cg-toolkit"
 
 src_prepare() {
-	epatch "${FILESDIR}"/linking_cg_cggl.patch
 	sed -i 	-e "s:check_lib(SFML:\#check_lib(SFML:" CMakeLists.txt || die "sed failed"
 }
 
 src_configure() {
+	LDFLAGS=-L/opt/nvidia-cg-toolkit/lib
 	# filter problematic compiler flags
 	filter-flags -flto -fwhole-program
 	append-flags -fno-pie
