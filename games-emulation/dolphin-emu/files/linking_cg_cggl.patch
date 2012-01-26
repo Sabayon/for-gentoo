@@ -1,0 +1,11 @@
+--- ./Source/Plugins/Plugin_VideoOGL/CMakeLists.txt.org	2011-02-03 22:04:52.045117998 +0100
++++ ./Source/Plugins/Plugin_VideoOGL/CMakeLists.txt	2011-02-03 22:05:05.549117997 +0100
+@@ -23,7 +23,7 @@
+ endif(wxWidgets_FOUND)
+ 
+ if(APPLE OR WIN32 OR ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+-	set(LIBS	${LIBS} Cg CgGL)
++	set(LIBS	${LIBS} ${CG} ${CGGL})
+ endif()
+ 
+ if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")

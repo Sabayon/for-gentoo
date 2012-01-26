@@ -41,6 +41,7 @@ DEPEND="${RDEPEND}
 	media-gfx/nvidia-cg-toolkit"
 
 src_prepare() {
+	epatch "${FILESDIR}"/linking_cg_cggl.patch
 	sed -i 	-e "s:check_lib(SFML:\#check_lib(SFML:" CMakeLists.txt || die "sed failed"
 }
 
