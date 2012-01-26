@@ -1,0 +1,240 @@
+diff --git a/colors/Makefile.am b/colors/Makefile.am
+index 709a367..b043f7f 100644
+--- a/colors/Makefile.am
++++ b/colors/Makefile.am
+@@ -1,6 +1,6 @@
+ AUTOMAKE_OPTIONS = foreign
+ 
+-colordir = $(prefix)/lib/colors
++colordir = $(datadir)/rsl/colors
+ color_DATA = *.???
+ 
+ EXTRA_DIST = $(color_DATA)
+diff --git a/Makefile.am b/Makefile.am
+index 3c106a8..6aca2ec 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -1,73 +1,49 @@
+ ## Process w/ automake.  Or, autoreconf; make ##
++AM_CFLAGS = -DDATADIR="\"$(datadir)/rsl\""
+ AUTOMAKE_OPTIONS = foreign
+ SUBDIRS = . colors doc examples
+ INCLUDES = -I. -I$(srcdir) -I$(prefix)/include -I$(prefix)/toolkit/include
+ 
+-includedir = $(prefix)/include 
+-colordir = $(libdir)/colors
+-
+ lib_LTLIBRARIES = librsl.la
+ 
+-librsl_la_LDFLAGS = -version-info 1:41
+-librsl_la_SOURCES = \
+-$(rapic_c) $(radtec_c)\
+-dorade.c dorade_print.c dorade_to_radar.c\
+-lassen.c lassen_to_radar.c \
+-edge_to_radar.c \
+- radar.c volume.c image_gen.c cappi.c fraction.c read_write.c farea.c \
+- range.c radar_to_uf.c uf_to_radar.c wsr88d_to_radar.c \
+- carpi.c cube.c sort_rays.c toga_to_radar.c gts.c histogram.c \
+- ray_indexes.c anyformat_to_radar.c get_win.c endian.c mcgill_to_radar.c \
+- mcgill.c interp.c toga.c wsr88d.c wsr88d_get_site.c wsr88d_m31.c \
+- gzip.c prune.c reverse.c fix_headers.c \
+- nsig_to_radar.c nsig.c nsig2_to_radar.c \
+- africa_to_radar.c africa.c \
+- radar_to_hdf_2.c hdf_to_radar.c toolkit_memory_mgt.c \
+- radar_to_hdf_1.c rainbow.c rainbow_to_radar.c $(headers)
+-
+-librsl_la_DEPENDENCIES = $(build_headers)
++wsr88ddir = $(datadir)/rsl/
++dist_wsr88d_DATA = wsr88d_locations.dat
+ 
+-build_headers = rsl.h wsr88d.h toolkit_1BC-51_appl.h
++include_HEADERS = rsl.h toolkit_1BC-51_appl.h
+ 
+ headers = africa.h dorade.h lassen.h \
+           mcgill.h nsig.h radtec.h rainbow.h \
+           rapic_routines.h toga.h \
+-		  $(build_headers)
++          wsr88d.h \
++	  $(include_HEADERS)
++
++librsl_la_LDFLAGS = -version-info 1:41
++librsl_la_SOURCES = \
++    $(rapic_c) $(radtec_c) \
++    dorade.c dorade_print.c dorade_to_radar.c \
++    lassen.c lassen_to_radar.c \
++    edge_to_radar.c \
++    radar.c volume.c image_gen.c cappi.c fraction.c read_write.c farea.c \
++    range.c radar_to_uf.c uf_to_radar.c wsr88d_to_radar.c \
++    carpi.c cube.c sort_rays.c toga_to_radar.c gts.c histogram.c \
++    ray_indexes.c anyformat_to_radar.c get_win.c endian.c mcgill_to_radar.c \
++    mcgill.c interp.c toga.c wsr88d.c wsr88d_get_site.c wsr88d_m31.c \
++    gzip.c prune.c reverse.c fix_headers.c \
++    nsig_to_radar.c nsig.c nsig2_to_radar.c \
++    africa_to_radar.c africa.c \
++    radar_to_hdf_2.c hdf_to_radar.c toolkit_memory_mgt.c \
++    radar_to_hdf_1.c rainbow.c rainbow_to_radar.c $(headers)
++
+ 
+ rapic_c =  rapic_to_radar.c rapic.y rapic-lex.l rapic_routines.c
+ radtec_c = radtec_to_radar.c radtec.c
+ 
+ 
+-rsl.h: Makefile
+-	@for h in $(build_headers); do \
+-	echo -n "Checking substitutions in header file $$h ... "; \
+-	cp $$h $$h.in; \
+-	sed -e 's/RSL_VERSION_STR.*/RSL_VERSION_STR \"$(VERSION)\"/' \
+-         -e 's|#define COLORDIR.*|#define COLORDIR \"$(colordir)\"|' \
+-         -e 's|#define WSR88D_SITE_INFO_FILE.*|#define WSR88D_SITE_INFO_FILE \"$(libdir)/wsr88d_locations.dat\"|' \
+-    < $$h.in > $$h.new; \
+-	if cmp -s $$h $$h.new; then \
+-       rm $$h.new; \
+-       echo "$$h remains untouched."; \
+-    else \
+-       mv $$h.new $$h; \
+-       echo "substitutions made in $$h."; \
+-    fi; \
+-	rm -f $$h.in; \
+-    done
+-
+ PREFIX = rapic
+ LFLAGS = -P$(PREFIX)
+ YFLAGS = -d -p $(PREFIX)
+ LEX_OUTPUT_ROOT = lex.$(PREFIX)
+ 
+-
+-install-exec-hook:
+-	$(INSTALL) -d  $(includedir)
+-	$(INSTALL) -m 644 rsl.h $(includedir)
+-	$(INSTALL) -m 644 toolkit_1BC-51_appl.h $(includedir)
+-	$(INSTALL) -m 644 wsr88d_locations.dat $(libdir)
+-
+ EXTRA_DIST = CHANGES Copyright GPL LGPL wsr88d_locations.dat rapic.h
+ 
+ DISTCLEANFILES = rapic.c rapic-lex.c
+diff --git a/radar.c b/radar.c
+index 4078f17..7c07d01 100644
+--- a/radar.c
++++ b/radar.c
+@@ -60,7 +60,7 @@
+ 
+ void RSL_print_version()
+ {
+-  printf("RSL version %s.\n", RSL_VERSION_STR);
++  printf("RSL version %s.\n", VERSION);
+ }
+ 
+ /* Debug printing global variable: radar_verbose_flag */
+diff --git a/radar_to_uf.c b/radar_to_uf.c
+index 0d3af56..53d2d8d 100644
+--- a/radar_to_uf.c
++++ b/radar_to_uf.c
+@@ -321,7 +321,7 @@ void RSL_radar_to_uf_fp(Radar *r, FILE *fp)
+         uf_ma[37] = tm->tm_year % 100; /* Same format as data year */
+         uf_ma[38] = tm->tm_mon+1;
+         uf_ma[39] = tm->tm_mday;
+-        memcpy(&uf_ma[40], "RSL" RSL_VERSION_STR, 8);
++        memcpy(&uf_ma[40], "RSL" VERSION, 8);
+         if (little_endian()) swap2(&uf_ma[40], 8/2);
+         uf_ma[44] = (signed short)UF_NO_DATA;
+         len_ma = 45;
+diff --git a/read_write.c b/read_write.c
+index 644a7b2..1e5f319 100644
+--- a/read_write.c
++++ b/read_write.c
+@@ -314,7 +314,7 @@ int RSL_write_radar_fp(Radar *radar, FILE *fp)
+   if (radar == NULL) return 0;
+   
+   memset(title, 0, sizeof(title));
+-  (void)sprintf(title, "RSL v%s. sizeof(Range) %d", RSL_VERSION_STR, sizeof(Range));
++  (void)sprintf(title, "RSL v%s. sizeof(Range) %d", VERSION, sizeof(Range));
+   n += fwrite(title, sizeof(char), sizeof(title), fp);
+   
+   memset(header_buf, 0, sizeof(header_buf));
+diff --git a/rsl.h b/rsl.h
+index a821765..597069c 100644
+--- a/rsl.h
++++ b/rsl.h
+@@ -27,8 +27,6 @@
+ #include "config.h"
+ #endif
+ 
+-#define RSL_VERSION_STR "v1.41"
+-
+ /**********************************************************************/
+ /* Configure: Define USE_TWO_BYTE_PRECISION to have RSL store internal*/
+ /*            values with two bytes.  Otherwise, use one byte.        */
+@@ -46,7 +44,7 @@
+ /*            so you shouldn't have to modify anything here.          */
+ /**********************************************************************/
+ #ifndef COLORDIR
+-#define COLORDIR "/usr/local/trmm/GVBOX/lib/colors"
++#define COLORDIR DATADIR "/colors"
+ #endif
+ 
+ /* These are the color table indexes. See RSL_set/get_color_table. */
+@@ -57,18 +55,18 @@
+ /* The default color tables for reflectivity, velocity, spectral width,
+  * height, rainfall, and zdr.
+  */
+-#define REFL_RED_FILE   COLORDIR "/red_reflectivity.clr"
+-#define REFL_GREEN_FILE COLORDIR "/grn_reflectivity.clr"
+-#define REFL_BLUE_FILE  COLORDIR "/blu_reflectivity.clr"
+-#define VEL_RED_FILE    COLORDIR "/red_velocity.clr"
+-#define VEL_GREEN_FILE  COLORDIR "/grn_velocity.clr"
+-#define VEL_BLUE_FILE   COLORDIR "/blu_velocity.clr"
+-#define SW_RED_FILE     COLORDIR "/red_spectral_width.clr"
+-#define SW_GREEN_FILE   COLORDIR "/grn_spectral_width.clr"
+-#define SW_BLUE_FILE    COLORDIR "/blu_spectral_width.clr"
+-#define HEIGHT_RED_FILE   COLORDIR "/red_height.clr"
+-#define HEIGHT_GREEN_FILE COLORDIR "/grn_height.clr"
+-#define HEIGHT_BLUE_FILE  COLORDIR "/blu_height.clr"
++#define REFL_RED_FILE       COLORDIR "/red_reflectivity.clr"
++#define REFL_GREEN_FILE     COLORDIR "/grn_reflectivity.clr"
++#define REFL_BLUE_FILE      COLORDIR "/blu_reflectivity.clr"
++#define VEL_RED_FILE        COLORDIR "/red_velocity.clr"
++#define VEL_GREEN_FILE      COLORDIR "/grn_velocity.clr"
++#define VEL_BLUE_FILE       COLORDIR "/blu_velocity.clr"
++#define SW_RED_FILE         COLORDIR "/red_spectral_width.clr"
++#define SW_GREEN_FILE       COLORDIR "/grn_spectral_width.clr"
++#define SW_BLUE_FILE        COLORDIR "/blu_spectral_width.clr"
++#define HEIGHT_RED_FILE     COLORDIR "/red_height.clr"
++#define HEIGHT_GREEN_FILE   COLORDIR "/grn_height.clr"
++#define HEIGHT_BLUE_FILE    COLORDIR "/blu_height.clr"
+ #define RAINFALL_RED_FILE   COLORDIR "/red_rainfall.clr"
+ #define RAINFALL_GREEN_FILE COLORDIR "/grn_rainfall.clr"
+ #define RAINFALL_BLUE_FILE  COLORDIR "/blu_rainfall.clr"
+diff --git a/wsr88d.h b/wsr88d.h
+index ecad620..7d22427 100644
+--- a/wsr88d.h
++++ b/wsr88d.h
+@@ -7,7 +7,7 @@
+  * The directory should be the same as the LIBDIR in the makefile.
+  */
+ #ifndef WSR88D_SITE_INFO_FILE
+-#define WSR88D_SITE_INFO_FILE "/usr/local/trmm/GVBOX/lib/wsr88d_locations.dat"
++#define WSR88D_SITE_INFO_FILE DATADIR "/wsr88d_locations.dat"
+ #endif
+ /*===============================================================*/
+ typedef struct {
+diff --git a/doc/Makefile.am b/doc/Makefile.am
+index 6acc059..d4fc3fd 100644
+--- a/doc/Makefile.am
++++ b/doc/Makefile.am
+@@ -1,12 +1,3 @@
+ AUTOMAKE_OPTIONS = foreign
+ 
+-docdir = $(prefix)/doc/$(PACKAGE)
+-doc_DATA = *.html *.gif *.jpg
+-
+-EXTRA_DIST = $(doc_DATA) *.fig 
+-
+-install-exec-hook:
+-	-mkdir $(prefix)/doc
+-	-mkdir $(docdir)
+-	$(INSTALL) -m 444 ../README $(docdir)
+-	$(INSTALL) -m 444 ../CHANGES $(docdir)
++dist_doc_DATA = *.html *.gif *.jpg *.fig ../README ../CHANGES
+-- 
+1.7.3.4
+
