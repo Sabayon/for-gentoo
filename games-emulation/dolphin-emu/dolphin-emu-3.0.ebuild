@@ -56,6 +56,8 @@ src_configure() {
 		-Dprefix=${GAMES_PREFIX}
 		-Ddatadir=${GAMES_DATADIR}/${PN}
 		-Dplugindir=$(games_get_libdir)/${PN}
+		-DCMAKE_INCLUDE_PATH=/opt/nvidia-cg-toolkit/include
+		-DCMAKE_LIBRARY_PATH=/opt/nvidia-cg-toolkit/lib
 		$(cmake-utils_use !wxwidgets DISABLE_WX)
 		$(cmake-utils_use encode ENCODE_FRAMEDUMPS)"
 	cmake-utils_src_configure
