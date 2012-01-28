@@ -6,7 +6,7 @@ HOMEPAGE="http://www.sabayon.org"
 SRC_URI=""
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="x86 amd64 ppc ppc64 sparc"
+KEYWORDS="amd64 arm ppc ppc64 sparc x86"
 IUSE=""
 
 RDEPEND=""
