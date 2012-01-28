@@ -15,7 +15,7 @@ HOMEPAGE="http://projects.gnome.org/NetworkManager/"
 LICENSE="GPL-2"
 SLOT="0"
 IUSE="bluetooth"
-KEYWORDS="~amd64 ~ppc ~x86"
+KEYWORDS="~amd64 ~arm ~ppc ~x86"
 
 RDEPEND="!gnome-extra/nm-applet
 	>=dev-libs/glib-2.16:2
