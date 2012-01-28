@@ -17,7 +17,9 @@ SABAYON_SOURCES="sys-kernel/sabayon-sources
 		sys-kernel/server-sources
 		sys-kernel/rt-sources
 		sys-kernel/xen-dom0-sources
-		sys-kernel/xen-domU-sources"
+		sys-kernel/xen-domU-sources
+		sys-kernel/beagle-sources
+		sys-kernel/beaglebone-sources"
 
 DEPEND=""
 RDEPEND="|| (
