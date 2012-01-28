@@ -57,12 +57,12 @@ set_symlink() {
         && die -q "Target \"${target}\" doesn't appear to be valid!"
 
     echo "Setting uImage to ${target}"
-    ln -s "${target}" "${UIMAGE_SYM}" || die "Cannot create symlink"
+    ln -sf "${target}" "${UIMAGE_SYM}" || die "Cannot create symlink"
 
     local initramfs_target=$(_get_initramfs "${target}")
     if [ -f "${BOOT_DIR}/${initramfs_target}" ]; then
         echo "Setting uInitrd to ${initramfs_target}"
-        ln -s "${initramfs_target}" "${UINITRD_SYM}" || \
+        ln -sf "${initramfs_target}" "${UINITRD_SYM}" || \
             die "Cannot create initrd symlink"
     elif [ -L "${UINITRD_SYM}" ]; then
         echo "No uInitrd found, removing ${UINITRD_SYM}"
