@@ -3,7 +3,9 @@
 # $Header: /var/cvsroot/gentoo-x86/dev-lang/spidermonkey/spidermonkey-1.8.5-r1.ebuild,v 1.2 2011/11/26 04:49:25 dirtyepic Exp $
 
 EAPI="3"
-inherit eutils toolchain-funcs multilib python versionator pax-utils
+
+WANT_AUTOCONF="2.1"
+inherit autotools eutils toolchain-funcs multilib python versionator pax-utils
 
 MY_PN="js"
 TARBALL_PV="$(replace_all_version_separators '' $(get_version_component_range 1-3))"
@@ -38,6 +40,13 @@ src_prepare() {
 	epatch "${FILESDIR}/${P}-fix-install-symlinks.patch"
 	# https://bugzilla.mozilla.org/show_bug.cgi?id=638056#c9
 	epatch "${FILESDIR}/${P}-fix-ppc64.patch"
+	# Sabayon: armv7 fixes
+	# Fix compilation on ARMv7, causes configure to fail due to -mfloat-abi=softfp
+	# being there when it shouldn't be. Similar to pixman issue:
+	# https://bugzilla.mozilla.org/show_bug.cgi?id=618570
+	# Fix build system arm if conditions, TARGET_CPU is something like "armv7a" and
+	# not just "arm".
+	epatch "${FILESDIR}/${P}-fix-arm-crap.patch"
 
 	epatch_user
 
@@ -46,11 +55,8 @@ src_prepare() {
 		ln -sfn "${BUILDDIR}/config/Linux_All.mk" "${S}/config/$(uname -s)$(uname -r).mk"
 	fi
 
-	# Fix compilation on ARMv7, causes configure to fail due to -mfloat-abi=softfp
-	# being there when it shouldn't be. Similar to pixman issue:
-	# https://bugzilla.mozilla.org/show_bug.cgi?id=618570
-	sed -i "s:-mfloat-abi=softfp::g" "${BUILDDIR}/configure" || die
-	sed -i "s:-mfloat-abi=softfp::g" "${BUILDDIR}/configure.in" || die
+	# reconf due to fix-arm-crap.patch
+	cd "${BUILDDIR}" && eautoreconf
 }
 
 src_configure() {
