@@ -40,7 +40,14 @@ src_prepare() {
 	epatch "${FILESDIR}/${P}-fix-install-symlinks.patch"
 	# https://bugzilla.mozilla.org/show_bug.cgi?id=638056#c9
 	epatch "${FILESDIR}/${P}-fix-ppc64.patch"
+
 	# Sabayon: armv7 fixes
+	# reconf due to fix-arm-crap.patch (this rebuilds Makefile.in
+	# and allows for proper patching it [hack, determine why
+	# if forces "arm" instead of "arm%" on:
+	#   ifeq (,$(filter arm %86 x86_64,$(TARGET_CPU)))
+	# ])
+	cd "${BUILDDIR}" && eautoreconf
 	# Fix compilation on ARMv7, causes configure to fail due to -mfloat-abi=softfp
 	# being there when it shouldn't be. Similar to pixman issue:
 	# https://bugzilla.mozilla.org/show_bug.cgi?id=618570
