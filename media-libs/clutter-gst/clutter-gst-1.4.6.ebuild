@@ -9,7 +9,7 @@ CLUTTER_LA_PUNT="yes"
 # inherit clutter after gnome2 so that defaults aren't overriden
 # inherit gnome.org in the end so we use gnome mirrors and get the xz tarball
 # no PYTHON_DEPEND, python2 is just a build-time dependency
-inherit libtool python gnome2 clutter gnome.org
+inherit autotools libtool python gnome2 clutter gnome.org
 
 DESCRIPTION="GStreamer Integration library for Clutter"
 
@@ -38,10 +38,11 @@ pkg_setup() {
 }
 
 src_prepare() {
+	gnome2_src_prepare
 	# this is for arm, since shipped libtool
 	# has problems with $to_tool_file_cmd being
 	# unset
-	elibtoolize
+	eautoreconf
 }
 
 src_compile() {
