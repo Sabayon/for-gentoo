@@ -38,11 +38,11 @@ pkg_setup() {
 }
 
 src_prepare() {
-	gnome2_src_prepare
 	# this is for arm, since shipped libtool
 	# has problems with $to_tool_file_cmd being
 	# unset
 	eautoreconf
+	gnome2_src_prepare
 }
 
 src_compile() {
