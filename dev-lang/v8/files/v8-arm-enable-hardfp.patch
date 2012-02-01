@@ -1,0 +1,11 @@
+--- v8-3.8.7.1.orig/build/common.gypi
++++ v8-3.8.7.1/build/common.gypi
+@@ -57,7 +57,7 @@
+     # EABI calling convention where double arguments are passed in VFP
+     # registers. Note that the GCC flag '-mfloat-abi=hard' should be used as
+     # well when compiling for the ARM target.
+-    'v8_use_arm_eabi_hardfloat%': 'false',
++    'v8_use_arm_eabi_hardfloat%': 'true',
+ 
+     # Similar to the ARM hard float ABI but on MIPS.
+     'v8_use_mips_abi_hardfloat%': 'true',

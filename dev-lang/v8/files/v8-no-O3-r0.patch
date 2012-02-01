@@ -1,0 +1,11 @@
+--- SConstruct.orig	2010-08-02 04:00:18.000000000 +0200
++++ SConstruct	2010-08-02 04:00:28.000000000 +0200
+@@ -148,7 +148,7 @@
+       }
+     },
+     'mode:release': {
+-      'CCFLAGS':      ['-O3', '-fomit-frame-pointer', '-fdata-sections',
++      'CCFLAGS':      ['-fomit-frame-pointer', '-fdata-sections',
+                        '-ffunction-sections'],
+       'os:android': {
+         'CCFLAGS':    ['-mthumb', '-Os'],
