@@ -3,7 +3,7 @@
 # $Header: $
 
 EAPI="3"
-inherit eutils versionator autotools
+inherit eutils versionator autotools flag-o-matic
 
 MY_PV=$(replace_version_separator 2 '-')
 DESCRIPTION="Motion picture editing tool used for painting and retouching of movies"
@@ -60,8 +60,9 @@ src_configure(){
 			|| die "sed failed"
 	fi
 
-	# Filter --as-needed in LDFLAGS
-	# filter-ldflags "--as-needed"
+	# because upstream doesn't seem to want it and tries to filter it
+	# (see below)
+	filter-ldflags "-Wl,-O?"
 
 	# use empty PRINT because of:
 	# Making all in cups
