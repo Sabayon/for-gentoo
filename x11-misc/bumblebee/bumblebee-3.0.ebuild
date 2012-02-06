@@ -27,8 +27,8 @@ IUSE="video_cards_nouveau video_cards_nvidia"
 RDEPEND="x11-misc/virtualgl
 	sys-kernel/bbswitch
 	virtual/opengl
-	video_cards_nouveau?       ( x11-drivers/xf86-video-nouveau )
-	video_cards_nvidia?        ( x11-drivers/nvidia-drivers )"
+	video_cards_nouveau? ( x11-drivers/xf86-video-nouveau )
+	video_cards_nvidia? ( x11-drivers/nvidia-drivers )"
 DEPEND=">=sys-devel/autoconf-2.68
 	sys-devel/automake
 	sys-devel/gcc
