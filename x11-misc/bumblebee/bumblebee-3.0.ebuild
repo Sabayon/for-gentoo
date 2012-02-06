@@ -27,7 +27,8 @@ IUSE="video_cards_nouveau video_cards_nvidia"
 RDEPEND="x11-misc/virtualgl
 	sys-kernel/bbswitch
 	virtual/opengl
-	x11-base/xorg-drivers[video_cards_nvidia?,video_cards_nouveau?]"
+	video_cards_nouveau?       ( x11-drivers/xf86-video-nouveau )
+	video_cards_nvidia?        ( x11-drivers/nvidia-drivers )"
 DEPEND=">=sys-devel/autoconf-2.68
 	sys-devel/automake
 	sys-devel/gcc
@@ -37,6 +38,7 @@ DEPEND=">=sys-devel/autoconf-2.68
 	dev-libs/libbsd
 	sys-apps/help2man
 	${RDEPEND}"
+
 src_configure() {
 	( ! use video_cards_nvidia && ! use video_cards_nouveau ) && \
 	die "You should enable at least one of supported VIDEO_CARDS!"
