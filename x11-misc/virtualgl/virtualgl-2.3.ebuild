@@ -27,7 +27,7 @@ LICENSE="LGPL-2.1 wxWinLL-3.1"
 IUSE="ssl"
 
 RDEPEND="ssl? ( dev-libs/openssl )
-	media-libs/libjpeg-turbo
+	virtual/jpeg
 	x11-libs/libX11
 	x11-libs/libXext
 	x11-libs/libXv
