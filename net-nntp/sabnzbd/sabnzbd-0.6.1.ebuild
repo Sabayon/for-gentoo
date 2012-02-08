@@ -19,7 +19,7 @@ SRC_URI="mirror://sourceforge/sabnzbdplus/${MY_P}-src.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS=""
+KEYWORDS="~amd64 ~x86"
 IUSE="+rar unzip rss +yenc ssl"
 
 RDEPEND="
