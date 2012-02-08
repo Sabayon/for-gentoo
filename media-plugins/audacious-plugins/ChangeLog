@@ -1,6 +1,30 @@
 # ChangeLog for media-plugins/audacious-plugins
-# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/media-plugins/audacious-plugins/ChangeLog,v 1.229 2011/12/07 13:46:51 phajdan.jr Exp $
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/media-plugins/audacious-plugins/ChangeLog,v 1.234 2012/02/02 09:12:49 jdhore Exp $
+
+  02 Feb 2012; Jeff Horelick <jdhore@gentoo.org> audacious-plugins-3.2.ebuild:
+  Default the gtk USE flag on to be consistent with media-sound/audacious.
+
+  02 Feb 2012; Jeff Horelick <jdhore@gentoo.org> audacious-plugins-3.1.1.ebuild,
+  audacious-plugins-3.1.ebuild:
+  Kill off the sse2 USE flag from the 3.1 ebuilds as its been dropped. Closes
+  bug #393371.
+
+*audacious-plugins-3.2 (02 Feb 2012)
+
+  02 Feb 2012; Jeff Horelick <jdhore@gentoo.org> +audacious-plugins-3.2.ebuild,
+  metadata.xml:
+  Version bump. New ebuild also includes many improvements such as gtk+:2
+  support re-added, old configure switches dropped and more. Fixes bugs #393371
+  and #401293. Also, set myself as the new maintainer.
+
+  17 Jan 2012; Tobias Klausmann <klausman@gentoo.org>
+  audacious-plugins-3.1.ebuild:
+  Stable on alpha, bug #383991
+
+  15 Jan 2012; Tobias Klausmann <klausman@gentoo.org>
+  audacious-plugins-3.1.ebuild:
+  Stable on alpha, bug #383991
 
   07 Dec 2011; Pawel Hajdan jr <phajdan.jr@gentoo.org>
   audacious-plugins-3.1.ebuild:
