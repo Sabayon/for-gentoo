@@ -15,5 +15,5 @@ SRC_URI="http://sabnzbd.sourceforge.net/yenc-0.3.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS=""
+KEYWORDS="~amd64 ~x86"
 IUSE=""
