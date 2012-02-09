@@ -44,5 +44,5 @@ src_configure() {
 	  $(use_enable webkit web)
 	  --disable-build-examples
 	"
-	efl_src_configure
+        enlightenment_src_configure
 } 
