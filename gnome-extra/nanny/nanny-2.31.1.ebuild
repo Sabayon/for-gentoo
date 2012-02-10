@@ -1,9 +1,9 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
 EAPI=3
-PYTHON_DEPEND="2:2.4"
+PYTHON_DEPEND="2:2.5"
 
 inherit eutils python
 
@@ -16,7 +16,7 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
 
-DEPEND="
+CDEPEND="
 	>=gnome-base/gnome-desktop-2.26.0
 	gnome-base/libglade
 	dev-python/gconf-python
@@ -27,10 +27,11 @@ DEPEND="
 	dev-python/pygtk
 	dev-python/twisted
 	dev-python/twisted-web
-	dev-util/pkgconfig
 	media-libs/alsa-lib"
 
-RDEPEND="${DEPEND}
+DEPEND="${CDEPEND}
+	dev-util/pkgconfig"
+RDEPEND="${CDEPEND}
 	x11-libs/libgksu"
 
 src_prepare() {
