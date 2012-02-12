@@ -15,7 +15,7 @@ ECVS_MODULE="libgig"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS=""
+KEYWORDS="~amd64 ~x86"
 IUSE="doc"
 RDEPEND=">=media-libs/libsndfile-1.0.2
 	>=media-libs/audiofile-0.2.3"
