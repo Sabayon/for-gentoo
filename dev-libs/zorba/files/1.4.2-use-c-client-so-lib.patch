@@ -1,0 +1,53 @@
+diff --git a/cmake_modules/FindCClient.cmake b/cmake_modules/FindCClient.cmake
+index bb03a21..75a6d3b 100644
+--- a/cmake_modules/FindCClient.cmake
++++ b/cmake_modules/FindCClient.cmake
+@@ -32,10 +32,10 @@ find_path(
+ mark_as_advanced(CCLIENT_INCLUDE)
+ 
+ # Look for the library.
+-find_file(
++find_library(
+   CCLIENT_LIBRARY
+-  NAMES libc-client.a libc-client4.a
+-  PATHS ${CCLIENT_LIBRARY_DIRS} /opt/local/lib /usr/lib
++  NAMES c-client c-client4
++  PATHS ${CCLIENT_LIBRARY_DIRS} /opt/local/lib /usr/lib64 /usr/lib
+   DOC "Library to link against for the email support (libc-client.a, libc-client4.a or cclient.lib)")
+ 
+ if (CCLIENT_LIBRARY)
+diff --git a/modules/com/zorba-xquery/www/modules/email/CMakeLists.txt b/modules/com/zorba-xquery/www/modules/email/CMakeLists.txt
+index aababe0..5024ea5 100644
+--- a/modules/com/zorba-xquery/www/modules/email/CMakeLists.txt
++++ b/modules/com/zorba-xquery/www/modules/email/CMakeLists.txt
+@@ -14,25 +14,20 @@
+ 
+ # CClient library part of the UW IMAP toolkit required by the email functionality
+ FIND_PACKAGE(CClient)
+-IF (NOT WIN32 AND NOT CYGWIN)
+-  FIND_PACKAGE(PAM)
+-ENDIF (NOT WIN32 AND NOT CYGWIN)
+ 
+-IF(CCLIENT_FOUND)
++IF(CCLIENT_FOUND AND ZORBA_MAIL_SUPPORT)
+ 
+   SET(SMTP_LINK_LIBRARIES ${CCLIENT_LIBRARY})
+ 
+   INCLUDE_DIRECTORIES(${CCLIENT_INCLUDE})
+-  IF (NOT WIN32 AND NOT CYGWIN)
+-    LIST(APPEND SMTP_LINK_LIBRARIES ${PAM_LIBRARIES})
+-  ELSE (NOT WIN32 AND NOT CYGWIN)
++  IF (WIN32 OR CYGWIN)
+     LIST(APPEND SMTP_LINK_LIBRARIES secur32.lib crypt32.lib winmm.lib ws2_32.lib)
+-  ENDIF (NOT WIN32 AND NOT CYGWIN)
++  ENDIF (WIN32 OR CYGWIN)
+ 
+   GENERATE_MODULE_LIBRARY(smtp "${SMTP_LINK_LIBRARIES}")
+ 
+-ELSE(CCLIENT_FOUND)
++ELSE(CCLIENT_FOUND AND ZORBA_MAIL_SUPPORT)
+ 
+   MESSAGE(STATUS "Warning: CClient library not found -- if you want to use Email functionality please set CCLIENT_INCLUDE and CCLIENT_LIBRARY parameters.")
+ 
+-ENDIF( CCLIENT_FOUND)
++ENDIF( CCLIENT_FOUND AND ZORBA_MAIL_SUPPORT )
