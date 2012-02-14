@@ -29,5 +29,6 @@ src_compile() {
 }
 
 src_install() {
-	emake DESTDIR="${D}" install || die "emake install failed"
+	emake DESTDIR="${D}" PLATFORM=IMX51 LIB_VERSION_MAJOR=2 \
+		LIB_VERSION_MINOR=0 install || die "emake install failed"
 }
