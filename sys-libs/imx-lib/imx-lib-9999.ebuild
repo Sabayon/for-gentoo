@@ -25,10 +25,9 @@ src_compile() {
 		INCLUDE="-I${ROOT}/usr/src/linux/include \
 				 -I${ROOT}/usr/src/linux/drivers/mxc/security/rng/include \
 				 -I${ROOT}/usr/src/linux/drivers/mxc/security/sahara2/include" \
-		PLATFORM="IMX51" all || die "emake failed."
+		PLATFORM="IMX51" all || die "emake failed"
 }
 
 src_install() {
-	# Their Makefile doesn't support DESTDIR, they call it DEST_DIR.
-	emake DEST_DIR="${D}" install || die "emake install failed."
+	emake DESTDIR="${D}" install || die "emake install failed"
 }
