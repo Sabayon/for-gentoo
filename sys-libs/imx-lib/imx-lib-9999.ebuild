@@ -25,6 +25,7 @@ src_compile() {
 		INCLUDE="-I${ROOT}/usr/src/linux/include \
 				 -I${ROOT}/usr/src/linux/drivers/mxc/security/rng/include \
 				 -I${ROOT}/usr/src/linux/drivers/mxc/security/sahara2/include" \
+		LIB_VERSION_MAJOR=2 LIB_VERSION_MINOR=0 \
 		PLATFORM="IMX51" all || die "emake failed"
 }
 
