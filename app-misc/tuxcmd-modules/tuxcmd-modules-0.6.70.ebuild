@@ -1,4 +1,4 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -20,6 +20,10 @@ RDEPEND=">=app-misc/tuxcmd-0.6.70
 	gnome? ( >=gnome-base/gvfs-1.2.0 )
 	libarchive? ( >=app-arch/libarchive-2.5.5 )"
 DEPEND="${RDEPEND}"
+
+src_prepare() {
+	epatch "${FILESDIR}/${PN}-libarchive3.patch"
+}
 
 src_compile() {
 	if use gnome; then
