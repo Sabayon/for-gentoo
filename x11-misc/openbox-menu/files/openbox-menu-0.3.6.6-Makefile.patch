@@ -1,0 +1,39 @@
+Respect user's CFLAGS etc., don't strip the resulting binary
+and add missing include.
+
+Sławomir Nizio <slawomir.nizio at sabayon.org>
+diff -urp openbox-menu-0.3.6.6/Makefile openbox-menu-0.3.6.6.new/Makefile
+--- openbox-menu-0.3.6.6/Makefile	2011-11-13 14:34:04.000000000 +0100
++++ openbox-menu-0.3.6.6.new/Makefile	2012-02-16 23:54:08.201494272 +0100
+@@ -1,5 +1,5 @@
+ LIBS= `pkg-config --libs glib-2.0 gtk+-2.0 libmenu-cache`
+-CFLAGS= -Wall -O -g `pkg-config --cflags glib-2.0 gtk+-2.0 libmenu-cache`
++CFLAGS+= -Wall -g `pkg-config --cflags glib-2.0 gtk+-2.0 libmenu-cache`
+ 
+ SRC= $(shell ls *.c 2> /dev/null)
+ OBJ= $(SRC:.c=.o)
+@@ -7,11 +7,10 @@ OBJ= $(SRC:.c=.o)
+ all: $(OBJ) openbox-menu
+ 
+ %.o: %.c
+-	gcc $(CFLAGS) -c $< -o $@
++	$(CC) $(CFLAGS) -c $< -o $@
+ 
+ openbox-menu: $(OBJ)
+-	gcc $(LIBS) $(OBJ) -o openbox-menu
+-	strip -s openbox-menu
++	$(CC) $(OBJ) -o openbox-menu $(LDFLAGS) $(LIBS) 
+ 
+ .PHONY: clean
+ 
+diff -urp openbox-menu-0.3.6.6/menu.c openbox-menu-0.3.6.6.new/menu.c
+--- openbox-menu-0.3.6.6/menu.c	2011-11-13 14:34:04.000000000 +0100
++++ openbox-menu-0.3.6.6.new/menu.c	2012-02-16 23:53:55.800918225 +0100
+@@ -20,6 +20,7 @@
+ #include <gtk/gtk.h>
+ #include <glib/gi18n.h>
+ #include <menu-cache.h>
++#include <locale.h>
+ 
+ #include "openbox-menu.h"
+ 
