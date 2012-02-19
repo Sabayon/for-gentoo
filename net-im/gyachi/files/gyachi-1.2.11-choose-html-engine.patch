@@ -1,0 +1,23 @@
+Provide option to choose between gtkhtml and webkit-gtk.
+Sławomir Nizio <slawomir.nizio at sabayon.org>
+--- gyachi-1.2.11/configure.ac.tmpl
++++ gyachi-1.2.11/configure.ac.tmpl
+@@ -375,9 +375,16 @@
+ AC_SUBST(SSL_LIBS)
+ AC_SUBST(SSL_CFLAGS)
+ 
++AC_ARG_WITH([gtkhtml], AS_HELP_STRING([--without-gtkhtml], [Build without gtkhtml (default: test)]))
++AC_ARG_WITH([webkit], AS_HELP_STRING([--with-webkit], [Build with webkit-gtk (default: disabled)]))
+ 
+-PKG_CHECK_MODULES([GTKHTML2],  [libgtkhtml-2.0 >= 2.0], , [AC_MSG_NOTICE(GTKHTML2 support disabled.)]  )
+-PKG_CHECK_MODULES([WEBKITGTK], webkit-1.0,              , [AC_MSG_NOTICE(WEBKITGTK support disabled.)] )
++AS_IF([test "x$with_gtkhtml" != "xno"], [
++	PKG_CHECK_MODULES([GTKHTML2],  [libgtkhtml-2.0 >= 2.0], , [AC_MSG_NOTICE(GTKHTML2 support disabled.)]  )
++])
++
++AS_IF([test "x$with_webkit" = "xyes"], [
++	PKG_CHECK_MODULES([WEBKITGTK], webkit-1.0,              , [AC_MSG_NOTICE(WEBKITGTK support disabled.)] )
++])
+ 
+ if test "x$WEBKITGTK_LIBS" != "x"; then
+ 	AC_MSG_NOTICE(using WEBKITGTK for HTML support)

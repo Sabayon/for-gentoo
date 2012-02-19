@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
-<herd>no-herd</herd>
 <maintainer>
 <email>slawomir.nizio@sabayon.org</email>
 </maintainer>
@@ -11,6 +10,7 @@
 	<flag name="gtkspell">compile/generate gtkspell spell check</flag>
 	<flag name="mcrypt">compile/generate MCrypt encryption plugin</flag>
 	<flag name="voice">for GYVoice (voice program)</flag>
+	<flag name="webkit">use webkit-gtk instead of gtkhtml</flag>
 </use>
 </pkgmetadata>
 
