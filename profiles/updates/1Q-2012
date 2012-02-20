@@ -1,1 +1,2 @@
 move x11-misc/cinnamon gnome-extra/cinnamon
+move sys-kernel/bbswitch x11-drivers/bbswitch
