@@ -1,7 +1,7 @@
 #!/sbin/runscript
 
 # original Author: Wilfried Goesgens <citadel@outgesourced.org>
-# adapted for Gentoo: the_mgt <themgt@mail.ru>
+# adapted for Gentoo: the_mgt <themgt@uncensored.citadel.org>
 
 depend() {
         use dns logger
@@ -9,29 +9,31 @@ depend() {
         provide mta
 }
 
-RUNDIR="/var/run/citadel"
 DAEMON="/usr/sbin/citserver"
-PIDFILE="${RUNDIR}/citadel.pid"
-SENDCOMMAND="/usr/sbin/sendcommand"
-
-# Exit if the package is not installed
-[ -x "$DAEMON" ] || exit 0
+CIT_CONFIG="/var/lib/citadel/data/citadel.config"
 
 start() {
+
+	if [ ! -r "${CIT_CONFIG}" ] ; then
+		eerror "Cannot read the configuration file \`${CIT_CONFIG}'"
+		return 1
+	fi
+
 	ebegin "Starting citserver"
-	start-stop-daemon --start --exec /usr/sbin/citserver -- ${CITSERVER_OPTS}
+
+	start-stop-daemon \
+		--start \
+		--exec "${DAEMON}" \
+		-- ${CITSERVER_OPTS}
 	eend $?
 }
 
 stop() {
-	ebegin "Stopping citserver"
-	${SENDCOMMAND} DOWN &>/dev/null
-	eend $?
-}
+        ebegin "Stopping citserver"
 
-restart() {
-	ebegin "Restarting citserver"
-	#sleep command mandatory due to long shutdown time!
-	svc_stop && sleep 3 && svc_start
-	eend $? "Failed to restart Citadel"
+        start-stop-daemon \
+                --stop \
+                --exec "${DAEMON}" \
+                --retry 61
+        eend $?
 }

@@ -1,0 +1,62 @@
+# ChangeLog for dev-libs/libcitadel
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: $
+
+*libcitadel-8.04 (19 Feb 2012)
+
+  19 Feb 2012; the_mgt themgt@uncensored.citadel.org -libcitadel-7.86.ebuild,
+  +libcitadel-8.04.ebuild:
+  Version bump to 8.04, EAPI=4 and minor improvements. Thanks to floppym and
+  hasufell.
+
+  21 Apr 2011; the_mgt themgt@mail.ru libcitadel-7.86.ebuild:
+  Fixed a typo in replace-flags: Used zero instead of O for -O3 filtering
+
+  21 Apr 2011; the_mgt themgt@mail.ru -libcitadel-7.85.ebuild,
+  +libcitadel-7.86.ebuild:
+  Version bump due to fresh release of whole Citadel suite
+
+  17 Mar 2011; Nathan Phillip Brink (binki) <ohnobinki@ohnopublishing.net>
+  libcitadel-7.85.ebuild:
+  Remove newline which confuses repoman.
+
+  29 Jan 2011; the_mgt the_mgt themgt@mail.ru -libcitadel-7.84.ebuild,
+  +libcitadel-7.85.ebuild:
+  Version Bump, added flag filtering for -O3, since it also contains -finline-functions. Waiting for upstream fix.
+
+  20 Dec 2010; the_mgt themgt@mail.ru -libcitadel-7.83.ebuild,
+  +libcitadel-7.84.ebuild:
+  Late version bump to most recent version of Citadel suite packages
+
+  13 Aug 2010; Thomas Sachau (Tommy[D]) <tommy@gentoo.org>
+  libcitadel-7.83.ebuild:
+  Replace spaces with tab
+
+  10 Aug 2010; the_mgt (the_mgt) <themgt@mail.ru> libcitadel-7.83.ebuild:
+  Re-added the install phase so the files compiled by this ebuild do really
+  get installed...
+
+  03 Aug 2010; the_mgt (the_mgt) <themgt@mail.ru> -libcitadel-7.81.ebuild,
+  +libcitadel-7.83.ebuild:
+  Version bump by renaming the libcitadel ebuild
+
+  22 Jul 2010; the_mgt (the_mgt) <themgt@mail.ru> -libcitadel-7.72.ebuild,
+  +libcitadel-7.81.ebuild:
+  Version bump to 7.81, added flag-o-matic filter for -finline-functions
+
+  21 Feb 2010; the_mgt themgt@mail.ru -libcitadel-7.71.ebuild,
+  +libcitadel-7.72.ebuild:
+  Version bump for libcitadel, bugfix/maintenance update
+
+  08 Feb 2010; the_mgt themgt@mail.ru -libcitadel-7.66.ebuild,
+  +libcitadel-7.71.ebuild:
+  Version bump for libcitadel to current 7.71 version
+
+  04 Oct 2009; Thomas Sachau (Tommy[D]) <tommy@gentoo.org>
+  -libcitadel-7.63.ebuild, metadata.xml:
+  Nuke old version, fix metadata.xml and Changelog
+
+  04 Oct 2009; the_mgt themgt@mail.ru +libcitadel-7.63.ebuild,
+  +libcitadel-7.66.ebuild, +metadata.xml:
+  New Ebuild for bug 286323, blocking bug 62119 and 123139. Thanks for the
+  reviews and help to the people of #gentoo-sunrise

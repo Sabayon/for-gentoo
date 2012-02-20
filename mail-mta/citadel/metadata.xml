@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer><email>maintainer-wanted@gentoo.org</email></maintainer>
+	<longdescription>Citadel comes with a long history, it started out as
+		BBS long ago and has evolved into a comfortable and easy to use
+		and install groupware/email/jabber server. It offers mailing
+		lists, a chatroom and general BBS/forumstyle communication.
+		There is a traditional command line interface (also needed for
+		 some advanced configuration stuff) which gets installed with
+		this ebuild. For the full experience WebCit is offered.
+		(The Citadel server itself and WebCit can run on different
+		locations!)
+	</longdescription>
+	<use>
+		<flag name="pic">Build position-independent executables</flag>
+		<flag name="postfix">Makes it possible to run citadel alongside Postfix. Mailwrapper replacement.</flag>
+	</use>
+	<upstream>
+		<maintainer>
+			<email>IGnatiusTFoobar@uncensored.citadel.org</email>
+			<name>IGnatius T Foobar</name>
+		</maintainer>
+		<doc>http://www.citadel.org/doku.php/doku.php?id=documentation:start</doc>
+		<bugs-to>http://bugzilla.citadel.org/</bugs-to>
+	</upstream>
+</pkgmetadata>

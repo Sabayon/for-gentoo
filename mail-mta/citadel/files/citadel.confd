@@ -16,10 +16,9 @@ LogLevel="3"
 #Or mess around with -hHomeDir, which i do not recommend
 CITSERVER_OPTS="-d -x${LogLevel} -l${LogFacility}"
 
-#-l		Log facility. Usually ‚..mail‚.ù
+#-l		Log facility. Usually ‚Äúmail‚Äù
 #-d		daemonize (detach from controlling terminal)
 #-D		print the directories the server would access to stderr on startup
 #-t${TraceFile}	Send log messages to a file instead of syslog
 #-x${LogLevel}	Verbosity level of logging (0 to 9)
-#-h${HomeDir}	Data directory for this Citadel installation. If the directory name begins with a forward slash, it is an absolute path; otherwise it 
-is relative to the default. Watch the output of -D to observe the effects.
+#-h${HomeDir}	Data directory for this Citadel installation. If the directory name begins with a forward slash, it is an absolute path; otherwise it is relative to the default. Watch the output of -D to observe the effects.
