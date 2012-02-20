@@ -28,11 +28,12 @@ DEPEND="virtual/linux-sources
 
 RDEPEND=""
 
-MODULE_NAMES="bbswitch(kernel/drivers/acpi)"
+MODULE_NAMES="bbswitch(acpi)"
 
 pkg_setup() {
 	linux-mod_pkg_setup
-	BUILD_TARGETS="default"
+	BUILD_TARGETS="modules"
+	BUILD_PARAMS="-C ${KV_DIR} M=${S}"
 }
 
 src_install() {
