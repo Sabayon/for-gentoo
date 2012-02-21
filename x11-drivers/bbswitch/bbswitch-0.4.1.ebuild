@@ -4,7 +4,7 @@
 
 EAPI="4"
 
-DESCRIPTION="Toggle the discrete graphics card"
+DESCRIPTION="Toggle the discrete graphics card (NVIDIA only)"
 HOMEPAGE="https://github.com/Bumblebee-Project/bbswitch"
 
 if [[ ${PV} =~ "9999" ]]; then
