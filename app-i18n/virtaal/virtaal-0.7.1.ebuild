@@ -13,7 +13,7 @@ SRC_URI="mirror://sourceforge/translate/${P}.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="~amd64 ~x86"
 IUSE="psyco spell tinytm"
 
 DEPEND="dev-python/translate-toolkit"
