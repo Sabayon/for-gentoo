@@ -1,0 +1,12 @@
+#!/bin/bash
+
+GP_HOME=/usr/share/ganttproject-bin
+
+cd ${GP_HOME}
+
+LOCAL_CLASSPATH=$GP_HOME/eclipsito.jar
+
+CONFIGURATION_FILE=ganttproject-eclipsito-config.xml
+BOOT_CLASS=org.bardsoftware.eclipsito.Boot
+
+$(java-config -J) -Xmx256m -classpath $CLASSPATH:$LOCAL_CLASSPATH $BOOT_CLASS $CONFIGURATION_FILE $*
