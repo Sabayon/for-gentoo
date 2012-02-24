@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
-<herd>gnome</herd>
-<longdescription>
-A full featured, dual-pane file manager for Gnome2
-</longdescription> 
+<maintainer>
+	<email>slawomir.nizio@sabayon.org</email>
+</maintainer>
+ <longdescription>Total commander clone</longdescription> 
+<use>
+<flag name='gsf'>add support for OLE, OLE2 and ODF</flag>
+<flag name='chm'>add support for chm, MS Windows help files format</flag>
+</use>
 </pkgmetadata>
-
