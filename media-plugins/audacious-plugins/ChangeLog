@@ -1,6 +1,18 @@
 # ChangeLog for media-plugins/audacious-plugins
 # Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/media-plugins/audacious-plugins/ChangeLog,v 1.234 2012/02/02 09:12:49 jdhore Exp $
+# $Header: /var/cvsroot/gentoo-x86/media-plugins/audacious-plugins/ChangeLog,v 1.236 2012/02/19 15:34:22 armin76 Exp $
+
+  19 Feb 2012; Raúl Porcel <armin76@gentoo.org> audacious-plugins-3.1.ebuild:
+  sparc stable wrt #383991
+
+  19 Feb 2012; Raúl Porcel <armin76@gentoo.org> audacious-plugins-3.1.ebuild:
+  sparc stable wrt #383991
+
+*audacious-plugins-3.2.1 (18 Feb 2012)
+
+  18 Feb 2012; Jeff Horelick <jdhore@gentoo.org>
+  +audacious-plugins-3.2.1.ebuild:
+  Version bump.
 
   02 Feb 2012; Jeff Horelick <jdhore@gentoo.org> audacious-plugins-3.2.ebuild:
   Default the gtk USE flag on to be consistent with media-sound/audacious.
