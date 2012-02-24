@@ -14,7 +14,7 @@ SRC_URI="http://download.java.net/media/${PN}/builds/archive/jsr-231-1.1.1/${P}-
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="~amd64 ~x86"
 
 COMMON_DEPEND="dev-java/ant-core
 	>=dev-java/cpptasks-1.0_beta4-r2

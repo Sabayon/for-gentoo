@@ -18,7 +18,7 @@ SRC_URI="http://dev.gentoo.org/~ali_bush/distfiles/${P}.tar.bz2"
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="~amd64 ~x86"
 
 RDEPEND=">=virtual/jre-1.4
 	dev-java/antlr:0"
