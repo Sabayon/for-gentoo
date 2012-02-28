@@ -13,42 +13,36 @@ DESCRIPTION="Enlightenment DR17 window manager"
 SLOT="0.17"
 
 # The @ is just an anchor to expand from
-__EVRY_MODS="+@apps +@calc +@files +@settings +@windows"
+__EVRY_MODS=""
 __CONF_MODS="
-	+@applications +@borders +@clientlist +@colors +@desk +@desklock +@desks
-	+@dialogs +@display +@dpms +@edgebindings +@engine +@fonts +@icon-theme
-	+@imc +@interaction +@intl +@keybindings +@menus +@mime +@mouse
-	+@mousebindings +@mouse-cursor +@paths +@performance +@profiles +@scale
-	+@screensaver +@shelves +@startup +@theme +@transitions +@wallpaper
-	+@wallpaper2 +@window-display +@window-focus +@window-manipulation
-	+@window-remembers +@winlist"
+	+@applications +@dialogs +@display +@edgebindings
+	+@interaction +@intl +@keybindings +@menus
+	+@paths +@performance +@randr +@shelves +@theme
+	+@wallpaper2 +@window-manipulation +@window-remembers"
 __NORM_MODS="
-	+@battery +@clock +@comp +@connman +@cpufreq +@dropshadow +@fileman
-	+@fileman_opinfo +@gadman +@ibar +@ibox @illume +@illume2 +@mixer
-	+@msgbus @ofono +@pager +@start +@syscon +@systray +@temperature
-	+@winlist +@wizard"
-IUSE_E_MODULES="+e_modules_everything ${__EVRY_MODS//@/e_modules_everything-}
+	+@backlight +@battery +@clock +@comp +@connman +@cpufreq +@dropshadow
+	+@everything +@fileman +@fileman-opinfo +@gadman +@ibar +@ibox +@illume2
+	+@mixer	+@msgbus +@notification @ofono +@pager +@shot +@start +@syscon
+	+@systray +@tasks +@temperature +@winlist +@wizard"
+IUSE_E_MODULES="
 	${__CONF_MODS//@/e_modules_conf-}
 	${__NORM_MODS//@/e_modules_}"
 
-IUSE="acpi bluetooth hal pam spell static-libs +udev ${IUSE_E_MODULES}"
+IUSE="bluetooth pam spell static-libs +udev ukit ${IUSE_E_MODULES}"
 
-KEYWORDS="~amd64 ~arm ~x86"
-# XXX: missing USE=hal depend ?
-RDEPEND="
-	pam? ( sys-libs/pam )
-	>=dev-libs/efreet-1.0.0_beta
-	>=dev-libs/eina-1.0.0_beta[mempool-chained]
-	>=dev-libs/ecore-1.0.0_beta[X,evas,inotify]
-	>=media-libs/edje-1.0.0_beta
-	>=dev-libs/e_dbus-1.0.0_beta[hal,libnotify]
-	e_modules_connman? ( >=dev-libs/e_dbus-1.0.0_beta[connman] )
-	e_modules_ofono? ( >=dev-libs/e_dbus-1.0.0_beta[ofono] )
-	>=media-libs/evas-1.0.0_beta[eet,X,jpeg,png]
+# exchange? ( >=app-misc/exchange-9999 )
+RDEPEND="pam? ( sys-libs/pam )
+	>=dev-libs/efreet-1.1.0
+	>=dev-libs/eina-1.1.0[mempool-chained]
+	|| ( >=dev-libs/ecore-1.1.0[X,evas,inotify] >=dev-libs/ecore-9999[xcb,evas,inotify] )
+	>=media-libs/edje-1.1.0
+	>=dev-libs/e_dbus-1.1.0[libnotify,udev?]
+	ukit? ( >=dev-libs/e_dbus-1.1.0[udev] )
+	e_modules_connman? ( >=dev-libs/e_dbus-1.1.0[connman] )
+	e_modules_ofono? ( >=dev-libs/e_dbus-1.1.0[ofono] )
+	|| ( >=media-libs/evas-1.1.0[eet,X,jpeg,png] >=media-libs/evas-1.1.0[eet,xcb,jpeg,png] )
 	bluetooth? ( net-wireless/bluez )
-	udev? ( dev-libs/eeze )
-	spell? ( app-text/aspell )
-	e_modules_everything-calc? ( sys-devel/bc )"
+	dev-libs/eeze"
 DEPEND="${RDEPEND}"
 
 src_prepare() {
@@ -59,15 +53,16 @@ src_prepare() {
 src_configure() {
 	export MY_ECONF="
 		--disable-install-sysactions
-		$(use_enable acpi conf-acpibindings)
 		$(use_enable bluetooth bluez)
 		$(use_enable doc)
 		--disable-exchange
-		$(use_enable hal device-hal)
+		--disable-device-hal
+		--disable-mount-hal
 		$(use_enable nls)
 		$(use_enable pam)
-		$(use_enable spell everything-aspell)
-		$(use_enable udev device-udev)
+		--enable-device-udev
+		$(use_enable udev mount-eeze)
+		$(use_enable ukit mount-udisks)
 	"
 	local u c
 	for u in ${IUSE_E_MODULES} ; do
@@ -75,23 +70,6 @@ src_configure() {
 		c=${u#e_modules_}
 		MY_ECONF+=" $(use_enable ${u} ${c})"
 	done
-	#enable e_modules_everything, if any of the everything modules is enabled
-	for u in ${__EVRY_MODS} ; do
-		u=${u#+}
-		c=${u//@/e_modules_everything-}
-		if use ${c} ; then
-			MY_ECONF+=" --enable-everything"
-			ewarn "You enabled everything modules without"
-			ewarn "enabling everything itself. Enabling everything"
-			continue
-		fi
-	done
-	if use e_modules_illume2 && use e_modules_illume ; then
-		ewarn "You enabled both illume2 and illume modules,"
-		ewarn "but only one of them can be active."
-		ewarn "illume will be disabled"
-	fi
-	use e_modules_illume2 && MY_ECONF+=" --disable-illume"
 	enlightenment_src_configure
 }
 
