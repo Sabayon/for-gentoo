@@ -1,10 +1,10 @@
-# Copyright 1999-2010 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
 EAPI="2"
 
-E_SNAP_DATE="2010-12-03"
+E_SNAP_DATE="2011-11-28"
 
 inherit enlightenment
 
@@ -33,7 +33,7 @@ IUSE_E_MODULES="+e_modules_everything ${__EVRY_MODS//@/e_modules_everything-}
 
 IUSE="acpi bluetooth hal pam spell static-libs +udev ${IUSE_E_MODULES}"
 
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="~amd64 ~arm ~x86"
 # XXX: missing USE=hal depend ?
 RDEPEND="
 	pam? ( sys-libs/pam )
