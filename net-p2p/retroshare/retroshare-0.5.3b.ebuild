@@ -36,7 +36,7 @@ DEPEND="${RDEPEND}
 REQUIRED_USE="|| ( cli qt4 )"
 
 src_prepare() {
-	epatch "${FILESDIR}/retroshare-0.5.1d.patch"
+	epatch "${FILESDIR}/retroshare-0.5.3a.patch"
 	sed -i -e \
 		"s|/usr/lib/retroshare/extensions/|/usr/$(get_libdir)/${PN}/extensions/|" \
 		libretroshare/src/rsserver/rsinit.cc \
