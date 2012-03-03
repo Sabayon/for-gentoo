@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer><email>maintainer-wanted@gentoo.org</email></maintainer>
+	<longdescription>WebCit is the modern AJAX-style web interface to the
+		Citadel groupware/email/jabber server. It offers comfortable
+		editing facilities for calender and contacts, BBS style
+		messaging system/forum and a chatroom.
+	</longdescription>
+	<upstream>
+		<maintainer>
+			<email>IGnatiusTFoobar@uncensored.citadel.org</email>
+			<name>IGnatius T Foobar</name>
+		</maintainer>
+		<doc>http://www.citadel.org/doku.php/doku.php?id=documentation:start</doc>
+		<bugs-to>http://bugzilla.citadel.org/</bugs-to>
+	</upstream>
+</pkgmetadata>
