@@ -1,13 +1,14 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
 EAPI=4
-inherit toolchain-funcs
+inherit eutils
 
 DESCRIPTION="Main Memory Relational Database Management System"
 HOMEPAGE="http://www.garret.ru/fastdb.html"
-SRC_URI="http://www.garret.ru/${P}.tar.gz"
+# SRC_URI="http://www.garret.ru/${P}.tar.gz"
+SRC_URI="mirror://sourceforge/${PN}/${P}.tar.gz"
 
 LICENSE="as-is"
 SLOT="0"
@@ -21,6 +22,10 @@ DEPEND="sys-devel/bison
 RDEPEND=""
 
 S="${WORKDIR}/${PN}"
+
+src_prepare() {
+	edos2unix "${S}/configure"
+}
 
 src_install() {
 	emake DESTDIR="${D}" install || die
