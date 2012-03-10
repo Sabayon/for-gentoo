@@ -1,4 +1,4 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -22,7 +22,8 @@ RDEPEND=""
 S="${WORKDIR}"
 
 src_compile() {
-	$(tc-getCC) ${CFLAGS} -DAA -o ${PN}.cgi ${PN}.c gifsave.c -lm \
+	$(tc-getCC) \
+		${CFLAGS} ${LDFLAGS} -DAA -o ${PN}.cgi ${PN}.c gifsave.c -lm \
 		|| die "compilation failed"
 }
 
