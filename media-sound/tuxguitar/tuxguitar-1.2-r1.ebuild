@@ -1,6 +1,6 @@
 # Copyright 1999-2009 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /home/robert/ebuilds/tuxguitar-1.2-r1.ebuild,v 1.2 2009/11/13 16:12:45 robert Exp $
+# $Header: Exp $
 
 EAPI="2"
 JAVA_PKG_IUSE="source"
@@ -13,19 +13,19 @@ HOMEPAGE="http://www.tuxguitar.com.ar/"
 SRC_URI="mirror://sourceforge/${PN}/${MY_P}.tar.gz"
 LICENSE="LGPL-2.1"
 SLOT="0"
-IUSE="alsa fluidsynth oss pdf"
-
-# Test notes
-# Couldn't get JSA plugin working out of the box with IcedTea.
+IUSE="alsa fluidsynth oss pdf timidity"
 
 KEYWORDS="~amd64 ~x86"
-CDEPEND="dev-java/swt:3.4[cairo]
+CDEPEND="dev-java/swt:3.5[cairo]
 	alsa? ( media-libs/alsa-lib )
 	fluidsynth? ( media-sound/fluidsynth )
 	pdf? ( dev-java/itext:0 )"
 RDEPEND=">=virtual/jre-1.5
-	alsa? ( media-sound/timidity++[alsa] )
-	oss? ( media-sound/timidity++[oss] )
+	timidity? (
+		alsa? ( media-sound/timidity++[alsa] )
+		oss? ( media-sound/timidity++[oss] )
+		media-sound/timidity++
+	)
 	${CDEPEND}"
 
 DEPEND=">=virtual/jdk-1.5
@@ -34,7 +34,7 @@ DEPEND=">=virtual/jdk-1.5
 S="${WORKDIR}/${MY_P}"
 
 src_prepare() {
-	java-pkg_jar-from --into TuxGuitar/lib swt-3.4
+	java-pkg_jar-from --into TuxGuitar/lib swt-3.5
 	java-pkg-2_src_prepare
 }
 
@@ -42,7 +42,7 @@ src_compile() {
 	if use pdf; then
 		echo "" >> TuxGuitar-pdf/build.properties || die
 		echo "path.itext=$(java-pkg_getjar itext iText.jar)" >> TuxGuitar-pdf/build.properties || die "Error adding itext path"
-		echo "path.swt=$(java-pkg_getjar swt-3.4 swt.jar)" >> TuxGuitar-pdf/build.properties || die "Error adding swt path"
+		echo "path.swt=$(java-pkg_getjar swt-3.5 swt.jar)" >> TuxGuitar-pdf/build.properties || die "Error adding swt path"
 	fi
 	cd TuxGuitar || die "cd failed"
 	eant all
