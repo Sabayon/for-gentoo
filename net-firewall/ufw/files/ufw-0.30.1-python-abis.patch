@@ -1,0 +1,21 @@
+This patch fixes strings substitution in common.py during package
+build with ebuild supporting installation for multiple Python versions.
+
+With support for multiple Python versions in the ebuild, seems the
+file isn't copied from staging/ to build-*/lib/ufw/ after being
+modified. That's why the copy needs to be done "manually" here.
+The issue occurs with "setup.py build -b build-XXX" followed by
+"setup.py build -b build-XXX install".
+
+probably related: https://bugs.launchpad.net/ufw/+bug/819600
+--- setup.py
++++ setup.py
+@@ -89,6 +89,8 @@
+                              "-i",
+                              "s%#SHARE_DIR#%" + real_sharedir + "%g",
+                              os.path.join('staging', file)])
++            self.copy_file(os.path.join('staging', file),
++                           os.path.join(self.build_base, "lib", "ufw"))
+ 
+         # Now byte-compile everything
+         super(Install, self).run()

@@ -1,0 +1,35 @@
+# ChangeLog for net-firewall/ufw
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/net-firewall/ufw/ChangeLog,v 1.5 2012/02/28 11:42:22 scarabeus Exp $
+
+*ufw-0.30.1-r4 (28 Feb 2012)
+
+  28 Feb 2012; Tomáš Chvátal <scarabeus@gentoo.org>
+  +files/ufw-0.30.1-encoding.patch, +files/ufw-0.30.1-python-abis.patch,
+  +ufw-0.30.1-r4.ebuild, -ufw-0.30.1-r2.ebuild, -ufw-0.30.1-r3.ebuild:
+  Update per proxy-maintainer request. Remove overshadowed versions.
+
+  13 Sep 2011; Peter Volkov <pva@gentoo.org> ufw-0.30.1-r2.ebuild,
+  ufw-0.30.1-r3.ebuild:
+  Update to bash-completion-r1 eclass, thank Sławomir Nizio for this job.
+
+*ufw-0.30.1-r3 (03 Sep 2011)
+
+  03 Sep 2011; Peter Volkov <pva@gentoo.org> +ufw-0.30.1-r3.ebuild,
+  +files/rsyslog/ufw.logrotate, +files/syslog-ng/syslog-ng.example,
+  +files/syslog-ng/ufw.logrotate:
+  Add example syslog configurations for rsyslog and syslog-ng, bug #380461,
+  thank Emmanuel Andry for report and Sławomir Nizio for this job.
+
+  28 Jul 2011; Peter Volkov <pva@gentoo.org> ufw-0.30.1-r2.ebuild,
+  metadata.xml:
+  Added longdescription, qoutation fixes in ewarn and set python version
+  correctly. Thank Sławomir Nizio for this job.
+
+*ufw-0.30.1-r2 (24 Jul 2011)
+
+  24 Jul 2011; Peter Volkov <pva@gentoo.org> +ufw-0.30.1-r2.ebuild,
+  +files/ufw-2.initd, +files/ufw.confd, +files/ufw-dont-check-iptables.patch,
+  +files/ufw-move-path.patch, +metadata.xml:
+  Initial import, bug #264912, thank Sławomir Nizio for this job.
+
