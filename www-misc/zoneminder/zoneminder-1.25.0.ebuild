@@ -31,7 +31,6 @@ DEPEND="
 	dev-perl/MIME-Lite
 	dev-perl/MIME-tools
 	dev-perl/PHP-Serialization
-	media-video/ffmpeg
 	virtual/jpeg
 	virtual/perl-Archive-Tar
 	virtual/perl-Getopt-Long
