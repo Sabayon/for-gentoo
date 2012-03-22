@@ -1,0 +1,55 @@
+Index: ZoneMinder-1.24.1/src/zm_remote_camera_http.cpp
+===================================================================
+--- ZoneMinder-1.24.1.orig/src/zm_remote_camera_http.cpp
++++ ZoneMinder-1.24.1/src/zm_remote_camera_http.cpp
+@@ -356,6 +356,14 @@ int RemoteCamera::GetResponse()
+ 							format = JPEG;
+ 							state = CONTENT;
+ 						}
++						else if ( !strcasecmp( content_type, "image/mpeg" ) )
++						{
++							// Single image
++							mode = SINGLE_IMAGE;
++							format = JPEG;
++							state = CONTENT;
++
++						}
+ 						else if ( !strcasecmp( content_type, "image/x-rgb" ) )
+ 						{
+ 							// Single image
+@@ -453,6 +461,10 @@ int RemoteCamera::GetResponse()
+ 					{
+ 						format = JPEG;
+ 					}
++					else if ( !strcasecmp( content_type, "image/mpeg" ) )
++					{
++						format = JPEG;
++					}
+ 					else if ( !strcasecmp( content_type, "image/x-rgb" ) )
+ 					{
+ 						format = X_RGB;
+@@ -783,6 +795,13 @@ int RemoteCamera::GetResponse()
+ 							format = JPEG;
+ 							state = CONTENT;
+ 						}
++						else if ( !strcasecmp( content_type, "image/mpeg" ) )
++						{
++							// Single image
++							mode = SINGLE_IMAGE;
++							format = JPEG;
++							state = CONTENT;
++						}
+ 						else if ( !strcasecmp( content_type, "image/x-rgb" ) )
+ 						{
+ 							// Single image
+@@ -947,6 +966,10 @@ int RemoteCamera::GetResponse()
+ 					{
+ 						format = JPEG;
+ 					}
++					else if ( !strcasecmp( content_type, "image/mpeg" ) )
++					{
++						format = JPEG;
++					}
+ 					else if ( !strcasecmp( content_type, "image/x-rgb" ) )
+ 					{
+ 						format = X_RGB;
