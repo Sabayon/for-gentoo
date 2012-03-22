@@ -13,7 +13,7 @@ HOMEPAGE="http://www.zoneminder.com/"
 SRC_URI="http://www.zoneminder.com/downloads/${MY_PN}-${PV}.tar.gz"
 
 LICENSE="GPL-2"
-KEYWORDS=""
+KEYWORDS="~amd64 ~x86"
 IUSE="debug ffmpeg mmap"
 SLOT="0"
 
