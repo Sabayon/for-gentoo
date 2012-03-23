@@ -4,6 +4,7 @@
 
 EAPI="3"
 KDE_MINIMAL="4.2"
+CMAKE_REQUIRED=never
 inherit eutils kde4-base
 
 DESCRIPTION="Entropy Package Manager KDE kioslaves support"
