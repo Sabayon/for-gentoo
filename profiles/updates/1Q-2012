@@ -1,3 +1,5 @@
 move x11-misc/cinnamon gnome-extra/cinnamon
 move sys-kernel/bbswitch x11-drivers/bbswitch
 move x11-misc/razor-qt x11-wm/razorqt
+move games-strategy/spring games-engines/spring
+
