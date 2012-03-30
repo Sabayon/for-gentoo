@@ -16,6 +16,7 @@ KEYWORDS="~amd64 ~x86"
 IUSE="+ai +java +default multithreaded headless dedicated test-ai debug custom-cflags"
 
 GUI_DEPEND="
+	x11-libs/libXcursor
 	media-libs/devil[jpeg,png,opengl]
 	media-libs/freetype:2
 	>=media-libs/glew-1.4
