@@ -4,11 +4,13 @@
 
 EAPI=3
 
-inherit games cmake-utils fdo-mime flag-o-matic games
+MY_P="${PN}_${PV}"
+
+inherit cmake-utils fdo-mime flag-o-matic games
 
 DESCRIPTION="A 3D multiplayer real-time strategy game engine"
 HOMEPAGE="http://springrts.com"
-SRC_URI="mirror://sourceforge/springrts/${PN}_${PV}_src.tar.lzma"
+SRC_URI="mirror://sourceforge/springrts/${MY_P}_src.tar.lzma"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -16,7 +18,6 @@ KEYWORDS="~amd64 ~x86"
 IUSE="+ai +java +default multithreaded headless dedicated test-ai debug custom-cflags"
 
 GUI_DEPEND="
-	x11-libs/libXcursor
 	media-libs/devil[jpeg,png,opengl]
 	media-libs/freetype:2
 	>=media-libs/glew-1.4
@@ -26,6 +27,7 @@ GUI_DEPEND="
 	media-libs/libogg
 	virtual/glu
 	virtual/opengl
+	x11-libs/libXcursor
 "
 
 RDEPEND="
@@ -40,7 +42,6 @@ RDEPEND="
 DEPEND="${RDEPEND}
 	>=sys-devel/gcc-4.2
 	app-arch/xz-utils
-	>=dev-util/cmake-2.6.0
 "
 
 # EAPI4 only, which isn't supported by games eclass
@@ -49,10 +50,7 @@ DEPEND="${RDEPEND}
 # 	test-ai? ( ai )
 # "
 
-S="${WORKDIR}/${PN}_${PV}"
-
-### where to place content files which change each spring release (as opposed to mods, ota-content which go somewhere else)
-VERSION_DATADIR="${GAMES_DATADIR}/${PN}"
+S="${WORKDIR}/${MY_P}"
 
 src_test() {
 	cmake-utils_src_test
@@ -69,28 +67,10 @@ src_configure() {
 	fi
 
 	# AI
-	if use ai ; then
-
-		if ! use java ; then
-			# Don't build Java AI
-			mycmakeargs+=( "-DAI_TYPES=NATIVE" )
-		fi
-
-		if ! use test-ai ; then
-			# Don't build example AIs
-			mycmakeargs+=( "-DAI_EXCLUDE_REGEX=\"Null|Test\"" )
-		fi
+	if use ai; then
+		use java || mycmakeargs+=( "-DAI_TYPES=NATIVE" )
+		use test-ai || mycmakeargs+=( "-DAI_EXCLUDE_REGEX=\"Null|Test\"" )
 	else
-		
-		# Check USE flag consistency, uncomment REQUIRED_USE when it will be possible
-		if use java ; then
-			ewarn "You must enable ai USE flag to build Java AI, java USE flag will be ignored"
-		fi
-
-		if use test-ai ; then
-			ewarn "You must enable ai USE flag to build the example AIs, test-ai USE flag will be ignored"
-		fi
-
 		mycmakeargs+=( "-DAI_TYPES=NONE" )
 	fi
 
@@ -101,20 +81,13 @@ src_configure() {
 	done
 
 	# Set common dirs
-	LIBDIR="$(games_get_libdir)"
+	local LIBDIR="$(games_get_libdir)"
+	local VERSION_DATADIR="${GAMES_DATADIR}/${PN}"
 	mycmakeargs+=(
-		"-DCMAKE_INSTALL_PREFIX=/usr"
 		"-DBINDIR=${GAMES_BINDIR#/usr/}"
 		"-DLIBDIR=${LIBDIR#/usr/}"
 		"-DDATADIR=${VERSION_DATADIR#/usr/}"
 	)
-
-	# Enable/Disable debug symbols
-	if use debug ; then
-		CMAKE_BUILD_TYPE="RELWITHDEBINFO"
-	else
-		CMAKE_BUILD_TYPE="RELEASE"
-	fi
 
 	# Configure
 	cmake-utils_src_configure
