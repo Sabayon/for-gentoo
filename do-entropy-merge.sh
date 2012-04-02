@@ -17,7 +17,9 @@ PACKAGES="sys-apps/entropy
 	sys-apps/magneto-core
 	app-misc/magneto-loader
 	kde-misc/magneto-kde
-	x11-misc/magneto-gtk"
+	x11-misc/magneto-gtk
+	sys-apps/rigo-daemon
+	app-admin/rigo"
 
 for package in ${PACKAGES}; do
 	package_name=$(basename ${package})

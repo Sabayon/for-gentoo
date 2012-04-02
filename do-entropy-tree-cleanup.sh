@@ -7,7 +7,10 @@ fi
 PORTDIR="${1}"
 TARGET_VERSION="${2}"
 
-PACKAGES="x11-misc/magneto-gtk
+PACKAGES="
+	app-admin/rigo
+	sys-apps/rigo-daemon
+	x11-misc/magneto-gtk
 	kde-misc/magneto-kde
 	app-misc/magneto-loader
 	sys-apps/magneto-core

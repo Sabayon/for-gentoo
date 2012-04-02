@@ -4,10 +4,11 @@ if [ -z "$1" ]; then
 	exit
 fi
 
-PACKAGES="sys-apps/entropy sys-apps/entropy-client-services app-admin/equo \
-app-admin/sulfur sys-apps/entropy-server app-admin/entropy-notification-applet \
-kde-misc/entropy-kioslaves sys-apps/magneto-core app-misc/magneto-loader \
-kde-misc/magneto-kde x11-misc/magneto-gtk"
+PACKAGES="sys-apps/rigo-daemon sys-apps/entropy \
+	sys-apps/entropy-client-services app-admin/equo \
+	app-admin/rigo app-admin/sulfur sys-apps/entropy-server \
+	kde-misc/entropy-kioslaves sys-apps/magneto-core app-misc/magneto-loader \
+	kde-misc/magneto-kde x11-misc/magneto-gtk"
 
 for ver in ${@}; do
 	for package in ${PACKAGES}; do
