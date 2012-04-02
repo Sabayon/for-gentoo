@@ -6,6 +6,7 @@ EAPI="3"
 PYTHON_DEPEND="2"
 inherit eutils python
 
+MY_PN="RigoDaemon"
 DESCRIPTION="Entropy Client DBus Services, aka RigoDaemon"
 HOMEPAGE="http://www.sabayon.org"
 LICENSE="GPL-3"
@@ -15,7 +16,7 @@ KEYWORDS="~amd64 ~arm ~x86"
 IUSE=""
 SRC_URI="mirror://sabayon/sys-apps/entropy-${PV}.tar.bz2"
 
-S="${WORKDIR}/entropy-${PV}/rigo/RigoDaemon"
+S="${WORKDIR}/entropy-${PV}/rigo/${MY_PN}"
 
 DEPEND=""
 RDEPEND="dev-python/dbus-python
@@ -35,14 +36,14 @@ src_install() {
 pkg_preinst() {
 	# ask RigoDaemon to shutdown, if running
 	# TODO: this will be removed in future
-	local shutdown_exec=${EROOT}/usr/lib/rigo/RigoDaemon/shutdown.py
+	local shutdown_exec=${EROOT}/usr/lib/rigo/${MY_PN}/shutdown.py
 	[[ -x "${shutdown_exec}" ]] && "${shutdown_exec}"
 }
 
 pkg_postinst() {
-	python_mod_optimize "/usr/lib/rigo/${PN}"
+	python_mod_optimize "/usr/lib/rigo/${MY_PN}"
 }
 
 pkg_postrm() {
-	python_mod_cleanup "/usr/lib/rigo/${PN}"
+	python_mod_cleanup "/usr/lib/rigo/${MY_PN}"
 }
