@@ -4,27 +4,22 @@
 
 EAPI="3"
 PYTHON_DEPEND="2"
-inherit eutils gnome2-utils fdo-mime python
+inherit eutils python bash-completion-r1
 
-DESCRIPTION="Rigo, the Sabayon Application Browser"
+DESCRIPTION="Entropy Package Manager server-side tools"
 HOMEPAGE="http://www.sabayon.org"
-LICENSE="GPL-3"
+LICENSE="GPL-2"
 
 SLOT="0"
 KEYWORDS="~amd64 ~arm ~x86"
 IUSE=""
 
 SRC_URI="mirror://sabayon/sys-apps/entropy-${PV}.tar.bz2"
-S="${WORKDIR}/entropy-${PV}/rigo"
 
-RDEPEND="
-	|| ( dev-python/pygobject-cairo:3 dev-python/pygobject:3[cairo] )
-	~sys-apps/entropy-${PV}
-	~sys-apps/rigo-daemon-${PV}
-	x11-libs/gtk+:3
-	x11-libs/vte:2.90
-	sys-devel/gettext"
-DEPEND=""
+S="${WORKDIR}/entropy-${PV}/server"
+
+RDEPEND="~sys-apps/entropy-${PV}"
+DEPEND="app-text/asciidoc"
 
 src_compile() {
 	emake || die "make failed"
@@ -32,12 +27,13 @@ src_compile() {
 
 src_install() {
 	emake DESTDIR="${D}" install || die "make install failed"
+	newbashcomp "${S}/eit-completion.bash" eit
 }
 
 pkg_postinst() {
-	python_mod_optimize "/usr/lib/rigo/${PN}"
+	python_mod_optimize "/usr/lib/entropy/server"
 }
 
 pkg_postrm() {
-	python_mod_cleanup "/usr/lib/rigo/${PN}"
+	python_mod_cleanup "/usr/lib/entropy/server"
 }
