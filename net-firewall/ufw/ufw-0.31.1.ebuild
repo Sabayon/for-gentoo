@@ -47,8 +47,9 @@ src_prepare() {
 	epatch "${FILESDIR}"/${PN}-dont-check-iptables.patch
 	# Move files away from /lib/ufw.
 	epatch "${FILESDIR}"/${P}-move-path.patch
-	# Allows correct build with SUPPORT_PYTHON_ABIS="1" (see comment in the file).
-	epatch "${FILESDIR}"/${PN}-0.30.1-python-abis.patch
+	# Contains fixes related to SUPPORT_PYTHON_ABIS="1" (see comment in the
+	# file).
+	epatch "${FILESDIR}"/${P}-python-abis.patch
 
 	# Set as enabled by default. User can enable or disable
 	# the service by adding or removing it to/from a runlevel.
@@ -95,7 +96,6 @@ src_install() {
 	fi
 	distutils_src_install
 	[[ $_EMPTY_LOCALE_LIST != yes ]] && domo locales/mo/*.mo
-	rm -r "${ED}"usr/share/${PN}/messages || die
 	newbashcomp shell-completion/bash ${PN}
 }
 
