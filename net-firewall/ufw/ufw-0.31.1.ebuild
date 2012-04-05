@@ -5,7 +5,7 @@
 EAPI=4
 PYTHON_DEPEND="2:2.5"
 SUPPORT_PYTHON_ABIS="1"
-RESTRICT_PYTHON_ABIS="3.*"
+RESTRICT_PYTHON_ABIS="3.* *-jython"
 
 inherit versionator bash-completion-r1 eutils linux-info distutils
 
