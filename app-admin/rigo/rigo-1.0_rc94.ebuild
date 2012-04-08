@@ -24,7 +24,7 @@ RDEPEND="
 	sys-devel/gettext
 	x11-libs/gtk+:3
 	x11-libs/vte:2.90
-	x11-misc/xdg-utils"
+	>=x11-misc/xdg-utils-1.1.0_rc1_p20120319"
 DEPEND=""
 
 src_compile() {
