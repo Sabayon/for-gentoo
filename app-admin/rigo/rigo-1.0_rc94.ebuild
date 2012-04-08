@@ -21,9 +21,10 @@ RDEPEND="
 	|| ( dev-python/pygobject-cairo:3 dev-python/pygobject:3[cairo] )
 	~sys-apps/entropy-${PV}
 	~sys-apps/rigo-daemon-${PV}
+	sys-devel/gettext
 	x11-libs/gtk+:3
 	x11-libs/vte:2.90
-	sys-devel/gettext"
+	x11-misc/xdg-utils"
 DEPEND=""
 
 src_compile() {
