@@ -83,6 +83,7 @@ pkg_postinst() {
 		chmod o+r "${res_file}"
 	fi
 	local pkg_files="package.mask package.unmask package.mask.d package.unmask.d"
+	local pkg_file
 	for pkg_file in ${pkg_files}; do
 		pkg_file="${ROOT}/etc/entropy/packages/${pkg_file}"
 		recursive=""
@@ -90,8 +91,8 @@ pkg_postinst() {
 			recursive="-R"
 		fi
 		if [ -e "${pkg_file}" ]; then
-			chown "${recursive}" root:entropy "${pkg_file}"
-			chmod "${recursive}" go+r "${pkg_file}"
+			chown ${recursive} root:entropy "${pkg_file}"
+			chmod ${recursive} go+r "${pkg_file}"
 		fi
 	done
 
