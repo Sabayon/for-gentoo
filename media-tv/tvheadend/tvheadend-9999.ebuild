@@ -24,7 +24,7 @@ SLOT="0"
 KEYWORDS="amd64 ~x86"
 IUSE="avahi xmltv"
 
-DEPEND="media-tv/linuxtv-dvb-headers"
+DEPEND="virtual/linuxtv-dvb-headers"
 
 RDEPEND="${DEPEND}
     xmltv? ( media-tv/xmltv )
