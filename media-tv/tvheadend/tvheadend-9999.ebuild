@@ -28,7 +28,7 @@ DEPEND="virtual/linuxtv-dvb-headers"
 
 RDEPEND="${DEPEND}
     xmltv? ( media-tv/xmltv )
-    avahi? ( net-dns/avahi )"
+    avahi? ( net-dns/avahi-base )"
 
 pkg_setup() {
     enewuser tvheadend -1 -1 /dev/null video
