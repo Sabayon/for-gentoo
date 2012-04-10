@@ -15,7 +15,7 @@ IUSE=""
 
 DEPEND=""
 RDEPEND="dev-python/pygtk
-	media-video/ffmpeg
+	virtual/ffmpeg
 	media-sound/id3v2"
 
 src_unpack() {
