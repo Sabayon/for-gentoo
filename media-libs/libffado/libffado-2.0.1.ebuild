@@ -14,7 +14,7 @@ SRC_URI="http://www.ffado.org/files/${P}.tar.gz"
 LICENSE="GPL-2"
 KEYWORDS="~amd64 ~x86"
 SLOT="0"
-IUSE="debug qt4"
+IUSE="debug optimization qt4"
 
 RDEPEND=">=media-libs/alsa-lib-1.0.0
 	>=dev-cpp/libxmlpp-2.13.0
@@ -23,20 +23,19 @@ RDEPEND=">=media-libs/alsa-lib-1.0.0
 	>=sys-libs/libavc1394-0.5.3
 	>=sys-apps/dbus-1.0
 	qt4? (
-		|| ( ( x11-libs/qt-core x11-libs/qt-gui )
-				>=x11-libs/qt-4.0:4 )
+		dev-python/dbus-python
 		dev-python/PyQt4
-		>=dev-python/dbus-python-0.83.0 )"
+		x11-libs/qt-core
+		x11-libs/qt-gui )"
 
 DEPEND="${RDEPEND}
 	dev-util/scons"
 
 src_compile () {
-	local myconf=""
-
+	local myconf="DEBUG=$(usex debug True False)"
 	use debug \
-		&& myconf="${myconf} DEBUG=True ENABLE_OPTIMIZATIONS=False" \
-		|| myconf="${myconf} DEBUG=False ENABLE_OPTIMIZATIONS=True"
+		&& myconf+=" ENABLE_OPTIMIZATIONS=False" \
+		|| myconf+=" ENABLE_OPTIMIZATIONS=$(usex optimization True False)"
 
 	scons \
 		PREFIX=/usr \
