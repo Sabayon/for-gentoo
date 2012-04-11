@@ -4,11 +4,14 @@
 
 EAPI=3
 PYTHON_DEPEND="2"
+SUPPORT_PYTHON_ABIS="1"
+RESTRICT_PYTHON_ABIS="3.*"
+
 inherit gnome2 distutils
 
 DESCRIPTION="A screencasting program created with design in mind"
 HOMEPAGE="https://launchpad.net/kazam"
-SRC_URI="http://launchpad.net/${PN}/stable/1.0.4/+download/${P}.tar.gz"
+SRC_URI="http://launchpad.net/${PN}/stable/${PV}/+download/${P}.tar.gz"
 
 LICENSE="GPL-3 LGPL-3"
 SLOT="0"
@@ -32,7 +35,6 @@ RDEPEND="|| ( dev-python/argparse >=dev-lang/python-2.7 )
 "
 
 pkg_setup() {
-	python_set_active_version 2
 	python_pkg_setup
 }
 
