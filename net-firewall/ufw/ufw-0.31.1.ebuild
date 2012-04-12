@@ -22,7 +22,10 @@ KEYWORDS=""
 IUSE="examples ipv6"
 
 DEPEND="sys-devel/gettext"
-RDEPEND=">=net-firewall/iptables-1.4[ipv6?]"
+RDEPEND=">=net-firewall/iptables-1.4[ipv6?]
+	!<kde-misc/kcm-ufw-0.4.2
+	!<net-firewall/ufw-frontends-0.3.2
+"
 
 # tests fail; upstream bug: https://bugs.launchpad.net/ufw/+bug/815982
 RESTRICT="test"
