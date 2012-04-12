@@ -6,10 +6,9 @@ fi
 
 OLD=$1
 NEW=$2
-PACKAGES="sys-apps/rigo-daemon sys-apps/entropy \
-	sys-apps/entropy-client-services app-admin/equo \
-	app-admin/rigo app-admin/sulfur sys-apps/entropy-server \
-	kde-misc/entropy-kioslaves sys-apps/magneto-core app-misc/magneto-loader \
+PACKAGES="sys-apps/rigo-daemon sys-apps/entropy app-admin/equo
+	app-admin/rigo app-admin/sulfur sys-apps/entropy-server
+	kde-misc/entropy-kioslaves sys-apps/magneto-core app-misc/magneto-loader
 	kde-misc/magneto-kde x11-misc/magneto-gtk"
 
 for package in ${PACKAGES}; do

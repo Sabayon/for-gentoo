@@ -9,7 +9,6 @@ OVERLAY_DIR="${2}"
 TARGET_VERSION="${3}"
 
 PACKAGES="sys-apps/entropy
-	sys-apps/entropy-client-services
 	app-admin/equo
 	app-admin/sulfur
 	sys-apps/entropy-server
