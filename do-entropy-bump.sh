@@ -9,7 +9,7 @@ NEW=$2
 PACKAGES="sys-apps/rigo-daemon sys-apps/entropy app-admin/equo
 	app-admin/rigo app-admin/sulfur sys-apps/entropy-server
 	kde-misc/entropy-kioslaves sys-apps/magneto-core app-misc/magneto-loader
-	kde-misc/magneto-kde x11-misc/magneto-gtk"
+	kde-misc/magneto-kde x11-misc/magneto-gtk x11-misc/magneto-gtk3"
 
 for package in ${PACKAGES}; do
 	name=$(echo ${package} | cut -d/ -f2)

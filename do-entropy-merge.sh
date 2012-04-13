@@ -17,6 +17,7 @@ PACKAGES="sys-apps/entropy
 	app-misc/magneto-loader
 	kde-misc/magneto-kde
 	x11-misc/magneto-gtk
+	x11-misc/magneto-gtk3
 	sys-apps/rigo-daemon
 	app-admin/rigo"
 
