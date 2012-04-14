@@ -19,6 +19,7 @@ PACKAGES="sys-apps/entropy
 	x11-misc/magneto-gtk
 	x11-misc/magneto-gtk3
 	sys-apps/rigo-daemon
+	sys-apps/entropy-client-services
 	app-admin/rigo"
 
 for package in ${PACKAGES}; do
