@@ -96,6 +96,12 @@ pkg_postinst() {
 		fi
 	done
 
+	# Setup Entropy Library directories ownership
+	chown -R root:entropy "${ROOT}/var/tmp/entropy"
+	chown root:entropy "${ROOT}/var/lib/entropy" # no recursion
+	chown root:entropy "${ROOT}/var/lib/entropy/client/packages" # no recursion
+	chown root:entropy "${ROOT}/var/log/entropy" # no recursion
+
 	python_mod_optimize "/usr/lib/entropy/lib/entropy"
 
 	echo
