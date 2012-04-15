@@ -36,9 +36,13 @@ src_install() {
 }
 
 pkg_postinst() {
+	fdo-mime_mime_database_update
+	fdo-mime_desktop_database_update
 	python_mod_optimize "/usr/lib/rigo/${PN}"
 }
 
 pkg_postrm() {
+	fdo-mime_mime_database_update
+	fdo-mime_desktop_database_update
 	python_mod_cleanup "/usr/lib/rigo/${PN}"
 }
