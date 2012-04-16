@@ -15,8 +15,10 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
 
-RDEPEND=""
-DEPEND="${RDEPEND}"
+RDEPEND="x11-libs/qt-core
+	dev-libs/qjson
+	"
+DEPEND=""
 
 S="${WORKDIR}"
 
