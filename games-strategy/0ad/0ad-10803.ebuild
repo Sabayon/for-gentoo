@@ -37,8 +37,7 @@ RDEPEND=">=dev-lang/spidermonkey-1.8.5
 	editor? ( x11-libs/wxGTK:2.8 )
 	nvtt? ( dev-util/nvidia-texture-tools )"
 
-DEPEND="${RDEPEND}
-	app-arch/zip
+DEPEND="app-arch/zip
 	dev-lang/nasm
 	dev-util/cmake"
 
