@@ -16,7 +16,6 @@ PACKAGES="
 	sys-apps/magneto-core
 	kde-misc/entropy-kioslaves
 	sys-apps/entropy-server
-	app-admin/sulfur
 	app-admin/equo
 	sys-apps/entropy-client-services
 	sys-apps/entropy"
