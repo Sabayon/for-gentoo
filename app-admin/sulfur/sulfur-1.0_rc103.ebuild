@@ -14,11 +14,10 @@ SLOT="0"
 KEYWORDS="~amd64 ~arm ~x86"
 IUSE=""
 
-SRC_URI="mirror://sabayon/sys-apps/entropy-${PV}.tar.bz2"
-S="${WORKDIR}/entropy-${PV}/sulfur"
+SRC_URI="mirror://sabayon/app-admin/sulfur-${PV}.tar.bz2"
 
 RDEPEND="dev-python/pygtk:2
-	~sys-apps/entropy-${PV}
+	>=sys-apps/entropy-${PV}
 	sys-apps/file[python]
 	sys-devel/gettext
 	x11-libs/vte:0[python]
