@@ -19,7 +19,7 @@ SRC_URI="mirror://sabayon/sys-apps/entropy-${PV}.tar.bz2"
 
 S="${WORKDIR}/entropy-${PV}"
 
-RDEPEND=">=app-admin/sulfur-${PV}"
+RDEPEND="app-admin/sulfur"
 DEPEND="${RDEPEND}"
 
 src_prepare() {
@@ -35,9 +35,7 @@ src_compile() {
 }
 
 src_install() {
-	dodir "/${KDEDIR}/share/kde4/services/"
-	insinto "/${KDEDIR}/share/kde4/services/"
-	doins "${S}/sulfur/misc/entropy.protocol"
+	einfo "Nothing to install, please drop this pkg"
 }
 
 pkg_postinst() {
