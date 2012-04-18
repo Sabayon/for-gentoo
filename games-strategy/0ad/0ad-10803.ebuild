@@ -17,7 +17,7 @@ SRC_URI="mirror://sourceforge/zero-ad/${MY_P}-unix-build.tar.xz
 LICENSE="GPL-2 CCPL-Attribution-ShareAlike-3.0"
 SLOT="0"
 KEYWORDS="~amd64"
-IUSE="debug editor nvtt pch test"
+IUSE="debug editor nvtt pch test fam"
 
 RDEPEND=">=dev-lang/spidermonkey-1.8.5
 	dev-libs/boost
@@ -31,9 +31,9 @@ RDEPEND=">=dev-lang/spidermonkey-1.8.5
 	net-libs/enet:1.3
 	net-misc/curl
 	sys-libs/zlib
-	virtual/fam
 	virtual/jpeg
 	virtual/opengl
+	fam? ( virtual/fam )
 	editor? ( x11-libs/wxGTK:2.8 )
 	nvtt? ( dev-util/nvidia-texture-tools )"
 
@@ -63,6 +63,10 @@ src_compile() {
 #	if ! use pch ; then
 #		UPDATE_ARGS="${UPDATE_ARGS}  --without-pch"
 #	fi
+
+        if ! use fam ; then
+                UPDATE_ARGS="${UPDATE_ARGS}  --without-fam"
+        fi
 
 	if ! use editor ; then
 		UPDATE_ARGS="${UPDATE_ARGS} --disable-atlas"
