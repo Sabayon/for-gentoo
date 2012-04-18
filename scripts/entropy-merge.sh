@@ -11,7 +11,6 @@ TARGET_VERSION="${3}"
 PACKAGES="sys-apps/entropy
 	app-admin/equo
 	sys-apps/entropy-server
-	kde-misc/entropy-kioslaves
 	sys-apps/magneto-core
 	app-misc/magneto-loader
 	kde-misc/magneto-kde
