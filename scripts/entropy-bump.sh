@@ -13,7 +13,7 @@ PACKAGES="sys-apps/rigo-daemon sys-apps/entropy app-admin/equo
 
 for package in ${PACKAGES}; do
 	name=$(echo ${package} | cut -d/ -f2)
-	cp ${package}/${name}-${OLD}.ebuild ${package}/${name}-${NEW}.ebuild
-	git add ${package}/${name}-${NEW}.ebuild
-	ebuild ${package}/${name}-${NEW}.ebuild manifest
+	cp ${package}/${name}-${OLD}.ebuild ${package}/${name}-${NEW}.ebuild || exit 1
+	git add ${package}/${name}-${NEW}.ebuild || exit 1
+	ebuild ${package}/${name}-${NEW}.ebuild manifest || exit 1
 done
