@@ -42,13 +42,13 @@ pkg_setup() {
 }
 
 src_compile() {
-	cd "${S}"/misc/po || die
+	cd "${S}"/client/po || die
 	emake || die "make failed"
 }
 
 src_install() {
 	emake DESTDIR="${D}" LIBDIR="usr/lib" entropy-install || die "make install failed"
-	cd "${S}"/misc/po || die
+	cd "${S}"/client/po || die
 	emake DESTDIR="${D}" LIBDIR="usr/lib" install || die "make install failed"
 }
 
