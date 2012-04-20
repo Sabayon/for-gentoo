@@ -50,6 +50,7 @@ S="${WORKDIR}/${PN}-${MY_PV}"
 src_prepare() {
 	epatch "${FILESDIR}/improved-cairo-dock-session.patch"
 	epatch "${FILESDIR}/${P}-rpath.patch"
+	epatch "${FILESDIR}/${PN}-glib-include.patch"
 	# intltoolize --automake --copy --force || die "intltoolize failed"
 	# eautoreconf
 }
