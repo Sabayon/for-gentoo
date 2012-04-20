@@ -30,12 +30,6 @@ RDEPEND="sys-libs/readline
 DEPEND="dev-lang/perl[doc?]
 	${RDEPEND}"
 
-src_prepare() {
-	# Fix for #404195 - pcre detection is wonky
-	sed -i 's:libpcre.so.0:libpcre.so.1:' runtime/parrot/library/pcre.pir || die "Couldn't fix pcre location"
-	epatch "${FILESDIR}/${PN}-libpcre-fix.patch"
-}
-
 src_configure() {
 	myconf="--disable-rpath"
 	use unicode || myconf+=" --without-icu"
