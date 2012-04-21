@@ -53,7 +53,7 @@ src_install() {
 
 	emake
 
-	rm "${D}/${SCHEMAS}/gschemas.compiled"
+	rm -f "${D}/${SCHEMAS}/gschemas.compiled"
 }
 
 pkg_preinst() {
