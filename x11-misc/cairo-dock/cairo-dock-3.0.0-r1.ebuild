@@ -1,4 +1,4 @@
-# Copyright 1999-2010 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -7,14 +7,11 @@ EAPI="3"
 inherit cmake-utils eutils versionator
 
 MY_PN="${PN}-core"
-MY_PV=$(replace_version_separator 3 '~')
 MM_PV=$(get_version_component_range '1-2')
-MMD_PV=$(get_version_component_range '1-3')
 
 DESCRIPTION="Cairo-dock is a fast, responsive, Mac OS X-like dock."
-HOMEPAGE="https://launchpad.net/cairo-dock-core/"
-SRC_URI="http://launchpad.net/${MY_PN}/${MM_PV}/${MMD_PV}/+download/${PN}-${MY_PV}.tar.gz"
-echo $SRC_URI
+HOMEPAGE="http://www.glx-dock.org"
+SRC_URI="http://launchpad.net/${MY_PN}/${MM_PV}/${PV}/+download/${P}.tar.gz"
 
 LICENSE="GPL-3"
 SLOT="0"
@@ -29,7 +26,9 @@ RDEPEND="
 	net-misc/curl
 	sys-apps/dbus
 	x11-libs/cairo
-	x11-libs/gtk+:2
+	x11-libs/pango
+	x11-libs/gdk-pixbuf:2
+	x11-libs/gtk+:3
 	x11-libs/gtkglext
 	x11-libs/libXrender
 	crypt? ( sys-libs/glibc )
@@ -45,26 +44,15 @@ DEPEND="${RDEPEND}
 	sys-devel/gettext
 "
 
-S="${WORKDIR}/${PN}-${MY_PV}"
-
 src_prepare() {
-	epatch "${FILESDIR}/improved-cairo-dock-session.patch"
-	epatch "${FILESDIR}/${P}-rpath.patch"
+	epatch "${FILESDIR}/fix_lib6464.patch"
 	epatch "${FILESDIR}/${PN}-glib-include.patch"
-	# intltoolize --automake --copy --force || die "intltoolize failed"
-	# eautoreconf
-}
-
-src_configure() {
-	# glitz support has been dropped from recent cairo, so drop it here as well.
-	mycmakeargs+=( "-DENABLE_GLITZ=OFF" )
-	cmake-utils_src_configure
 }
 
 pkg_postinst() {
 	elog "Additional plugins are available to extend the functionality"
 	elog "of Cairo-Dock. It is recommended to install at least"
-	elog "x11-plugins/cairo-dock-plugins."
+	elog "x11-plugins/cairo-dock-plugins-core."
 	elog
 	elog "Cairo-Dock is an app that draws on a RGBA GLX visual."
 	elog "Some users have noticed that if the dock is launched,"
