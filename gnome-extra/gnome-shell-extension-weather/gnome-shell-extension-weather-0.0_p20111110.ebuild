@@ -4,7 +4,7 @@
 
 EAPI="4"
 
-inherit unpacker gnome2-utils
+inherit gnome2-utils eutils
 
 DESCRIPTION="An extension for displaying weather notifications in GNOME Shell"
 HOMEPAGE="https://github.com/simon04/gnome-shell-extension-weather"
@@ -12,48 +12,32 @@ SRC_URI="mirror://sabayon/${CATEGORY}/${PN}/${P}.tar.gz"
 
 LICENSE="GPL-3"
 SLOT="0"
-IUSE=" "
+IUSE=""
 KEYWORDS="~amd64 ~x86"
 
-EXTENSIONS="/usr/share/gnome-shell/extensions"
-SCHEMAS="/usr/share/glib-2.0/schemas"
-DESKTOPS="/usr/share/applications"
-
 COMMON_DEPEND="
-	>=dev-libs/glib-2.26
-	>=gnome-base/gnome-desktop-3.2.1"
+	dev-libs/glib:2
+	>=gnome-base/gnome-desktop-3.2.1:3"
 RDEPEND="${COMMON_DEPEND}
-	gnome-base/gnome-desktop
-	media-libs/clutter:1.0
-	net-libs/telepathy-glib
-	x11-libs/gtk+:3
-	x11-libs/pango"
+	dev-python/pygobject:3
+	=dev-lang/python-2*
+	media-libs/clutter:1.0[introspection]
+	net-libs/telepathy-glib[introspection]
+	x11-libs/pango[introspection]"
 DEPEND="${COMMON_DEPEND}
 	sys-devel/gettext
 	>=dev-util/pkgconfig-0.22
 	>=dev-util/intltool-0.26
 	gnome-base/gnome-common"
 
-src_compile() {
-
-	cd "${S}"
-	./autogen.sh --prefix=/usr
-	emake
+src_prepare() {
+	./autogen.sh --prefix=/usr || die
 }
 
 src_install() {
-
-	cd "${S}"
-
-	mv weather-extension-configurator{.py,}
-	dobin weather-extension-configurator
-
-	insinto "${DESKTOPS}"
-	doins "${S}/weather-extension-configurator.desktop"
-
-	emake
-
-	rm -f "${D}/${SCHEMAS}/gschemas.compiled"
+	dobin weather-extension-configurator.py
+	domenu weather-extension-configurator.desktop || die
+	emake DESTDIR="${D}" install
 }
 
 pkg_preinst() {
@@ -67,4 +51,3 @@ pkg_postinst() {
 pkg_postrm() {
 	gnome2_schemas_update --uninstall
 }
-
