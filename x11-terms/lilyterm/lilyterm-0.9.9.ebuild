@@ -31,6 +31,7 @@ src_prepare() {
 	sed -e "/^DOCDIR/s/\$(BINARY)/&-${PVR}/" \
 		-i .default || die "sed failed"
 	epatch "${FILESDIR}"/${P}-configure.patch
+	epatch "${FILESDIR}"/${P}-which.patch
 }
 
 src_configure() {
