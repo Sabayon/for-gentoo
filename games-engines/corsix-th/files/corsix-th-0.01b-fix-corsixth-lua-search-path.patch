@@ -1,0 +1,41 @@
+diff -Nurp corsix-th-0.01b/CorsixTH/CMakeLists.txt corsix-th-0.01b.new/CorsixTH/CMakeLists.txt
+--- corsix-th-0.01b/CorsixTH/CMakeLists.txt	2012-03-26 10:58:01.000000000 +0200
++++ corsix-th-0.01b.new/CorsixTH/CMakeLists.txt	2012-04-23 13:17:21.524252837 +0200
+@@ -14,6 +14,9 @@ IF(UNIX)
+     add_subdirectory(SDLMain)
+   ELSE(APPLE)
+     # regular unix/linux
++    if(CORSIXTH_LUA_PATH)
++      add_definitions(-D "CORSIXTH_LUA_PATH=${CORSIXTH_LUA_PATH}")
++    ENDIF(CORSIXTH_LUA_PATH)
+   ENDIF(APPLE)
+ ELSE()
+   IF(WIN32)
+diff -Nurp corsix-th-0.01b/CorsixTH/Src/main.cpp corsix-th-0.01b.new/CorsixTH/Src/main.cpp
+--- corsix-th-0.01b/CorsixTH/Src/main.cpp	2012-03-26 10:57:30.000000000 +0200
++++ corsix-th-0.01b.new/CorsixTH/Src/main.cpp	2012-04-23 13:17:21.523252837 +0200
+@@ -166,6 +166,11 @@ int CorsixTH_lua_main_no_eval(lua_State
+     "if code then return code end\n"
+ #endif
+ #endif
++#ifdef CORSIXTH_LUA_PATH // micia: Search for a separate data directory
++                         // useful for Unix filesystems
++    "code = loadfile(\"" CORSIXTH_LUA_PATH "/\"..name)\n"
++    "if code then return code end\n"
++#endif
+     "for num_dotdot = 0, 3 do\n"
+     "  for num_dir = 0, 1 do\n"
+     "    code = loadfile(root..(\"..\"..sep):rep(num_dotdot)..\n"
+diff -Nurp corsix-th-0.01b/MapEdit/CMakeLists.txt corsix-th-0.01b.new/MapEdit/CMakeLists.txt
+--- corsix-th-0.01b/MapEdit/CMakeLists.txt	2012-03-26 10:58:02.000000000 +0200
++++ corsix-th-0.01b.new/MapEdit/CMakeLists.txt	2012-04-23 13:17:21.526252833 +0200
+@@ -63,6 +63,9 @@ ENDIF()
+ IF(UNIX)
+   IF(APPLE)
+     # fruit goes here
++    IF(CORSIXTH_LUA_PATH)
++      add_definitions(-D "CORSIXTH_LUA_PATH=${CORSIXTH_LUA_PATH}")
++    ENDIF(CORSIXTH_LUA_PATH)
+   ELSE(APPLE)
+     # regular unix/linux
+   ENDIF(APPLE)
