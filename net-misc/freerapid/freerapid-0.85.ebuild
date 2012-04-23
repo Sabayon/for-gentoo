@@ -21,7 +21,7 @@ IUSE=""
 SLOT="0"
 DEPEND=">=virtual/jdk-1.6"
 RDEPEND=">=virtual/jre-1.6
-	app-misc/realpath"
+	|| ( >=sys-apps/coreutils-8.15 app-misc/realpath )"
 
 S="${WORKDIR}/FreeRapid-${PV}u1-build${ZIP_REV}"
 INSTALLDIR="/opt/${PN}"
