@@ -17,7 +17,7 @@ SRC_URI="mirror://sourceforge/zero-ad/${MY_P}-unix-build.tar.xz
 LICENSE="GPL-2 CCPL-Attribution-ShareAlike-3.0"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="debug editor nvtt pch test fam devil"
+IUSE="debug editor nvtt pch test fam"
 
 RDEPEND=">=dev-lang/spidermonkey-1.8.5
 	dev-libs/boost
