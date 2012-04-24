@@ -23,7 +23,7 @@ RDEPEND="dev-haskell/mtl
 		>=dev-lang/ghc-6.10.1
 		x11-libs/cairo[svg?]"
 DEPEND="${RDEPEND}
-		dev-haskell/gtk2hs-buildtools"
+		>=dev-haskell/gtk2hs-buildtools-0.12.3"
 
 src_configure() {
 	# x11-libs/cairo seems to build pdf and ps by default

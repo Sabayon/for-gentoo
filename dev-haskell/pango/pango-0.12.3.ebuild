@@ -19,11 +19,11 @@ SLOT="0"
 KEYWORDS="amd64 x86"
 IUSE=""
 
-RDEPEND="=dev-haskell/cairo-0.12*
-		=dev-haskell/glib-0.12*
+RDEPEND=">=dev-haskell/cairo-0.12.3
+		>=dev-haskell/glib-0.12.3
 		dev-haskell/mtl
 		>=dev-lang/ghc-6.10.1
 		x11-libs/cairo
 		x11-libs/pango"
 DEPEND="${RDEPEND}
-		dev-haskell/gtk2hs-buildtools"
+		>=dev-haskell/gtk2hs-buildtools-0.12.3"

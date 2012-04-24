@@ -19,16 +19,16 @@ SLOT="0"
 KEYWORDS="amd64 x86"
 IUSE="+gio"
 
-RDEPEND="=dev-haskell/cairo-0.12*
-		=dev-haskell/glib-0.12*
+RDEPEND=">=dev-haskell/cairo-0.12.3
+		>=dev-haskell/glib-0.12.3
 		dev-haskell/mtl
-		=dev-haskell/pango-0.12*
+		>=dev-haskell/pango-0.12.3
 		>=dev-lang/ghc-6.10.1
 		dev-libs/glib:2
 		x11-libs/gtk+:2
-		gio? ( =dev-haskell/gio-0.12* )"
+		gio? ( >=dev-haskell/gio-0.12.3 )"
 DEPEND="${RDEPEND}
-		dev-haskell/gtk2hs-buildtools"
+		>=dev-haskell/gtk2hs-buildtools-0.12.3"
 
 src_configure() {
 	# Upstream has this enabled, so we might as well force it enabled to be sure.
