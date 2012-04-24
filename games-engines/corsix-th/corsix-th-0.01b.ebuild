@@ -4,7 +4,7 @@
 
 EAPI="3"
 
-CMAKE_MIN_VERSION="2.8.3" 
+CMAKE_MIN_VERSION="2.8.3"
 
 inherit wxwidgets cmake-utils eutils games
 
@@ -36,7 +36,7 @@ src_prepare() {
 	# Patch CorsixTH.lua search path to allow separating the main executable
 	# from the data directory
 	epatch "${FILESDIR}/${P}-fix-corsixth-lua-search-path.patch"
-}	
+}
 
 src_configure() {
 	# Define files search path
@@ -78,13 +78,21 @@ src_compile() {
 src_install() {
 	# Rewrite install procedure to fit with the filesystem
 	cd "${MY_PN}" || die "cd failed"
-	newgamesbin "${WORKDIR}/${BUILD_DIR}/${MY_PN}/CorsixTH" ${PN} || die "binary install failed"
+	newgamesbin "${WORKDIR}/${BUILD_DIR}/CorsixTH/${MY_PN}" ${PN} || die "binary install failed"
 
 	insinto "${GAMES_DATADIR}/${PN}"
 	doins -r Lua Levels Bitmap CorsixTH.lua || die "data install failed"
 	newdoc README.txt README || die "doc install failed"
 	newicon Original_Logo.svg ${PN}.svg || die "icon install failed"
 	make_desktop_entry ${PN} ${MY_PN} || die "desktop icon creation failed"
+
+	# Optional editor components, should be dev tools, so don't create
+	# desktop shortcuts
+	if use wxwidgets ; then
+		newgamesbin "${WORKDIR}/${BUILD_DIR}/AnimView/AnimView" ${PN}-AnimView || die "animation viewer install failed"
+		newgamesbin "${WORKDIR}/${BUILD_DIR}/MapEdit/MapEdit" ${PN}-MapEdit || die "map editor install failed"
+	fi
+
 	prepgamesdirs
 }
 
