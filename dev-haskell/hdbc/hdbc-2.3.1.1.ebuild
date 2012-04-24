@@ -41,8 +41,6 @@ PDEPEND="odbc? ( =dev-haskell/hdbc-odbc-${DEPENDV}* )
 		postgres? ( =dev-haskell/hdbc-postgresql-${DEPENDV}* )
 		sqlite3? ( >=dev-haskell/hdbc-sqlite-${DEPENDV} )"
 
-PATCHES=("${FILESDIR}/${PN}-2.2.7.0-fix-fbuildtests.patch")
-
 S="${WORKDIR}/${MY_P}"
 
 src_configure() {
