@@ -82,7 +82,8 @@ src_install() {
 
 	insinto "${GAMES_DATADIR}/${PN}"
 	doins -r Lua Levels Bitmap CorsixTH.lua || die "data install failed"
-	newdoc README.txt README || die "doc install failed"
+	newdoc README.txt README || die "README install failed"
+	newdoc changelog.txt CHANGELOG || die "CHANGELOG install failed"
 	newicon Original_Logo.svg ${PN}.svg || die "icon install failed"
 	make_desktop_entry ${PN} ${MY_PN} || die "desktop icon creation failed"
 
