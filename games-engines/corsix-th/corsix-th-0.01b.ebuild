@@ -15,7 +15,7 @@ DESCRIPTION="A project that aims to reimplement the game engine of Theme Hospita
 HOMEPAGE="http://code.google.com/p/corsix-th/"
 SRC_URI="http://corsix-th.googlecode.com/files/${MY_P}.tar.gz"
 
-LICENSE="GPL-3"
+LICENSE="MIT"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE="opengl +truetype +sound wxwidgets"
