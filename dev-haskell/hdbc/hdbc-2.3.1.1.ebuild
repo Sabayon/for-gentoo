@@ -21,7 +21,7 @@ SLOT="2"
 KEYWORDS="~amd64 ~x86"
 IUSE="mysql odbc postgres sqlite3 test"
 
-RDEPEND=">=dev-haskell/convertible-1.0.10.0
+RDEPEND=">=dev-haskell/convertible-1.0.11.1
 		dev-haskell/mtl
 		dev-haskell/text
 		>=dev-haskell/time-1.1.3
