@@ -22,4 +22,4 @@ IUSE=""
 RDEPEND=">=dev-lang/ghc-6.10.1
 		dev-libs/glib:2"
 DEPEND="${RDEPEND}
-		dev-haskell/gtk2hs-buildtools"
+		>=dev-haskell/gtk2hs-buildtools-0.12.2"
