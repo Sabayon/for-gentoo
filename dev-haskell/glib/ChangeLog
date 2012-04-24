@@ -1,0 +1,16 @@
+# ChangeLog for dev-haskell/glib
+# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/dev-haskell/glib/ChangeLog,v 1.3 2011/06/21 11:01:25 hwoarang Exp $
+
+  21 Jun 2011; Markos Chandras <hwoarang@gentoo.org> glib-0.12.0.ebuild:
+  Stable on amd64 wrt bug #314059
+
+  12 Jun 2011; Pawel Hajdan jr <phajdan.jr@gentoo.org> glib-0.12.0.ebuild:
+  x86 stable wrt bug #314059
+
+*glib-0.12.0 (09 May 2011)
+
+  09 May 2011; Sergei Trofimovich <slyfox@gentoo.org> +glib-0.12.0.ebuild,
+  +metadata.xml:
+  Initial version. Haskell bindings for dev-libs/glib
+
