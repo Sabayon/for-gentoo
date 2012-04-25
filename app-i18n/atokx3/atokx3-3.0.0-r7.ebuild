@@ -83,6 +83,7 @@ gtk_query_immodules_2() {
 		ewarn "Cannot update gtk.immodules, file generation failed"
 	fi
 	rm "${tmp_file}"
+	return 0
 }
 
 update_gtk_immodules() {
