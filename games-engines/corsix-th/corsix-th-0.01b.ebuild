@@ -25,7 +25,7 @@ RDEPEND="
 	>=dev-lang/lua-5.1
 	opengl? ( virtual/opengl )
 	truetype? ( media-libs/freetype:2 )
-	sound? ( >=media-libs/sdl-mixer-1.2 )
+	sound? ( >=media-libs/sdl-mixer-1.2[timidity] )
 	wxwidgets? ( x11-libs/wxGTK:2.9[X] )"
 DEPEND="${RDEPEND}"
 
