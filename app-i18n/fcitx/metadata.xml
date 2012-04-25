@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<herd>cjk</herd>
+	<maintainer>
+		<email>qiaomuf@gentoo.org</email>
+		<name>Mu Qiao</name>
+	</maintainer>
+	<use>
+		<flag name="gtk3">Use GTK+3 instead of 2</flag>
+		<flag name='opencc'>Enable OpenCC for Chinese Transform</flag>
+		<flag name='pango'>Enable support for <pkg>x11-libs/pango</pkg></flag>
+		<flag name='qt'>Enable Qt IM Module</flag>
+		<flag name='table'>Enable Table IM</flag>
+	</use>
+</pkgmetadata>
