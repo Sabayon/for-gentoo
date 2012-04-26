@@ -34,7 +34,7 @@ pkg_postinst() {
 	echo
 	elog "If you would like to allow users in the 'entropy' group"
 	elog "to update available package repositories, please consider"
-	elog "to install sys-apps/entropy-client-services"
+	elog "to install sys-apps/rigo-daemon"
 	echo
 }
 
