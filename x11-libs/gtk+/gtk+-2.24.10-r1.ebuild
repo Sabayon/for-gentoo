@@ -43,6 +43,8 @@ COMMON_DEPEND="!aqua? (
 	cups? ( net-print/cups )
 	introspection? ( >=dev-libs/gobject-introspection-0.9.3 )
 	!<gnome-base/gail-1000"
+# Sabayon hack to force libffi install, drop after July 2012
+COMMON_DEPEND="${COMMON_DEPEND} >=dev-libs/libffi-3.0.11"
 DEPEND="${COMMON_DEPEND}
 	>=dev-util/pkgconfig-0.9
 	!aqua? (

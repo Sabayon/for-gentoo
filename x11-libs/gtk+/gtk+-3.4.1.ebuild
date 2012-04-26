@@ -56,6 +56,8 @@ COMMON_DEPEND="X? (
 	colord? ( >=x11-misc/colord-0.1.9 )
 	cups? ( >=net-print/cups-1.2 )
 	introspection? ( >=dev-libs/gobject-introspection-1.32 )"
+# Sabayon hack to force libffi install, drop after July 2012
+COMMON_DEPEND="${COMMON_DEPEND} >=dev-libs/libffi-3.0.11"
 DEPEND="${COMMON_DEPEND}
 	>=dev-util/pkgconfig-0.9
 	X? (
