@@ -4,6 +4,8 @@
 
 EAPI=3
 
+CMAKE_MIN_VERSION="2.6.0"
+
 inherit cmake-utils eutils flag-o-matic games
 
 DESCRIPTION="Lobby client for Spring RTS engine"
@@ -21,7 +23,7 @@ RDEPEND="
 	x11-libs/wxGTK:2.8[X]
 	net-misc/curl
 	libnotify? ( x11-libs/libnotify )
-	sound? ( 
+	sound? (
 		  media-libs/openal
 		  media-libs/libvorbis
 		  media-libs/flac
@@ -32,8 +34,7 @@ RDEPEND="
 "
 
 DEPEND="${RDEPEND}
-	dev-util/pkgconfig
-	>=dev-util/cmake-2.6.0
+	virtual/pkgconfig
 "
 
 src_configure() {
