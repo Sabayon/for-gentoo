@@ -22,7 +22,7 @@ RDEPEND="dev-libs/glib
 DEPEND="${RDEPEND}
 	dev-lang/vala:0.10
 	dev-util/intltool
-	dev-util/pkgconfig
+	virtual/pkgconfig
 	sys-devel/gettext"
 
 src_prepare() {

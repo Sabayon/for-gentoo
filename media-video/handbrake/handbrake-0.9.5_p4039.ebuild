@@ -1,4 +1,4 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -79,7 +79,7 @@ RDEPEND="sys-libs/zlib
 	)"
 DEPEND="dev-lang/yasm
 	dev-lang/python
-	dev-util/pkgconfig
+	virtual/pkgconfig
 	${RDEPEND}"
 
 # Handbrake attempts to download tarballs itself in its build system,

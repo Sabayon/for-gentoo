@@ -22,7 +22,7 @@ RDEPEND=">=media-libs/libsndfile-1.0.0
 	media-libs/libsamplerate
 	!media-sound/jack-cvs"
 DEPEND="${RDEPEND}
-	dev-util/pkgconfig
+	virtual/pkgconfig
 	doc? ( app-doc/doxygen )"
 RDEPEND="${RDEPEND}
 	pam? ( sys-auth/realtime-base )"

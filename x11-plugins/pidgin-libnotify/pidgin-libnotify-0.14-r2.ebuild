@@ -1,4 +1,4 @@
-# Copyright 1999-2010 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header:
 
@@ -20,7 +20,7 @@ RDEPEND=">=x11-libs/libnotify-0.3.2
 	>=x11-libs/gtk+-2:2"
 
 DEPEND="${RDEPEND}
-	dev-util/pkgconfig"
+	virtual/pkgconfig"
 
 src_prepare() {
 	epatch "${FILESDIR}"/${P}-libnotify-0.7-support.patch

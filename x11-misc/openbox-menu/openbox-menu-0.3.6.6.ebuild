@@ -19,7 +19,7 @@ RDEPEND="dev-libs/glib:2
 	x11-libs/gtk+:2
 "
 DEPEND="${RDEPEND}
-	dev-util/pkgconfig
+	virtual/pkgconfig
 "
 
 src_prepare() {

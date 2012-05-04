@@ -1,4 +1,4 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header $
 
@@ -12,7 +12,7 @@ SRC_URI="mirror://sourceforge/idjc/${P}.tar.gz"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="amd64 x86"
+KEYWORDS="~amd64 ~x86"
 IUSE="aac ffmpeg flac mp3 mp3-streaming mp3-tagging speex"
 
 RDEPEND="<dev-lang/python-3
@@ -31,11 +31,9 @@ RDEPEND="<dev-lang/python-3
 	mp3-tagging? ( dev-python/eyeD3 )
 	speex? ( >=media-libs/speex-1.2_rc1 )"
 DEPEND="${RDEPEND}
-	>=dev-util/pkgconfig-0.9.0"
+	virtual/pkgconfig"
 
-src_unpack() {
-	unpack ${A}
-	cd "${S}"
+src_prepare() {
 	# oldest version is >=media-video/ffmpeg-0.4.9_p20080326 anyway...
 	for x in $(find . -name "*.[ch]" -print0 | xargs -0 grep -l "#include <ffmpeg/avcodec.h>" ); do
 		sed -i -e "/avcodec\.h/s:ffmpeg:libavcodec:" $x;
@@ -53,11 +51,9 @@ src_unpack() {
 	eautoreconf
 }
 
-src_compile() {
+src_configure() {
 	econf $(use_enable aac mp4) $(use_enable ffmpeg) $(use_enable mp3 mad) \
 		$(use_enable mp3-streaming lame)
-
-	emake || die "emake failed."
 }
 
 src_install() {

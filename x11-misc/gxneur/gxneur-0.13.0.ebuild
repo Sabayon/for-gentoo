@@ -23,8 +23,8 @@ COMMON_DEPEND="gnome-base/libglade:2.0
 RDEPEND="${COMMON_DEPEND}
 	nls? ( virtual/libintl )"
 DEPEND="${COMMON_DEPEND}
-	nls? ( sys-devel/gettext )
-	>=dev-util/pkgconfig-0.20"
+	virtual/pkgconfig
+	nls? ( sys-devel/gettext )"
 
 src_prepare() {
 	rm -f m4/{lt~obsolete,ltoptions,ltsugar,ltversion,libtool}.m4 \

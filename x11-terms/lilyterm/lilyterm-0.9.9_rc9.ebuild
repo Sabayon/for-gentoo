@@ -22,7 +22,7 @@ RDEPEND="
 	x11-libs/pango
 	x11-libs/vte:0"
 DEPEND="${RDEPEND}
-	dev-util/pkgconfig
+	virtual/pkgconfig
 	dev-util/intltool
 	nls? ( sys-devel/gettext )"
 

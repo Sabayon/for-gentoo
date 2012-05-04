@@ -45,7 +45,7 @@ RDEPEND="
 DEPEND="${RDEPEND}
 	dev-util/intltool
 	sys-devel/gettext
-	dev-util/pkgconfig
+	virtual/pkgconfig
 "
 
 src_prepare() {

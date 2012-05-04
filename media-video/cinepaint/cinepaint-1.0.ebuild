@@ -1,4 +1,4 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -44,7 +44,7 @@ RDEPEND="
 	gutenprint? ( net-print/gutenprint )
 	text? ( media-libs/ftgl )"
 DEPEND="${RDEPEND}
-	dev-util/pkgconfig
+	virtual/pkgconfig
 	x11-proto/xineramaproto"
 
 src_prepare() {

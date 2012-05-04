@@ -36,7 +36,7 @@ RDEPEND="${COMMON_DEPEND}
 		media-plugins/gst-plugins-alsa )
 	nls? ( virtual/libintl )"
 DEPEND="${COMMON_DEPEND}
-	>=dev-util/pkgconfig-0.20
+	virtual/pkgconfig
 	nls? ( sys-devel/gettext )"
 
 src_prepare() {
@@ -99,11 +99,6 @@ src_install() {
 pkg_postinst() {
 	elog "This is command line tool. If you are looking for GUI frontend just"
 	elog "emerge gxneur, which uses xneur transparently as backend."
-
-	ewarn "If you upgraded from <=xneur-0.9.3, you need to remove"
-	ewarn "dictionary files in the home directory:"
-	ewarn " $ rm ~/.xneur/{ru,en,be,etc.}/dict"
-
 	ewarn
 	ewarn "Note: if xneur became slow, try to comment out AddBind options in config file."
 }

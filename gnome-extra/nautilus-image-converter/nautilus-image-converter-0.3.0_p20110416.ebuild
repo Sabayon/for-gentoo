@@ -23,9 +23,9 @@ COMMON_DEPEND="
 "
 DEPEND="${COMMON_DEPEND}
 	dev-util/intltool
-	dev-util/pkgconfig
-	gnome-base/gnome-common:3
 	sys-devel/gettext
+	virtual/pkgconfig
+	gnome-base/gnome-common:3
 "
 RDEPEND="${COMMON_DEPEND}
 	|| ( media-gfx/imagemagick media-gfx/graphicsmagick[imagemagick] )

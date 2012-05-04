@@ -37,7 +37,7 @@ RDEPEND="${COMMON_DEPEND}
 	nls? ( virtual/libintl )
 	gtk3? ( !x11-misc/gxneur )"
 DEPEND="${COMMON_DEPEND}
-	>=dev-util/pkgconfig-0.20
+	virtual/pkgconfig
 	nls? ( sys-devel/gettext )"
 
 src_prepare() {
@@ -104,11 +104,6 @@ pkg_postinst() {
 	elog
 	elog "It is recommended to install dictionary for your language"
 	elog "(myspell or aspell), for example app-dicts/aspell-ru."
-
-	ewarn
-	ewarn "If you upgraded from <=xneur-0.9.3, you need to remove"
-	ewarn "dictionary files in the home directory:"
-	ewarn " $ rm ~/.xneur/{ru,en,be,etc.}/dict"
 
 	ewarn
 	ewarn "Note: if xneur became slow, try to comment out AddBind options in config file."

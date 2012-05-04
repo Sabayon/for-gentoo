@@ -35,7 +35,7 @@ RDEPEND=">=sys-devel/libtool-2.2.6b
 	vorbis? ( media-libs/libvorbis )
 	wavpack? ( media-sound/wavpack )"
 DEPEND="${RDEPEND}
-	dev-util/pkgconfig"
+	virtual/pkgconfig"
 
 src_prepare() {
 	epatch "${FILESDIR}"/${P}-allow-ogg-streams.patch

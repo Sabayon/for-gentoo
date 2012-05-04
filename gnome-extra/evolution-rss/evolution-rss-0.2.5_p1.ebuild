@@ -48,7 +48,7 @@ RDEPEND="app-text/enchant
 #		www-client/firefox ) )
 
 DEPEND="${RDEPEND}
-	dev-util/pkgconfig
+	virtual/pkgconfig
 	>=dev-util/intltool-0.35.0
 	gnome-base/gnome-common
 	>=sys-devel/autoconf-2.53

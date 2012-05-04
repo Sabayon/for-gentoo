@@ -27,8 +27,8 @@ ALL_DEPEND="app-text/gnome-doc-utils
 	python? ( =dev-lang/python-2* )
 	taglib? ( media-libs/taglib )"
 DEPEND="${ALL_DEPEND}
-		dev-util/intltool
-		dev-util/pkgconfig"
+	dev-util/intltool
+	virtual/pkgconfig"
 RDEPEND="${ALL_DEPEND}"
 
 DOCS="AUTHORS BUGS ChangeLog NEWS README TODO"

@@ -30,7 +30,7 @@ CDEPEND="
 	media-libs/alsa-lib"
 
 DEPEND="${CDEPEND}
-	dev-util/pkgconfig"
+	virtual/pkgconfig"
 RDEPEND="${CDEPEND}
 	x11-libs/libgksu"
 
