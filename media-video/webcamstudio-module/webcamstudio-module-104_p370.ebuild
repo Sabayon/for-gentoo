@@ -11,7 +11,7 @@ HOMEPAGE="http://www.ws4gl.org/"
 
 # This should be replaced by a snapshot SVN file residing on a Gentoo server
 ESVN_REPO_URI="http://webcamstudio.googlecode.com/svn/trunk/trunk/vloopback@370"
-ESVN_STORE_DIR="${PORTAGE_ACTUAL_DISTDIR:-${DISTDIR}}/svn-src/${PN}/0.6-series"
+# ESVN_STORE_DIR="${PORTAGE_ACTUAL_DISTDIR:-${DISTDIR}}/svn-src/${PN}/0.6-series"
 
 LICENSE="GPL-2"
 SLOT="0"
