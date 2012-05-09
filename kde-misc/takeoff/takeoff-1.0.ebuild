@@ -19,4 +19,4 @@ IUSE="debug"
 
 RDEPEND="$(add_kdebase_dep plasma-workspace)"
 
-S="${WORKDIR}/${PN}"
+S="${WORKDIR}/${P}"
