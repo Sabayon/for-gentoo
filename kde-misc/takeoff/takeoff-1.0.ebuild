@@ -5,6 +5,7 @@
 EAPI=4
 
 KDE_MINIMAL="4.8"
+KDE_LINGUAS_DIR="translations"
 KDE_LINGUAS="ca de el es gl it pl ru tr"
 inherit kde4-base
 
