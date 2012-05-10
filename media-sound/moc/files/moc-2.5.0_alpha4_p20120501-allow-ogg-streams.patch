@@ -1,0 +1,27 @@
+based on a Debian patch by John Fitzgerald <jcf@wave.co.nz>
+Debian-Bug: #645312
+diff -ur moc-2.5.0_alpha4_p20120501.orig/config.example.in moc-2.5.0_alpha4_p20120501/config.example.in
+--- moc-2.5.0_alpha4_p20120501.orig/config.example.in	2012-05-10 21:02:56.531097353 +0200
++++ moc-2.5.0_alpha4_p20120501/config.example.in	2012-05-10 21:05:25.828072231 +0200
+@@ -346,8 +346,7 @@
+ # be assessed on content (which may be either Vorbis or Speex).
+ #
+ #PreferredDecoders	+= ogg(vorbis,ffmpeg):oga(vorbis,ffmpeg):spx(speex)
+-#PreferredDecoders	+= application/ogg():audio/ogg()
+-
++#PreferredDecoders	+= application/ogg(vorbis):audio/ogg(vorbis)
+ # Resample method to use. There are a few methods of resampling sound supported
+ # by libresamplerate. The default is the fastest (linear). Better description
+ # is here: http://www.mega-nerd.com/libsamplerate/api_misc.html#Converters
+diff -ur moc-2.5.0_alpha4_p20120501.orig/options.c moc-2.5.0_alpha4_p20120501/options.c
+--- moc-2.5.0_alpha4_p20120501.orig/options.c	2012-05-10 21:02:56.544099004 +0200
++++ moc-2.5.0_alpha4_p20120501/options.c	2012-05-10 21:07:38.551940750 +0200
+@@ -643,7 +643,7 @@
+ 	                 "audio/aac(aac,*):audio/aacp(aac,*):audio/m4a(ffmpeg):"
+ 	                 "audio/wav(sndfile,*,modplug):"
+ 	                 "ogg(vorbis,ffmpeg):oga(vorbis,ffmpeg):spx(speex):"
+-	                 "application/ogg():audio/ogg()",
++	                 "application/ogg(vorbis):audio/ogg(vorbis)",
+ 	                 CHECK_FUNCTION);
+ 	add_int  ("ForceSampleRate", 0, CHECK_RANGE(1), 0, 500000);
+ 	add_str  ("HTTPProxy", NULL, CHECK_NONE);
