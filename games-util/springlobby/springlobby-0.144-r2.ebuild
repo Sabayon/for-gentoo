@@ -6,7 +6,7 @@ EAPI=3
 
 CMAKE_MIN_VERSION="2.6.0"
 
-inherit cmake-utils eutils flag-o-matic games
+inherit cmake-utils eutils flag-o-matic wxwidgets games
 
 DESCRIPTION="Lobby client for Spring RTS engine"
 HOMEPAGE="http://springlobby.info"
@@ -15,27 +15,31 @@ SRC_URI="http://www.springlobby.info/tarballs/${P}.tar.bz2"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="+torrent +sound debug libnotify gstreamer"
+IUSE="+torrent +sound debug libnotify"
 
 RDEPEND="
 	games-engines/spring
-        >=dev-libs/boost-1.35
+	>=dev-libs/boost-1.35
 	x11-libs/wxGTK:2.8[X]
 	net-misc/curl
 	libnotify? ( x11-libs/libnotify )
 	sound? (
-		  media-libs/openal
-		  media-libs/libvorbis
-		  media-libs/flac
-		  media-sound/mpg123
+		media-libs/alure
+		media-libs/openal
+		media-libs/libvorbis
+		media-libs/flac
+		media-sound/mpg123
 	)
-	gstreamer? ( media-libs/gstreamer )
 	torrent? ( >=net-libs/rb_libtorrent-0.14 )
 "
 
 DEPEND="${RDEPEND}
 	virtual/pkgconfig
 "
+
+src_prepare() {
+	epatch "${FILESDIR}"/${P}-system-alure.patch
+}
 
 src_configure() {
 	local mycmakeargs=()
@@ -50,11 +54,10 @@ src_configure() {
 	if ! use sound ; then
 		mycmakeargs+=( "-DOPTION_SOUND=OFF" )
 	fi
-	if use gstreamer ; then
-		mycmakeargs+=( "-DGSTREAMER=ON" )
-	fi
+	# although GSTREAMER option exists, it's not used because any gstreamer
+	# bits were used for bundled alure
 
-	mycmakeargs+=( 
+	mycmakeargs+=(
 		"-DAUX_VERSION=(Gentoo,$ARCH)"
 		"-DCMAKE_INSTALL_PREFIX=/usr/games/"
 	)
