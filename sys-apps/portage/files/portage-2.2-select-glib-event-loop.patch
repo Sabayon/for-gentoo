@@ -1,0 +1,14 @@
+diff --git a/pym/portage/util/_eventloop/global_event_loop.py b/pym/portage/util/_eventloop/global_event_loop.py
+index 502dab8..4ea3679 100644
+--- a/pym/portage/util/_eventloop/global_event_loop.py
++++ b/pym/portage/util/_eventloop/global_event_loop.py
+@@ -6,7 +6,8 @@ import os
+ from .EventLoop import EventLoop
+ 
+ _default_constructor = EventLoop
+-#from .GlibEventLoop import GlibEventLoop as _default_constructor
++if os.getenv("PORTAGE_EVENT_LOOP") == "glib":
++	from .GlibEventLoop import GlibEventLoop as _default_constructor
+ 
+ # If _default_constructor doesn't support multiprocessing,
+ # then _multiprocessing_constructor is used in subprocesses.
