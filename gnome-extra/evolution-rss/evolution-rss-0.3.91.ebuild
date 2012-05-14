@@ -72,6 +72,13 @@ src_prepare() {
 	sed -i -e 's|^\(#define EVOLUTION\) EVOLUTION_BINDIR.*$|\1 "evolution\&"|' \
 		src/evolution-import-rss.c || die "sed failed"
 
+	# hack
+	# remove checks of libemail-utils libemail-engine libevolution-utils
+	# they seem to be needed for Evolution 3.3.xxx
+	if has_version '<mail-client/evolution-3.3'; then
+		sed -i -e '/EVOLUTION_ADDITIONAL/d' configure.ac || die
+	fi
+
 	# intltoolize --force --copy --automake || die "intltoolize failed"
 	# eautoreconf
 	NOCONFIGURE=1 ./autogen.sh || die "autogen failed"
