@@ -17,7 +17,7 @@ KEYWORDS="~amd64 ~x86"
 SLOT="0"
 IUSE="spell"
 
-DEPEND=">=dev-python/pygtk-2.12.0
+DEPEND="dev-python/pygtk
 	dev-python/pygobject
 	dev-python/pygtksourceview
 	spell? ( >=app-text/gtkspell-2.0.11-r1 )"
