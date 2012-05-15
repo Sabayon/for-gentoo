@@ -1,12 +1,12 @@
-# Copyright 1999-2009 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
+
+EAPI=2
 
 DESCRIPTION="Asenine Fonts by Graham Meade of Apostrophic Labs"
 HOMEPAGE="http://apostrophiclab.pedroreina.net"
 SRC_URI="mirror://sabayon/${CATEGORY}/${PN}/${P}.tar.lzma"
-
-EAPI=2
 
 LICENSE="ApostrophicLabs"
 SLOT="0"

@@ -1,12 +1,12 @@
-# Copyright 1999-2009 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
+
+EAPI=2
 
 DESCRIPTION="Cicle Fonts by Joan Alegret (Tipomatika)"
 HOMEPAGE="www.tipomatika.co.nr"
 SRC_URI="mirror://sabayon/${CATEGORY}/${PN}/${P}.tar.lzma"
-
-EAPI=2
 
 LICENSE="cicle"
 SLOT="0"

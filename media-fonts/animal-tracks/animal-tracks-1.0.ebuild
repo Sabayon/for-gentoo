@@ -1,12 +1,12 @@
-# Copyright 1999-2009 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
+
+EAPI=2
 
 DESCRIPTION="Animal Tracks by Andrew D. Taylor"
 HOMEPAGE="http://www.dafont.com/animal-tracks.font"
 SRC_URI="mirror://sabayon/${CATEGORY}/${PN}/${P}.tar.lzma"
-
-EAPI=2
 
 LICENSE="animal-tracks"
 SLOT="0"
@@ -19,7 +19,7 @@ DEPEND=""
 S=${WORKDIR}
 
 src_unpack() {
-unpack ${A}
+	unpack ${A}
 }
 
 src_install() {

@@ -1,12 +1,12 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
+EAPI="3"
 inherit eutils multilib python
 
 PYTHON_DEPEND="2:2.5"
 RESTRICT_PYTHON_ABIS="3.*"
-EAPI="3"
 
 MY_P="$P"
 MY_P="${MY_P/sab/SAB}"
@@ -31,7 +31,7 @@ RDEPEND="
 		rar? ( >=app-arch/unrar-3.9.0 )
 		unzip? ( >=app-arch/unzip-5.5.2 )
 		yenc? ( >=dev-python/yenc-0.3 )
-		ssl? ( >=dev-python/pyopenssl-0.7 
+		ssl? ( >=dev-python/pyopenssl-0.7
 			dev-libs/openssl )"
 DEPEND="${RDEPEND}
 		app-text/dos2unix"
@@ -102,11 +102,11 @@ pkg_postinst() {
 	einfo "SABnzbd has been installed with default directories in ${HOMEDIR}"
 	einfo "Email templates can be found in: ${ROOT}usr/share/${P}/email"
 	einfo ""
-	einfo "By default, SABnzbd runs as the unprivileged user \"sabnzbd\"" 
+	einfo "By default, SABnzbd runs as the unprivileged user \"sabnzbd\""
 	einfo "on port 8081 with no API key."
 	einfo ""
 	einfo "Be sure to that the \"sabnzbd\" user has the appropriate"
-	einfo "permissions to read/write to any non-default directories" 
+	einfo "permissions to read/write to any non-default directories"
 	einfo "if changed in ${PN}.ini"
 	einfo ""
 	einfo "Configuration files are accessible only to users in the \"sabnzbd\" group"

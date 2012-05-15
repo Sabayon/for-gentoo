@@ -5,8 +5,8 @@
 # svn export -r "{2009-05-09}" https://gluegen.dev.java.net/svn/gluegen/trunk
 # gluegen --username xxx --password xxx
 
-WANT_ANT_TASKS="ant-antlr"
 EAPI="2"
+WANT_ANT_TASKS="ant-antlr"
 JAVA_PKG_IUSE=""
 
 inherit java-pkg-2 java-ant-2
