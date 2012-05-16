@@ -14,7 +14,7 @@ SRC_URI="http://launchpad.net/elementaryicons/2.0/${PV}/+download/${P}.tar.gz
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="~amd64 ~arm ~x86"
 IUSE="monochrome branding"
 
 DEPEND=""
