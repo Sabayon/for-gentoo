@@ -4,7 +4,7 @@
 
 EAPI=3
 
-inherit games
+inherit eutils games
 
 DESCRIPTION="First-person ego-shooter, built as a total conversion of Cube Engine 2"
 HOMEPAGE="http://www.redeclipse.net/"

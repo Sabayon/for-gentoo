@@ -4,7 +4,7 @@
 
 EAPI="2"
 
-inherit games toolchain-funcs
+inherit eutils games toolchain-funcs
 
 DESCRIPTION="Hollywood tactical shooter based on the ioquake3 engine"
 HOMEPAGE="http://www.urbanterror.net/"

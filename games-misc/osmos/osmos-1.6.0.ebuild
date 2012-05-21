@@ -1,9 +1,9 @@
-# Copyright 2010 Sabayon Linux
+# Copyright 2010-2012 Sabayon Linux
 # Distributed under the terms of the GNU General Public License v2
 # $Header:
 EAPI="2"
 
-inherit games
+inherit eutils games
 
 MY_PN=${PN/o/O}
 MY_P="${MY_PN}_${PV}"

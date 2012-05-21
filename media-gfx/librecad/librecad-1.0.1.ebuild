@@ -1,10 +1,10 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
 EAPI=3
 
-inherit qt4-r2
+inherit eutils qt4-r2
 
 DESCRIPTION="free Open Source personal 2D CAD application"
 HOMEPAGE="http://www.librecad.org/"
