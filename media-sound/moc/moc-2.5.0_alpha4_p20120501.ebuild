@@ -3,7 +3,7 @@
 # $Header: /var/cvsroot/gentoo-x86/media-sound/moc/moc-2.5.0_alpha4_p20120501.ebuild,v 1.4 2012/05/05 08:39:33 mgorny Exp $
 
 EAPI=4
-inherit autotools
+inherit eutils autotools
 
 DESCRIPTION="Music On Console - ncurses interface for playing audio files"
 HOMEPAGE="http://moc.daper.net"

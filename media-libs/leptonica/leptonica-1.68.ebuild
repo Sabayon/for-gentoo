@@ -4,7 +4,7 @@
 
 EAPI=2
 
-inherit autotools multilib
+inherit eutils autotools multilib
 
 #MY_P="leptonlib-${PV}"
 DESCRIPTION="An open source C library for image processing and analysis"
