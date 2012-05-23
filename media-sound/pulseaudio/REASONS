@@ -1,0 +1,1 @@
+Fixes automagic dependency on xen-tools by explicitly turning it on or off
