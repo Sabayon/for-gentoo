@@ -1,0 +1,29 @@
+--- open-vm-tools-2012.03.13-651368.orig/modules/linux/vmblock/linux/filesystem.c
++++ open-vm-tools-2012.03.13-651368/modules/linux/vmblock/linux/filesystem.c
+@@ -525,9 +525,8 @@ FsOpReadSuper(struct super_block *sb, //
+       return -EINVAL;
+    }
+ 
+-   rootDentry = d_alloc_root(rootInode);
++   rootDentry = d_make_root(rootInode);
+    if (!rootDentry) {
+-      iput(rootInode);
+       return -ENOMEM;
+    }
+    sb->s_root = rootDentry;
+--- open-vm-tools-2012.03.13-651368.orig/modules/linux/vmhgfs/filesystem.c
++++ open-vm-tools-2012.03.13-651368/modules/linux/vmhgfs/filesystem.c
+@@ -376,10 +376,11 @@ HgfsGetRootDentry(struct super_block *sb
+       goto exit;
+    }
+ 
+-   tempRootDentry = d_alloc_root(rootInode);
++   tempRootDentry = d_make_root(rootInode);
+    if (tempRootDentry == NULL) {
+       LOG(4, (KERN_WARNING "VMware hgfs: %s: Could not get "
+               "root dentry\n", __func__));
++      rootInode = NULL; // FIXME better !
+       goto exit;
+    }
+ 
+
