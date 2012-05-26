@@ -1,4 +1,4 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -46,7 +46,7 @@ DISTUTILS_USE_SEPARATE_SOURCE_DIRECTORIES="1"
 src_prepare() {
 	# hacky way to build when DISPLAY not set
 	# https://bugs.launchpad.net/pithos/+bug/778522
-	epatch "${FILESDIR}"/${PN}-0.3.8_p162-fix-build.patch
+	epatch "${FILESDIR}"/${P}-fix-build.patch
 	distutils_src_prepare
 
 	# bug #216009
