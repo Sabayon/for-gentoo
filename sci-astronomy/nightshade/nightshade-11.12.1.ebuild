@@ -1,4 +1,4 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -17,7 +17,7 @@ IUSE=""
 RDEPEND="
 	>=dev-libs/boost-1.42
 	media-gfx/graphicsmagick
-	media-libs/libpng
+	media-libs/libpng:0
 	>=media-libs/libsdl-1.2.10
 	media-libs/sdl-mixer
 	media-libs/sdl-pango
@@ -29,8 +29,6 @@ DEPEND="${RDEPEND}
 "
 
 src_prepare() {
-	# Don't call system() with cp or mkdir.
-	epatch "${FILESDIR}"/${PV}-fix-cp-mkdir.patch
 	sed -i 's:/usr/local/lib/libfastdb.a:/usr/lib/libfastdb.a:' \
 		configure.ac \
 		|| die "sed failed"
