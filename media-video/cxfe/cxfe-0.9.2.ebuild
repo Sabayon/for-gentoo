@@ -26,7 +26,6 @@ DEPEND="${RDEPEND}
 src_unpack() {
 	unpack ${A}
 	cd "${S}"
-	sed -i -e '/^LDFLAGS/s/$/-lpthread/' Makefile.in || die
 	epatch "${FILESDIR}/${P}-asneeded.patch"
 }
 
