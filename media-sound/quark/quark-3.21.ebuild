@@ -28,6 +28,6 @@ src_prepare() {
 	sed -i \
 		-e 's:-D[A-Z_]*DISABLE_DEPRECATED:$(NULL):g' \
 		strange-quark/Makefile.{am,in} quark/Makefile.{am,in} || die #387823
-	sed -e -i 's/^strange_quark_LDADD =/& -lX11/' strange-quark/Makefile.in \
+	sed -i -e 's/^strange_quark_LDADD =/& -lX11/' strange-quark/Makefile.in \
 		|| die
 }
