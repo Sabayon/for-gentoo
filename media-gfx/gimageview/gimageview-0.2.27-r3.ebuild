@@ -31,7 +31,7 @@ DEPEND="${RDEPEND}
 	virtual/pkgconfig"
 
 src_prepare() {
-	sed -i -e 's/$(gimv_LDADD)/& -lm/' Makefile.in || die
+	sed -i -e 's/$(gimv_LDADD)/& -lm/' src/Makefile.in || die
 	epatch \
 		"${FILESDIR}"/${P}-sort_fix.diff \
 		"${FILESDIR}"/${P}-gtk12_fix.diff \
