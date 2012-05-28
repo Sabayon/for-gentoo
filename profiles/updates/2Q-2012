@@ -1,2 +1,2 @@
 move x11-drivers/bbswitch sys-power/bbswitch
-
+move app-benchmarks/hardinfo app-admin/hardinfo
