@@ -9,7 +9,7 @@ PYTHON_DEPEND="python? 2:2.5"
 SUPPORT_PYTHON_ABIS="1"
 RESTRICT_PYTHON_ABIS="3.*"
 
-inherit autotools eutils gnome2 python mate-desktop.org
+inherit autotools eutils mate python mate-desktop.org
 
 DESCRIPTION="The MATE menu system, implementing the F.D.O cross-desktop spec"
 HOMEPAGE="http://mate-desktop.org"
@@ -44,7 +44,7 @@ pkg_setup() {
 
 src_prepare() {
 	eautoreconf
-	gnome2_src_prepare
+	mate_src_prepare
 
 	# disable pyc compiling
 	echo '#!/bin/sh' > py-compile
@@ -53,11 +53,11 @@ src_prepare() {
 }
 
 src_configure() {
-	python_execute_function -s gnome2_src_configure
+	python_execute_function -s mate_src_configure
 }
 
 src_compile() {
-	python_execute_function -s gnome2_src_compile
+	python_execute_function -s mate_src_compile
 }
 
 src_test() {
@@ -65,7 +65,7 @@ src_test() {
 }
 
 src_install() {
-	python_execute_function -s gnome2_src_install
+	python_execute_function -s mate_src_install
 	python_clean_installation_image
 
 	exeinto /etc/X11/xinit/xinitrc.d/
@@ -76,7 +76,7 @@ src_install() {
 }
 
 pkg_postinst() {
-	gnome2_pkg_postinst
+	mate_pkg_postinst
 	if use python; then
 		python_mod_optimize GMenuSimpleEditor
 	fi
@@ -88,7 +88,7 @@ pkg_postinst() {
 }
 
 pkg_postrm() {
-	gnome2_pkg_postrm
+	mate_pkg_postrm
 	if use python; then
 		python_mod_cleanup GMenuSimpleEditor
 	fi
