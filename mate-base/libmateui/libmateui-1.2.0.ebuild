@@ -5,7 +5,7 @@
 EAPI="3"
 GCONF_DEBUG="no"
 
-inherit autotools gnome2 mate-desktop.org
+inherit autotools mate mate-desktop.org
 
 DESCRIPTION="User Interface routines for MATE"
 HOMEPAGE="http://mate-desktop.org"
@@ -41,7 +41,7 @@ DOCS="AUTHORS ChangeLog NEWS README"
 src_prepare() {
 	gtkdocize || die
 	eautoreconf
-	gnome2_src_prepare
+	mate_src_prepare
 
 	if ! use test; then
 		sed 's/ test-gnome//' -i Makefile.am Makefile.in || die "sed failed"
