@@ -8,7 +8,7 @@
 # @BLURB: 
 # @DESCRIPTION:
 # Exports portage base functions used by ebuilds written for packages using the
-# GNOME framework. For additional functions, see gnome2-utils.eclass.
+# MATE framework. For additional functions, see mate-utils.eclass.
 
 inherit fdo-mime libtool mate-desktop.org mate-utils
 
@@ -74,25 +74,25 @@ if [[ ${GCONF_DEBUG} != "no" ]]; then
 fi
 
 
-# @FUNCTION: gnome2_src_unpack
+# @FUNCTION: mate_src_unpack
 # @DESCRIPTION:
 # Stub function for old EAPI.
-gnome2_src_unpack() {
+mate_src_unpack() {
 	unpack ${A}
 	cd "${S}"
-	has ${EAPI:-0} 0 1 && gnome2_src_prepare
+	has ${EAPI:-0} 0 1 && mate_src_prepare
 }
 
-# @FUNCTION: gnome2_src_prepare
+# @FUNCTION: mate_src_prepare
 # @DESCRIPTION:
 # Prepare environment for build, fix build of scrollkeeper documentation,
 # run elibtoolize.
-gnome2_src_prepare() {
+mate_src_prepare() {
 	# Prevent assorted access violations and test failures
-	gnome2_environment_reset
+	mate_environment_reset
 
 	# Prevent scrollkeeper access violations
-	gnome2_omf_fix
+	mate_omf_fix
 
 	# Run libtoolize
 	if has ${EAPI:-0} 0 1 2 3; then
@@ -104,10 +104,10 @@ gnome2_src_prepare() {
 
 }
 
-# @FUNCTION: gnome2_src_configure
+# @FUNCTION: mate_src_configure
 # @DESCRIPTION:
 # Gnome specific configure handling
-gnome2_src_configure() {
+mate_src_configure() {
 	# Update the GNOME configuration options
 	if [[ ${GCONF_DEBUG} != 'no' ]] ; then
 		if use debug ; then
@@ -136,19 +136,19 @@ gnome2_src_configure() {
 	econf "$@" ${G2CONF}
 }
 
-# @FUNCTION: gnome2_src_compile
+# @FUNCTION: mate_src_compile
 # @DESCRIPTION:
 # Stub function for old EAPI.
-gnome2_src_compile() {
-	has ${EAPI:-0} 0 1 && gnome2_src_configure "$@"
+mate_src_compile() {
+	has ${EAPI:-0} 0 1 && mate_src_configure "$@"
 	emake || die "compile failure"
 }
 
-# @FUNCTION: gnome2_src_install
+# @FUNCTION: mate_src_install
 # @DESCRIPTION:
 # Gnome specific install. Handles typical GConf and scrollkeeper setup
 # in packages and removal of .la files if requested
-gnome2_src_install() {
+mate_src_install() {
 	has ${EAPI:-0} 0 1 2 && ! use prefix && ED="${D}"
 	# if this is not present, scrollkeeper-update may segfault and
 	# create bogus directories in /var/lib/
@@ -194,43 +194,43 @@ gnome2_src_install() {
 	fi
 }
 
-# @FUNCTION: gnome2_pkg_preinst
+# @FUNCTION: mate_pkg_preinst
 # @DESCRIPTION:
 # Finds Icons, GConf and GSettings schemas for later handling in pkg_postinst
-gnome2_pkg_preinst() {
-	gnome2_gconf_savelist
-	gnome2_icon_savelist
-	gnome2_schemas_savelist
-	gnome2_scrollkeeper_savelist
+mate_pkg_preinst() {
+	mate_gconf_savelist
+	mate_icon_savelist
+	mate_schemas_savelist
+	mate_scrollkeeper_savelist
 }
 
-# @FUNCTION: gnome2_pkg_postinst
+# @FUNCTION: mate_pkg_postinst
 # @DESCRIPTION:
 # Handle scrollkeeper, GConf, GSettings, Icons, desktop and mime
 # database updates.
-gnome2_pkg_postinst() {
-	gnome2_gconf_install
+mate_pkg_postinst() {
+	mate_gconf_install
 	fdo-mime_desktop_database_update
 	fdo-mime_mime_database_update
-	gnome2_icon_cache_update
-	gnome2_schemas_update
-	gnome2_scrollkeeper_update
+	mate_icon_cache_update
+	mate_schemas_update
+	mate_scrollkeeper_update
 }
 
-# @#FUNCTION: gnome2_pkg_prerm
+# @#FUNCTION: mate_pkg_prerm
 # @#DESCRIPTION:
 # # FIXME Handle GConf schemas removal
-#gnome2_pkg_prerm() {
-#	gnome2_gconf_uninstall
+#mate_pkg_prerm() {
+#	mate_gconf_uninstall
 #}
 
-# @FUNCTION: gnome2_pkg_postrm
+# @FUNCTION: mate_pkg_postrm
 # @DESCRIPTION:
 # Handle scrollkeeper, GSettings, Icons, desktop and mime database updates.
-gnome2_pkg_postrm() {
+mate_pkg_postrm() {
 	fdo-mime_desktop_database_update
 	fdo-mime_mime_database_update
-	gnome2_icon_cache_update
-	gnome2_schemas_update
-	gnome2_scrollkeeper_update
+	mate_icon_cache_update
+	mate_schemas_update
+	mate_scrollkeeper_update
 }
