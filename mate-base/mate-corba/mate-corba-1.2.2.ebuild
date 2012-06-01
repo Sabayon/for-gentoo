@@ -8,7 +8,7 @@ MATE_DESKTOP_ORG_MODULE="mate-corba"
 WANT_AUTOMAKE=1.9
 WANT_AUTOCONF="2.5"
 
-inherit autotools gnome2 toolchain-funcs mate-desktop.org
+inherit autotools mate toolchain-funcs mate-desktop.org
 
 DESCRIPTION="Thin/fast CORBA ORB"
 HOMEPAGE="http://mate-desktop.org"
@@ -56,7 +56,7 @@ src_prepare() {
 	# Drop failing test, bug #331709
 	sed -i -e 's/test-mem //' test/Makefile.am || die
 	
-	gnome2_src_prepare
+	mate_src_prepare
 }
 
 src_configure() {
@@ -71,13 +71,13 @@ src_configure() {
 		[ -x /usr/bin/orbit-idl-2 ] || die "Please emerge ~${CATEGORY}/${P} on the host system first"
 		G2CONF="${G2CONF} --with-idl-compiler=/usr/bin/orbit-idl-2"
 	fi
-	gnome2_src_configure
+	mate_src_configure
 }
 
 src_compile() {
 	# Parallel build fails from time to time, bug #273031
 	MAKEOPTS="${MAKEOPTS} -j1"
-	gnome2_src_compile
+	mate_src_compile
 }
 
 src_test() {
