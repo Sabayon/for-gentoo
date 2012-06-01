@@ -6,7 +6,7 @@ EAPI="4"
 # debug only changes CFLAGS
 GCONF_DEBUG="no"
 
-inherit autotools eutils gnome2 mate-desktop.org
+inherit autotools eutils mate mate-desktop.org
 
 DESCRIPTION="MATE default window manager"
 HOMEPAGE="http://mate-desktop.org"
@@ -65,5 +65,5 @@ src_prepare() {
 	./autogen.sh || die
         # gtkdocize || die
 	eautoreconf
-	gnome2_src_prepare
+	mate_src_prepare
 }
