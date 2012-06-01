@@ -5,7 +5,7 @@
 EAPI="3"
 GCONF_DEBUG="no"
 
-inherit autotools eutils gnome2 virtualx mate-desktop.org
+inherit autotools eutils mate virtualx mate-desktop.org
 
 DESCRIPTION="A file manager for the MATE desktop"
 HOMEPAGE="http://mate-desktop.org"
@@ -53,7 +53,7 @@ pkg_setup() {
 src_prepare() {
 	gtkdocize || die
 	eautoreconf
-	gnome2_src_prepare
+	mate_src_prepare
 
 	# Remove crazy CFLAGS
 	sed -i \
@@ -70,14 +70,14 @@ src_test() {
 }
 
 src_install() {
-	gnome2_src_install
+	mate_src_install
 	find "${ED}" -name "*.la" -delete || die "remove of la files failed"
 }
 
 pkg_postinst() {
-	gnome2_pkg_postinst
+	mate_pkg_postinst
 
-	elog "nautilus can use gstreamer to preview audio files. Just make sure"
+	elog "caja can use gstreamer to preview audio files. Just make sure"
 	elog "to have the necessary plugins available to play the media type you"
 	elog "want to preview"
 }
