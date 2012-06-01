@@ -5,7 +5,7 @@
 EAPI="4"
 GCONF_DEBUG="yes"
 
-inherit autotools gnome2 eutils mate-desktop.org
+inherit autotools mate eutils mate-desktop.org
 
 DESCRIPTION="Essential MATE Libraries"
 HOMEPAGE="http://mate-desktop.org"
@@ -43,12 +43,12 @@ src_prepare() {
 	./autogen.sh || die
 
         eautoreconf
-	gnome2_src_prepare
+	mate_src_prepare
 
 	# Default to Adwaita theme over Clearlooks to proper gtk3 support
 	# sed -i -e 's/Clearlooks/Adwaita/' schemas/desktop_gnome_interface.schemas.in.in || die
 }
 
 src_install() {
-	gnome2_src_install
+	mate_src_install
 }
