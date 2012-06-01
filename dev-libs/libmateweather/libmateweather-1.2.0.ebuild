@@ -6,7 +6,7 @@ EAPI="4"
 GCONF_DEBUG="no"
 PYTHON_DEPEND="python? 2"
 
-inherit autotools eutils gnome2 python mate-desktop.org
+inherit autotools eutils mate python mate-desktop.org
 
 DESCRIPTION="Library to access weather information from online services"
 HOMEPAGE="http://mate-desktop.org"
@@ -50,7 +50,7 @@ pkg_setup() {
 src_prepare() {
 	./autogen.sh || die
 	eautoreconf
-	gnome2_src_prepare
+	mate_src_prepare
 
 	# Fix building -python, Gnome bug #596660.
 	# epatch "${FILESDIR}/${PN}-2.30.0-fix-automagic-python-support.patch"
@@ -59,7 +59,7 @@ src_prepare() {
 }
 
 src_install() {
-	gnome2_src_install
+	mate_src_install
 	python_clean_installation_image
 
 	find "${D}" -name '*.la' -exec rm -f {} +
