@@ -77,11 +77,11 @@ esac
 DEPEND=">=sys-apps/sed-4"
 
 
-# @FUNCTION: gnome2_environment_reset
+# @FUNCTION: mate_environment_reset
 # @DESCRIPTION:
 # Reset various variables inherited from root's evironment to a reasonable
 # default for ebuilds to help avoid access violations and test failures.
-gnome2_environment_reset() {
+mate_environment_reset() {
 	# Respected by >=glib-2.30.1-r1
 	export G_HOME="${T}"
 
@@ -101,24 +101,24 @@ gnome2_environment_reset() {
 	chmod 0700 "${XDG_RUNTIME_DIR}"
 }
 
-# @FUNCTION: gnome2_gconf_savelist
+# @FUNCTION: mate_gconf_savelist
 # @DESCRIPTION:
 # Find the GConf schemas that are about to be installed and save their location
 # in the GNOME2_ECLASS_SCHEMAS environment variable.
 # This function should be called from pkg_preinst.
-gnome2_gconf_savelist() {
+mate_gconf_savelist() {
 	has ${EAPI:-0} 0 1 2 && ! use prefix && ED="${D}"
 	pushd "${ED}" &> /dev/null
 	export GNOME2_ECLASS_SCHEMAS=$(find 'etc/gconf/schemas/' -name '*.schemas' 2> /dev/null)
 	popd &> /dev/null
 }
 
-# @FUNCTION: gnome2_gconf_install
+# @FUNCTION: mate_gconf_install
 # @DESCRIPTION:
 # Applies any schema files installed by the current ebuild to Gconf's database
 # using gconftool-2.
 # This function should be called from pkg_postinst.
-gnome2_gconf_install() {
+mate_gconf_install() {
 	has ${EAPI:-0} 0 1 2 && ! use prefix && EROOT="${ROOT}"
 	local updater="${EROOT}${GCONFTOOL_BIN}"
 
@@ -155,11 +155,11 @@ gnome2_gconf_install() {
 	fi
 }
 
-# @FUNCTION: gnome2_gconf_uninstall
+# @FUNCTION: mate_gconf_uninstall
 # @DESCRIPTION:
 # Removes schema files previously installed by the current ebuild from Gconf's
 # database.
-gnome2_gconf_uninstall() {
+mate_gconf_uninstall() {
 	has ${EAPI:-0} 0 1 2 && ! use prefix && EROOT="${ROOT}"
 	local updater="${EROOT}${GCONFTOOL_BIN}"
 
@@ -195,24 +195,24 @@ gnome2_gconf_uninstall() {
 	fi
 }
 
-# @FUNCTION: gnome2_icon_savelist
+# @FUNCTION: mate_icon_savelist
 # @DESCRIPTION:
 # Find the icons that are about to be installed and save their location
 # in the GNOME2_ECLASS_ICONS environment variable.
 # This function should be called from pkg_preinst.
-gnome2_icon_savelist() {
+mate_icon_savelist() {
 	has ${EAPI:-0} 0 1 2 && ! use prefix && ED="${D}"
 	pushd "${ED}" &> /dev/null
 	export GNOME2_ECLASS_ICONS=$(find 'usr/share/icons' -maxdepth 1 -mindepth 1 -type d 2> /dev/null)
 	popd &> /dev/null
 }
 
-# @FUNCTION: gnome2_icon_cache_update
+# @FUNCTION: mate_icon_cache_update
 # @DESCRIPTION:
 # Updates Gtk+ icon cache files under /usr/share/icons if the current ebuild
 # have installed anything under that location.
 # This function should be called from pkg_postinst and pkg_postrm.
-gnome2_icon_cache_update() {
+mate_icon_cache_update() {
 	has ${EAPI:-0} 0 1 2 && ! use prefix && EROOT="${ROOT}"
 	local updater="${EROOT}${GTK_UPDATE_ICON_CACHE}"
 
@@ -265,12 +265,12 @@ gnome2_icon_cache_update() {
 	done
 }
 
-# @FUNCTION: gnome2_omf_fix
+# @FUNCTION: mate_omf_fix
 # @DESCRIPTION:
 # Workaround applied to Makefile rules in order to remove redundant
 # calls to scrollkeeper-update and sandbox violations.
 # This function should be called from src_prepare.
-gnome2_omf_fix() {
+mate_omf_fix() {
 	local omf_makefiles filename
 
 	omf_makefiles="$@"
@@ -316,23 +316,23 @@ gnome2_omf_fix() {
 	done
 }
 
-# @FUNCTION: gnome2_scrollkeeper_savelist
+# @FUNCTION: mate_scrollkeeper_savelist
 # @DESCRIPTION:
 # Find the scrolls that are about to be installed and save their location
 # in the GNOME2_ECLASS_SCROLLS environment variable.
 # This function should be called from pkg_preinst.
-gnome2_scrollkeeper_savelist() {
+mate_scrollkeeper_savelist() {
 	has ${EAPI:-0} 0 1 2 && ! use prefix && ED="${D}"
 	pushd "${ED}" &> /dev/null
 	export GNOME2_ECLASS_SCROLLS=$(find 'usr/share/omf' -type f -name "*.omf" 2> /dev/null)
 	popd &> /dev/null
 }
 
-# @FUNCTION: gnome2_scrollkeeper_update
+# @FUNCTION: mate_scrollkeeper_update
 # @DESCRIPTION:
 # Updates the global scrollkeeper database.
 # This function should be called from pkg_postinst and pkg_postrm.
-gnome2_scrollkeeper_update() {
+mate_scrollkeeper_update() {
 	has ${EAPI:-0} 0 1 2 && ! use prefix && EROOT="${ROOT}"
 	local updater="${EROOT}${SCROLLKEEPER_UPDATE_BIN}"
 
@@ -351,24 +351,24 @@ gnome2_scrollkeeper_update() {
 	eend $?
 }
 
-# @FUNCTION: gnome2_schemas_savelist
+# @FUNCTION: mate_schemas_savelist
 # @DESCRIPTION:
 # Find if there is any GSettings schema to install and save the list in
 # GNOME2_ECLASS_GLIB_SCHEMAS variable.
 # This function should be called from pkg_preinst.
-gnome2_schemas_savelist() {
+mate_schemas_savelist() {
 	has ${EAPI:-0} 0 1 2 && ! use prefix && ED="${D}"
 	pushd "${ED}" &>/dev/null
 	export GNOME2_ECLASS_GLIB_SCHEMAS=$(find 'usr/share/glib-2.0/schemas' -name '*.gschema.xml' 2>/dev/null)
 	popd &>/dev/null
 }
 
-# @FUNCTION: gnome2_schemas_update
-# @USAGE: gnome2_schemas_update
+# @FUNCTION: mate_schemas_update
+# @USAGE: mate_schemas_update
 # @DESCRIPTION:
 # Updates GSettings schemas if GNOME2_ECLASS_GLIB_SCHEMAS has some.
 # This function should be called from pkg_postinst and pkg_postrm.
-gnome2_schemas_update() {
+mate_schemas_update() {
 	has ${EAPI:-0} 0 1 2 && ! use prefix && EROOT="${ROOT}"
 	local updater="${EROOT}${GLIB_COMPILE_SCHEMAS}"
 
