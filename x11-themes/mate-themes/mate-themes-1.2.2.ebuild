@@ -5,7 +5,7 @@
 EAPI="4"
 GCONF_DEBUG="no"
 
-inherit autotools eutils gnome2 mate-desktop.org
+inherit autotools eutils mate mate-desktop.org
 
 DESCRIPTION="A set of MATE themes, with sets for users with limited or low vision"
 HOMEPAGE="http://mate-desktop.org"
@@ -37,7 +37,7 @@ pkg_setup() {
 src_prepare() {
 	./autogen.sh || die
 	eautoreconf
-	gnome2_src_prepare
+	mate_src_prepare
 
 	# Fix bashisms, bug #256337
 	# epatch "${FILESDIR}/${PN}-2.24.3-bashism.patch"
