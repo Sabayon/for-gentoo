@@ -5,7 +5,7 @@
 EAPI="3"
 GCONF_DEBUG="no"
 
-inherit autotools eutils gnome2 virtualx mate-desktop.org
+inherit autotools eutils mate virtualx mate-desktop.org
 
 DESCRIPTION="MATE Virtual Filesystem"
 HOMEPAGE="http://mate-desktop.org"
@@ -71,7 +71,7 @@ src_prepare() {
 	intltoolize --force --copy --automake || die "intltoolize failed"
 	eautoreconf
 
-	gnome2_src_prepare
+	mate_src_prepare
 }
 
 src_test() {
@@ -82,6 +82,6 @@ src_test() {
 }
 
 src_install() {
-	gnome2_src_install
+	mate_src_install
 	find "${ED}/usr/$(get_libdir)/mate-vfs-2.0/modules/" -name "*.la" -delete || die
 }
