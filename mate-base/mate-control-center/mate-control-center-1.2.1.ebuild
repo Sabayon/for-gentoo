@@ -5,7 +5,7 @@
 EAPI="3"
 GCONF_DEBUG="yes"
 
-inherit autotools gnome2 eutils mate-desktop.org
+inherit autotools mate eutils mate-desktop.org
 
 DESCRIPTION="The MATE Desktop configuration tool"
 HOMEPAGE="http://mate-desktop.org"
@@ -79,7 +79,7 @@ pkg_setup() {
 src_prepare() {
 	./autogen.sh || die
 	eautoreconf
-	gnome2_src_prepare
+	mate_src_prepare
 
 	# Use URL handlers for browser and mailer applications
 	# epatch "${FILESDIR}/${P}-mime-handler.patch"
@@ -98,7 +98,7 @@ src_prepare() {
 }
 
 src_install() {
-	gnome2_src_install
+	mate_src_install
 	# gmodule is used to load plugins
 	# (on POSIX systems gmodule uses dlopen)
 	find "${ED}" -name "*.la" -delete || die "remove of la files failed"
