@@ -5,7 +5,7 @@
 EAPI="3"
 GCONF_DEBUG="no"
 
-inherit autotools gnome2 multilib virtualx mate-desktop.org
+inherit autotools mate multilib virtualx mate-desktop.org
 
 DESCRIPTION="The MATE Canvas library"
 HOMEPAGE="http://mate-desktop.org"
@@ -36,7 +36,7 @@ pkg_setup() {
 src_prepare() {
 	gtkdocize || die
 	eautoreconf
-	gnome2_src_prepare
+	mate_src_prepare
 
 	# Fix intltoolize broken file, see upstream #577133
 	sed "s:'\^\$\$lang\$\$':\^\$\$lang\$\$:g" -i po/Makefile.in.in \
@@ -48,7 +48,7 @@ src_prepare() {
 }
 
 src_install() {
-	gnome2_src_install
+	mate_src_install
 	find "${ED}" -name '*.la' -exec rm -f {} +
 }
 
