@@ -95,7 +95,7 @@ src_install() {
 
 	dodir /etc/X11/xinit/xinitrc.d/
 	exeinto /etc/X11/xinit/xinitrc.d/
-	doexe "${FILESDIR}/15-xdg-data-MATE"
+	doexe "${FILESDIR}/15-xdg-data-mate"
 
 	# This should be done here as discussed in bug #270852
 	# doexe "${FILESDIR}/10-user-dirs-update-gnome"
