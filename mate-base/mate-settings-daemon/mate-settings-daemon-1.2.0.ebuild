@@ -5,7 +5,7 @@
 EAPI="4"
 GCONF_DEBUG="yes"
 
-inherit autotools eutils gnome2 mate-desktop.org
+inherit autotools eutils mate mate-desktop.org
 
 DESCRIPTION="MATE Settings Daemon"
 HOMEPAGE="http://mate-desktop.org"
@@ -72,7 +72,7 @@ pkg_setup() {
 }
 
 src_prepare() {
-	gnome2_src_prepare
+	mate_src_prepare
 
 	# We use now debian patch as looks to fix bug #327609
 	# epatch "${DISTDIR}/${PN}-2.30.0-gst-vol-control-support.patch"
@@ -95,7 +95,7 @@ src_prepare() {
 }
 
 pkg_postinst() {
-	gnome2_pkg_postinst
+	mate_pkg_postinst
 
 	if ! use pulseaudio; then
 		elog "GStreamer volume control support is a feature powered by Gentoo GNOME Team"
