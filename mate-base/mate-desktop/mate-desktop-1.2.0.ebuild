@@ -7,7 +7,7 @@ GCONF_DEBUG="yes"
 PYTHON_DEPEND="2"
 WANT_AUTOMAKE="1.9"
 
-inherit autotools gnome2 python mate-desktop.org
+inherit autotools mate python mate-desktop.org
 
 DESCRIPTION="Libraries for the MATE desktop that are not part of the UI"
 HOMEPAGE="http://mate-desktop.org"
@@ -41,7 +41,7 @@ src_prepare() {
         ./autogen.sh || die
         # mate-doc-prepare || die
         eautoreconf
-        gnome2_src_prepare
+        mate_src_prepare
 }
 
 pkg_setup() {
@@ -57,6 +57,6 @@ pkg_setup() {
 }
 
 src_install() {
-	gnome2_src_install
+	mate_src_install
 	find "${ED}" -name '*.la' -exec rm -f {} +
 }
