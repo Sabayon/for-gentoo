@@ -1,0 +1,17 @@
+MATE Desktop for Gentoo
+
+* This is fairly rough port, USE AT YOUR OWN RISK.
+* This port is based on GNOME:2 ebuilds.
+* The only eclass rewritten for this port was gnome.org --> mate-desktop.org.
+* Compilation related and bug fix related patches have been mostly removed or disabled.
+
+Known issues (TODO)
+
+* mate-base/mate-window-manager : SANDBOX ACCES VIOLATION
+* mate-base/mate-session 	: Test Session/xdg stuff.
+
+
+Random insult sword fighting hint:
+
+* Insult:   	I got this scar on my face during a mighty struggle!
+* Comeback:	I hope now you've learned to stop picking your nose.
