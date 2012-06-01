@@ -97,10 +97,10 @@ src_prepare() {
 	mate_src_prepare
 }
 
-src_install() {
-	# fix collision with GNOME3, we didn't want the fish
-	rm -f "{ED}"/usr/libexec/fish-applet || die 
-}
+#src_install() {
+#	# fix collision with GNOME3, we didn't want the fish
+#	rm -f "{ED}"/usr/libexec/fish-applet || die 
+#}
 
 pkg_postinst() {
 	local entries="${EROOT}etc/gconf/schemas/panel-default-setup.entries"
