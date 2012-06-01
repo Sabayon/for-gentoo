@@ -5,7 +5,7 @@
 EAPI="4"
 GCONF_DEBUG="no"
 
-inherit autotools gnome2 mate-desktop.org
+inherit autotools mate mate-desktop.org
 
 DESCRIPTION="MATE default icon themes"
 HOMEPAGE="http://mate-desktop.org"
@@ -32,7 +32,7 @@ RESTRICT="binchecks strip"
 # FIXME: double check potential LINGUAS problem
 src_prepare() {
 	eautoreconf
-	gnome2_src_prepare
+	mate_src_prepare
 }
 
 pkg_setup() {
