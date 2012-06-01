@@ -5,7 +5,7 @@
 EAPI="3"
 GCONF_DEBUG="yes"
 
-inherit autotools gnome2 mate-desktop.org
+inherit autotools mate mate-desktop.org
 
 DESCRIPTION="MATE CORBA framework"
 HOMEPAGE="http://developer.gnome.org/libbonobo/stable/"
@@ -44,7 +44,7 @@ src_prepare() {
 
 	eautoreconf
 
-	gnome2_src_prepare
+	mate_src_prepare
 
 	if ! use test; then
 		# don't waste time building tests, bug #226223
