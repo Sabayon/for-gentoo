@@ -5,7 +5,7 @@
 EAPI="4"
 GCONF_DEBUG="yes"
 
-inherit gnome2 eutils autotools mate-desktop.org
+inherit mate eutils autotools mate-desktop.org
 
 DESCRIPTION="Compatibility library for accessing secrets"
 HOMEPAGE="http://mate-desktop.org"
@@ -43,7 +43,7 @@ src_prepare() {
 		-i configure.in configure || die "sed 2 failed"
 
 	intltoolize --force --copy --automake || die "intltoolize failed"
-	gnome2_src_prepare
+	mate_src_prepare
 }
 
 src_test() {
