@@ -6,7 +6,7 @@ EAPI="3"
 GCONF_DEBUG="no"
 PYTHON_DEPEND="2:2.5"
 
-inherit autotools gnome2 python eutils mate-desktop.org
+inherit autotools mate python eutils mate-desktop.org
 
 DESCRIPTION="The MATE panel"
 HOMEPAGE="http://mate-desktop.org"
@@ -94,7 +94,7 @@ src_prepare() {
 	# epatch "${FILESDIR}/${PN}-2.32.1-evo-month.patch"
 
 	intltoolize --force --copy --automake || die "intltoolize failed"
-	gnome2_src_prepare
+	mate_src_prepare
 }
 
 src_install() {
@@ -117,5 +117,5 @@ pkg_postinst() {
 
 	# Calling this late so it doesn't process the GConf schemas file we already
 	# took care of.
-	gnome2_pkg_postinst
+	mate_pkg_postinst
 }
