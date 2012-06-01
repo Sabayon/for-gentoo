@@ -6,7 +6,7 @@ EAPI="4"
 GCONF_DEBUG="yes"
 MATE_DESKTOP_ORG_MODULE="mate-conf"
 
-inherit autotools eutils gnome2 mate-desktop.org
+inherit autotools eutils mate mate-desktop.org
 
 DESCRIPTION="A configuration database system"
 HOMEPAGE="http://mate-desktop.org"
@@ -52,7 +52,7 @@ src_prepare() {
 
 	eautoreconf
 
-	gnome2_src_prepare
+	mate_src_prepare
 
 	# Do not start gconfd when installing schemas, fix bug #238276, upstream #631983
 	# epatch "${FILESDIR}/${PN}-2.24.0-no-gconfd.patch"
@@ -62,7 +62,7 @@ src_prepare() {
 }
 
 src_install() {
-	gnome2_src_install
+	mate_src_install
 
 	keepdir /etc/mateconf/mateconf.xml.mandatory
 	keepdir /etc/mateconf/mateconf.xml.defaults
