@@ -5,7 +5,7 @@
 EAPI="3"
 GCONF_DEBUG="yes"
 
-inherit autotools eutils gnome2 mate-desktop.org
+inherit autotools eutils mate mate-desktop.org
 
 DESCRIPTION="Tool to display dialogs from the commandline and shell scripts"
 HOMEPAGE="http://mate-desktop"
@@ -41,7 +41,7 @@ src_prepare() {
 	./autogen.sh || die
 	eautoreconf
 	# epatch "${FILESDIR}"/${P}-libnotify-0.7.patch
-	gnome2_src_prepare
+	mate_src_prepare
 }
 
 src_install() {
