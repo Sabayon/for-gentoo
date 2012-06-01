@@ -8,7 +8,7 @@ PYTHON_DEPEND="2:2.5"
 SUPPORT_PYTHON_ABIS="1"
 RESTRICT_PYTHON_ABIS="3.* *-jython *-pypy-*"
 
-inherit autotools python gnome2 mate-desktop.org
+inherit autotools python mate mate-desktop.org
 
 DESCRIPTION="Documentation utilities for MATE"
 HOMEPAGE="http://mate-desktop.org"
@@ -43,7 +43,7 @@ src_prepare() {
 	AT_M4DIR="tools m4"
 	eautoreconf
 
-	gnome2_src_prepare
+	mate_src_prepare
 
 	python_clean_py-compile_files
 
@@ -51,7 +51,7 @@ src_prepare() {
 }
 
 src_configure() {
-	python_execute_function -s gnome2_src_configure
+	python_execute_function -s mate_src_configure
 }
 
 src_compile() {
@@ -64,7 +64,7 @@ src_test() {
 
 src_install() {
 	installation() {
-		gnome2_src_install
+		mate_src_install
 		python_convert_shebangs $(python_get_version) "${ED}"usr/bin/xml2po
 		mv "${ED}"usr/bin/xml2po "${ED}"usr/bin/xml2po-$(python_get_version)
 	}
@@ -76,10 +76,10 @@ src_install() {
 
 pkg_postinst() {
 	python_mod_optimize xml2po
-	gnome2_pkg_postinst
+	mate_pkg_postinst
 }
 
 pkg_postrm() {
 	python_mod_cleanup xml2po
-	gnome2_pkg_postrm
+	mate_pkg_postrm
 }
