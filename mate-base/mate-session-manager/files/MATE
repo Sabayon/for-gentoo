@@ -3,8 +3,8 @@
 # This file has bitrotted badly. Someone needs to clean this up.
 #
 
-if [ -f /etc/xdg/menus/gnome-applications.menu ] ; then
-	export XDG_MENU_PREFIX=gnome-
+if [ -f /etc/xdg/menus/mate-applications.menu ] ; then
+	export XDG_MENU_PREFIX=mate-
 fi
 
 for errfile in "$HOME/.gnomerc-errors" "${TMPDIR-/tmp}/gnomerc-$USER" 
