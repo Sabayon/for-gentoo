@@ -6,7 +6,7 @@ EAPI="4"
 GCONF_DEBUG="no"
 GNOME2_LA_PUNT="yes"
 
-inherit autotools eutils gnome2 mate-desktop.org
+inherit autotools eutils mate mate-desktop.org
 
 DESCRIPTION="MATE keyboard configuration library"
 HOMEPAGE="http://mate-desktop.org"
@@ -32,7 +32,7 @@ pkg_setup() {
 
 src_prepare() {
 	eautoreconf
-	gnome2_src_prepare
+	mate_src_prepare
 
 	# Unneeded casts removed
 	# epatch "${FILESDIR}/${P}-unneeded-casts.patch"
