@@ -5,7 +5,7 @@
 EAPI="4"
 GCONF_DEBUG="yes"
 
-inherit autotools eutils gnome2 multilib pam virtualx mate-desktop.org
+inherit autotools eutils mate multilib pam virtualx mate-desktop.org
 
 DESCRIPTION="Password and keyring managing daemon"
 HOMEPAGE="http://mate-desktop.org"
@@ -56,7 +56,7 @@ pkg_setup() {
 src_prepare() {
 	gtkdocize || die
 	eautoreconf
-	gnome2_src_prepare
+	mate_src_prepare
 
 	# Remove silly CFLAGS
 	sed 's:CFLAGS="$CFLAGS -Werror:CFLAGS="$CFLAGS:' \
