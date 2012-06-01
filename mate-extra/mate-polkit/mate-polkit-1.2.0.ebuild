@@ -3,7 +3,7 @@
 # $Header: Exp $
 
 EAPI=4
-inherit autotools gnome.org mate-desktop.org
+inherit autotools mate-desktop.org
 
 DESCRIPTION="A dbus session bus service that is used to bring up authentication dialogs"
 HOMEPAGE="http://www.freedesktop.org/wiki/Software/PolicyKit"
