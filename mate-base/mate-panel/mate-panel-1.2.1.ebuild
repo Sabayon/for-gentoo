@@ -99,7 +99,7 @@ src_prepare() {
 
 src_install() {
 	# fix collision with GNOME3, we didn't want the fish
-	rm -f "{D}"/usr/libexec/fish-applet || die 
+	rm -f "{ED}"/usr/libexec/fish-applet || die 
 }
 
 pkg_postinst() {
