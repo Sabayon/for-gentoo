@@ -5,7 +5,7 @@
 EAPI="4"
 GCONF_DEBUG="yes"
 
-inherit autotools eutils gnome2 mate-desktop.org
+inherit autotools eutils mate mate-desktop.org
 
 DESCRIPTION="MATE session manager"
 HOMEPAGE="http://mate-desktop.org/"
@@ -78,11 +78,11 @@ src_prepare() {
 
 	eautoreconf
         intltoolize --force --copy --automake || die "intltoolize failed"
-	gnome2_src_prepare
+	mate_src_prepare
 }
 
 src_install() {
-	gnome2_src_install
+	mate_src_install
 	
 	#TODO: Fix MATE Session. Currently a 1 on 1 Gnome copy.
 	dodir /etc/X11/Sessions
