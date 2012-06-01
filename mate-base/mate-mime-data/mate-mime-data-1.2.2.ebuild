@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: Exp $
 EAPI="4"
-inherit autotools gnome2 mate-desktop.org
+inherit autotools mate mate-desktop.org
 
 DESCRIPTION="MIME data for MATE"
 HOMEPAGE="http://mate-desktop.org"
@@ -21,5 +21,5 @@ DOCS="AUTHORS ChangeLog README"
 src_prepare() {
 	eautoreconf
         intltoolize --force || die "intltoolize failed"
-	gnome2_src_unpack
+	mate_src_unpack
 }
