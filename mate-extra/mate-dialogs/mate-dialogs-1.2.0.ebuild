@@ -45,7 +45,7 @@ src_prepare() {
 }
 
 src_install() {
-	gnome2_src_install
+	mate_src_install
 
 	if ! use compat; then
 		rm "${ED}/usr/bin/gdialog" || die "rm gdialog failed!"
