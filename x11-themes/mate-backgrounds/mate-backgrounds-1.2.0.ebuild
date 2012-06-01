@@ -5,7 +5,7 @@
 EAPI="3"
 GCONF_DEBUG="no"
 
-inherit autotools gnome2 mate-desktop.org
+inherit autotools mate mate-desktop.org
 
 DESCRIPTION="A set of backgrounds packaged with the MATE desktop"
 HOMEPAGE="http://mate-desktop.org"
@@ -23,5 +23,5 @@ DOCS="AUTHORS ChangeLog NEWS README"
 
 src_prepare() {
 	eautoreconf
-	gnome2_src_prepare
+	mate_src_prepare
 }
