@@ -156,7 +156,7 @@ mate_src_install() {
 	dodir "${sk_tmp_dir}" || die "dodir failed"
 
 	# we must delay gconf schema installation due to sandbox
-	export GCONF_DISABLE_MAKEFILE_SCHEMA_INSTALL="1"
+	export MATECONF_DISABLE_MAKEFILE_SCHEMA_INSTALL="1"
 
 	if [[ -z "${USE_EINSTALL}" || "${USE_EINSTALL}" = "0" ]]; then
 		debug-print "Installing with 'make install'"
@@ -166,7 +166,7 @@ mate_src_install() {
 		einstall "scrollkeeper_localstate_dir=${ED}${sk_tmp_dir} " "$@" || die "einstall failed"
 	fi
 
-	unset GCONF_DISABLE_MAKEFILE_SCHEMA_INSTALL
+	unset MATECONF_DISABLE_MAKEFILE_SCHEMA_INSTALL
 
 	# Manual document installation
 	if [[ -n "${DOCS}" ]]; then
