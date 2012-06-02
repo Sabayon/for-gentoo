@@ -24,6 +24,11 @@ DEPEND="${RDEPEND}
 
 DOCS=( AUTHORS HACKING NEWS README )
 
+src_prepare() {
+        eautoreconf
+        mate_src_prepare
+}
+
 src_install() {
 	default
 
