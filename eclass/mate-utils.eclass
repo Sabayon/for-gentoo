@@ -109,7 +109,7 @@ mate_environment_reset() {
 mate_gconf_savelist() {
 	has ${EAPI:-0} 0 1 2 && ! use prefix && ED="${D}"
 	pushd "${ED}" &> /dev/null
-	export GNOME2_ECLASS_SCHEMAS=$(find 'etc/gconf/schemas/' -name '*.schemas' 2> /dev/null)
+	export GNOME2_ECLASS_SCHEMAS=$(find 'etc/mateconf/schemas/' -name '*.schemas' 2> /dev/null)
 	popd &> /dev/null
 }
 
@@ -128,7 +128,7 @@ mate_gconf_install() {
 	fi
 
 	if [[ -z "${GNOME2_ECLASS_SCHEMAS}" ]]; then
-		debug-print "No GNOME 2 GConf schemas found"
+		debug-print "No MATE GConf schemas found"
 		return
 	fi
 
@@ -136,7 +136,7 @@ mate_gconf_install() {
 	unset GCONF_DISABLE_MAKEFILE_SCHEMA_INSTALL
 	export GCONF_CONFIG_SOURCE="$("${updater}" --get-default-source | sed "s;:/;:${ROOT};")"
 
-	einfo "Installing GNOME 2 GConf schemas"
+	einfo "Installing MATE GConf schemas"
 
 	local F
 	for F in ${GNOME2_ECLASS_SCHEMAS}; do
@@ -169,14 +169,14 @@ mate_gconf_uninstall() {
 	fi
 
 	if [[ -z "${GNOME2_ECLASS_SCHEMAS}" ]]; then
-		debug-print "No GNOME 2 GConf schemas found"
+		debug-print "No MATE GConf schemas found"
 		return
 	fi
 
 	unset GCONF_DISABLE_MAKEFILE_SCHEMA_INSTALL
 	export GCONF_CONFIG_SOURCE="$("${updater}" --get-default-source | sed "s;:/;:${ROOT};")"
 
-	einfo "Uninstalling GNOME 2 GConf schemas"
+	einfo "Uninstalling MATE GConf schemas"
 
 	local F
 	for F in ${GNOME2_ECLASS_SCHEMAS}; do
@@ -279,8 +279,8 @@ mate_omf_fix() {
 		omf_makefiles="${omf_makefiles} ${S}/omf.make"
 	fi
 
-	if [[ -f ${S}/gnome-doc-utils.make ]] ; then
-		omf_makefiles="${omf_makefiles} ${S}/gnome-doc-utils.make"
+	if [[ -f ${S}/mate-doc-tool.make ]] ; then
+		omf_makefiles="${omf_makefiles} ${S}/mate-doc-tool.make"
 	fi
 
 	# testing fixing of all makefiles found
