@@ -25,6 +25,7 @@ DEPEND="${RDEPEND}
 DOCS=( AUTHORS HACKING NEWS README )
 
 src_prepare() {
+	gtkdocize || die
         eautoreconf
         mate_src_prepare
 }
