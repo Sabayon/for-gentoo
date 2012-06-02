@@ -56,7 +56,7 @@ pkg_setup() {
 		$(use_with svg librsvg)
 		--disable-scrollkeeper
 		--disable-schemas-install"
-	DOCS="AUTHORS ChangeLog HACKING MAINTAINERS NEWS README THANKS TODO"
+	DOCS="AUTHORS ChangeLog HACKING NEWS README THANKS TODO"
 	python_set_active_version 2
 }
 
