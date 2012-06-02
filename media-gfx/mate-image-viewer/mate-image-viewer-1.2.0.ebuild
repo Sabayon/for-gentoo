@@ -8,7 +8,7 @@ PYTHON_DEPEND="2:2.5"
 
 inherit autotools mate python mate-desktop.org
 
-DESCRIPTION="The Eye of GNOME image viewer"
+DESCRIPTION="The MATE image viewer"
 HOMEPAGE="http://mate-desktop.org"
 
 LICENSE="GPL-2"
@@ -61,7 +61,7 @@ pkg_setup() {
 }
 
 src_prepare() {
- 	gtkdocize || die
+	./autogen.sh || die
  	eautoreconf
 }
 
