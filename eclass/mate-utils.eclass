@@ -133,8 +133,8 @@ mate_gconf_install() {
 	fi
 
 	# We are ready to install the GCONF Scheme now
-	unset GCONF_DISABLE_MAKEFILE_SCHEMA_INSTALL
-	export GCONF_CONFIG_SOURCE="$("${updater}" --get-default-source | sed "s;:/;:${ROOT};")"
+	unset MATECONF_DISABLE_MAKEFILE_SCHEMA_INSTALL
+	export MATECONF_CONFIG_SOURCE="$("${updater}" --get-default-source | sed "s;:/;:${ROOT};")"
 
 	einfo "Installing MATE GConf schemas"
 
@@ -173,8 +173,8 @@ mate_gconf_uninstall() {
 		return
 	fi
 
-	unset GCONF_DISABLE_MAKEFILE_SCHEMA_INSTALL
-	export GCONF_CONFIG_SOURCE="$("${updater}" --get-default-source | sed "s;:/;:${ROOT};")"
+	unset MATECONF_DISABLE_MAKEFILE_SCHEMA_INSTALL
+	export MATECONF_CONFIG_SOURCE="$("${updater}" --get-default-source | sed "s;:/;:${ROOT};")"
 
 	einfo "Uninstalling MATE GConf schemas"
 
