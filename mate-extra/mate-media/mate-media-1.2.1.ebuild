@@ -48,7 +48,7 @@ DEPEND="${COMMON_DEPEND}
 	app-text/docbook-xml-dtd:4.1.2
 	virtual/pkgconfig
 	>=app-text/scrollkeeper-0.3.11
-	>=app-text/gnome-doc-utils-0.3.2
+	app-text/mate-doc-utils
 	>=dev-util/intltool-0.35.0"
 
 src_prepare() {
