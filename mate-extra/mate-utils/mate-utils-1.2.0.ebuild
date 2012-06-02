@@ -52,6 +52,7 @@ pkg_setup() {
 }
 
 src_prepare() {
+	./autogen.sh || die
 	eautoreconf
 	# Fix uninitialized variable preventing crashes (already fixed in master)
 	# epatch "${FILESDIR}/${P}-fix-uninitialized.patch"
