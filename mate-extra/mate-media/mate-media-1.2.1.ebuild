@@ -70,7 +70,7 @@ pkg_setup() {
 		--enable-profiles
 		$(use_enable pulseaudio)
 		$(use_enable !pulseaudio gstmix)"
-	DOCS="AUTHORS ChangeLog* NEWS MAINTAINERS README"
+	DOCS="AUTHORS ChangeLog* NEWS README"
 }
 
 pkg_postinst() {
