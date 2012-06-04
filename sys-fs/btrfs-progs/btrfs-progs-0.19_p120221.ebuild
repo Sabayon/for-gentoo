@@ -33,6 +33,18 @@ src_unpack() {
 src_prepare() {
 	epatch "${FILESDIR}"/${PN}-Modify-Makefile-to-allow-optional-ACL-dependency.patch
 
+	# See Sabayon ML -- DO NOT DROP THIS !!!!!!!!!!!!!!!!!!
+	# DO NOT DROP THIS !!!!!!!!!!!!!!
+	# DO NOT DROP THIS !!!!!!!!!!!!!!
+	# DO NOT DROP THIS !!!!!!!!!!!!!!
+	# DO NOT DROP THIS !!!!!!!!!!!!!!
+	# http://lists.sabayon.org/pipermail/devel/2011-October/007155.html
+	epatch "${FILESDIR}"/0002-btrfs-progs-ignore-unavailable-loop-device-source-files.patch
+	# DO NOT DROP THIS !!!!!!!!!!!!!!
+	# DO NOT DROP THIS !!!!!!!!!!!!!!
+	# DO NOT DROP THIS !!!!!!!!!!!!!!
+	# DO NOT DROP THIS !!!!!!!!!!!!!!
+
 	# Fix hardcoded "gcc" and "make"
 	sed -i -e 's:gcc $(CFLAGS):$(CC) $(CFLAGS):' Makefile
 	sed -i -e 's:make:$(MAKE):' Makefile
@@ -51,10 +63,10 @@ src_compile() {
 
 src_install() {
 	emake mandir="/usr/share/man" bindir="/sbin" install DESTDIR="${D}"
-	
+
 	# fsck will segfault if invoked at boot, so do not make this link
 	#dosym btrfsck /sbin/fsck.btrfs
-	
+
 	# newsbin mkfs.btrfs mkbtrfs
 
 	dosym mkfs.btrfs /sbin/mkbtrfs
