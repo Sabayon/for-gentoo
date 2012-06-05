@@ -23,6 +23,7 @@ RDEPEND=">=dev-libs/glib-2.8:2
 
 DEPEND="${RDEPEND}
 	virtual/pkgconfig
+	dev-util/gtk-doc
 	dev-util/gtk-doc-am
 	doc? ( >=dev-util/gtk-doc-1 )
 	mate-base/mate-common"
