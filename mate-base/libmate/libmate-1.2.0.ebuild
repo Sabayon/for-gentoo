@@ -23,10 +23,11 @@ RDEPEND="mate-base/mate-conf
 	media-libs/libcanberra"
 
 DEPEND="${RDEPEND}
+	app-text/mate-doc-utils
 	>=dev-lang/perl-5
 	>=dev-util/intltool-0.40
 	virtual/pkgconfig
-	doc? ( >=dev-util/gtk-doc-1 )"
+	dev-util/gtk-doc"
 
 PDEPEND="gnome-base/gvfs"
 
@@ -40,8 +41,9 @@ pkg_setup() {
 }
 
 src_prepare() {
-	./autogen.sh || die
-
+	gtkdocize || die
+	mate-doc-prepare --force --copy || die
+	mate-doc-common --copy || die
         eautoreconf
 	mate_src_prepare
 
