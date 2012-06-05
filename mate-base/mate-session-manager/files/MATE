@@ -41,7 +41,7 @@ elif [ -x /etc/X11/gdm/gnomerc ]; then
 	command="/etc/X11/gdm/gnomerc"
 else
 	# as fallback in case the config is screwed
-	command=`which gnome-session`
+	command=`which mate-session`
 fi
 
 # merge in defaults

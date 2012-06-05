@@ -83,8 +83,7 @@ src_prepare() {
 
 src_install() {
 	mate_src_install
-	
-	#TODO: Fix MATE Session. Currently a 1 on 1 Gnome copy.
+
 	dodir /etc/X11/Sessions
 	exeinto /etc/X11/Sessions
 	doexe "${FILESDIR}/MATE"
