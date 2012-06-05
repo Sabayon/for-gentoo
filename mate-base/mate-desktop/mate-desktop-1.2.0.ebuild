@@ -23,6 +23,7 @@ RDEPEND=">=x11-libs/gtk+-2.18:2
 	mate-base/mate-conf
 	>=x11-libs/startup-notification-0.5"
 DEPEND="${RDEPEND}
+	dev-util/gtk-doc
 	>=dev-util/intltool-0.40
 	virtual/pkgconfig
 	app-text/mate-doc-utils
@@ -37,6 +38,8 @@ PDEPEND=">=dev-python/pygtk-2.8:2
 # eventually libXrandr shouldn't RDEPEND on randrproto)
 
 src_prepare() {
+	mkdir "${S}/m4" || die
+	gtkdocize || die
 	mate-doc-prepare --force --copy || die
 	mate-doc-common --copy || die
         eautoreconf
