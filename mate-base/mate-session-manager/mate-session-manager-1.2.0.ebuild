@@ -22,7 +22,7 @@ IUSE="doc ipv6 elibc_FreeBSD"
 RDEPEND=">=dev-libs/glib-2.16:2
 	>=x11-libs/gtk+-2.22.0:2
 	>=dev-libs/dbus-glib-0.76
-	>=gnome-base/gconf-2:2
+	mate-base/mate-conf:2
 	>=sys-power/upower-0.9.0
 	elibc_FreeBSD? ( dev-libs/libexecinfo )
 
