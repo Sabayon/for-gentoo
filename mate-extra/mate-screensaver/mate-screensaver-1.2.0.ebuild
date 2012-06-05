@@ -47,7 +47,7 @@ DEPEND="${RDEPEND}
 	x11-proto/xf86miscproto
 	mate-base/mate-common"
 
-DOCS="AUTHORS ChangeLog HACKING NEWS README TODO"
+DOCS="AUTHORS ChangeLog NEWS README"
 
 pkg_setup() {
 	G2CONF="${G2CONF}
