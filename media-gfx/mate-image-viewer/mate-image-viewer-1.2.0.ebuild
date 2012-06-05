@@ -42,6 +42,7 @@ DEPEND="${RDEPEND}
 	app-text/mate-doc-utils
 	sys-devel/gettext
 	>=dev-util/intltool-0.40
+	dev-util/gtk-doc
 	virtual/pkgconfig
 	doc? ( >=dev-util/gtk-doc-1.10 )"
 
@@ -61,7 +62,9 @@ pkg_setup() {
 }
 
 src_prepare() {
-	./autogen.sh || die
+	gtkdocize || die
+	mate-doc-prepare --force --copy || die
+	mate-doc-common --copy || die
  	eautoreconf
 }
 
