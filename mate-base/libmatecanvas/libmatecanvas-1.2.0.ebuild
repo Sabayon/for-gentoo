@@ -23,6 +23,7 @@ RDEPEND=">=dev-libs/glib-2.10:2
 
 DEPEND="${RDEPEND}
 	>=dev-lang/perl-5
+	dev-util/gtk-doc
 	sys-devel/gettext
 	>=dev-util/intltool-0.35
 	virtual/pkgconfig
