@@ -21,7 +21,7 @@ RDEPEND=">=dev-libs/glib-2.25.12:2
 	mate-base/mate-conf
 	>=x11-libs/vte-0.26.0:0
 	x11-libs/libSM
-	gnome-base/libmate"
+	mate-base/libmate"
 DEPEND="${RDEPEND}
 	|| ( dev-util/gtk-builder-convert <=x11-libs/gtk+-2.24.10:2 )
 	sys-devel/gettext
