@@ -4,7 +4,7 @@
  mateconf_entry_set_value (MateConfEntry  *entry,
                         const MateConfValue  *val)
  {
-+  mateconf_return_if_fail (entry != NULL);
++  g_return_if_fail (entry != NULL);
    mateconf_entry_set_value_nocopy (entry,
                                  val ? mateconf_value_copy (val) : NULL);
  }
