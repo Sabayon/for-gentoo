@@ -39,6 +39,7 @@ RDEPEND="mate-base/mate-desktop
 	introspection? ( >=dev-libs/gobject-introspection-0.6.7 )
 	networkmanager? ( >=net-misc/networkmanager-0.6.7 )"
 DEPEND="${RDEPEND}
+	dev-util/gtk-doc
 	>=dev-lang/perl-5
 	app-text/mate-doc-utils
 	virtual/pkgconfig
@@ -49,17 +50,13 @@ DEPEND="${RDEPEND}
 	dev-util/gtk-doc-am"
 
 pkg_setup() {
-	# TODO:
-	# fish-applet collides with GNOME3
 	# possible values: none, clock, fish, notification-area, wncklet, all
-	# This must be fixed.
-	APPLETS="clock,notification-area,wncklet"
 	G2CONF="${G2CONF}
 		--disable-deprecation-flags
 		--disable-static
 		--disable-scrollkeeper
 		--disable-schemas-install
-		--with-in-process-applets=${APPLETS}
+		--with-in-process-applets=all
 		$(use_enable networkmanager network-manager)
 		$(use_enable introspection)
 		$(use_enable eds)"
@@ -67,19 +64,12 @@ pkg_setup() {
 	python_set_active_version 2
 }
 
-#src_unpack() {
-	# If gobject-introspection is installed, we don't need the extra .m4
-	# if has_version "dev-libs/gobject-introspection"; then
-	#	unpack ${P}.tar.bz2 ${P}-patches.tar.bz2
-	# else
-	#	unpack ${A}
-	# fi
-#}
-
 src_prepare() {
 	epatch "${FILESDIR}/${PN}-fix-gnome-panel-collision.patch"
 
-	./autogen.sh || die
+	gtkdocize || die
+	mate-doc-prepare --force --copy || die
+	mate-doc-common --copy || die
 	AT_M4DIR=${WORKDIR} eautoreconf
 
 	intltoolize --force --copy --automake || die "intltoolize failed"
