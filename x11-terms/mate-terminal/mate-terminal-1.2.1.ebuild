@@ -33,8 +33,8 @@ DEPEND="${RDEPEND}
 DOCS="AUTHORS ChangeLog HACKING NEWS README"
 
 src_prepare() {
-	gtkdocize || die
 	eautoreconf
+	intltoolize --force --copy --automake || die "intltoolize failed"
 	mate_src_prepare
 
 	# Use login shell by default (#12900)
