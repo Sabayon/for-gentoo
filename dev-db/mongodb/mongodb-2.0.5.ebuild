@@ -50,7 +50,7 @@ src_prepare() {
 	# on x86, linker complains about this:
 	# http://fedoraproject.org/wiki/UnderstandingDSOLinkChange
 	# on libpcre.so.0
-	epatch "${FILESDIR}/${P}-fix-pcre-x86.patch"
+	epatch "${FILESDIR}/${PN}-2.0.4-fix-pcre-x86.patch"
 
 	# drop -Werror
 	sed -i -e '/Werror/d' SConstruct || die
