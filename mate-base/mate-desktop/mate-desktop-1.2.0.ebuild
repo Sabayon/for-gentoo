@@ -26,7 +26,7 @@ DEPEND="${RDEPEND}
 	>=dev-util/intltool-0.40
 	virtual/pkgconfig
 	app-text/mate-doc-utils
-	doc? ( >=dev-util/gtk-doc-1.4 )
+	>=dev-util/gtk-doc-1.4
 	~app-text/docbook-xml-dtd-4.1.2
 	x11-proto/xproto
 	>=x11-proto/randrproto-1.2"
@@ -38,8 +38,9 @@ PDEPEND=">=dev-python/pygtk-2.8:2
 # eventually libXrandr shouldn't RDEPEND on randrproto)
 
 src_prepare() {
-        ./autogen.sh || die
-        # mate-doc-prepare || die
+	gtkdocize || die
+	mate-doc-prepare --force --copy || die
+	mate-doc-common --copy || die
         eautoreconf
         mate_src_prepare
 }
