@@ -33,7 +33,7 @@ DEPEND="${RDEPEND}
 	>=dev-util/intltool-0.40.3
 	virtual/pkgconfig
 	>=dev-util/gtk-doc-am-1.9
-	doc? ( >=dev-util/gtk-doc-1.9 )"
+	dev-util/gtk-doc"
 
 DOCS="AUTHORS ChangeLog MAINTAINERS NEWS"
 
@@ -48,7 +48,9 @@ pkg_setup() {
 }
 
 src_prepare() {
-	./autogen.sh || die
+	gtkdocize || die
+	mate-doc-prepare --force --copy || die
+	mate-doc-common --copy || die
 	eautoreconf
 	mate_src_prepare
 
