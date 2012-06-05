@@ -44,7 +44,7 @@ DEPEND="${RDEPEND}
 	dev-util/gtk-doc-am"
 
 pkg_setup() {
-	DOCS="AUTHORS BUGS ChangeLog MAINTAINERS NEWS README"
+	DOCS="AUTHORS ChangeLog NEWS README"
 	G2CONF="${G2CONF}
 		--disable-scrollkeeper
 		--disable-updater
