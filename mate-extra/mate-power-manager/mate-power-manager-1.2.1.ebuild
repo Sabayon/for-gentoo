@@ -77,18 +77,18 @@ src_prepare() {
 	# epatch "${FILESDIR}"/${P}-libnotify-0.7.patch
 
 	# Fix intltoolize broken file, see upstream #577133
-	sed "s:'\^\$\$lang\$\$':\^\$\$lang\$\$:g" -i po/Makefile.in.in \
-		|| die "sed libtoolize failed"
+	# sed "s:'\^\$\$lang\$\$':\^\$\$lang\$\$:g" -i po/Makefile.in.in \
+	#	|| die "sed libtoolize failed"
 
 	# Drop debugger CFLAGS from configure
-	sed -e 's:^CPPFLAGS="$CPPFLAGS -g"$::g' \
-		-i configure.ac configure || die "debugger sed failed"
+	# sed -e 's:^CPPFLAGS="$CPPFLAGS -g"$::g' \
+	#	-i configure.ac configure || die "debugger sed failed"
 
 	# glibc splits this out, whereas other libc's do not tend to
-	if use elibc_glibc; then
-		sed -e 's/-lresolv//' \
-			-i configure.ac configure || die "resolv sed failed"
-	fi
+	# if use elibc_glibc; then
+	# 	sed -e 's/-lresolv//' \
+	# 		-i configure.ac configure || die "resolv sed failed"
+	# fi
 
 	# Fixed bgo#644143, how to convert from percentage to discrete and vice-versa.
 	# epatch "${FILESDIR}/${P}-convert-percentage.patch"
