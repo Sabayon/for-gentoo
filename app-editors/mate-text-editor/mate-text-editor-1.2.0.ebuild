@@ -41,7 +41,6 @@ DEPEND="${RDEPEND}
 	~app-text/docbook-xml-dtd-4.1.2
 	doc? ( >=dev-util/gtk-doc-1 )
 	mate-base/mate-common
-	dev-util/gtk-doc
 	dev-util/gtk-doc-am"
 
 pkg_setup() {
@@ -55,7 +54,8 @@ pkg_setup() {
 }
 
 src_prepare() {
-	gtkdocize || die
+	./autogen.sh || die
+
 	eautoreconf
 
 	mate_src_prepare
