@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: Exp $
 
-EAPI="2"
+EAPI="4"
 
 inherit eutils mate multilib autotools mate-desktop.org
 
@@ -84,8 +84,8 @@ src_prepare() {
 	# epatch "${FILESDIR}/${P}-name-manager.patch"
 
 	# Fix intltoolize broken file, see upstream #577133
-	# sed "s:'\^\$\$lang\$\$':\^\$\$lang\$\$:g" -i po/Makefile.in.in \
-	# 	|| die "sed failed"
+	sed "s:'\^\$\$lang\$\$':\^\$\$lang\$\$:g" -i po/Makefile.in.in \
+		|| die "sed failed"
 
 	intltoolize --force --copy --automake || die "intltoolize failed"
 	eautoreconf
