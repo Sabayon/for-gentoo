@@ -34,9 +34,7 @@ COMMON_DEPEND=">=dev-libs/glib-2.13.0:2
 	>=x11-proto/xproto-7.0.15
 	x11-libs/libX11
 	x11-libs/libXext
-	applet? (
-		|| ( gnome-base/gnome-panel[bonobo] <gnome-base/gnome-panel-2.32 )
-	)
+	applet? ( mate-base/mate-panel )
 "
 RDEPEND="${COMMON_DEPEND}
 	>=sys-auth/consolekit-0.4[policykit?]
