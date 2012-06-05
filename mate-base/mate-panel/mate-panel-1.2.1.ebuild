@@ -77,30 +77,14 @@ pkg_setup() {
 #}
 
 src_prepare() {
+	epatch "${FILESDIR}/${PN}-fix-gnome-panel-collision.patch"
+
 	./autogen.sh || die
 	AT_M4DIR=${WORKDIR} eautoreconf
-	# List the objects before the libraries to fix build with --as-needed
-	# epatch "${FILESDIR}/${P}-as-needed.patch"
-
-	# Try to improve panel behavior on multiscreen systems, bug #348253, upstream #632369
-	# epatch "${FILESDIR}/${PN}-2.32.1-fix-multiscreen.patch"
-	# epatch "${FILESDIR}/${PN}-2.32.1-fix-multiscreen2.patch"
-
-	# Apply multiple bugfixes from 2.32 and master branches
-	# Also use gnome-applications.menu instead of applications.menu as it's the default value for us.
-	# epatch "${WORKDIR}/${P}-patches"/*.patch
-
-	# clock applet: Pass the correct month to Evolution command line
-	# epatch "${FILESDIR}/${PN}-2.32.1-evo-month.patch"
 
 	intltoolize --force --copy --automake || die "intltoolize failed"
 	mate_src_prepare
 }
-
-#src_install() {
-#	# fix collision with GNOME3, we didn't want the fish
-#	rm -f "{ED}"/usr/libexec/fish-applet || die 
-#}
 
 pkg_postinst() {
 	local entries="${EROOT}etc/gconf/schemas/panel-default-setup.entries"
