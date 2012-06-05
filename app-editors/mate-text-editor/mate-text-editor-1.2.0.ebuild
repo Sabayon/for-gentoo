@@ -39,7 +39,7 @@ DEPEND="${RDEPEND}
 	>=app-text/scrollkeeper-0.3.11
 	app-text/mate-doc-utils
 	~app-text/docbook-xml-dtd-4.1.2
-	doc? ( >=dev-util/gtk-doc-1 )
+	dev-util/gtk-doc
 	mate-base/mate-common
 	dev-util/gtk-doc-am"
 
@@ -54,10 +54,10 @@ pkg_setup() {
 }
 
 src_prepare() {
-	./autogen.sh || die
-
+	gtkdocize || die
+	mate-doc-prepare --force --copy || die
+	mate-doc-common --copy || die
 	eautoreconf
-
 	mate_src_prepare
 
 	# Do not fail if remote mounting is not supported.
