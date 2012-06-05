@@ -25,7 +25,7 @@ RDEPEND="mate-base/mate-conf
 	acl? (
 		sys-apps/acl
 		sys-apps/attr )
-	avahi? ( >=net-dns/avahi-0.6 )
+	avahi? ( || ( >=net-dns/avahi-gtk-0.6 >=net-dns/avahi-0.6 ) )
 	kerberos? ( virtual/krb5 )
 	fam? ( virtual/fam )
 	samba? ( >=net-fs/samba-3 )
