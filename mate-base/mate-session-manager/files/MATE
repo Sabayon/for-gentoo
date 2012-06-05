@@ -7,8 +7,8 @@ if [ -f /etc/xdg/menus/mate-applications.menu ] ; then
 	export XDG_MENU_PREFIX=mate-
 fi
 
-for errfile in "$HOME/.gnomerc-errors" "${TMPDIR-/tmp}/gnomerc-$USER" 
-"/tmp/gnomerc-$USER"
+for errfile in "$HOME/.materc-errors" "${TMPDIR-/tmp}/materc-$USER" 
+"/tmp/materc-$USER"
 do
 	if ( cp /dev/null "$errfile" 2> /dev/null )
 	then
@@ -35,10 +35,10 @@ sysxkbmap=/etc/X11/Xkbmap
 rh6sysresources=/etc/X11/xinit/Xresources
 rh6sysmodmap=/etc/X11/xinit/Xmodmap
 
-if [ -x "$HOME/.gnomerc" ]; then
-	command="$HOME/.gnomerc"
-elif [ -x /etc/X11/gdm/gnomerc ]; then
-	command="/etc/X11/gdm/gnomerc"
+if [ -x "$HOME/.materc" ]; then
+	command="$HOME/.materc"
+elif [ -x /etc/X11/gdm/materc ]; then
+	command="/etc/X11/gdm/materc"
 else
 	# as fallback in case the config is screwed
 	command=`which mate-session`
