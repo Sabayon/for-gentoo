@@ -12,6 +12,7 @@ SLOT="0"
 KEYWORDS="~amd64 ~arm ~x86"
 IUSE=""
 
+# FIXME: these should be versioned
 RDEPEND="mate-base/mate-common
 	app-text/mate-doc-utils
 	mate-base/mate-corba
