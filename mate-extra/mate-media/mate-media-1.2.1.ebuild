@@ -49,10 +49,13 @@ DEPEND="${COMMON_DEPEND}
 	virtual/pkgconfig
 	>=app-text/scrollkeeper-0.3.11
 	app-text/mate-doc-utils
-	>=dev-util/intltool-0.35.0"
+	>=dev-util/intltool-0.35.0
+	dev-util/gtk-doc"
 
 src_prepare() {
-	./autogen.sh || die
+	gtkdocize || die
+	mate-doc-prepare --force --copy || die
+	mate-doc-common --copy || die
 	eautoreconf
 	mate_src_prepare
 
