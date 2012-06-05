@@ -31,7 +31,7 @@ DEPEND="${RDEPEND}
 	app-text/scrollkeeper
 	>=dev-util/intltool-0.40
 	virtual/pkgconfig
-	doc? ( >=dev-util/gtk-doc-1.10 )
+	dev-util/gtk-doc
 	dev-util/gtk-doc-am
 	mate-base/mate-common"
 
@@ -52,7 +52,9 @@ pkg_setup() {
 }
 
 src_prepare() {
-	./autogen.sh || die
+	gtkdocize || die
+	mate-doc-prepare --force --copy || die
+	mate-doc-common --copy || die
 	eautoreconf
 	# Fix uninitialized variable preventing crashes (already fixed in master)
 	# epatch "${FILESDIR}/${P}-fix-uninitialized.patch"
