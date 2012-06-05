@@ -57,6 +57,7 @@ pkg_setup() {
 src_prepare() {
 	gtkdocize || die
 	eautoreconf
+
 	mate_src_prepare
 
 	# Do not fail if remote mounting is not supported.
