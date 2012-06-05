@@ -4,6 +4,7 @@
 
 EAPI="3"
 GCONF_DEBUG="no"
+WANT_AUTOMAKE="1.9"
 
 inherit autotools eutils mate mate-desktop.org
 
