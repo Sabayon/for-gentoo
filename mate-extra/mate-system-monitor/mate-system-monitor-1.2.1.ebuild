@@ -28,10 +28,11 @@ RDEPEND=">=dev-libs/glib-2.20:2
 	>=dev-libs/dbus-glib-0.70"
 
 DEPEND="${RDEPEND}
+	app-text/mate-doc-utils
 	virtual/pkgconfig
 	>=app-text/scrollkeeper-0.3.11
 	>=dev-util/intltool-0.35
-	app-text/mate-doc-utils"
+	dev-util/gtk-doc"
 
 pkg_setup() {
 	DOCS="AUTHORS ChangeLog NEWS README"
@@ -39,7 +40,9 @@ pkg_setup() {
 }
 
 src_prepare() {
-	./autogen.sh || die
+	gtkdocize || die
+	mate-doc-prepare --force --copy || die
+	mate-doc-common --copy || die
 	intltoolize --force --copy --automake || die "intltoolize failed"
 	eautoreconf
 	mate_src_prepare
