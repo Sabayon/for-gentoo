@@ -52,7 +52,7 @@ pkg_setup() {
 	# TODO: convert libnotify to a configure option
 	G2CONF="${G2CONF}
 		--docdir="${EPREFIX}/usr/share/doc/${PF}"
-		--with-default-wm=marco
+		--with-default-wm=mate-wm
 		--with-gtk=2.0
 		$(use_enable doc docbook-docs)
 		$(use_enable ipv6)"
