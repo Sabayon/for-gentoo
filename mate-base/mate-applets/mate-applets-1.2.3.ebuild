@@ -41,7 +41,6 @@ RDEPEND=">=x11-libs/gtk+-2.20:2
 
 		>=gnome-extra/gucharmap-2.23:0
 		>=gnome-base/libgtop-2.11.92:2
-		
 		>=dev-python/pygobject-2.6:2
 		>=dev-python/pygtk-2.6:2
 		>=dev-python/gconf-python-2.10:2
@@ -59,6 +58,7 @@ DEPEND="${RDEPEND}
 	>=app-text/scrollkeeper-0.1.4
 	app-text/mate-doc-utils
 	virtual/pkgconfig
+	dev-util/gtk-doc
 	>=dev-util/intltool-0.35
 	dev-libs/libxslt
 	~app-text/docbook-xml-dtd-4.3
@@ -80,7 +80,6 @@ pkg_setup() {
 }
 
 src_prepare() {
-	./autogen.sh || die
 	# disable pyc compiling
 	echo '#!/bin/sh' > py-compile
 
@@ -90,6 +89,9 @@ src_prepare() {
 
 	python_convert_shebangs -r 2 .
 
+	gtkdocize || die
+	mate-doc-prepare --force --copy || die
+	mate-doc-common --copy || die
 	intltoolize --force --copy --automake || die "intltoolize failed"
 	eautoreconf
 
