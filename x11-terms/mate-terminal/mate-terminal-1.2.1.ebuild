@@ -27,7 +27,6 @@ DEPEND="${RDEPEND}
 	|| ( dev-util/gtk-builder-convert <=x11-libs/gtk+-2.24.10:2 )
 	sys-devel/gettext
 	>=dev-util/intltool-0.40
-	dev-util/gtk-doc
 	virtual/pkgconfig
 	app-text/mate-doc-utils
 	>=app-text/scrollkeeper-0.3.11"
@@ -35,7 +34,6 @@ DEPEND="${RDEPEND}
 DOCS="AUTHORS ChangeLog HACKING NEWS README"
 
 src_prepare() {
-	gtkdocize || die
 	mate-doc-prepare --force --copy || die
 	mate-doc-common --copy || die
 	eautoreconf
