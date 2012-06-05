@@ -18,9 +18,11 @@ IUSE=""
 RDEPEND=">=x11-libs/gtk+-2:2
 	>=x11-themes/gtk-engines-2.15.3:2"
 DEPEND="${RDEPEND}
+	app-text/mate-doc-utils
 	>=x11-misc/icon-naming-utils-0.8.7
 	virtual/pkgconfig
 	>=dev-util/intltool-0.35
+	dev-util/gtk-doc
 	sys-devel/gettext"
 # For problems related with dev-perl/XML-LibXML please see bug 266136
 
@@ -35,7 +37,9 @@ pkg_setup() {
 }
 
 src_prepare() {
-	./autogen.sh || die
+	gtkdocize || die
+	mate-doc-prepare --force --copy || die
+	mate-doc-common --copy || die
 	eautoreconf
 	mate_src_prepare
 
