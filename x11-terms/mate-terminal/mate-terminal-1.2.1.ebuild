@@ -34,7 +34,8 @@ DEPEND="${RDEPEND}
 DOCS="AUTHORS ChangeLog HACKING NEWS README"
 
 src_prepare() {
-	gtkdocize || die
+	./autogen.sh || die
+
 	eautoreconf
 	intltoolize --force --copy --automake || die "intltoolize failed"
 	
