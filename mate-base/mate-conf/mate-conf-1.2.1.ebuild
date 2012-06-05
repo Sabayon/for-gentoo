@@ -55,10 +55,10 @@ src_prepare() {
 	mate_src_prepare
 
 	# Do not start gconfd when installing schemas, fix bug #238276, upstream #631983
-	# epatch "${FILESDIR}/${PN}-2.24.0-no-gconfd.patch"
+	epatch "${FILESDIR}/gconf-2.24.0-no-gconfd.patch"
 
 	# Do not crash in gconf_entry_set_value() when entry pointer is NULL, upstream #631985
-	# epatch "${FILESDIR}/${PN}-2.28.0-entry-set-value-sigsegv.patch"
+	epatch "${FILESDIR}/gconf-2.28.0-entry-set-value-sigsegv.patch"
 }
 
 src_install() {
