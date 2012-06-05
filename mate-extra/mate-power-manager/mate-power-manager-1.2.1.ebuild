@@ -40,7 +40,7 @@ COMMON_DEPEND=">=dev-libs/glib-2.13.0:2
 "
 RDEPEND="${COMMON_DEPEND}
 	>=sys-auth/consolekit-0.4[policykit?]
-	policykit? ( mate-extra/polkit-mate )"
+	policykit? ( mate-extra/mate-polkit )"
 
 DEPEND="${COMMON_DEPEND}
 	x11-proto/randrproto
