@@ -23,7 +23,8 @@ DEPEND="${RDEPEND}
 	virtual/pkgconfig
 	doc? ( >=dev-util/gtk-doc-1.14 )
 	symlink? ( !x11-misc/tinynotify-send[symlink] )
-	test? ( x11-libs/gtk+:3 )"
+	test? ( x11-libs/gtk+:3 )
+	!x11-libs/libnotify"
 PDEPEND="virtual/notification-daemon"
 
 DOCS=( AUTHORS ChangeLog NEWS )
