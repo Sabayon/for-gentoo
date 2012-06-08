@@ -69,7 +69,7 @@ src_install() {
 		mv "${ED}"usr/bin/xml2po "${ED}"usr/bin/xml2po-$(python_get_version)
 	}
 	# python_execute_function -s installation
-	# python_clean_installation_image
+	python_clean_installation_image
 
 	# python_generate_wrapper_scripts -E -f "${ED}"usr/bin/xml2po
 	rm -f "{ED}"usr/bin/xml2po || die 
