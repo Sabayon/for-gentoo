@@ -35,7 +35,9 @@ DEPEND="${RDEPEND}
 
 pkg_setup() {
 	DOCS="AUTHORS ChangeLog NEWS README"
-	G2CONF="${G2CONF} --disable-scrollkeeper"
+	G2CONF="${G2CONF} 
+		--disable-scrollkeeper
+		--disable-build-utils"
 	python_pkg_setup
 }
 
@@ -68,12 +70,10 @@ src_install() {
 		python_convert_shebangs $(python_get_version) "${ED}"usr/bin/xml2po
 		mv "${ED}"usr/bin/xml2po "${ED}"usr/bin/xml2po-$(python_get_version)
 	}
-	python_execute_function -s installation
+	# python_execute_function -s installation
 	python_clean_installation_image
 
-	python_generate_wrapper_scripts -E -f "${ED}"usr/bin/xml2po
-	# We can use xml2po from gnome-doc-utils
-	rm -f "{ED}"usr/bin/xml2po || die 
+	# python_generate_wrapper_scripts -E -f "${ED}"usr/bin/xml2po
 }
 
 pkg_postinst() {
