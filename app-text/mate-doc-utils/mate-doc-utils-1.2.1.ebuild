@@ -30,7 +30,8 @@ DEPEND="${RDEPEND}
 	app-text/docbook-xml-dtd:4.4
 	app-text/scrollkeeper-dtd
 	app-text/rarian
-	mate-base/mate-common"
+	mate-base/mate-common
+	app-text/mate-doc-utils"
 
 pkg_setup() {
 	DOCS="AUTHORS ChangeLog NEWS README"
@@ -67,18 +68,19 @@ src_install() {
 		python_convert_shebangs $(python_get_version) "${ED}"usr/bin/xml2po
 		mv "${ED}"usr/bin/xml2po "${ED}"usr/bin/xml2po-$(python_get_version)
 	}
-	python_execute_function -s installation
-	python_clean_installation_image
+	# python_execute_function -s installation
+	# python_clean_installation_image
 
-	python_generate_wrapper_scripts -E -f "${ED}"usr/bin/xml2po
+	# python_generate_wrapper_scripts -E -f "${ED}"usr/bin/xml2po
+	rm -f "{ED}"usr/bin/xml2po || die 
 }
 
 pkg_postinst() {
-	python_mod_optimize xml2po
+	# python_mod_optimize xml2po
 	mate_pkg_postinst
 }
 
 pkg_postrm() {
-	python_mod_cleanup xml2po
+	# python_mod_cleanup xml2po
 	mate_pkg_postrm
 }
