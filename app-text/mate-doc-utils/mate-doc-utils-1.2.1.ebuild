@@ -31,7 +31,7 @@ DEPEND="${RDEPEND}
 	app-text/scrollkeeper-dtd
 	app-text/rarian
 	mate-base/mate-common
-	app-text/mate-doc-utils"
+	app-text/gnome-doc-utils"
 
 pkg_setup() {
 	DOCS="AUTHORS ChangeLog NEWS README"
