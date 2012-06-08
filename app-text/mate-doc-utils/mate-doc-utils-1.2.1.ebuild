@@ -30,8 +30,7 @@ DEPEND="${RDEPEND}
 	app-text/docbook-xml-dtd:4.4
 	app-text/scrollkeeper-dtd
 	app-text/rarian
-	mate-base/mate-common
-	!app-text/gnome-doc-utils"
+	mate-base/mate-common"
 
 pkg_setup() {
 	DOCS="AUTHORS ChangeLog NEWS README"
