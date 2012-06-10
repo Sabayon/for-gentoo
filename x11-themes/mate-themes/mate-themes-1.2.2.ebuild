@@ -22,7 +22,6 @@ DEPEND="${RDEPEND}
 	>=x11-misc/icon-naming-utils-0.8.7
 	virtual/pkgconfig
 	>=dev-util/intltool-0.35
-	dev-util/gtk-doc
 	sys-devel/gettext"
 # For problems related with dev-perl/XML-LibXML please see bug 266136
 
@@ -37,7 +36,6 @@ pkg_setup() {
 }
 
 src_prepare() {
-	gtkdocize || die
 	mate-doc-prepare --force --copy || die
 	mate-doc-common --copy || die
 	eautoreconf
