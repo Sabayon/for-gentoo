@@ -66,7 +66,7 @@ src_install() {
 	python_clean_installation_image
 
 	# remove xml2po, already provided by gnome-doc-utils
-	rm -rf "${ED}"usr/$(get_libdir)/python$(python_get_version)/site-packages/xml2po
+	rm -rf "${ED}"usr/$(get_libdir)/python*/site-packages/xml2po
 	rm -rf "${ED}"usr/bin/xml2po
 	rm -rf "${ED}"usr/share/man/man*/xml2po*
 	rm -rf "${ED}"usr/share/pkgconfig/xml2po*
