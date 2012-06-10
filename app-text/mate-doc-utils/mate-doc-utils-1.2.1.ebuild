@@ -34,7 +34,7 @@ DEPEND="${RDEPEND}
 
 pkg_setup() {
 	DOCS="AUTHORS ChangeLog NEWS README"
-	G2CONF+=" --disable-scrollkeeper --disable-build-utils"
+	G2CONF+=" --disable-scrollkeeper"
 	python_pkg_setup
 }
 
@@ -69,11 +69,9 @@ src_install() {
 }
 
 pkg_postinst() {
-	# python_mod_optimize xml2po
 	mate_pkg_postinst
 }
 
 pkg_postrm() {
-	# python_mod_cleanup xml2po
 	mate_pkg_postrm
 }
