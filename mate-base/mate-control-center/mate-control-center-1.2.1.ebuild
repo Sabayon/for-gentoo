@@ -62,7 +62,6 @@ DEPEND="${RDEPEND}
 	>=dev-util/intltool-0.40
 	virtual/pkgconfig
 	dev-util/desktop-file-utils
-	dev-util/gtk-doc
 
 	app-text/scrollkeeper
 	app-text/mate-doc-utils
@@ -78,7 +77,6 @@ pkg_setup() {
 }
 
 src_prepare() {
-	gtkdocize || die
 	mate-doc-prepare --force --copy || die
 	mate-doc-common --copy || die
 	eautoreconf
