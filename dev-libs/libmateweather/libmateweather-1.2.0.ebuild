@@ -47,6 +47,7 @@ pkg_setup() {
 }
 
 src_prepare() {
+	mkdir "${S}/m4" || die
 	mate-doc-prepare --force --copy || die
 	mate-doc-common --copy || die
 	eautoreconf
