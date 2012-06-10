@@ -123,7 +123,7 @@ src_prepare() {
 	#	|| die "intltoolize sed failed"
 
 	# Do not depend on gnome-icon-theme, bug #326855
-	sed 's/gnome-icon-theme//' -i configure.ac configure || die "sed failed"
+	# sed 's/gnome-icon-theme//' -i configure.ac configure || die "sed failed"
 
 	# Fix .desktop file so menu item shows up
 	# epatch "${FILESDIR}"/${PN}-0.7.1-display-menu.patch
