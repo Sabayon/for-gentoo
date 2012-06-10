@@ -32,8 +32,7 @@ DEPEND="${RDEPEND}
 	sys-devel/gettext
 	>=dev-util/intltool-0.40.3
 	virtual/pkgconfig
-	>=dev-util/gtk-doc-am-1.9
-	dev-util/gtk-doc"
+	>=dev-util/gtk-doc-am-1.9"
 
 DOCS="AUTHORS ChangeLog MAINTAINERS NEWS"
 
@@ -48,7 +47,6 @@ pkg_setup() {
 }
 
 src_prepare() {
-	gtkdocize || die
 	mate-doc-prepare --force --copy || die
 	mate-doc-common --copy || die
 	eautoreconf
