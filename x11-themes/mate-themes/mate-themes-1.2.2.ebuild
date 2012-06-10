@@ -47,6 +47,7 @@ src_prepare() {
 	# Remove themes now provided by x11-themes/gnome-themes-standard
 	sed 's:HighContrast.*\\:\\:g' -i $(find . -name Makefile.am -o -name Makefile.in) || die
 	sed 's:LowContrast.*\\:\\:g' -i $(find . -name Makefile.am -o -name Makefile.in) || die
+	sed 's:Shiny.*\\:\\:g' -i $(find . -name Makefile.am -o -name Makefile.in) || die
 
 	# Fix intltoolize broken file, see upstream #577133
 	sed "s:'\^\$\$lang\$\$':\^\$\$lang\$\$:g" -i po/Makefile.in.in \
