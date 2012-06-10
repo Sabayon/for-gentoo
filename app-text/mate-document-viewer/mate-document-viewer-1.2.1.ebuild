@@ -129,9 +129,9 @@ src_prepare() {
 	# epatch "${FILESDIR}"/${PN}-0.7.1-display-menu.patch
 
 	# gconf-2.m4 is needed for autoconf, bug #291339
-	if ! use gnome; then
-		cp "${FILESDIR}/gconf-2.m4" m4/ || die "Copying gconf-2.m4 failed!"
-	fi
+	# if ! use gnome; then
+	# 	cp "${FILESDIR}/gconf-2.m4" m4/ || die "Copying gconf-2.m4 failed!"
+	# fi
 
 	# Fix underlinking with gold
 	# epatch "${FILESDIR}"/${P}-gold.patch
