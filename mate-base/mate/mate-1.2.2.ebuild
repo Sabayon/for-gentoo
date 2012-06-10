@@ -30,6 +30,8 @@ RDEPEND="mate-base/mate-common
 	dev-libs/libmateweather
 	x11-themes/mate-icon-theme
 	mate-extra/mate-dialogs
+	mate-extra/mate-media
+	mate-extra/mate-utils
 	mate-base/mate-desktop
 	mate-base/mate-file-manager
 	x11-themes/mate-backgrounds
@@ -40,6 +42,7 @@ RDEPEND="mate-base/mate-common
 	mate-base/mate-control-center
 	mate-base/mate-panel
 	mate-base/mate-session-manager
+	x11-terms/mate-terminal
 	x11-themes/mate-themes"
 
 pkg_postinst() {
