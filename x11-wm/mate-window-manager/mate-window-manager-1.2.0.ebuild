@@ -41,7 +41,6 @@ DEPEND="${RDEPEND}
 	app-text/mate-doc-utils
 	sys-devel/gettext
 	>=dev-util/intltool-0.35
-	dev-util/gtk-doc
 	virtual/pkgconfig
 	test? ( app-text/docbook-xml-dtd:4.5 )
 	xinerama? ( x11-proto/xineramaproto )
@@ -63,7 +62,7 @@ pkg_setup() {
 }
 
 src_prepare() {
-	gtkdocize || die
+	mkdir -p "${S}/m4" || die
 	mate-doc-prepare --force --copy || die
 	mate-doc-common --copy || die
 	eautoreconf
