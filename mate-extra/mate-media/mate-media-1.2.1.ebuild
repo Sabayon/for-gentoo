@@ -5,7 +5,7 @@
 EAPI="3"
 GCONF_DEBUG="no"
 
-inherit eutils mate mate-desktop.org
+inherit autotools eutils mate mate-desktop.org
 
 DESCRIPTION="Multimedia related programs for the MATE desktop"
 HOMEPAGE="http://mate-desktop.org"
