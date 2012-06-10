@@ -59,7 +59,12 @@ src_test() {
 }
 
 src_install() {
-	mate_src_install
+	installation() {
+		mate_src_install
+	}
+	python_execute_function -s installation
+	python_clean_installation_image
+
 	# remove xml2po, already provided by gnome-doc-utils
 	rm -rf "${ED}"usr/$(get_libdir)/python$(python_get_version)/site-packages/xml2po
 	rm -rf "${ED}"usr/bin/xml2po
