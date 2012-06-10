@@ -53,6 +53,7 @@ DEPEND="${COMMON_DEPEND}
 	dev-util/gtk-doc"
 
 src_prepare() {
+	mkdir -p "${S}/m4" || die
 	mate-doc-prepare --force --copy || die
 	mate-doc-common --copy || die
 	eautoreconf
