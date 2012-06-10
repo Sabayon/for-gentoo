@@ -27,7 +27,6 @@ DEPEND="${RDEPEND}
 	>=sys-devel/gettext-0.14
 	virtual/pkgconfig
 	app-text/mate-doc-utils
-	dev-util/gtk-doc
 	mate-base/mate-common"
 
 pkg_setup() {
@@ -39,7 +38,6 @@ pkg_setup() {
 }
 
 src_prepare() {
-	gtkdocize || die
 	mate-doc-prepare --force --copy || die
 	mate-doc-common --copy || die
 	eautoreconf
