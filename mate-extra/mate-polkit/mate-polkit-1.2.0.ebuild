@@ -23,7 +23,7 @@ DEPEND="${RDEPEND}
 	sys-devel/gettext
 	!<gnome-extra/polkit-gnome-0.102"
 # Entropy PMS specific. This way we can install the pkg
-# into build chroots.
+# into the build chroots.
 ENTROPY_RDEPEND="!lxde-base/lxpolkit"
 
 DOCS=( AUTHORS HACKING NEWS README )
@@ -41,13 +41,24 @@ src_configure() {
 }
 
 src_compile() {
-	emake -C polkitgtk libpolkit-gtk-1.la
+	emake -C polkitgtkmate libpolkit-gtk-mate-1.la
 }
 
 src_install() {
-	emake DESTDIR="${D}" install
-	rm -rf \
-		"${ED}"usr/lib*/polkit-gnome-authentication-agent-1 \
-		"${ED}"usr/lib*/libpolkit-gtk-1.la \
-		"${ED}"usr/share/locale
+	default
+
+	cat <<-EOF > "${T}"/polkit-mate-authentication-agent-1.desktop
+[Desktop Entry]
+Name=PolicyKit Authentication Agent
+Comment=PolicyKit Authentication Agent
+Exec=/usr/libexec/polkit-mate-authentication-agent-1
+Terminal=false
+Type=Application
+Categories=
+NoDisplay=true
+NotShowIn=KDE;
+EOF
+
+	insinto /etc/xdg/autostart
+	doins "${T}"/polkit-mate-authentication-agent-1.desktop
 }
