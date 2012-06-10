@@ -8,7 +8,7 @@ PYTHON_DEPEND="2:2.5"
 SUPPORT_PYTHON_ABIS="1"
 RESTRICT_PYTHON_ABIS="3.* *-jython *-pypy-*"
 
-inherit autotools python mate mate-desktop.org
+inherit multilib autotools python mate mate-desktop.org
 
 DESCRIPTION="Documentation utilities for MATE"
 HOMEPAGE="http://mate-desktop.org"
@@ -18,9 +18,9 @@ SLOT="3"
 KEYWORDS="~amd64 ~arm ~x86"
 IUSE=""
 
-RDEPEND=">=dev-libs/libxml2-2.6.12[python]
-	 >=dev-libs/libxslt-1.1.8
-"
+RDEPEND="app-text/gnome-doc-utils
+	>=dev-libs/libxml2-2.6.12[python]
+	 >=dev-libs/libxslt-1.1.8"
 
 DEPEND="${RDEPEND}
 	>=sys-apps/gawk-3
@@ -30,25 +30,19 @@ DEPEND="${RDEPEND}
 	app-text/docbook-xml-dtd:4.4
 	app-text/scrollkeeper-dtd
 	app-text/rarian
-	mate-base/mate-common
-	app-text/gnome-doc-utils"
+	mate-base/mate-common"
 
 pkg_setup() {
 	DOCS="AUTHORS ChangeLog NEWS README"
-	G2CONF="${G2CONF} 
-		--disable-scrollkeeper
-		--disable-build-utils"
+	G2CONF+=" --disable-scrollkeeper --disable-build-utils"
 	python_pkg_setup
 }
 
 src_prepare() {
 	AT_M4DIR="tools m4"
 	eautoreconf
-
 	mate_src_prepare
-
 	python_clean_py-compile_files
-
 	python_copy_sources
 }
 
@@ -65,15 +59,13 @@ src_test() {
 }
 
 src_install() {
-	installation() {
-		mate_src_install
-		python_convert_shebangs $(python_get_version) "${ED}"usr/bin/xml2po
-		mv "${ED}"usr/bin/xml2po "${ED}"usr/bin/xml2po-$(python_get_version)
-	}
-	# python_execute_function -s installation
-	python_clean_installation_image
-
-	# python_generate_wrapper_scripts -E -f "${ED}"usr/bin/xml2po
+	mate_src_install
+	# remove xml2po, already provided by gnome-doc-utils
+	rm -rf "${ED}"usr/$(get_libdir)/python$(python_get_version)/site-packages/xml2po
+	rm -rf "${ED}"usr/bin/xml2po
+	rm -rf "${ED}"usr/share/man/man*/xml2po*
+	rm -rf "${ED}"usr/share/pkgconfig/xml2po*
+	rm -rf "${ED}"usr/share/xml/mallard/*/mallard.{rnc,rng}
 }
 
 pkg_postinst() {
