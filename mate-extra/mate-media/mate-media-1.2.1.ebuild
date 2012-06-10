@@ -53,7 +53,6 @@ DEPEND="${COMMON_DEPEND}
 	dev-util/gtk-doc"
 
 src_prepare() {
-	gtkdocize || die
 	mate-doc-prepare --force --copy || die
 	mate-doc-common --copy || die
 	eautoreconf
