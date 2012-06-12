@@ -44,8 +44,6 @@ src_prepare() {
 	else
 		AT_M4DIR=${WORKDIR} eautoreconf
 	fi
-	
-	eautoreconf
 }
 
 src_configure() {
