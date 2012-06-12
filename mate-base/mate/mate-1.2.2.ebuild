@@ -13,9 +13,7 @@ KEYWORDS="~amd64 ~arm ~x86"
 IUSE=""
 
 # FIXME: these should be versioned
-RDEPEND="mate-base/mate-common
-	app-text/mate-doc-utils
-	app-editors/mate-text-editor
+RDEPEND="app-editors/mate-text-editor
 	mate-base/mate-corba
 	mate-base/mate-conf
 	mate-base/libmatecomponent
@@ -28,6 +26,7 @@ RDEPEND="mate-base/mate-common
 	mate-base/mate-keyring
 	mate-base/libmateui
 	mate-base/libmatekbd
+	x11-libs/libmatenotify
 	dev-libs/libmateweather
 	x11-themes/mate-icon-theme
 	mate-extra/mate-dialogs
@@ -35,7 +34,11 @@ RDEPEND="mate-base/mate-common
 	mate-extra/mate-utils
 	mate-base/mate-desktop
 	mate-base/mate-file-manager
+	mate-extra/mate-image-viewer
+	app-text/mate-document-viewer
 	x11-themes/mate-backgrounds
+	mate-extra/mate-screensaver
+	mate-extra/mate-power-manager
 	mate-base/mate-menus
 	x11-wm/mate-window-manager
 	mate-extra/mate-polkit
