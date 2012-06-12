@@ -126,7 +126,7 @@ src_prepare() {
 	# sed 's/gnome-icon-theme//' -i configure.ac configure || die "sed failed"
 
 	# Fix .desktop file so menu item shows up
-	# epatch "${FILESDIR}"/${PN}-0.7.1-display-menu.patch
+	epatch "${FILESDIR}"/${PN}-0.7.1-display-menu.patch
 
 	# gconf-2.m4 is needed for autoconf, bug #291339
 	# if ! use gnome; then

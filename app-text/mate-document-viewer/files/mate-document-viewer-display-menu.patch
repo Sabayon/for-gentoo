@@ -1,0 +1,11 @@
+--- a/data/atril.desktop.in.in	2012-06-12 19:31:46.269149080 +0200
++++ b/data/atril.desktop.in.in.b	2012-06-12 20:30:14.219416661 +0200
+@@ -7,7 +7,6 @@ StartupNotify=true
+ Terminal=false
+ Type=Application
+ Icon=atril
+-NoDisplay=true
+ X-MATE-DocPath=
+ X-MATE-Bugzilla-Bugzilla=MATE
+ X-MATE-Bugzilla-Product=atril
+
