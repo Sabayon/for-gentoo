@@ -54,6 +54,7 @@ src_prepare() {
 	epatch "${FILESDIR}/${PN}-gpgme-gentoo.patch"
 	epatch "${FILESDIR}/${PN}-pthread_yield-obsolete.patch"
 	epatch "${FILESDIR}/${P}-choose-html-engine.patch"
+	epatch "${FILESDIR}/${P}-include-for-libnotify.patch"
 	sed -i -e "s/Icon=gyachi/Icon=gyach-icon_48/" gyachi.desktop \
 		|| die "sed failed"
 
