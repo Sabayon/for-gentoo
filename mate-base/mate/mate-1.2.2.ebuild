@@ -27,7 +27,6 @@ RDEPEND="app-editors/mate-text-editor
 	mate-base/libmateui
 	mate-base/libmatekbd
 	x11-libs/libmatenotify
-	x11-misc/mate-notification-daemon
 	dev-libs/libmateweather
 	x11-themes/mate-icon-theme
 	mate-extra/mate-dialogs
