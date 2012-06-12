@@ -3,7 +3,7 @@
 # $Header: Exp $
 
 EAPI=4
-inherit autotools mate-desktop.org
+inherit autotools mate mate-desktop.org
 
 DESCRIPTION="MATE Notification daemon"
 HOMEPAGE="http://mate-dekstop.org"
@@ -33,15 +33,27 @@ DEPEND="${RDEPEND}
 
 DOCS=( AUTHORS ChangeLog NEWS )
 
+src_prepare() {
+	eautoreconf
+	mate_src_prepare
+}
+
 src_install() {
-	default
+	mate_src_install
+
+	keepdir /etc/mateconf/mateconf.xml.mandatory
+	keepdir /etc/mateconf/mateconf.xml.defaults
+	# Make sure this directory exists
+	keepdir /etc/mateconf/mateconf.xml.system
 
 	cat <<-EOF > "${D}/org.freedesktop.Notifications.service"
 	[D-BUS Service]
 	Name=org.freedesktop.Notifications
-	Exec=/usr/libexec/notification-daemon
+	Exec=/usr/libexec/mate-notification-daemon
 	EOF
 
 	insinto /usr/share/dbus-1/services
 	doins "${D}/org.freedesktop.Notifications.service"
+
+	mate_src_install
 }
