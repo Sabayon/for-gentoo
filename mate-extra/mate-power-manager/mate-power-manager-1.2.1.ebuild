@@ -23,7 +23,7 @@ COMMON_DEPEND=">=dev-libs/glib-2.13.0:2
 	>=x11-libs/gtk+-2.17.7:2
 	mate-base/mate-keyring
 	>=dev-libs/dbus-glib-0.71
-	>=x11-libs/libnotify-0.4.3
+	>=x11-libs/libmatenotify-0.4.3
 	>=x11-libs/libwnck-2.10.0:1
 	>=x11-libs/cairo-1
 	mate-base/mate-conf[policykit?]
@@ -62,12 +62,13 @@ DEPEND="${COMMON_DEPEND}
 
 pkg_setup() {
 	G2CONF="${G2CONF}
+		--enable-unique
 		$(use_enable applet applets)
 		$(use_enable doc docbook-docs)
-		$(use_enable policykit gconf-defaults)
+		$(use_enable policykit mateconf-defaults)
 		$(use_enable test tests)
 		--enable-compile-warnings=minimum"
-	DOCS="AUTHORS ChangeLog NEWS README TODO"
+	DOCS="AUTHORS HACKING NEWS README TODO"
 }
 
 src_prepare() {
