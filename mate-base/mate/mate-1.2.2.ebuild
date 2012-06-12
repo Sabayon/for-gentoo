@@ -27,6 +27,7 @@ RDEPEND="app-editors/mate-text-editor
 	mate-base/libmateui
 	mate-base/libmatekbd
 	x11-libs/libmatenotify
+	x11-misc/mate-notification-daemon
 	dev-libs/libmateweather
 	x11-themes/mate-icon-theme
 	mate-extra/mate-dialogs
@@ -45,8 +46,10 @@ RDEPEND="app-editors/mate-text-editor
 	mate-base/mate-settings-daemon
 	mate-base/mate-control-center
 	mate-base/mate-panel
+	x11-misc/mate-menu-editor
 	mate-base/mate-session-manager
 	x11-terms/mate-terminal
+	app-arch/mate-file-archiver
 	x11-themes/mate-themes"
 
 pkg_postinst() {
