@@ -13,12 +13,12 @@ HOMEPAGE="http://mate-desktop.org"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~arm ~x86"
-IUSE="nautilus"
+IUSE="caja"
 
 RDEPEND=">=dev-libs/glib-2.25.5:2
 	>=x11-libs/gtk+-2.21.4:2
 	mate-base/mate-conf
-	nautilus? ( mate-base/mate-file-manager )"
+	caja? ( mate-base/mate-file-manager )"
 DEPEND="${RDEPEND}
 	sys-devel/gettext
 	>=dev-util/intltool-0.35
@@ -35,7 +35,7 @@ pkg_setup() {
 		--disable-packagekit
 		--disable-deprecations
 		--with-gtk=2.0
-		$(use_enable nautilus caja-actions)"
+		$(use_enable caja caja-actions)"
 	DOCS="AUTHORS HACKING MAINTAINERS NEWS README TODO"
 }
 
@@ -56,7 +56,7 @@ src_prepare() {
 
 src_install() {
 	mate_src_install
-	if use nautilus; then
+	if use caja; then
 		find "${ED}"usr/$(get_libdir)/caja -name "*.la" -delete \
 			|| die "la file removal failed"
 	fi
