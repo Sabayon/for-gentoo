@@ -14,7 +14,7 @@ HOMEPAGE="http://mate-desktop.org"
 LICENSE="GPL-2 FDL-1.1 LGPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~arm ~x86"
-IUSE="gnome gstreamer ipv6 networkmanager policykit"
+IUSE="gnome +gstreamer ipv6 networkmanager policykit"
 
 #TODO: probably needs ported Mate python bindings
 RDEPEND=">=x11-libs/gtk+-2.20:2
