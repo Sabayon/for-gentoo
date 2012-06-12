@@ -19,7 +19,7 @@ SLOT="0"
 KEYWORDS="~amd64 ~arm ~x86"
 IUSE=""
 
-COMMON_DEPEND="dev-python/pygobject:3
+COMMON_DEPEND="dev-python/pygobject:2
 	mate-base/mate-menus[introspection]
 "
 # mate-panel needed for mate-desktop-item-edit
