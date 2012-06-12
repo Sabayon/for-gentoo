@@ -8,7 +8,7 @@ PYTHON_DEPEND="python? 2:2.5"
 
 inherit autotools mate multilib python eutils mate-desktop.org
 
-DESCRIPTION="A text editor for the MATE desktop"
+DESCRIPTION="Pluma text editor for the MATE desktop"
 HOMEPAGE="http://mate-desktop.org"
 
 LICENSE="GPL-2"
@@ -77,10 +77,10 @@ src_install() {
 
 pkg_postinst() {
 	mate_pkg_postinst
-	# use python && python_mod_optimize /usr/$(get_libdir)/gedit-2/plugins
+	use python && python_mod_optimize /usr/$(get_libdir)/pluma/plugins
 }
 
 pkg_postrm() {
 	mate_pkg_postrm
-	# python_mod_cleanup /usr/$(get_libdir)/gedit-2/plugins
+	python_mod_cleanup /usr/$(get_libdir)/pluma/plugins
 }
