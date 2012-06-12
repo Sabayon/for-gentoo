@@ -13,7 +13,7 @@ HOMEPAGE="http://mate-desktop.org"
 LICENSE="GPL-2 LGPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~arm ~x86"
-IUSE="acl avahi doc fam ipv6 kerberos samba"
+IUSE="acl avahi doc fam ipv6 kerberos samba ssl gnutls"
 
 RDEPEND="mate-base/mate-conf
 	>=dev-libs/glib-2.9.3
@@ -25,6 +25,9 @@ RDEPEND="mate-base/mate-conf
 	acl? (
 		sys-apps/acl
 		sys-apps/attr )
+	ssl? (
+		gnutls? ( net-libs/gnutls )
+		!gnutls? ( net-libs/openssl ) )
 	avahi? ( || ( >=net-dns/avahi-gtk-0.6 >=net-dns/avahi-0.6 ) )
 	kerberos? ( virtual/krb5 )
 	fam? ( virtual/fam )
@@ -47,26 +50,28 @@ pkg_setup() {
 		--disable-static
 		--disable-cdda
 		--disable-howl
-		# Configure fails with openssl because of gnutls. Known bug
 		--disable-openssl
 		$(use_enable acl)
 		$(use_enable avahi)
 		$(use_enable fam)
-		# $(use_enable gnutls)
+		$(use_enable gnutls)
 		--disable-hal
 		$(use_enable ipv6)
 		$(use_enable kerberos krb5)
 		$(use_enable samba)
-		# $(use_enable ssl openssl)"
-		# Useless ? --enable-http-neon
+		$(use_enable ssl openssl)
+		--enable-daemon"
 
 	# this works because of the order of configure parsing
 	# so should always be behind the use_enable options
 	# foser <foser@gentoo.org 19 Apr 2004
-	# use gnutls && use ssl && G2CONF="${G2CONF} --disable-openssl"
+	use gnutls && use ssl && G2CONF="${G2CONF} --disable-openssl"
 }
 
 src_prepare() {
+	# Fix compiling with gnutls
+	epatch "${FILESDIR}/${P}-gnutls27.patch"
+	
 	gtkdocize || die
 	intltoolize --force --copy --automake || die "intltoolize failed"
 	eautoreconf
