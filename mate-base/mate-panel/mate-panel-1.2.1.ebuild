@@ -33,7 +33,7 @@ RDEPEND="mate-base/mate-desktop
 	>=x11-libs/libXrandr-1.2
 	mate-base/libmatecomponent
 	mate-base/libmatecomponentui
-	mate-base/corba
+	mate-base/mate-corba
 	>=x11-libs/libwnck-2.19.5:1
 	eds? ( >=gnome-extra/evolution-data-server-1.6 )
 	introspection? ( >=dev-libs/gobject-introspection-0.6.7 )
