@@ -7,7 +7,7 @@ GCONF_DEBUG="no"
 
 inherit autotools eutils mate multilib mate-desktop.org
 
-DESCRIPTION="Engrampa Archive manager for MATE"
+DESCRIPTION="Engrampa archive manager for MATE"
 HOMEPAGE="http://mate-desktop.org"
 
 LICENSE="GPL-2"
