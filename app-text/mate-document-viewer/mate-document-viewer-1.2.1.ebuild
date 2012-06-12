@@ -116,7 +116,7 @@ src_prepare() {
 	# epatch "${FILESDIR}"/${P}-create_thumbnail_frame-null.patch
 
 	# Fix .desktop categories, upstream bug #666346
-	# epatch "${FILESDIR}"/${P}-desktop-categories.patch
+	epatch "${FILESDIR}"/${P}-desktop-categories.patch
 
 	# Fix intltoolize broken file, see upstream #577133
 	# sed "s:'\^\$\$lang\$\$':\^\$\$lang\$\$:g" -i po/Makefile.in.in \
