@@ -77,10 +77,10 @@ src_install() {
 
 pkg_postinst() {
 	mate_pkg_postinst
-	use python && python_mod_optimize /usr/$(get_libdir)/gedit-2/plugins
+	# use python && python_mod_optimize /usr/$(get_libdir)/gedit-2/plugins
 }
 
 pkg_postrm() {
 	mate_pkg_postrm
-	python_mod_cleanup /usr/$(get_libdir)/gedit-2/plugins
+	# python_mod_cleanup /usr/$(get_libdir)/gedit-2/plugins
 }
