@@ -35,7 +35,7 @@ RDEPEND="app-editors/mate-text-editor
 	mate-extra/mate-utils
 	mate-base/mate-desktop
 	mate-base/mate-file-manager
-	mate-gfx/mate-image-viewer
+	media-gfx/mate-image-viewer
 	app-text/mate-document-viewer
 	x11-themes/mate-backgrounds
 	mate-extra/mate-screensaver
