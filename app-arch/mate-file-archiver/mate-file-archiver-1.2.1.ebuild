@@ -7,7 +7,7 @@ GCONF_DEBUG="no"
 
 inherit autotools eutils mate multilib mate-desktop.org
 
-DESCRIPTION="Archive manager for MATE"
+DESCRIPTION="Engrampa Archive manager for MATE"
 HOMEPAGE="http://mate-desktop.org"
 
 LICENSE="GPL-2"
@@ -35,14 +35,14 @@ pkg_setup() {
 		--disable-packagekit
 		--disable-deprecations
 		--with-gtk=2.0
-		$(use_enable nautilus nautilus-actions)"
-	DOCS="AUTHORS ChangeLog HACKING MAINTAINERS NEWS README TODO"
+		$(use_enable nautilus caja-actions)"
+	DOCS="AUTHORS HACKING MAINTAINERS NEWS README TODO"
 }
 
 src_prepare() {
-	eautoreconf
  	mate-doc-prepare --force --copy || die
  	mate-doc-common --copy || die
+	eautoreconf
 	mate_src_prepare
 
 	# Use absolute path to GNU tar since star doesn't have the same
@@ -57,7 +57,7 @@ src_prepare() {
 src_install() {
 	mate_src_install
 	if use nautilus; then
-		find "${ED}"usr/$(get_libdir)/nautilus -name "*.la" -delete \
+		find "${ED}"usr/$(get_libdir)/caja -name "*.la" -delete \
 			|| die "la file removal failed"
 	fi
 }
