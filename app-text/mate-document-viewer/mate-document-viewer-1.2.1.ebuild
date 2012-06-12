@@ -3,12 +3,11 @@
 # $Header: Exp $
 
 EAPI="4"
-GCONF_DEBUG="yes"
-GNOME2_LA_PUNT="yes"
+GCONF_DEBUG="no"
 
 inherit autotools eutils mate mate-desktop.org
 
-DESCRIPTION="Simple document viewer for GNOME"
+DESCRIPTION="Atril document viewer for MATE"
 HOMEPAGE="http://mate-desktop.org"
 
 LICENSE="GPL-2"
@@ -53,7 +52,7 @@ ELTCONF="--portage"
 
 # Needs dogtail and pyspi from http://fedorahosted.org/dogtail/
 # Releases: http://people.redhat.com/zcerza/dogtail/releases/
-RESTRICT="test"
+# RESTRICT="test"
 
 pkg_setup() {
 	# Passing --disable-help would drop offline help, that would be inconsistent
@@ -66,21 +65,22 @@ pkg_setup() {
 		--enable-comics
 		--enable-impress
 		--enable-thumbnailer
+		--enable-pixbuf
 		--with-smclient=xsmp
-		--with-platform=gnome
+		--with-platform=mate
 		--with-gtk=2.0
 		--enable-help
 		$(use_enable dbus)
 		$(use_enable djvu)
 		$(use_enable dvi)
-		$(use_with gnome gconf)
+		$(use_with gnome mateconf)
 		$(use_with gnome-keyring keyring)
 		$(use_enable introspection)
-		$(use_enable nautilus)
+		$(use_enable nautilus caja)
 		$(use_enable ps)
 		$(use_enable t1lib)
 		$(use_enable tiff)"
-	DOCS="AUTHORS ChangeLog NEWS README TODO"
+	DOCS="AUTHORS NEWS README TODO"
 }
 
 src_prepare() {
@@ -139,4 +139,9 @@ src_prepare() {
 	intltoolize --force --copy --automake || die "intltoolize failed"
 	eautoreconf
 	mate_src_prepare
+}
+
+src_install() {
+	mate_src_install
+	find "${ED}" -name "*.la" -delete || die "remove of la files failed"	
 }
