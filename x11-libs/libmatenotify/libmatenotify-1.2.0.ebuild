@@ -23,8 +23,7 @@ DEPEND="${RDEPEND}
 	virtual/pkgconfig
 	doc? ( >=dev-util/gtk-doc-1.14 )
 	symlink? ( !x11-misc/tinynotify-send[symlink] )
-	test? ( x11-libs/gtk+:3 )
-	!x11-libs/libnotify"
+	test? ( x11-libs/gtk+:3 )"
 PDEPEND="virtual/notification-daemon"
 
 DOCS=( AUTHORS ChangeLog NEWS )
@@ -56,6 +55,5 @@ src_install() {
 	default
 	rm -f "${ED}"usr/lib*/${PN}.la
 
-	mv -vf "${ED}"usr/bin/{,${PN}-}notify-send #379941
 	use symlink && dosym ${PN}-notify-send /usr/bin/notify-send
 }
