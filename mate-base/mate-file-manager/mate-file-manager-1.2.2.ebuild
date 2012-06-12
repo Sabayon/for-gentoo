@@ -23,7 +23,6 @@ RDEPEND=">=dev-libs/glib-2.28.0:2
 	>=media-libs/libexif-0.5.12
 	mate-base/mate-conf
 	dev-libs/libunique:1
-	gnome-base/dconf
 	x11-libs/libXext
 	x11-libs/libXrender
 	introspection? ( >=dev-libs/gobject-introspection-0.6.4 )
