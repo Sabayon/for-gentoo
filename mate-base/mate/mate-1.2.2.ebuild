@@ -15,6 +15,7 @@ IUSE=""
 # FIXME: these should be versioned
 RDEPEND="mate-base/mate-common
 	app-text/mate-doc-utils
+	app-editors/mate-text-editor
 	mate-base/mate-corba
 	mate-base/mate-conf
 	mate-base/libmatecomponent
