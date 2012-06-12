@@ -13,15 +13,17 @@ SLOT="0"
 KEYWORDS="~amd64 ~arm ~x86"
 IUSE=""
 
-RDEPEND=">=dev-libs/glib-2.28
-	x11-libs/gtk+:3
-	sys-apps/dbus
-	media-libs/libcanberra[gtk3]
-	>=x11-libs/libnotify-0.7
+RDEPEND=">=dev-libs/glib-2.4:2
+	>=x11-libs/gtk+-2.18:2
+	mate-base/mate-conf
+	>=dev-libs/dbus-glib-0.78
+	>=sys-apps/dbus-1
+	>=media-libs/libcanberra-0.4[gtk]
+	x11-libs/libnotify
+	x11-libs/libwnck:1
 	x11-libs/libX11
 	!x11-misc/notify-osd
-	!x11-misc/qtnotifydaemon
-	!x11-misc/notification-daemon"
+	!x11-misc/qtnotifydaemon"
 DEPEND="${RDEPEND}
 	app-arch/xz-utils
 	>=dev-util/intltool-0.40
@@ -29,6 +31,10 @@ DEPEND="${RDEPEND}
 	sys-devel/gettext"
 
 DOCS=( AUTHORS ChangeLog NEWS )
+
+src_prepare() {
+	eautoreconf
+}
 
 src_install() {
 	default
