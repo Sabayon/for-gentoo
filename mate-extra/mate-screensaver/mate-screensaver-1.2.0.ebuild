@@ -24,7 +24,7 @@ RDEPEND="mate-base/mate-conf
 	>=dev-libs/glib-2.15:2
 	mate-base/libmatekbd
 	>=dev-libs/dbus-glib-0.71
-	libnotify? ( x11-libs/libnotify )
+	libnotify? ( x11-libs/libmatenotify )
 	opengl? ( virtual/opengl )
 	pam? ( virtual/pam )
 	!pam? ( kernel_linux? ( sys-apps/shadow ) )
@@ -53,7 +53,7 @@ pkg_setup() {
 	G2CONF="${G2CONF}
 		$(use_enable doc docbook-docs)
 		$(use_enable debug)
-		$(use_with libnotify)
+		$(use_with libmatenotify)
 		$(use_with opengl gl)
 		$(use_enable pam)
 		--enable-locking
@@ -99,11 +99,11 @@ src_install() {
 	dodoc "${S}/data/migrate-xscreensaver-config.sh"
 	dodoc "${S}/data/xscreensaver-config.xsl"
 
-	# Conversion information
-	sed -e "s:\${PF}:${PF}:" < "${FILESDIR}/xss-conversion-2.txt" \
-		> "${S}/xss-conversion.txt" || die "sed failed"
+	# Conversion information (micia: no xss-conversion file in ${S}
+	# sed -e "s:\${PF}:${PF}:" < "${FILESDIR}/xss-conversion-2.txt" \
+	# 	> "${S}/xss-conversion.txt" || die "sed failed"
 
-	dodoc "${S}/xss-conversion.txt"
+	# dodoc "${S}/xss-conversion.txt"
 
 	# Non PAM users will need this suid to read the password hashes.
 	# OpenPAM users will probably need this too when
