@@ -13,7 +13,7 @@ SRC_URI="${SRC_URI}
 LICENSE="LGPL-2.1"
 SLOT="0"
 KEYWORDS="~amd64 ~arm ~x86"
-IUSE="doc +introspection +symlink test"
+IUSE="doc +introspection -symlink test"
 
 RDEPEND=">=dev-libs/glib-2.26
 	x11-libs/gdk-pixbuf:2
