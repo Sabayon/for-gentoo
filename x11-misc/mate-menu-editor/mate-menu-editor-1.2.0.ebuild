@@ -11,7 +11,7 @@ RESTRICT_PYTHON_ABIS="3.*"
 
 inherit autotools eutils mate python mate-desktop.org
 
-DESCRIPTION="Simple MATE menu editor"
+DESCRIPTION="Mozo menu editor for MATE"
 HOMEPAGE="http://mate-desktop.org"
 
 LICENSE="GPL-2"
@@ -22,11 +22,11 @@ IUSE=""
 COMMON_DEPEND="dev-python/pygobject:3
 	mate-base/mate-menus[introspection]
 "
-# gnome-panel needed for gnome-desktop-item-edit
+# mate-panel needed for mate-desktop-item-edit
 RDEPEND="${COMMON_DEPEND}
 	mate-base/mate-panel
 	x11-libs/gdk-pixbuf:2[introspection]
-	x11-libs/gtk+:3[introspection]
+	x11-libs/gtk+:2[introspection]
 "
 DEPEND="${COMMON_DEPEND}
 	>=dev-util/intltool-0.40.0
@@ -35,7 +35,7 @@ DEPEND="${COMMON_DEPEND}
 "
 
 pkg_setup() {
-	DOCS="AUTHORS ChangeLog NEWS README"
+	DOCS="AUTHORS NEWS README"
 	python_pkg_setup
 }
 
@@ -59,13 +59,13 @@ src_prepare() {
 src_configure() {
 	configure() {
 		G2CONF="${G2CONF} PYTHON=$(PYTHON -a)"
-		gnome2_src_configure
+		mate_src_configure
 	}
 	python_execute_function -s configure
 }
 
 src_compile() {
-	python_execute_function -s gnome2_src_compile
+	python_execute_function -s mate_src_compile
 }
 
 src_test() {
@@ -73,17 +73,17 @@ src_test() {
 }
 
 src_install() {
-	python_execute_function -s gnome2_src_install
+	python_execute_function -s mate_src_install
 	python_clean_installation_image
 	python_convert_shebangs -r 2 "${ED}"
 }
 
 pkg_postinst() {
 	mate_pkg_postinst
-	python_mod_optimize Alacarte
+	python_mod_optimize Mozo
 }
 
 pkg_postrm() {
 	mate_pkg_postrm
-	python_mod_cleanup Alacarte
+	python_mod_cleanup Mozo
 }
