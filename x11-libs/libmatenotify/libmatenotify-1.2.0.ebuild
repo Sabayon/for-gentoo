@@ -13,11 +13,10 @@ SRC_URI="${SRC_URI}
 LICENSE="LGPL-2.1"
 SLOT="0"
 KEYWORDS="~amd64 ~arm ~x86"
-IUSE="doc +introspection -symlink test"
+IUSE="doc -symlink test"
 
 RDEPEND=">=dev-libs/glib-2.26
-	x11-libs/gdk-pixbuf:2
-	introspection? ( >=dev-libs/gobject-introspection-0.9.12 )"
+	x11-libs/gdk-pixbuf:2"
 DEPEND="${RDEPEND}
 	dev-util/gtk-doc-am
 	virtual/pkgconfig
@@ -46,9 +45,7 @@ src_prepare() {
 }
 
 src_configure() {
-	econf \
-		--disable-static \
-		$(use_enable introspection)
+	econf --disable-static
 }
 
 src_install() {
