@@ -14,9 +14,8 @@ HOMEPAGE="http://mate-desktop.org"
 LICENSE="GPL-2 FDL-1.1 LGPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~arm ~x86"
-IUSE="gnome +gstreamer ipv6 networkmanager policykit"
+IUSE="+gstreamer ipv6 networkmanager policykit"
 
-#TODO: probably needs ported Mate python bindings
 RDEPEND=">=x11-libs/gtk+-2.20:2
 	>=dev-libs/glib-2.22:2
 	mate-base/mate-conf
@@ -31,12 +30,11 @@ RDEPEND=">=x11-libs/gtk+-2.20:2
 	x11-themes/mate-icon-theme
 	dev-libs/libmateweather
 	x11-libs/libX11
-
-	gnome?	(
-		mate-base/mate-settings-daemon
-		mate-base/libmate
-
-		>=gnome-extra/gucharmap-2.23:0 )
+	mate-base/mate-settings-daemon
+	mate-base/libmate
+	dev-libs/libgtop:2
+	sys-power/cpufrequtils
+	>=gnome-extra/gucharmap-2.23:0
 	gstreamer?	(
 		>=media-libs/gstreamer-0.10.2:0.10
 		>=media-libs/gst-plugins-base-0.10.14:0.10
@@ -59,7 +57,7 @@ DEPEND="${RDEPEND}
 pkg_setup() {
 	DOCS="AUTHORS ChangeLog NEWS README"
 	G2CONF="${G2CONF}
-		--libexecdir=/usr/$(get_libdir)/${PN}
+		--libexecdir=/usr/$(get_libexecdir)/mate-applets
 		--without-hal
 		--disable-battstat
 		--disable-scrollkeeper
@@ -88,7 +86,7 @@ src_install() {
 	mate_src_install
 
 	local APPLETS="accessx-status charpick cpufreq drivemount geyes
-		       invest-applet mateweather mini-commander mixer 
+		       invest-applet mateweather mini-commander mixer
 		       modemlights multiload null_applet stickynotes trashapplet"
 
 	# modemlights is out because it needs system-tools-backends-1
