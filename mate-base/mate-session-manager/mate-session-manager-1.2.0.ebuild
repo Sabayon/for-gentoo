@@ -22,7 +22,7 @@ IUSE="doc ipv6 elibc_FreeBSD"
 RDEPEND=">=dev-libs/glib-2.16:2
 	>=x11-libs/gtk+-2.22.0:2
 	>=dev-libs/dbus-glib-0.76
-	mate-base/mate-conf:2
+	>=mate-base/mate-conf-1.2.1
 	>=sys-power/upower-0.9.0
 	elibc_FreeBSD? ( dev-libs/libexecinfo )
 
@@ -40,7 +40,7 @@ DEPEND="${RDEPEND}
 	>=sys-devel/gettext-0.10.40
 	virtual/pkgconfig
 	>=dev-util/intltool-0.40
-	mate-base/mate-common
+	>=mate-base/mate-common-1.2.2
 	!<gnome-base/gdm-2.20.4
 	doc? (
 		app-text/xmlto
