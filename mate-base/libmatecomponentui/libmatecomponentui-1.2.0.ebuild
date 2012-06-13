@@ -5,7 +5,7 @@
 EAPI="3"
 GCONF_DEBUG="no"
 
-inherit autotools eutils gnome2 virtualx mate-desktop.org
+inherit autotools eutils mate virtualx mate-desktop.org
 
 DESCRIPTION="User Interface part of libmatecomponent"
 HOMEPAGE="http://mate-desktop.org"
