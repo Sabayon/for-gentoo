@@ -33,12 +33,13 @@ RDEPEND="mate-base/mate-desktop
 	>=x11-libs/libXrandr-1.2
 	mate-base/libmatecomponent
 	mate-base/libmatecomponentui
-	>=gnome-base/orbit-2.4
+	>=mate-base/mate-corba-1.2.2
 	>=x11-libs/libwnck-2.19.5:1
 	eds? ( >=gnome-extra/evolution-data-server-1.6 )
 	introspection? ( >=dev-libs/gobject-introspection-0.6.7 )
 	networkmanager? ( >=net-misc/networkmanager-0.6.7 )"
 DEPEND="${RDEPEND}
+	dev-util/gtk-doc
 	>=dev-lang/perl-5
 	app-text/mate-doc-utils
 	virtual/pkgconfig
@@ -50,14 +51,14 @@ DEPEND="${RDEPEND}
 
 pkg_setup() {
 	# possible values: none, clock, fish, notification-area, wncklet, all
-	APPLETS="all"
+	local applets="all"
 	G2CONF="${G2CONF}
 		--libexecdir=/usr/$(get_libexecdir)/mate-applets
 		--disable-deprecation-flags
 		--disable-static
 		--disable-scrollkeeper
 		--disable-schemas-install
-		--with-in-process-applets=${APPLETS}
+		--with-in-process-applets=${applets}
 		$(use_enable networkmanager network-manager)
 		$(use_enable introspection)
 		$(use_enable eds)"
