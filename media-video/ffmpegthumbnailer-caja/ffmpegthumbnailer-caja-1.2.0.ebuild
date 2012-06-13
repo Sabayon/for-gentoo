@@ -20,15 +20,17 @@ RDEPEND="media-video/ffmpegthumbnailer
 
 DEPEND="app-arch/xz-utils"
 
+GNOME2_ECLASS_SCHEMAS="/usr/share/mateconf/schemas/ffmpegthumbnailer-caja.schema"
+
 src_install() {
 	emake DESTDIR="${D}" install
 	dodoc AUTHORS README
 }
 
 pkg_postinst() {
-	mate_schemas_update
+	mate_gconf_install
 }
 
 pkg_postrm() {
-	mate_schemas_update --uninstall
+	mate_gconf_uninstall
 }

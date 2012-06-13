@@ -146,8 +146,8 @@ mate_gconf_install() {
 		fi
 	done
 
-	# have gconf reload the new schemas
-	pids=$(pgrep -x gconfd-2)
+	# have mateconf reload the new schemas
+	pids=$(pgrep -x mateconfd-2)
 	if [[ $? == 0 ]] ; then
 		ebegin "Reloading GConf schemas"
 		kill -HUP ${pids}
@@ -186,8 +186,8 @@ mate_gconf_uninstall() {
 		fi
 	done
 
-	# have gconf reload the new schemas
-	pids=$(pgrep -x gconfd-2)
+	# have mateconf reload the new schemas
+	pids=$(pgrep -x mateconfd-2)
 	if [[ $? == 0 ]] ; then
 		ebegin "Reloading GConf schemas"
 		kill -HUP ${pids}
