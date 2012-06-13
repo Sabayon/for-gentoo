@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: Exp $
 
-EAPI="3"
+EAPI="4"
 GCONF_DEBUG="no"
 PYTHON_DEPEND="2:2.5"
 
@@ -33,13 +33,12 @@ RDEPEND="mate-base/mate-desktop
 	>=x11-libs/libXrandr-1.2
 	mate-base/libmatecomponent
 	mate-base/libmatecomponentui
-	mate-base/mate-corba
+	>=gnome-base/orbit-2.4
 	>=x11-libs/libwnck-2.19.5:1
 	eds? ( >=gnome-extra/evolution-data-server-1.6 )
 	introspection? ( >=dev-libs/gobject-introspection-0.6.7 )
 	networkmanager? ( >=net-misc/networkmanager-0.6.7 )"
 DEPEND="${RDEPEND}
-	dev-util/gtk-doc
 	>=dev-lang/perl-5
 	app-text/mate-doc-utils
 	virtual/pkgconfig
@@ -51,12 +50,14 @@ DEPEND="${RDEPEND}
 
 pkg_setup() {
 	# possible values: none, clock, fish, notification-area, wncklet, all
+	APPLETS="all"
 	G2CONF="${G2CONF}
+		--libexecdir=/usr/$(get_libexecdir)/mate-applets
 		--disable-deprecation-flags
 		--disable-static
 		--disable-scrollkeeper
 		--disable-schemas-install
-		--with-in-process-applets=all
+		--with-in-process-applets=${APPLETS}
 		$(use_enable networkmanager network-manager)
 		$(use_enable introspection)
 		$(use_enable eds)"
@@ -64,15 +65,21 @@ pkg_setup() {
 	python_set_active_version 2
 }
 
-src_prepare() {
-	epatch "${FILESDIR}/${PN}-fix-gnome-panel-collision.patch"
+#src_unpack() {
+	# If gobject-introspection is installed, we don't need the extra .m4
+	# if has_version "dev-libs/gobject-introspection"; then
+	#	unpack ${P}.tar.bz2 ${P}-patches.tar.bz2
+	# else
+	#	unpack ${A}
+	# fi
+#}
 
-	gtkdocize || die
+src_prepare() {
 	mate-doc-prepare --force --copy || die
 	mate-doc-common --copy || die
+	intltoolize --force --copy --automake || die "intltoolize failed"
 	AT_M4DIR=${WORKDIR} eautoreconf
 
-	intltoolize --force --copy --automake || die "intltoolize failed"
 	mate_src_prepare
 }
 
