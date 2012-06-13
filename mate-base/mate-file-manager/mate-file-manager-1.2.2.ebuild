@@ -16,12 +16,12 @@ KEYWORDS="~amd64 ~arm ~x86"
 IUSE="doc gnome +introspection xmp"
 
 RDEPEND=">=dev-libs/glib-2.28.0:2
-	mate-base/mate-desktop
+	>=mate-base/mate-desktop-1.2.0
 	>=x11-libs/pango-1.1.2
 	>=x11-libs/gtk+-2.22:2[introspection?]
 	>=dev-libs/libxml2-2.4.7:2
 	>=media-libs/libexif-0.5.12
-	mate-base/mate-conf
+	>=mate-base/mate-conf-1.2.1
 	dev-libs/libunique:1
 	x11-libs/libXext
 	x11-libs/libXrender
@@ -34,10 +34,10 @@ DEPEND="${RDEPEND}
 	virtual/pkgconfig
 	>=dev-util/intltool-0.40.1
 	doc? ( >=dev-util/gtk-doc-1.4 )
-	mate-base/mate-common
+	>=mate-base/mate-common-1.2.2
 	dev-util/gtk-doc-am"
 
-PDEPEND="gnome? ( x11-themes/mate-icon-theme )
+PDEPEND="gnome? ( >=x11-themes/mate-icon-theme-1.2.0 )
 	mate-base/mate-vfs"
 
 pkg_setup() {
