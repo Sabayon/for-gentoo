@@ -21,7 +21,7 @@ RDEPEND="media-video/ffmpegthumbnailer
 
 DEPEND="app-arch/xz-utils"
 
-GNOME2_ECLASS_SCHEMAS="/usr/share/mateconf/schemas/ffmpegthumbnailer-caja.schema"
+GNOME2_ECLASS_SCHEMAS="/usr/share/mateconf/schemas/ffmpegthumbnailer-caja.schemas"
 
 src_install() {
 	emake DESTDIR="${D}" install
