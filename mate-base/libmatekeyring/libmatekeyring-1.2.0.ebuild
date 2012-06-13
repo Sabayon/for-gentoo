@@ -16,7 +16,7 @@ KEYWORDS="~amd64 ~arm ~x86"
 IUSE="debug doc test"
 
 RDEPEND=">=sys-apps/dbus-1.0
-	mate-base/mate-keyring[test?]"
+	>=mate-base/mate-keyring-1.2.1[test?]"
 
 DEPEND="${RDEPEND}
 	sys-devel/gettext
