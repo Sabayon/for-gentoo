@@ -18,7 +18,7 @@ IUSE="debug doc pam test"
 
 RDEPEND=">=dev-libs/glib-2.25:2
 	>=x11-libs/gtk+-2.20:2
-	mate-base/mate-conf
+	>=mate-base/mate-conf-1.2.1
 	>=sys-apps/dbus-1.0
 	pam? ( virtual/pam )
 	>=dev-libs/libgcrypt-1.2.2
@@ -29,7 +29,7 @@ DEPEND="${RDEPEND}
 	>=dev-util/intltool-0.35
 	virtual/pkgconfig
 	doc? ( >=dev-util/gtk-doc-1.9 )"
-PDEPEND="mate-base/libmatekeyring"
+PDEPEND=">=mate-base/libmatekeyring-1.2.0"
 
 # eautoreconf needs:
 #	>=dev-util/gtk-doc-am-1.9
