@@ -16,23 +16,23 @@ SLOT="0"
 KEYWORDS="~amd64 ~arm ~x86"
 IUSE="doc eds +introspection networkmanager"
 
-RDEPEND="mate-base/mate-desktop
+RDEPEND=">=mate-base/mate-desktop-1.2.0
 	>=x11-libs/pango-1.15.4[introspection?]
 	>=dev-libs/glib-2.25.12:2
 	>=x11-libs/gtk+-2.22:2[introspection?]
-	dev-libs/libmateweather
+	>=dev-libs/libmateweather-1.2.0
 	dev-libs/libxml2:2
-	mate-base/mate-conf[introspection?]
+	>=mate-base/mate-conf-1.2.1[introspection?]
 	>=media-libs/libcanberra-0.23[gtk]
-	mate-base/mate-menus
+	>=mate-base/mate-menus-1.2.0
 	gnome-base/librsvg:2
 	>=dev-libs/dbus-glib-0.80
 	>=sys-apps/dbus-1.1.2
 	>=x11-libs/cairo-1
 	x11-libs/libXau
 	>=x11-libs/libXrandr-1.2
-	mate-base/libmatecomponent
-	mate-base/libmatecomponentui
+	>=mate-base/libmatecomponent-1.2.1
+	>=mate-base/libmatecomponentui-1.2.0
 	>=mate-base/mate-corba-1.2.2
 	>=x11-libs/libwnck-2.19.5:1
 	eds? ( >=gnome-extra/evolution-data-server-1.6 )
@@ -41,12 +41,12 @@ RDEPEND="mate-base/mate-desktop
 DEPEND="${RDEPEND}
 	dev-util/gtk-doc
 	>=dev-lang/perl-5
-	app-text/mate-doc-utils
+	>=app-text/mate-doc-utils-1.2.1
 	virtual/pkgconfig
 	>=dev-util/intltool-0.40
 	~app-text/docbook-xml-dtd-4.1.2
 	doc? ( >=dev-util/gtk-doc-1 )
-	mate-base/mate-common
+	>=mate-base/mate-common-1.2.2
 	dev-util/gtk-doc-am"
 
 pkg_setup() {
