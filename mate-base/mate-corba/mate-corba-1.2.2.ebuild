@@ -26,7 +26,7 @@ DEPEND="${RDEPEND}
 	dev-util/gtk-doc
 	dev-util/gtk-doc-am
 	doc? ( >=dev-util/gtk-doc-1 )
-	mate-base/mate-common"
+	>=mate-base/mate-common-1.2.2"
 
 pkg_setup() {
 	DOCS="AUTHORS ChangeLog HACKING MAINTAINERS NEWS README* TODO"
