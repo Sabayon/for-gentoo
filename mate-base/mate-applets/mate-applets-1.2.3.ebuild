@@ -59,6 +59,7 @@ DEPEND="${RDEPEND}
 pkg_setup() {
 	DOCS="AUTHORS ChangeLog NEWS README"
 	G2CONF="${G2CONF}
+		--libexecdir=/usr/$(get_libdir)/${PN}
 		--without-hal
 		--disable-battstat
 		--disable-scrollkeeper
