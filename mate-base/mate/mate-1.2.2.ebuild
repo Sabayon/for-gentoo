@@ -44,6 +44,7 @@ RDEPEND=">=mate-base/mate-corba-1.2.2
 	>=mate-extra/mate-screensaver-1.2.0
 	>=mate-extra/mate-power-manager-1.2.1
 	>=app-editors/mate-text-editor-1.2.0
+	>=mate-extra/mate-system-monitor-1.2.1
 	>=media-gfx/mate-image-viewer-1.2.0
 	>=app-text/mate-document-viewer-1.2.1
 	>=x11-misc/mate-menu-editor-1.2.0
