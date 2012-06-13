@@ -18,7 +18,7 @@ IUSE="test"
 
 # gtk+-2.20 needed for tests
 RDEPEND=">=dev-libs/glib-2.18:2
-	mate-base/mate-conf
+	>=mate-base/mate-conf-1.2.1
 	>=x11-libs/gtk+-2.20:2
 	>=x11-libs/libxklavier-5.0"
 DEPEND="${RDEPEND}
