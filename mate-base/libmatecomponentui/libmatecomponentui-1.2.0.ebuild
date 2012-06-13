@@ -16,11 +16,11 @@ KEYWORDS="~amd64 ~arm ~x86"
 IUSE="doc examples test"
 
 # GTK+ dep due to bug #126565
-RDEPEND="mate-base/libmatecanvas
-	mate-base/libmatecomponent
-	mate-base/libmate
+RDEPEND=">=mate-base/libmatecanvas-1.2.0
+	>=mate-base/libmatecomponent-1.2.1
+	>=mate-base/libmate-1.2.0
 	>=dev-libs/libxml2-2.4.20:2
-	mate-base/mate-conf
+	>=mate-base/mate-conf-1.2.1
 	>=x11-libs/gtk+-2.8.12:2
 	>=dev-libs/glib-2.6.0:2
 	>=gnome-base/libglade-1.99.11:2.0
@@ -43,7 +43,7 @@ pkg_setup() {
 src_prepare() {
 	gtkdocize || die
 	eautoreconf
-	gnome2_src_prepare
+	mate_src_prepare
 
 	if ! use test; then
 		# don't waste time building tests
@@ -58,7 +58,7 @@ src_prepare() {
 src_configure() {
 	addpredict "/root/.gnome2_private"
 
-	gnome2_src_configure
+	mate_src_configure
 }
 
 src_test() {
@@ -67,6 +67,6 @@ src_test() {
 }
 
 src_install() {
-	gnome2_src_install
+	mate_src_install
 	find "${ED}" -name '*.la' -exec rm -f {} +
 }
