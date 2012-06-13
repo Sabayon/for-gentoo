@@ -20,8 +20,8 @@ RDEPEND=">=dev-libs/glib-2.25.9:2
 	>=x11-libs/gtk+-2.14:2
 	>=dev-libs/dbus-glib-0.74
 	>=sys-apps/dbus-1
-	mate-base/mate-common
-	mate-base/mate-corba
+	>=mate-base/mate-common-1.2.2
+	>=mate-base/mate-corba-1.2.2
 	>=dev-libs/libxml2-2:2
 	introspection? ( >=dev-libs/gobject-introspection-0.9.5 )
 	ldap? ( net-nds/openldap )
