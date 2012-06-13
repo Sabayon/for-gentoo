@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: Exp $
+# $Header: $
 
 EAPI="4"
 
@@ -9,47 +9,47 @@ HOMEPAGE="http://mate-desktop.org"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~arm ~x86"
+KEYWORDS="~x86 ~amd64 ~arm"
 IUSE=""
 
-# FIXME: these should be versioned
-RDEPEND="app-editors/mate-text-editor
-	mate-base/mate-corba
-	mate-base/mate-conf
-	mate-base/libmatecomponent
-	mate-base/mate-mime-data
-	mate-base/mate-vfs
-	mate-base/libmate
-	mate-base/libmatecanvas
-	mate-base/libmatecomponentui
-	mate-base/libmatekeyring
-	mate-base/mate-keyring
-	mate-base/libmateui
-	mate-base/libmatekbd
-	x11-libs/libmatenotify
-	dev-libs/libmateweather
-	x11-themes/mate-icon-theme
-	mate-extra/mate-dialogs
-	mate-extra/mate-media
-	mate-extra/mate-utils
-	mate-base/mate-desktop
-	mate-base/mate-file-manager
-	media-gfx/mate-image-viewer
-	app-text/mate-document-viewer
-	x11-themes/mate-backgrounds
-	mate-extra/mate-screensaver
-	mate-extra/mate-power-manager
-	mate-base/mate-menus
-	x11-wm/mate-window-manager
-	mate-extra/mate-polkit
-	mate-base/mate-settings-daemon
-	mate-base/mate-control-center
-	mate-base/mate-panel
-	x11-misc/mate-menu-editor
-	mate-base/mate-session-manager
-	x11-terms/mate-terminal
-	app-arch/mate-file-archiver
-	x11-themes/mate-themes"
+RDEPEND=">=mate-base/mate-corba-1.2.2
+	>=mate-base/mate-conf-1.2.1
+	>=mate-base/libmatecomponent-1.2.1
+	>=mate-base/mate-mime-data-1.2.2
+	>=mate-base/mate-vfs-1.2.1
+	>=mate-base/libmate-1.2.0
+	>=mate-base/libmatecanvas-1.2.0
+	>=mate-base/libmatecomponentui-1.2.0
+	>=mate-base/libmatekeyring-1.2.0
+	>=mate-base/mate-keyring-1.2.1
+	>=mate-base/libmateui-1.2.0
+	>=x11-libs/libmatenotify-1.2.0
+	>=mate-base/libmatekbd-1.2.0
+	>=dev-libs/libmateweather-1.2.0
+	>=x11-themes/mate-icon-theme-1.2.0
+	>=mate-extra/mate-dialogs-1.2.0
+	>=mate-base/mate-desktop-1.2.0
+	>=mate-base/mate-file-manager-1.2.2
+	>=x11-themes/mate-backgrounds-1.2.0
+	>=mate-base/mate-menus-1.2.0
+	>=x11-wm/mate-window-manager-1.2.0
+	>=mate-extra/mate-polkit-1.2.0
+	>=mate-base/mate-settings-daemon-1.2.0
+	>=mate-base/mate-control-center-1.2.1
+	>=mate-base/mate-panel-1.2.1
+	>=mate-base/mate-session-manager-1.2.0
+	>=x11-themes/mate-themes-1.2.1
+	>=mate-extra/mate-utils-1.2.0
+	>=mate-extra/mate-media-1.2.1
+	>=mate-extra/mate-screensaver-1.2.0
+	>=mate-extra/mate-power-manager-1.2.1
+	>=app-editors/mate-text-editor-1.2.0
+	>=media-gfx/mate-image-viewer-1.2.0
+	>=app-text/mate-document-viewer-1.2.1
+	>=x11-misc/mate-menu-editor-1.2.0
+	>=x11-terms/mate-terminal-1.2.1
+	>=app-arch/mate-file-archiver-1.2.1"
+	# >=x11-misc/mate-notification-daemon-1.2.0"
 
 pkg_postinst() {
 	elog "If you found a bug and have a solution, contact joost_op in #sabayon-dev at freenode.net."
