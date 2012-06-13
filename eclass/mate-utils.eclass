@@ -147,7 +147,7 @@ mate_gconf_install() {
 	done
 
 	# have gconf reload the new schemas
-	pids=$(pgrep -x mateconfd-2)
+	pids=$(pgrep -x gconfd-2)
 	if [[ $? == 0 ]] ; then
 		ebegin "Reloading GConf schemas"
 		kill -HUP ${pids}
@@ -359,7 +359,7 @@ mate_scrollkeeper_update() {
 mate_schemas_savelist() {
 	has ${EAPI:-0} 0 1 2 && ! use prefix && ED="${D}"
 	pushd "${ED}" &>/dev/null
-	export GNOME2_ECLASS_GLIB_SCHEMAS=$(find 'usr/share/mateconf/schemas' -name '*.gschema.xml' 2>/dev/null)
+	export GNOME2_ECLASS_GLIB_SCHEMAS=$(find 'usr/share/glib-2.0/schemas' -name '*.gschema.xml' 2>/dev/null)
 	popd &>/dev/null
 }
 
@@ -383,6 +383,6 @@ mate_schemas_update() {
 	fi
 
 	ebegin "Updating GSettings schemas"
-	${updater} --allow-any-name "$@" "${EROOT%/}/usr/share/mateconf/schemas" &>/dev/null
+	${updater} --allow-any-name "$@" "${EROOT%/}/usr/share/glib-2.0/schemas" &>/dev/null
 	eend $?
 }

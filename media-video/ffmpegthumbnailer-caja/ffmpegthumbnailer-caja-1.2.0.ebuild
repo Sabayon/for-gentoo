@@ -4,7 +4,7 @@
 
 EAPI="4"
 
-inherit versionator
+inherit versionator mate-utils
 
 DESCRIPTION="Caja video thumbnailer for MATE"
 HOMEPAGE="http://mate-desktop.org"
@@ -23,4 +23,12 @@ DEPEND="app-arch/xz-utils"
 src_install() {
 	emake DESTDIR="${D}" install
 	dodoc AUTHORS README
+}
+
+pkg_postinst() {
+	mate_schemas_update
+}
+
+pkg_postrm() {
+	mate_schemas_update --uninstall
 }
