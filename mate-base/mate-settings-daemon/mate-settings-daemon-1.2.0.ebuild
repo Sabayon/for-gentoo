@@ -18,9 +18,9 @@ IUSE="debug libnotify policykit pulseaudio smartcard"
 COMMON_DEPEND=">=dev-libs/dbus-glib-0.74
 	>=dev-libs/glib-2.18:2
 	>=x11-libs/gtk+-2.21.2:2
-	mate-base/mate-conf
-	mate-base/libmatekbd
-	mate-base/mate-desktop
+	>=mate-base/mate-conf-1.2.1
+	>=mate-base/libmatekbd-1.2.0
+	>=mate-base/mate-desktop-1.2.0
 
 	x11-libs/libX11
 	x11-libs/libXi
