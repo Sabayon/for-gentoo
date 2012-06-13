@@ -19,7 +19,7 @@ RDEPEND=">=dev-libs/glib-2.4:2
 	>=dev-libs/dbus-glib-0.78
 	>=sys-apps/dbus-1
 	>=media-libs/libcanberra-0.4[gtk]
-	x11-libs/libmatenotify
+	>=x11-libs/libmatenotify-1.2.0
 	x11-libs/libwnck:1
 	x11-libs/libX11
 	!x11-misc/notify-osd
