@@ -30,7 +30,7 @@ DEPEND="${RDEPEND}
 	app-text/docbook-xml-dtd:4.4
 	app-text/scrollkeeper-dtd
 	app-text/rarian
-	mate-base/mate-common"
+	>=mate-base/mate-common-1.2.2"
 
 pkg_setup() {
 	DOCS="AUTHORS ChangeLog NEWS README"
