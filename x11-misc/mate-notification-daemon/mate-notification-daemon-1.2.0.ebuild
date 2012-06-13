@@ -46,14 +46,14 @@ src_install() {
 	# Make sure this directory exists
 	keepdir /etc/mateconf/mateconf.xml.system
 
-	cat <<-EOF > "${D}/org.freedesktop.Notifications.service"
+	cat <<-EOF > "${T}/org.freedesktop.Notifications.service"
 	[D-BUS Service]
 	Name=org.freedesktop.Notifications
 	Exec=/usr/libexec/mate-notification-daemon
 	EOF
 
 	insinto /usr/share/dbus-1/services
-	doins "${D}/org.freedesktop.Notifications.service"
+	doins "${T}/org.freedesktop.Notifications.service"
 
 	mate_src_install
 }
