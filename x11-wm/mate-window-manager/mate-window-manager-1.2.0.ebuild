@@ -34,11 +34,11 @@ RDEPEND=">=x11-libs/gtk+-2.24:2
 	x11-libs/libICE
 	media-libs/libcanberra[gtk]
 	gnome-base/libgtop
-	mate-extra/mate-dialogs
+	>=mate-extra/mate-dialogs-1.2.0
 	xinerama? ( x11-libs/libXinerama )
 	!x11-misc/expocity"
 DEPEND="${RDEPEND}
-	app-text/mate-doc-utils
+	>=app-text/mate-doc-utils-1.2.1
 	sys-devel/gettext
 	>=dev-util/intltool-0.35
 	virtual/pkgconfig
