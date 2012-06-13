@@ -16,6 +16,7 @@ KEYWORDS="~amd64 ~arm ~x86"
 IUSE=""
 
 RDEPEND="media-video/ffmpegthumbnailer
+	>=mate-base/mate-conf-1.2.1
 	>=mate-base/mate-file-manager-1.2.2"
 
 DEPEND="app-arch/xz-utils"
