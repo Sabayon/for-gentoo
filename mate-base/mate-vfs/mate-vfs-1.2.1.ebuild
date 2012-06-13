@@ -15,11 +15,11 @@ SLOT="0"
 KEYWORDS="~amd64 ~arm ~x86"
 IUSE="acl avahi doc fam ipv6 kerberos samba ssl gnutls"
 
-RDEPEND="mate-base/mate-conf
+RDEPEND=">=mate-base/mate-conf-1.2.1
 	>=dev-libs/glib-2.9.3
 	>=dev-libs/libxml2-2.6
 	app-arch/bzip2
-	mate-base/mate-mime-data
+	>=mate-base/mate-mime-data-1.2.2
 	>=x11-misc/shared-mime-info-0.14
 	>=dev-libs/dbus-glib-0.71
 	acl? (
@@ -36,7 +36,7 @@ RDEPEND="mate-base/mate-conf
 
 DEPEND="${RDEPEND}
 	sys-devel/gettext
-	mate-base/mate-common
+	>=mate-base/mate-common-1.2.2
 	>=dev-util/intltool-0.40
 	virtual/pkgconfig
 	>=dev-util/gtk-doc-am-1.13
