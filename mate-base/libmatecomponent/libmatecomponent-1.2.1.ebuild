@@ -16,8 +16,8 @@ KEYWORDS="~amd64 ~arm ~x86"
 IUSE="debug doc examples test"
 
 RDEPEND=">=dev-libs/glib-2.25.7:2
-	mate-base/mate-corba
-	mate-base/mate-common
+	>=mate-base/mate-corba-1.2.2
+	>=mate-base/mate-common-1.2.2
 	>=dev-libs/libxml2-2.4.20
 	>=dev-libs/popt-1.5
 	!gnome-base/bonobo-activation"
