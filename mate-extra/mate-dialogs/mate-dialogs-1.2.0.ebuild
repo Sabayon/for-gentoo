@@ -18,7 +18,7 @@ IUSE="+compat libnotify"
 RDEPEND=">=x11-libs/gtk+-2.18:2
 	>=dev-libs/glib-2.8:2
 	compat? ( >=dev-lang/perl-5 )
-	libnotify? ( >=x11-libs/libnotify-0.4.1 )"
+	libnotify? ( >=x11-libs/libmatenotify-1.2.0 )"
 
 DEPEND="${RDEPEND}
 	app-text/scrollkeeper
@@ -26,8 +26,8 @@ DEPEND="${RDEPEND}
 	>=dev-util/intltool-0.40
 	>=sys-devel/gettext-0.14
 	virtual/pkgconfig
-	app-text/mate-doc-utils
-	mate-base/mate-common"
+	>=app-text/mate-doc-utils-1.2.1
+	>=mate-base/mate-common-1.2.2"
 
 pkg_setup() {
 	G2CONF="${G2CONF}
