@@ -15,21 +15,21 @@ SLOT="0"
 KEYWORDS="~amd64 ~arm ~x86"
 IUSE="doc"
 
-RDEPEND="mate-base/mate-conf
+RDEPEND=">=mate-base/mate-conf-1.2.1
 	>=dev-libs/glib-2.16:2
-	mate-base/mate-vfs
-	mate-base/libmatecomponent
+	>=mate-base/mate-vfs-1.2.1
+	>=mate-base/libmatecomponent-1.2.1
 	>=dev-libs/popt-1.7
 	media-libs/libcanberra"
 
 DEPEND="${RDEPEND}
-	app-text/mate-doc-utils
+	>=app-text/mate-doc-utils-1.2.1
 	>=dev-lang/perl-5
 	>=dev-util/intltool-0.40
 	virtual/pkgconfig
 	dev-util/gtk-doc"
 
-PDEPEND="gnome-base/gvfs"
+PDEPEND=">=mate-base/mate-vfs-1.2.1"
 
 pkg_setup() {
 	G2CONF="${G2CONF}
