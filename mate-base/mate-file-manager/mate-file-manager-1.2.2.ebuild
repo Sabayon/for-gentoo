@@ -5,9 +5,9 @@
 EAPI="3"
 GCONF_DEBUG="no"
 
-inherit autotools eutils mate virtualx mate-desktop.org
+inherit autotools eutils mate
 
-DESCRIPTION="A file manager for the MATE desktop"
+DESCRIPTION="Caja file manager for the MATE desktop"
 HOMEPAGE="http://mate-desktop.org"
 
 LICENSE="GPL-2 LGPL-2 FDL-1.1"
