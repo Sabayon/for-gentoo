@@ -53,7 +53,7 @@ pkg_setup() {
 	# possible values: none, clock, fish, notification-area, wncklet, all
 	local applets="all"
 	G2CONF="${G2CONF}
-		--libexecdir=/usr/$(get_libexecdir)/mate-applets
+		--libexecdir=/usr/libexec/mate-applets
 		--disable-deprecation-flags
 		--disable-static
 		--disable-scrollkeeper

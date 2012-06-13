@@ -57,7 +57,7 @@ DEPEND="${RDEPEND}
 pkg_setup() {
 	DOCS="AUTHORS ChangeLog NEWS README"
 	G2CONF="${G2CONF}
-		--libexecdir=/usr/$(get_libexecdir)/mate-applets
+		--libexecdir=/usr/libexec/mate-applets
 		--without-hal
 		--disable-battstat
 		--disable-scrollkeeper
