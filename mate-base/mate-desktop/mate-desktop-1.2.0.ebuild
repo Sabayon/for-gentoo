@@ -20,13 +20,13 @@ IUSE="doc"
 RDEPEND=">=x11-libs/gtk+-2.18:2
 	>=dev-libs/glib-2.19.1:2
 	>=x11-libs/libXrandr-1.2
-	mate-base/mate-conf
+	>=mate-base/mate-conf-1.2.1
 	>=x11-libs/startup-notification-0.5"
 DEPEND="${RDEPEND}
 	dev-util/gtk-doc
 	>=dev-util/intltool-0.40
 	virtual/pkgconfig
-	app-text/mate-doc-utils
+	>=app-text/mate-doc-utils-1.2.1
 	~app-text/docbook-xml-dtd-4.1.2
 	x11-proto/xproto
 	>=x11-proto/randrproto-1.2"
