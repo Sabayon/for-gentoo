@@ -20,6 +20,7 @@ RDEPEND=">=x11-libs/gtk+-2.20:2
 DEPEND="${RDEPEND}
 	app-text/scrollkeeper
 	sys-devel/gettext
+	>=mate-base/mate-common-1.2.2
 	>=app-text/mate-doc-utils-1.2.1
 	>=dev-util/intltool-0.35
 	virtual/pkgconfig
