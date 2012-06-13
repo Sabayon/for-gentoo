@@ -29,7 +29,7 @@ COMMON_DEPEND=">=dev-libs/dbus-glib-0.74
 	>=x11-libs/libxklavier-5.0
 	media-libs/fontconfig
 
-	libnotify? ( >=x11-libs/libnotify-0.4.3 )
+	libnotify? ( >=x11-libs/libmatenotify-1.2.0 )
 	policykit? (
 		>=sys-auth/polkit-0.91
 		>=dev-libs/dbus-glib-0.71
