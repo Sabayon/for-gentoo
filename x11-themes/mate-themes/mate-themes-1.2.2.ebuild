@@ -18,7 +18,7 @@ IUSE=""
 RDEPEND=">=x11-libs/gtk+-2:2
 	>=x11-themes/gtk-engines-2.15.3:2"
 DEPEND="${RDEPEND}
-	app-text/mate-doc-utils
+	>=app-text/mate-doc-utils-1.2.1
 	>=x11-misc/icon-naming-utils-0.8.7
 	virtual/pkgconfig
 	>=dev-util/intltool-0.35
