@@ -2,10 +2,10 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: Exp $
 
-EAPI="4"
+EAPI="3"
 GCONF_DEBUG="yes"
 
-inherit autotools mate eutils mate-desktop.org
+inherit autotools mate eutils
 
 DESCRIPTION="Essential MATE Libraries"
 HOMEPAGE="http://mate-desktop.org"
@@ -44,13 +44,9 @@ src_prepare() {
 	gtkdocize || die
 	mate-doc-prepare --force --copy || die
 	mate-doc-common --copy || die
-        eautoreconf
+	eautoreconf
 	mate_src_prepare
 
 	# Default to Adwaita theme over Clearlooks to proper gtk3 support
 	# sed -i -e 's/Clearlooks/Adwaita/' schemas/desktop_gnome_interface.schemas.in.in || die
-}
-
-src_install() {
-	mate_src_install
 }
