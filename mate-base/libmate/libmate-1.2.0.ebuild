@@ -33,8 +33,6 @@ PDEPEND=">=mate-base/mate-vfs-1.2.1"
 
 pkg_setup() {
 	G2CONF="${G2CONF}
-		--disable-static
-		--disable-schemas-install
 		--enable-canberra
 		--disable-esd"
 	DOCS="AUTHORS ChangeLog NEWS README"
