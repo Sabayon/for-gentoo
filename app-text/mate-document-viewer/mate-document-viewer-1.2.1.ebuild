@@ -14,7 +14,7 @@ LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~arm ~x86"
 
-IUSE="dbus debug djvu dvi gnome gnome-keyring +introspection nautilus +ps t1lib tiff"
+IUSE="dbus debug djvu dvi gnome gnome-keyring +introspection caja +ps t1lib tiff"
 
 # Since 2.26.2, can handle poppler without cairo support. Make it optional ?
 # not mature enough
@@ -35,7 +35,7 @@ RDEPEND="
 	gnome? ( mate-base/mate-conf[introspection?] )
 	gnome-keyring? ( mate-base/mate-keyring )
 	introspection? ( >=dev-libs/gobject-introspection-0.6 )
-	nautilus? ( mate-base/mate-file-manager[introspection?] )
+	caja? ( mate-base/mate-file-manager[introspection?] )
 	ps? ( >=app-text/libspectre-0.2.0 )
 	tiff? ( >=media-libs/tiff-3.6:0 )
 "
@@ -76,7 +76,7 @@ pkg_setup() {
 		$(use_with gnome mateconf)
 		$(use_with gnome-keyring keyring)
 		$(use_enable introspection)
-		$(use_enable nautilus caja)
+		$(use_enable caja caja)
 		$(use_enable ps)
 		$(use_enable t1lib)
 		$(use_enable tiff)"
