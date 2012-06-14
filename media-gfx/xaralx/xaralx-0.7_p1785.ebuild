@@ -25,7 +25,7 @@ RDEPEND="
 	x11-libs/gtk+:2
 	x11-libs/wxGTK:2.8[X]
 	virtual/libintl
-	media-libs/libpng
+	media-libs/libpng:0
 	virtual/jpeg
 	app-arch/zip
 	dev-lang/perl
@@ -40,10 +40,14 @@ src_prepare() {
 	epatch \
 		"${WORKDIR}"/60_launchpad_translations \
 		"${FILESDIR}"/${P}-pragma.patch \
-		"${FILESDIR}"/{3,4,5}0*
-	sed -i -e "s/CXFTreeDlg:://" Kernel/cxftree.h
-	sed -i -e "s:XaraLX:xaralx:g" Makefile.am
-	sed -i '/info_ptr->trans/s:trans:trans_alpha:' wxOil/outptpng.cpp
+		"${FILESDIR}"/{3,4,5}0* \
+		"${FILESDIR}"/${P}-libpng15.patch
+	sed -i -e "s/CXFTreeDlg:://" Kernel/cxftree.h || die
+	sed -i -e "s:XaraLX:xaralx:g" Makefile.am || die
+	sed -i -e \
+		'/^xaralx_LDFLAGS/s/$/ -ljpeg -lgtk-x11-2.0 -lgdk-x11-2.0/' \
+		Makefile.am || die
+
 	AT_M4DIR=". ${S}/m4" eautoreconf
 }
 
