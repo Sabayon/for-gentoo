@@ -27,7 +27,7 @@ RDEPEND=">=mate-base/mate-conf-1.2.1
 		sys-apps/attr )
 	ssl? (
 		gnutls? ( net-libs/gnutls )
-		!gnutls? ( net-libs/openssl ) )
+		!gnutls? ( dev-libs/openssl ) )
 	avahi? ( || ( >=net-dns/avahi-gtk-0.6 >=net-dns/avahi-0.6 ) )
 	kerberos? ( virtual/krb5 )
 	fam? ( virtual/fam )
