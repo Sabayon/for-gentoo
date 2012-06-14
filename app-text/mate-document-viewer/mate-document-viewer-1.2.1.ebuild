@@ -5,7 +5,7 @@
 EAPI="4"
 GCONF_DEBUG="no"
 
-inherit autotools eutils mate mate-desktop.org
+inherit autotools eutils mate
 
 DESCRIPTION="Atril document viewer for MATE"
 HOMEPAGE="http://mate-desktop.org"
@@ -24,7 +24,7 @@ RDEPEND="
 	>=x11-libs/gtk+-2.21.5:2[introspection?]
 	>=x11-libs/libSM-1
 	|| (
-		x11-themes/mate-icon-theme
+		>=x11-themes/mate-icon-theme-1.2.0
 		>=x11-themes/hicolor-icon-theme-0.10 )
 	>=x11-libs/cairo-1.9.10
 	>=app-text/poppler-0.14[cairo]
@@ -32,16 +32,16 @@ RDEPEND="
 	dvi? (
 		virtual/tex-base
 		t1lib? ( >=media-libs/t1lib-5.0.0 ) )
-	gnome? ( mate-base/mate-conf[introspection?] )
-	gnome-keyring? ( mate-base/mate-keyring )
+	gnome? ( >=mate-base/mate-conf-1.2.1[introspection?] )
+	gnome-keyring? ( >=mate-base/mate-keyring-1.2.1 )
 	introspection? ( >=dev-libs/gobject-introspection-0.6 )
-	caja? ( mate-base/mate-file-manager[introspection?] )
+	caja? ( >=mate-base/mate-file-manager-1.2.2[introspection?] )
 	ps? ( >=app-text/libspectre-0.2.0 )
 	tiff? ( >=media-libs/tiff-3.6:0 )
 "
 DEPEND="${RDEPEND}
 	app-text/scrollkeeper
-	app-text/mate-doc-utils
+	>=app-text/mate-doc-utils-1.2.1
 	~app-text/docbook-xml-dtd-4.1.2
 	virtual/pkgconfig
 	sys-devel/gettext
@@ -76,7 +76,7 @@ pkg_setup() {
 		$(use_with gnome mateconf)
 		$(use_with gnome-keyring keyring)
 		$(use_enable introspection)
-		$(use_enable caja caja)
+		$(use_enable caja)
 		$(use_enable ps)
 		$(use_enable t1lib)
 		$(use_enable tiff)"
@@ -87,7 +87,7 @@ src_prepare() {
 	mkdir -p "${S}/m4" || die
  	mate-doc-prepare --force --copy || die
  	mate-doc-common --copy || die
-	
+
 	# Check for NULL in synctex_backward_search preventing segfault, upstream bug #630845
 	# epatch "${FILESDIR}"/${P}-libdocument-segfault.patch
 
@@ -143,5 +143,5 @@ src_prepare() {
 
 src_install() {
 	mate_src_install
-	find "${ED}" -name "*.la" -delete || die "remove of la files failed"	
+	find "${ED}" -name "*.la" -delete || die "remove of la files failed"
 }
