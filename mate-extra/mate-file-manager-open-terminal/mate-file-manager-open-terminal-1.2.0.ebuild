@@ -4,6 +4,7 @@
 
 EAPI="3"
 GCONF_DEBUG="no"
+GNOME2_LA_PUNT="yes"
 
 inherit autotools mate
 
@@ -23,16 +24,7 @@ DEPEND="${RDEPEND}
 
 DOCS="AUTHORS ChangeLog NEWS README TODO"
 
-pkg_setup() {
-	G2CONF="${G2CONF} --disable-static"
-}
-
 src_prepare() {
 	eautoreconf
 	mate_src_prepare
-}
-
-src_install() {
-	mate_src_install
-	find "${D}" -name "*.la" -delete || die "remove of *.la files failed"
 }
