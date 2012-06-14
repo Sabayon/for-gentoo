@@ -5,7 +5,7 @@
 # @ECLASS: mate.eclass
 # @MAINTAINER:
 # gnome@gentoo.org
-# @BLURB: 
+# @BLURB:
 # @DESCRIPTION:
 # Exports portage base functions used by ebuilds written for packages using the
 # MATE framework. For additional functions, see mate-utils.eclass.
@@ -129,6 +129,30 @@ mate_src_configure() {
 	if grep -q "disable-scrollkeeper" configure; then
 		G2CONF="${G2CONF} --disable-scrollkeeper"
 	fi
+
+	# Pass --disable-schemas-install when possible
+	if grep -q "disable-schemas-install" configure; then
+		G2CONF="${G2CONF} --disable-schemas-install"
+	fi
+
+	# Control static building
+	if grep -q "disable-static" configure; then
+		if use static-libs; then
+			G2CONF="${G2CONF} --enable-static"
+		else
+			G2CONF="${G2CONF} --disable-static"
+		fi
+	fi
+
+	# Enable gtk2/gtk3 depends on use for future support of MATE Desktop
+	if grep -q "with-gtk" configure; then
+		if use gtk3; then
+			G2CONF="${G2CONF} --with-gtk=3.0"
+		else
+			G2CONF="${G2CONF} --with-gtk=2.0"
+		fi
+	fi
+
 
 	# Avoid sandbox violations caused by gnome-vfs (bug #128289 and #345659)
 	addwrite "$(unset HOME; echo ~)/.gnome2"
