@@ -1,0 +1,26 @@
+--- FusionIcon/environment.py		2008-02-16 18:50:44.000000000 +0100
++++ FusionIcon/environment.py.mate	2012-06-14 21:47:39.053431702 +0200
+@@ -51,6 +51,9 @@ Xgl: True in Xgl'''
+ 		if GDSID in os.environ:
+ 			self.desktop = 'gnome'
+ 
++		elif 'DESKTOP_SESSION=MATE' in os.environ: 
++			self.desktop = 'mate'
++
+ 		elif 'KDE_FULL_SESSION' in os.environ: 
+ 			self.desktop = 'kde'
+
+--- FusionIcon/data.py		2012-06-14 21:50:59.116446957 +0200
++++ FusionIcon/data.py.mate	2012-06-14 21:51:49.069450764 +0200
+@@ -64,6 +64,10 @@ wms = {
+ 		('metacity', ['metacity', '--replace'],
+ 		 'Metacity', 'gnome', None, None,),
+ 
++	'marco':
++		('marco', ['marco', '--replace'],
++		 'marco', 'mate', None, None,),
++
+ 	'kwin':
+ 		('kwin', ['kwin', '--replace'],
+ 		 'KWin', 'kde', None, ['dcop', 'kwin', 'KWinInterface', 'stopKompmgr']),
+
