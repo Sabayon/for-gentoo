@@ -37,8 +37,12 @@ RDEPEND="aac? ( media-libs/faad2 )
 	cover? ( media-libs/imlib2 )
 	ffmpeg? ( virtual/ffmpeg )
 	flac? ( media-libs/flac )
-	gtk2? ( x11-libs/gtk+:2 )
-	gtk3? ( x11-libs/gtk+:3 )
+	gtk2? ( x11-libs/gtk+:2
+		x11-libs/libICE
+		x11-libs/libSM )
+	gtk3? ( x11-libs/gtk+:3
+		x11-libs/libICE
+		x11-libs/libSM )
 	lastfm? ( net-misc/curl )
 	notify? ( sys-apps/dbus )
 	midi? ( media-sound/timidity-freepats )
@@ -61,7 +65,7 @@ S="${WORKDIR}/${PN}-${MY_PV}"
 pkg_setup() {
 	# fixme, is it fine?
 	if { use psf || use dumb || use shn; } && use static ; then
-		die "ao/converter/dumb or shn plugins can't be builded statically"
+		die "ao/converter/dumb or shn plugins can't be built statically"
 	fi
 }
 
