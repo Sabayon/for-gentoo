@@ -1,0 +1,77 @@
+From 72bdbb12db5ca5284767d3011b1144bf142758e0 Mon Sep 17 00:00:00 2001
+From: Manuel Osdoba <manuel.osdoba@tu-ilmenau.de>
+Date: Sun, 21 Mar 2010 11:00:22 +0000
+Subject: Support Babl 0.1.0 as well
+
+---
+diff --git a/configure.ac b/configure.ac
+index 9880a0d..3b6cb4f 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -63,6 +63,16 @@ PKG_CHECK_MODULES(GNOME_SCAN, [gmodule-2.0 gthread-2.0 gobject-2.0 > 2.14 gtk+-2
+ AC_SUBST(GNOME_SCAN_CFLAGS)
+ AC_SUBST(GNOME_SCAN_LIBS)
+ 
++AC_MSG_CHECKING([gegl version >= 0.1.0])
++if pkg-config --modversion "gegl >= 0.1.0" > /dev/null 2>&1; then
++    AC_DEFINE(ENABLE_GEGL_010, 1, [Defined to 1 if we use GEGL version 0.1.0 or above.])
++    AC_MSG_RESULT([yes])
++else
++    AC_DEFINE(ENABLE_GEGL_010, 0, [Defined to 0 if we do not use GEGL version 0.1.0 or above.])
++    AC_MSG_RESULT([no])
++fi
++
++
+ MODULE_DIR=[${libdir}/${PACKAGE_NAME}-${API_VERSION}]
+ AC_SUBST(MODULE_DIR)
+ 
+diff --git a/modules/gsane/gsane-processor.c b/modules/gsane/gsane-processor.c
+index cb3526c..c129d18 100644
+--- a/modules/gsane/gsane-processor.c
++++ b/modules/gsane/gsane-processor.c
+@@ -22,6 +22,7 @@
+ #include "gsane-processor.h"
+ #include <string.h>
+ #include <math.h>
++#include <config.h>
+ 
+ typedef void (*GSaneProcessorFunc) (GSaneProcessor *self, guchar *buf, guint buf_len);
+ 
+@@ -118,7 +119,11 @@ gsane_processor_process_nbit(GSaneProcessor *self, guchar *buf, guint buf_len)
+ 				   operation */
+ 	guint src_pos;
+ 	guint offset;
++#if !ENABLE_GEGL_010	
+ 	guchar *src, *dest, *buf8 = g_new0(guchar, self->priv->pixels_in_buf * self->priv->format->format.bytes_per_pixel);
++#else
++	guchar *src, *dest, *buf8 = g_new0(guchar, self->priv->pixels_in_buf * babl_format_get_bytes_per_pixel(self->priv->format));
++#endif
+ 	guint samples_in_buf = self->priv->pixels_in_buf * self->priv->sample_count;
+ 	for (i = 0 ; i < samples_in_buf ; i++) {
+ 		/* compute the address of the first byte container sample value */
+@@ -180,7 +185,11 @@ gsane_processor_process_three_pass_8bit(GSaneProcessor *self, guchar *buf, guint
+ 		/* pos of pixel i in buf */
+ 		src_pos = i * self->priv->bytes_per_pixel;
+ 		/* pos of pixel i in buf3 */
++#if !ENABLE_GEGL_010
+ 		dest_pos = i * self->priv->format->format.bytes_per_pixel + self->priv->sample_offset;
++#else
++		dest_pos = i * babl_format_get_bytes_per_pixel(self->priv->format) + self->priv->sample_offset;
++#endif
+ 		/* save */
+ 		memcpy(buf3+dest_pos, buf+src_pos, self->priv->bytes_per_pixel);
+ 	}
+@@ -368,7 +377,11 @@ gsane_processor_prepare_image(GSaneProcessor *self, SANE_Parameters* params, gui
+ 	self->priv->format = gsane_processor_get_babl_format(self);
+ 	g_return_val_if_fail(self->priv->format, NULL);
+ 
++#if !ENABLE_GEGL_010
+ 	self->priv->sample_stride	= self->priv->format->format.bytes_per_pixel / MAX(self->priv->sample_count, self->priv->frame_count);
++#else
++	self->priv->sample_stride       = babl_format_get_bytes_per_pixel(self->priv->format) / MAX(self->priv->sample_count, self->priv->frame_count);
++#endif
+ 	self->priv->max_target_sample_value= (0xFFFFFFFF) >> (32 - self->priv->sample_stride * 8);
+ 
+ 	self->priv->buffer = gegl_buffer_new(&extent, self->priv->format);
+--
+cgit v0.9
