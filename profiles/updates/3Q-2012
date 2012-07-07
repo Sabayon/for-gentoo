@@ -1,1 +1,1 @@
-net-misc/pglinux net-firewall/pglinux
+move net-misc/pglinux net-firewall/pglinux
