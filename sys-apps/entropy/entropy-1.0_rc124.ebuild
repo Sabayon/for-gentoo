@@ -5,7 +5,7 @@
 EAPI="3"
 PYTHON_DEPEND="2"
 PYTHON_USE_WITH="sqlite"
-inherit eutils python
+inherit eutils python user
 
 DESCRIPTION="Entropy Package Manager foundation library"
 HOMEPAGE="http://www.sabayon.org"
