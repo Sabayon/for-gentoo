@@ -22,3 +22,11 @@ COMMON_DEPEND=">=kde-base/kdelibs-4.3.0
 DEPEND="${COMMON_DEPEND}
 	dev-util/automoc"
 RDEPEND="${COMMON_DEPEND}"
+
+src_install() {
+       kde4-base_src_install
+       # fix dbus service path otherwise conflicting with gnome-packagekit one
+       mv "${ED}/usr/share/dbus-1/services/org.freedesktop.PackageKit.service" \
+               "${ED}"/usr/share/dbus-1/services/kde-org.freedesktop.PackageKit.service || \
+               die "cannot hackily move packagekit dbus service file"
+}
