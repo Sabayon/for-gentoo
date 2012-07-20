@@ -18,7 +18,8 @@ SLOT="4"
 IUSE="debug"
 
 COMMON_DEPEND=">=kde-base/kdelibs-4.3.0
-	>=app-admin/packagekit-qt4-0.6.17"
+	>=app-admin/packagekit-qt4-0.6.17
+	>=kde-base/libkworkspace-4.3.0"
 DEPEND="${COMMON_DEPEND}
 	dev-util/automoc"
 RDEPEND="${COMMON_DEPEND}"
