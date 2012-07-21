@@ -1,0 +1,179 @@
+# -*-eselect-*-  vim: ft=eselect
+# Copyright 2004-2011 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2 or later
+# $Id: $
+
+DESCRIPTION="Switch bzImage default kernel by updating /boot/bzImage symlink"
+MAINTAINER="lxnay@sabayon.org"
+VERSION="0.1"
+
+# Module variables
+BOOT_DIR="${EROOT}/boot"
+KERNEL_PREFIX="kernel-"
+INITRAMFS_PREFIX="initramfs-"
+BZIMAGE_SYM="${BOOT_DIR}/bzImage"
+INITRD_SYM="${BOOT_DIR}/Initrd"
+
+_is_kernel() {
+    local f="${1}"
+    outcome=$(LC_ALL=C /usr/bin/file --brief "${f}" 2> /dev/null | \
+        grep -i "boot executable bzImage")
+    [[ -n "${outcome}" ]] && return 0
+    return 1
+}
+
+_get_initramfs() {
+    local kernel_bn="${1}"
+    echo "${kernel_bn/${KERNEL_PREFIX}/${INITRAMFS_PREFIX}}"
+}
+
+find_targets() {
+    local f
+    for f in "${BOOT_DIR}/"*; do
+        # skip dirs
+        [[ -d "${f}" ]] && continue
+        # skip broken syms etc
+        [[ ! -e "${f}" ]] && continue
+        # skip non reg files
+        [[ ! -f "${f}" ]] && continue
+        _is_kernel "${f}" || continue
+        basename "${f}"
+    done
+}
+
+remove_symlink() {
+    rm "${BZIMAGE_SYM}"
+}
+
+set_symlink() {
+    local target="${1}"
+
+    if is_number "${target}"; then
+        local targets=( $(find_targets) )
+        target=${targets[target-1]}
+    fi
+
+    [[ -z "${target}" || ! -f "${BOOT_DIR}/${target}" ]] \
+        && die -q "Target \"${target}\" doesn't appear to be valid!"
+
+    echo "Setting bzImage to ${target}"
+    ln -sf "${target}" "${BZIMAGE_SYM}" || die "Cannot create symlink"
+
+    local initramfs_target=$(_get_initramfs "${target}")
+    if [ -f "${BOOT_DIR}/${initramfs_target}" ]; then
+        echo "Setting Initrd to ${initramfs_target}"
+        ln -sf "${initramfs_target}" "${INITRD_SYM}" || \
+            die "Cannot create initrd symlink"
+    elif [ -L "${INITRD_SYM}" ]; then
+        echo "No Initrd found, removing ${INITRD_SYM}"
+        rm "${INITRD_SYM}"
+    fi
+}
+
+### show action ###
+
+describe_show() {
+    echo "Show the current ${BZIMAGE_SYM} kernel and ${INITRD_SYM} initrd"
+}
+
+describe_show_options() {
+    echo "--quiet  : only print the actual symlink value"
+    echo "--silent : same as --quiet"
+}
+
+do_show() {
+    local quiet=""
+
+    while [[ $# -gt 0 ]]; do
+        case ${1##--} in
+            quiet|silent)
+                quiet="1"
+                ;;
+        esac
+        shift
+    done
+
+    [[ -z "${quiet}" ]] && write_list_start "Current kernel:"
+    if [[ -L "${BZIMAGE_SYM}" ]] && [[ -e "${BZIMAGE_SYM}" ]]; then
+        local kernel=$(canonicalise "${BZIMAGE_SYM}")
+        local kernel_bn=$(basename "${kernel%/}")
+        if [[ -n "${quiet}" ]]; then
+            echo "${kernel_bn}"
+        else
+            write_kv_list_entry "${kernel_bn}" ""
+        fi
+    else
+        if [[ -z "${quiet}" ]]; then
+            write_kv_list_entry "(unset)" ""
+        fi
+    fi
+}
+
+### list action ###
+
+describe_list() {
+    echo "List available kernel bzImages"
+}
+
+describe_list_options() {
+    echo "--quiet  : only print the actual symlink value"
+    echo "--silent : same as --quiet"
+}
+
+do_list() {
+    local quiet=""
+
+    while [[ $# -gt 0 ]]; do
+        case ${1##--} in
+            quiet|silent)
+                quiet="1"
+                ;;
+        esac
+        shift
+    done
+
+    local i targets=( $(find_targets) )
+
+    [[ -z "${quiet}" ]] && write_list_start "Available kernel targets:"
+    for (( i = 0; i < ${#targets[@]}; i++ )); do
+        if [[ -z "${quiet}" ]]; then
+            # highlight the target where the symlink is pointing to
+            [[ ${targets[i]} = \
+                $(basename "$(canonicalise "${BZIMAGE_SYM}")") ]] \
+                    && targets[i]=$(highlight_marker "${targets[i]}")
+        else
+            echo "${targets[i]}"
+        fi
+    done
+    [[ -z "${quiet}" ]] && \
+        write_numbered_list -m "(none found)" "${targets[@]}"
+}
+
+### set action ###
+describe_set() {
+    echo "Set a new kernel bzImage"
+}
+
+describe_set_parameters() {
+    echo "<target>"
+}
+
+describe_set_options() {
+    echo "target : Target name or number (from 'list' action)"
+}
+
+do_set() {
+    [[ -z "${1}" ]] && die -q "You didn't tell me what to set the symlink to"
+    [[ ${#} -gt 1 ]] && die -q "Too many parameters"
+
+    if [[ -L "${BZIMAGE_SYM}" ]]; then
+        # existing symlink
+        remove_symlink || die -q "Couldn't remove existing symlink"
+        set_symlink "$1" || die -q "Couldn't set a new symlink"
+    elif [[ -e "${BZIMAGE_SYM}" ]]; then
+        # we have something strange
+        die -q "${BZIMAGE_SYM} exists but is not a symlink"
+    else
+        set_symlink "${1}" || die -q "Couldn't set a new symlink"
+    fi
+}
