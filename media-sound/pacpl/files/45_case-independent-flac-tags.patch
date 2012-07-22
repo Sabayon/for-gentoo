@@ -1,0 +1,59 @@
+Description: Fix lower case bug in FLAC tags.
+Author: Luca Niccoli <lultimouomo@gmail.com>
+Bug-Debian: http://bugs.debian.org/561459
+Forwarded: https://sourceforge.net/tracker/?func=detail&aid=3323220&group_id=139264&atid=742827
+Last-Updated: 2011-06-20
+
+Index: pacpl/pacpl
+===================================================================
+--- pacpl.orig/pacpl	2011-06-20 17:29:17.580982445 +0200
++++ pacpl/pacpl	2011-06-20 17:29:26.944982442 +0200
+@@ -2184,13 +2184,41 @@
+        case /flac|fla/ {
+                             my $flac_tag = $tag_module->new($in_file)->tags();
+ 
+-                               $tag_name{title}   = $flac_tag->{TITLE}       if $flac_tag->{TITLE};
+-                               $tag_name{track}   = $flac_tag->{TRACKNUMBER} if $flac_tag->{TRACKNUMBER};
+-                               $tag_name{artist}  = $flac_tag->{ARTIST}      if $flac_tag->{ARTIST};
+-                               $tag_name{album}   = $flac_tag->{ALBUM}       if $flac_tag->{ALBUM};
+-                               $tag_name{comment} = $flac_tag->{DESCRIPTION} if $flac_tag->{DESCRIPTION};
+-                               $tag_name{year}    = $flac_tag->{DATE}        if $flac_tag->{DATE};
+-                               $tag_name{genre}   = $flac_tag->{GENRE}       if $flac_tag->{GENRE};
++                               if ($flac_tag->{title}) {
++                                   $tag_name{title}   = $flac_tag->{title};
++                               } elsif ($flac_tag->{TITLE}) {
++                                   $tag_name{title}   = $flac_tag->{TITLE};
++                               }
++                               if ($flac_tag->{tracknumber}) {
++                                   $tag_name{track}   = $flac_tag->{tracknumber};
++                               } elsif ($flac_tag->{TRACKNUMBER}) {
++                                   $tag_name{track}   = $flac_tag->{TRACKNUMBER};
++                               }
++                               if ($flac_tag->{artist}) {
++                                   $tag_name{artist}   = $flac_tag->{artist};
++                               } elsif ($flac_tag->{ARTIST}) {
++                                   $tag_name{artist}   = $flac_tag->{ARTIST};
++                               }
++                               if ($flac_tag->{album}) {
++                                   $tag_name{album}   = $flac_tag->{album};
++                               } elsif ($flac_tag->{ALBUM}) {
++                                   $tag_name{album}   = $flac_tag->{ALBUM};
++                               }
++                               if ($flac_tag->{description}) {
++                                   $tag_name{comment}   = $flac_tag->{description};
++                               } elsif ($flac_tag->{DESCRIPTION}) {
++                                   $tag_name{comment}   = $flac_tag->{DESCRIPTION};
++                               }
++                               if ($flac_tag->{date}) {
++                                   $tag_name{year}   = $flac_tag->{date};
++                               } elsif ($flac_tag->{DATE}) {
++                                   $tag_name{year}   = $flac_tag->{DATE};
++                               }
++                               if ($flac_tag->{genre}) {
++                                   $tag_name{genre}   = $flac_tag->{genre};
++                               } elsif ($flac_tag->{GENRE}) {
++                                   $tag_name{genre}   = $flac_tag->{GENRE};
++                               }
+ 
+                             return 0;
+                        }
