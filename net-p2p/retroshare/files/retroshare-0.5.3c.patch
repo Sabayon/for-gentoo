@@ -1,26 +1,28 @@
-diff --git a/retroshare-gui/src/RetroShare.pro b/retroshare-gui/src/RetroShare.pro
-index 0099eb0..f6343ce 100644
+diff --git a/retroshare-gui/src/RetroShare.pro b/trunk/retroshare-gui/src/RetroShare.pro
+index 4c3b679..51f30d6 100644
 --- a/retroshare-gui/src/RetroShare.pro
 +++ b/retroshare-gui/src/RetroShare.pro
 @@ -1,4 +1,5 @@
- CONFIG += qt gui uic qrc resources uitools idle bitdht # framecatcher# blogs
+ CONFIG += qt gui uic qrc resources uitools idle bitdht# framecatcher# blogs
 +CONFIG += install_rs
  QT     += network xml script 
  
  TEMPLATE = app
-diff --git a/retroshare-nogui/src/retroshare-nogui.pro b/retroshare-nogui/src/retroshare-nogui.pro
-index b52c9e4..fcb4abf 100644
+diff --git a/retroshare-nogui/src/retroshare-nogui.pro b/trunk/retroshare-nogui/src/retroshare-nogui.pro
+index b52c9e4..003ed77 100644
 --- a/retroshare-nogui/src/retroshare-nogui.pro
 +++ b/retroshare-nogui/src/retroshare-nogui.pro
-@@ -1,6 +1,7 @@
+@@ -1,6 +1,8 @@
  TEMPLATE = app
  TARGET = retroshare-nogui
- CONFIG += bitdht
+-CONFIG += bitdht
++CONFIG += bitdht qt
++QT -= gui
 +CONFIG += install_rs
  #CONFIG += introserver
  
  ################################# Linux ##########################################
-@@ -18,6 +19,12 @@ linux-* {
+@@ -18,6 +20,12 @@ linux-* {
  	LIBS += -lssl -lgpgme -lupnp -lixml -lgnome-keyring
  }
  

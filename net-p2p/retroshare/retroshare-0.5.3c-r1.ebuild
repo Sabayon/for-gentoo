@@ -1,4 +1,4 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -25,6 +25,7 @@ RDEPEND="app-crypt/gpgme
 	net-libs/libupnp
 	x11-libs/qt-core:4
 	qt4? (
+		x11-libs/libXScrnSaver
 		x11-libs/qt-gui:4
 		x11-libs/qt-opengl:4
 	)
@@ -36,7 +37,7 @@ DEPEND="${RDEPEND}
 REQUIRED_USE="|| ( cli qt4 )"
 
 src_prepare() {
-	epatch "${FILESDIR}/retroshare-0.5.3a.patch"
+	epatch "${FILESDIR}/${P}.patch"
 	sed -i -e \
 		"s|/usr/lib/retroshare/extensions/|/usr/$(get_libdir)/${PN}/extensions/|" \
 		libretroshare/src/rsserver/rsinit.cc \
@@ -75,6 +76,9 @@ src_install() {
 		cd "${WORKDIR}/trunk/retroshare-nogui/src"
 		emake INSTALL_ROOT="${D}" install
 	fi
+
+	insinto /usr/share/${PN}
+	doins "${WORKDIR}/trunk/libbitdht/src/bitdht/bdboot.txt"
 }
 
 pkg_postinst() {
