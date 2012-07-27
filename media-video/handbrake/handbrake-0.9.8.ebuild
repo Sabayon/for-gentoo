@@ -43,7 +43,7 @@ unset SRC_CONTRIB
 LICENSE="GPL-2 GPL-3 BSD MIT"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="gtk gst ffmpeg2"
+IUSE="gtk gstreamer ffmpeg2"
 
 # fribidi is necessary to compile libass
 # Don't need this dependency, net-libs/webkit-gtk,
@@ -57,7 +57,7 @@ RDEPEND="sys-libs/zlib
 		x11-libs/gtk+:2
 		>=sys-fs/udev-171[gudev]
 		x11-libs/libnotify )
-	gst? (
+	gstreamer? (
 		media-libs/gstreamer
 		media-libs/gst-plugins-base )"
 
@@ -120,7 +120,7 @@ src_configure()
 	# python configure script doesn't accept all econf flags
 	local myconf=""
 
-	! use gst && myconf="${myconf} --disable-gst"
+	use gstreamer || myconf="${myconf} --disable-gst"
 	use ffmpeg2 && myconf="${myconf} --enable-ff-mpeg2"
 
 	./configure --force --prefix=/usr \
