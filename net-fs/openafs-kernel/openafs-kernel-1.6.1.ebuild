@@ -1,6 +1,6 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-fs/openafs-kernel/openafs-kernel-1.6.0_pre6.ebuild,v 1.2 2011/06/19 19:15:51 vapier Exp $
+# $Header: $
 
 EAPI="2"
 
@@ -14,7 +14,7 @@ PVER="1"
 DESCRIPTION="The OpenAFS distributed file system kernel module"
 HOMEPAGE="http://www.openafs.org/"
 # We always d/l the doc tarball as man pages are not USE=doc material
-SRC_URI="http://openafs.org/dl/candidate/${MY_PV}/${MY_P}-src.tar.bz2
+SRC_URI="http://openafs.org/dl/openafs/${MY_PV}/${MY_P}-src.tar.bz2
 	mirror://gentoo/${MY_P2}-patches-${PVER}.tar.bz2"
 
 LICENSE="IBM BSD openafs-krb5-a APSL-2 sun-rpc"
@@ -38,7 +38,8 @@ src_prepare() {
 	EPATCH_SUFFIX="patch" \
 	epatch "${WORKDIR}"/gentoo/patches
 
-	epatch "${FILESDIR}/${PN}-linux-3.0.patch"
+	# Linux 3.5 support
+	epatch "${FILESDIR}/${P}-kernel-3.5.patch"
 
 	# packaging is f-ed up, so we can't run automake (i.e. eautoreconf)
 	sed -i 's/^\(\s*\)a/\1ea/' regen.sh
