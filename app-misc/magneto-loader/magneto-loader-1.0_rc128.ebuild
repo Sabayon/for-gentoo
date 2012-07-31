@@ -16,7 +16,8 @@ IUSE=""
 SRC_URI="mirror://sabayon/sys-apps/entropy-${PV}.tar.bz2"
 S="${WORKDIR}/entropy-${PV}/magneto"
 
-DEPEND="~sys-apps/magneto-core-${PV}"
+DEPEND="~sys-apps/magneto-core-${PV}
+	~app-admin/rigo-${PV}"
 RDEPEND="${DEPEND}"
 
 src_compile() {
