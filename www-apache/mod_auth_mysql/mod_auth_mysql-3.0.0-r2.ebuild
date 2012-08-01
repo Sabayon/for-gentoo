@@ -1,6 +1,6 @@
 # Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-apache/mod_auth_mysql/mod_auth_mysql-3.0.0-r2.ebuild,v 1.7 2010/03/24 20:35:36 robbat2 Exp $
+# $Header: $
 
 EAPI="2"
 
