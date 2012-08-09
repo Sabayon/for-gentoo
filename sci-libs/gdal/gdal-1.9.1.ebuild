@@ -102,8 +102,6 @@ src_prepare() {
 
  	epatch "${FILESDIR}"/${PN}-1.9.1-ruby-makefile.patch
 
-	epatch "${FILESDIR}"/${PN}-1.9.1-ruby-makefile.patch
-
 	# Opencl seems broken with nvidia without this
 	epatch "${FILESDIR}"/${PN}-1.9.1-opencl.patch
 
