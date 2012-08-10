@@ -4,7 +4,7 @@
 
 EAPI="4"
 
-inherit eutils gnome2
+inherit eutils gnome2 autotools
 
 DESCRIPTION="A full featured, twin-panel file manager for Gnome2"
 HOMEPAGE="http://www.nongnu.org/gcmd/"
@@ -35,6 +35,8 @@ DOCS="AUTHORS BUGS ChangeLog NEWS README TODO"
 
 src_prepare() {
 	epatch "${FILESDIR}"/${PN}-poppler-0.20.x.patch
+	eautoreconf
+
 	# prevent the false "unrecognized options: --with-exiv2"
 	# (and sed is infinitely faster than autoreconf)
 	# for the other warning, see https://bugs.gentoo.org/show_bug.cgi?id=262491
