@@ -34,6 +34,7 @@ RDEPEND="${ALL_DEPEND}"
 DOCS="AUTHORS BUGS ChangeLog NEWS README TODO"
 
 src_prepare() {
+	epatch "${FILESDIR}"/${PN}-poppler-0.20.x.patch
 	# prevent the false "unrecognized options: --with-exiv2"
 	# (and sed is infinitely faster than autoreconf)
 	# for the other warning, see https://bugs.gentoo.org/show_bug.cgi?id=262491
