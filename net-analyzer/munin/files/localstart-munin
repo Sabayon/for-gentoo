@@ -1,0 +1,7 @@
+#!/bin/sh
+
+[ -d /var/run/munin ] && exit 0
+
+mkdir -p /var/run/munin
+chown munin:munin /var/run/munin
+chmod 0700 /var/run/munin

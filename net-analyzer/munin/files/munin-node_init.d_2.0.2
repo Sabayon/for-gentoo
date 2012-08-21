@@ -1,0 +1,41 @@
+#!/sbin/runscript
+# Copyright 1999-2012 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: /var/cvsroot/gentoo-x86/net-analyzer/munin/files/munin-node_init.d_2.0.2,v 1.1 2012/07/16 16:15:11 flameeyes Exp $
+
+get_munin_config() {
+	awk '$1 == "'$1'" { s=$2 } END { print s }' "$CFGFILE"
+}
+
+: ${CFGFILE:=/etc/munin/munin-node.conf}
+: ${PIDFILE:=$(get_munin_config pid_file)}
+: ${NICE_LEVEL:=0}
+
+depend() {
+	config "$CFGFILE"
+
+	need net
+	before cron
+
+	[ "$(get_munin_config log_file)" == "Sys::Syslog" ] && \
+		use logger
+}
+
+start() {
+	checkpath -d -o munin:munin -m 0700 $(dirname ${PIDFILE})
+
+	ebegin "Starting Munin node"
+	start-stop-daemon --start \
+	    --nicelevel $NICE_LEVEL \
+	    --pidfile $PIDFILE \
+	    --exec /usr/sbin/munin-node -- --config "$CFGFILE"
+	eend $?
+}
+
+stop() {
+	ebegin "Stopping Munin node"
+	start-stop-daemon --stop --pidfile $PIDFILE
+	eend $?
+}
+
+# vim: filetype=gentoo-init-d:
