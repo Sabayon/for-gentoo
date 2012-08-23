@@ -1,6 +1,8 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
+
+EAPI=4
 
 inherit eutils perl-module
 
@@ -12,7 +14,7 @@ LICENSE="Artistic GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 
-LANGS="ar ast bg bs ca cs da de el en_GB es eu fo fr gl he hr hu it ja ko lt ms nb nl nn pl pt pt_BR ro ru sk sl sv th tr uk zh_CN zh_TW"
+LANGS="ar ast bg bs ca cs da de el_GR en_GB es eu fi fo fr gl he hr hu id it ja ko lt ms nb nl nn pl pt_BR pt ro ru sk sl sv te th tr ug uk uz zh_CN zh_TW"
 IUSE="nls"
 for i in ${LANGS}; do
 	IUSE="${IUSE} linguas_${i}"
@@ -20,9 +22,7 @@ done
 
 DEPEND=""
 RDEPEND=">=dev-perl/gtk2-perl-1.140
-	dev-perl/File-Find-Rule
 	dev-perl/libwww-perl
-	dev-perl/Net-DNS
 	dev-perl/Date-Calc
 	dev-util/desktop-file-utils
 	>=app-antivirus/clamav-0.95
@@ -36,20 +36,23 @@ src_unpack() {
 }
 
 src_install() {
-	dobin ${PN} || die "dobin failed"
+	dobin ${PN}
 
-	doicon ${PN}.png || die "doicon failed"
+	doicon images/* || die "doicon failed"
 	domenu ${PN}.desktop || die "domenu failed"
 
-	dodoc CHANGES README || die "dodoc failed"
-	doman ${PN}.1 || die "doman failed"
+	dodoc CHANGES README
+	doman ${PN}.1
 
 	# The custom Perl modules
 	perlinfo
 	insinto ${VENDOR_LIB}/ClamTk
-	doins lib/*.pm || die "doins failed"
+	doins lib/*.pm
 
-	if use nls ; then
-		domo po/*.mo || die "domo failed"
+	if use nls; then
+		local l
+		for l in $LANGS; do
+			use "linguas_${l}" && domo "po/${l}.mo"
+		done
 	fi
 }
