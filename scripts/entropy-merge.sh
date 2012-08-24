@@ -11,12 +11,12 @@ TARGET_VERSION="${3}"
 PACKAGES="sys-apps/entropy
 	app-admin/equo
 	sys-apps/entropy-server
+	sys-apps/rigo-daemon
 	sys-apps/magneto-core
 	app-misc/magneto-loader
 	kde-misc/magneto-kde
 	x11-misc/magneto-gtk
 	x11-misc/magneto-gtk3
-	sys-apps/rigo-daemon
 	app-admin/rigo"
 
 for package in ${PACKAGES}; do
