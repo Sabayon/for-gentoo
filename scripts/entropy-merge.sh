@@ -12,12 +12,12 @@ PACKAGES="sys-apps/entropy
 	app-admin/equo
 	sys-apps/entropy-server
 	sys-apps/rigo-daemon
+	app-admin/rigo
 	sys-apps/magneto-core
 	app-misc/magneto-loader
 	kde-misc/magneto-kde
 	x11-misc/magneto-gtk
-	x11-misc/magneto-gtk3
-	app-admin/rigo"
+	x11-misc/magneto-gtk3"
 
 for package in ${PACKAGES}; do
 	package_name=$(basename ${package})
