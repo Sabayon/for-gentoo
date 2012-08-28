@@ -41,12 +41,11 @@ DEPEND="
 	mmap? ( dev-perl/Sys-Mmap )
 "
 
-RDEPEND="
+RDEPEND="${DEPEND}
 	dev-perl/DBD-mysql
 	ffmpeg? ( virtual/ffmpeg )
 	media-libs/netpbm
 "
-# ^ huh? not include DEPEND???
 
 # we cannot use need_httpd_cgi here, since we need to setup permissions for the
 # webserver in global scope (/etc/zm.conf etc), so we hardcode apache here.
@@ -59,6 +58,7 @@ PATCHES=(
 	"${FILESDIR}"/1.25.0/Makefile.am.patch
 	"${FILESDIR}"/1.25.0/Makefile.am.2.patch
 	"${FILESDIR}"/1.24.2/db_upgrade_script_location.patch
+	"${FILESDIR}"/1.25.0/avutil-mathematics-header.patch
 )
 
 pkg_setup() {

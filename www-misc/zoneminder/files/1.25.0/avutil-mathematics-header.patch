@@ -1,0 +1,17 @@
+From: Ryan Niebur <ryan@freegeek.org>
+
+This patch is needed for compatibility with newer versions of libav.
+Starting with version 0.8, avutil.h does not include mathematics.h.
+
+Index: zoneminder/src/zm_ffmpeg.h
+===================================================================
+--- zoneminder.orig/src/zm_ffmpeg.h	2012-01-15 13:13:54.000000000 -0800
++++ zoneminder/src/zm_ffmpeg.h	2012-01-15 13:16:42.000000000 -0800
+@@ -31,6 +31,7 @@
+ #endif
+ #if HAVE_LIBAVUTIL_AVUTIL_H
+ #include <libavutil/avutil.h>
++#include <libavutil/mathematics.h>
+ #endif
+ #if HAVE_LIBAVCODEC_AVCODEC_H
+ #include <libavcodec/avcodec.h>
