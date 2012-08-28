@@ -14,7 +14,7 @@ diff -ru cairo-dock-3.0.0/CMakeLists.txt cairo-dock-3.0.0.new//CMakeLists.txt
  	set (libdir "${prefix}/lib64")
  else()
 -	set (libdir "${prefix}/${CMAKE_INSTALL_LIBDIR}${LIB_SUFFIX}")  # (...)/lib
-+	set (libdir "${prefix}/${CMAKE_INSTALL_LIBDIR}")  # (...)/lib
++	set (libdir "${CMAKE_INSTALL_LIBDIR}")  # (...)/lib
  endif()
  
  set (includedir "${prefix}/${CMAKE_INSTALL_INCLUDEDIR}")  # (...)/include

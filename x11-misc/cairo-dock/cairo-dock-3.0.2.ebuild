@@ -16,9 +16,9 @@ SRC_URI="http://launchpad.net/${MY_PN}/${MM_PV}/${PV}/+download/${P}.tar.gz"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="crypt xcomposite"
+IUSE="xcomposite"
 
-RDEPEND="
+COMMON_DEPEND="
 	dev-libs/dbus-glib
 	dev-libs/glib:2
 	dev-libs/libxml2:2
@@ -31,22 +31,24 @@ RDEPEND="
 	x11-libs/gtk+:3
 	x11-libs/gtkglext
 	x11-libs/libXrender
-	crypt? ( sys-libs/glibc )
 	xcomposite? (
 		x11-libs/libXcomposite
 		x11-libs/libXinerama
 		x11-libs/libXtst
 	)
 "
-DEPEND="${RDEPEND}
+DEPEND="${COMMON_DEPEND}
 	dev-util/intltool
 	sys-devel/gettext
 	virtual/pkgconfig
 "
+RDEPEND="${COMMON_DEPEND}
+	x11-apps/xwininfo
+"
 
 src_prepare() {
 	epatch "${FILESDIR}/fix_lib6464.patch"
-	epatch "${FILESDIR}/${PN}-glib-include.patch"
+	epatch "${FILESDIR}/${PN}-dbus-thread.patch"
 }
 
 pkg_postinst() {
