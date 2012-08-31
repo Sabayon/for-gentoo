@@ -4,9 +4,9 @@
 
 EAPI="3"
 EGIT_REPO_URI="git://git.fedorahosted.org/python-cryptsetup.git"
-EGIT_COMMIT="${P}"
+EGIT_COMMIT="${P}-${PR/r}"
 
-inherit distutils git eutils
+inherit distutils git-2 eutils
 
 DESCRIPTION="Python bindings for Network Security Services (NSS)"
 HOMEPAGE="http://git.fedorahosted.org/cgit/python-cryptsetup.git/"
