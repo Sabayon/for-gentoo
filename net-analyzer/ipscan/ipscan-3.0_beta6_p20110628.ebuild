@@ -34,7 +34,7 @@ JAVA_PKG_BSFIX=no
 src_prepare() {
 	epatch "${FILESDIR}"/${P}-disable-deb-rpm-package.patch
 	# this allows us to do rm -rf "${S}"/ext/launch4j
-	epatch "${FILESDIR}"/${P}-remove-launch4j-taskdef.patch
+	epatch "${FILESDIR}"/${PN}-3.0_beta4_p20110409-remove-launch4j-taskdef.patch
 	cd "${S}"/lib || die
 
 	# (dev-java/picocontainer:1) compiles but doesn't work with
