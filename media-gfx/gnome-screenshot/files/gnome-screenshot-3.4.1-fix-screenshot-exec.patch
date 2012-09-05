@@ -1,0 +1,32 @@
+From e114d4de0b77946f67a904b83c4dc284340ce297 Mon Sep 17 00:00:00 2001
+From: Theppitak <thep@linux.thai.net>
+Date: Sun, 12 Aug 2012 13:56:36 +0000
+Subject: Return NULL default screenshot dir on absence.
+
+When XDG_PICTURES_DIR is not set, get_default_screenshot_dir() should return
+NULL, not "file://".
+
+https://bugzilla.gnome.org/show_bug.cgi?id=681659
+---
+diff --git a/src/screenshot-filename-builder.c b/src/screenshot-filename-builder.c
+index e143694..8b6d851 100644
+--- a/src/screenshot-filename-builder.c
++++ b/src/screenshot-filename-builder.c
+@@ -86,9 +86,14 @@ get_fallback_screenshot_dir (void)
+ static gchar *
+ get_default_screenshot_dir (void)
+ {
++  const gchar *pictures_dir;
+   gchar *shot_dir;
+ 
+-  shot_dir = g_strconcat ("file://", g_get_user_special_dir (G_USER_DIRECTORY_PICTURES), NULL);
++  pictures_dir = g_get_user_special_dir (G_USER_DIRECTORY_PICTURES);
++  if (pictures_dir == NULL)
++    return NULL;
++
++  shot_dir = g_strconcat ("file://", pictures_dir, NULL);
+ 
+   return shot_dir;
+ }
+--
+cgit v0.9.0.2
