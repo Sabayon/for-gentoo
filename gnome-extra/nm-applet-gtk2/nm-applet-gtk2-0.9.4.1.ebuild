@@ -28,7 +28,7 @@ RDEPEND="!gnome-extra/nm-applet
 	>=x11-libs/libnotify-0.7.0
 
 	app-text/iso-codes
-	>=net-misc/networkmanager-${PV}
+	>=net-misc/networkmanager-0.9.4
 	net-misc/mobile-broadband-provider-info
 
 	bluetooth? ( >=net-wireless/gnome-bluetooth-2.27.6 )"
