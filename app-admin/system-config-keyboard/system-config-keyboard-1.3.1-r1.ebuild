@@ -14,6 +14,7 @@ KEYWORDS="~amd64 ~x86"
 SLOT="0"
 IUSE=""
 DEPEND="dev-util/intltool
+	sys-apps/findutils
 	sys-devel/gettext
 	dev-util/desktop-file-utils"
 RDEPEND="app-admin/firstboot"
@@ -21,6 +22,15 @@ RDEPEND="app-admin/firstboot"
 PATCHES=(
 	"${FILESDIR}/${P}-russian-layout.patch"
 )
+
+src_install() {
+	base_src_install
+
+	# remove .desktop files
+	find "${ED}/usr/share/applications" -name "*.desktop" -delete || die
+	rm "${ED}/usr/bin/system-config-keyboard" || die
+	rm "${ED}/usr/sbin/system-config-keyboard" || die
+}
 
 pkg_postrm() {
 	python_mod_cleanup /usr/share/${PN}
