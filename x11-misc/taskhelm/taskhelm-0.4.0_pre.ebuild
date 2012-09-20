@@ -10,7 +10,7 @@ inherit distutils eutils
 
 DESCRIPTION="Graphical interface for Taskwarrior"
 HOMEPAGE="http://taskwarrior.org/projects/taskwarrior/wiki/Taskhelm"
-SRC_URI="http://www.bryceharrington.org/${PN}/${P}.tar.gz"
+SRC_URI="mirror://sabayon/${CATEGORY}/${PN}/${P}.tar.gz"
 
 LICENSE="GPL-3"
 SLOT="0"
@@ -27,8 +27,10 @@ RDEPEND="${DEPEND}
 
 src_prepare() {
 	sed -i -e 's/Version=0\.1/Version=1.0/' data/taskhelm.desktop || die
+	epatch "${FILESDIR}/${P}-2.1.2-support.patch"
 }
 
-pkg_postinst() {
-	ewarn "This is a development version for next release."
+src_install() {
+	distutils_src_install
+	dodoc ISSUES
 }
