@@ -1,0 +1,18 @@
+https://bugs.gentoo.org/show_bug.cgi?id=380741
+--- makefile.in.orig	2012-09-21 21:18:13.373938147 +0000
++++ makefile.in	2012-09-21 21:17:56.294552425 +0000
+@@ -825,9 +825,12 @@
+ 	test -f $$file || co $$file ;\
+ 	done
+ 
++XSUBPP = `$(PERL) -MModule::Build -e'print Module::Build::ModuleInfo->find_module_by_name("ExtUtils::xsubpp")'`
++TYPEMAP = `$(PERL) -MModule::Build -e'print Module::Build::ModuleInfo->find_module_by_name("ExtUtils::typemap")'`
++
+ perl.c: $(srcdir)/perl.xs $(srcdir)/ptypemap
+-	$(PERL) $(PERLLIB)/ExtUtils/xsubpp \
+-		-typemap $(PERLLIB)/ExtUtils/typemap \
++	$(PERL) $(XSUBPP) \
++		-typemap $(TYPEMAP) \
+ 		-typemap ptypemap \
+ 		$(srcdir)/perl.xs > $@
+ 
