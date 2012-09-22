@@ -1,4 +1,4 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 2000-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -33,8 +33,8 @@ pkg_setup() {
 		echo
 	fi
 
-	CHECKREQS_DISK_USR="350" \
-	check_reqs
+	CHECKREQS_DISK_USR="350M"
+	check-reqs_pkg_setup
 }
 
 src_unpack() {

@@ -44,18 +44,18 @@ pkg_setup() {
 
 	ewarn "You need 1,5 Gb diskspace for distfiles."
 	if use !client; then
-		CHECKREQS_DISK_BUILD="3000"
-		CHECKREQS_DISK_USR="320"
+		CHECKREQS_DISK_BUILD="3000M"
+		CHECKREQS_DISK_USR="320M"
 	else
 		if use zip; then
-			CHECKREQS_DISK_BUILD="3850"
-			CHECKREQS_DISK_USR="1830"
+			CHECKREQS_DISK_BUILD="3850M"
+			CHECKREQS_DISK_USR="1830M"
 		else
-			CHECKREQS_DISK_BUILD="7020"
-			CHECKREQS_DISK_USR="3520"
+			CHECKREQS_DISK_BUILD="7020M"
+			CHECKREQS_DISK_USR="3520M"
 		fi
 	fi
-	check_reqs
+	check-reqs_pkg_setup
 }
 
 git_pk3_unpack() {
