@@ -1,0 +1,27 @@
+# ChangeLog for x11-misc/virtualgl
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/x11-misc/virtualgl/ChangeLog,v 1.5 2012/09/14 20:26:34 pacho Exp $
+
+  14 Sep 2012; Pacho Ramos <pacho@gentoo.org> -virtualgl-2.3.ebuild:
+  Drop old.
+
+*virtualgl-2.3.1 (26 Jul 2012)
+
+  26 Jul 2012; Pacho Ramos <pacho@gentoo.org> +files/vgl.confd-r1,
+  +files/vgl.initd-r1, +virtualgl-2.3.1.ebuild:
+  Version bump, also adds support for lxdm (#425044 by MZ) and uses proper
+  locations for generated data files (#428122 by Andreas Steinmetz).
+
+  06 Jun 2012; Pacho Ramos <pacho@gentoo.org> virtualgl-2.3.ebuild:
+  Drop postinst message as it's common to have conf.d files for configuration of
+  init.d scripts. Also drop ED usage over D because of missing prefix support.
+
+  04 Jun 2012; Pacho Ramos <pacho@gentoo.org> metadata.xml:
+  Fix metadata.
+
+*virtualgl-2.3 (21 Apr 2012)
+
+  21 Apr 2012; Pacho Ramos <pacho@gentoo.org> +files/vgl.confd,
+  +files/vgl.initd, +metadata.xml, +virtualgl-2.3.ebuild:
+  Initial commit from bumblebee overlay, this fixes bug #384083. Thanks a lot to
+  mva and rei4dan for their work.
