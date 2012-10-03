@@ -4,18 +4,18 @@
 
 EAPI=4
 
-inherit eutils multilib
+inherit eutils multilib versionator
 
 DESCRIPTION="Professional photo workflow and RAW conversion software"
 HOMEPAGE="http://www.corel.com/corel/product/index.jsp?pid=prod4670071"
 RESTRICT="mirror strip"
-SRC_URI="http://www.corel.com/akdlm/6763/downloads/${PN}/${PV}/PF/${PN}_i386.deb
+SRC_URI="http://www.corel.com/akdlm/6763/downloads/${PN}/$(get_major_version)/PF/${PN}_i386.deb
 	-> ${PN}-${PV}_i386.deb"
 
 LICENSE="AfterShotPro"
 SLOT="0"
 KEYWORDS="~x86 ~amd64"
-IUSE="nostalgia nuance"
+IUSE="nuance"
 
 DEPEND="sys-apps/debianutils"
 RDEPEND="virtual/libc
@@ -30,10 +30,10 @@ RDEPEND="virtual/libc
 	amd64? (
 		app-emulation/emul-linux-x86-baselibs
 		app-emulation/emul-linux-x86-xlibs
-	)"
+	)
+	!media-plugins/asp-plugins-nostalgia"
 
-PDEPEND="nostalgia? ( media-plugins/asp-plugins-nostalgia )
-	nuance? ( media-plugins/asp-plugins-nuance )"
+PDEPEND="nuance? ( media-plugins/asp-plugins-nuance )"
 
 # Skip some QA checks we cannot fix
 QA_TEXTRELS="opt/${PN}/lib/libkodakcms.so*"
