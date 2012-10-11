@@ -6,8 +6,7 @@ EAPI=4
 
 DESCRIPTION="Spotify is a social music platform"
 HOMEPAGE="https://www.spotify.com/ch-de/download/previews/"
-
-MY_PV="${PV}.g79d339d.504-1"
+MY_PV="${PV}.g9cb177b.260-1"
 MY_P="${PN}-client_${MY_PV}"
 SRC_BASE="http://repository.spotify.com/pool/non-free/${PN:0:1}/${PN}/"
 #SRC_BASE="http://download.spotify.com/preview/"
@@ -49,7 +48,7 @@ RDEPEND="${DEPEND}
 		sys-apps/dbus
 		sys-apps/util-linux
 		dev-libs/expat
-		dev-libs/nspr
+		>=dev-libs/nspr-4.9
 		gnome-base/gconf:2
 		x11-libs/gtk+:2
 		dev-libs/nss
@@ -91,10 +90,17 @@ src_install() {
 	insinto ${SPOTIFY_HOME}
 	doins -r usr/share/spotify/*
 	fperms +x ${SPOTIFY_HOME}/spotify
-	dodir /usr/bin
-	dosym ../share/spotify/spotify /usr/bin/spotify
 	dodir /usr/share
 	dosym ${SPOTIFY_HOME} /usr/share/spotify
+
+	dodir /usr/bin
+	cat <<-EOF >"${D}"/usr/bin/spotify
+		#! /bin/sh
+		LD_PRELOAD="\${LD_PRELOAD} /usr/share/spotify/libcef.so"
+		export LD_PRELOAD
+		exec ${SPOTIFY_HOME}/spotify "\$@"
+	EOF
+	fperms +x /usr/bin/spotify
 
 	# revdep-rebuild produces a false positive because of symbol versioning
 	dodir /etc/revdep-rebuild
