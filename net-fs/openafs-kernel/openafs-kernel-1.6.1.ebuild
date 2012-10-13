@@ -40,6 +40,10 @@ src_prepare() {
 
 	# Linux 3.5 support
 	epatch "${FILESDIR}/${P}-kernel-3.5.patch"
+	# Linux 3.6 support
+	if kernel_is ge 3 6 0; then
+		epatch "${FILESDIR}/3.6/${P/-kernel}-"*
+	fi
 
 	# packaging is f-ed up, so we can't run automake (i.e. eautoreconf)
 	sed -i 's/^\(\s*\)a/\1ea/' regen.sh

@@ -1,0 +1,85 @@
+From 57f3a2bbe873dae41bc57130a5985e8c334a5303 Mon Sep 17 00:00:00 2001
+From: Marc Dionne <marc.c.dionne@gmail.com>
+Date: Tue, 14 Aug 2012 18:08:51 -0400
+Subject: [PATCH 7/8] Linux 3.6: revalidate dentry op API change
+
+The nameidata argument is dropped, replaced by an unsigned flags
+value.  The configure test is very specific; kernels with the
+older API with a signed int flags value should fall through.
+
+Reviewed-on: http://gerrit.openafs.org/7986
+Tested-by: BuildBot <buildbot@rampaginggeek.com>
+Reviewed-by: Derrick Brashear <shadow@dementix.org>
+(cherry picked from commit 7413cd09a53f89882a46fd100bf6c501348f2188)
+
+Change-Id: Ie68d70dcf414d24e7e980c8a8f35b83550d2da7c
+---
+ acinclude.m4                 |  1 +
+ src/afs/LINUX/osi_vnodeops.c |  8 +++++++-
+ src/cf/linux-test4.m4        | 14 ++++++++++++++
+ 3 files changed, 22 insertions(+), 1 deletion(-)
+
+diff --git a/acinclude.m4 b/acinclude.m4
+index 1c84354..8bb5bf7 100644
+--- a/acinclude.m4
++++ b/acinclude.m4
+@@ -963,6 +963,7 @@ case $AFS_SYSNAME in *_linux* | *_umlinux*)
+ 		 LINUX_DENTRY_OPEN_TAKES_PATH
+ 		 LINUX_D_ALIAS_IS_HLIST
+ 		 LINUX_IOP_I_CREATE_TAKES_BOOL
++		 LINUX_DOP_D_REVALIDATE_TAKES_UNSIGNED
+ 
+ 		 dnl If we are guaranteed that keyrings will work - that is
+ 		 dnl  a) The kernel has keyrings enabled
+diff --git a/src/afs/LINUX/osi_vnodeops.c b/src/afs/LINUX/osi_vnodeops.c
+index 8c8045b..49f8b96 100644
+--- a/src/afs/LINUX/osi_vnodeops.c
++++ b/src/afs/LINUX/osi_vnodeops.c
+@@ -906,7 +906,9 @@ afs_linux_getattr(struct vfsmount *mnt, struct dentry *dentry, struct kstat *sta
+  * later on, we shouldn't have to do it until later. Perhaps in the future..
+  */
+ static int
+-#ifdef DOP_REVALIDATE_TAKES_NAMEIDATA
++#if defined(DOP_REVALIDATE_TAKES_UNSIGNED)
++afs_linux_dentry_revalidate(struct dentry *dp, unsigned int flags)
++#elif defined(DOP_REVALIDATE_TAKES_NAMEIDATA)
+ afs_linux_dentry_revalidate(struct dentry *dp, struct nameidata *nd)
+ #else
+ afs_linux_dentry_revalidate(struct dentry *dp, int flags)
+@@ -921,7 +923,11 @@ afs_linux_dentry_revalidate(struct dentry *dp, int flags)
+ 
+ #ifdef LOOKUP_RCU
+     /* We don't support RCU path walking */
++# if defined(DOP_REVALIDATE_TAKES_UNSIGNED)
++    if (flags & LOOKUP_RCU)
++# else
+     if (nd->flags & LOOKUP_RCU)
++# endif
+        return -ECHILD;
+ #endif
+     AFS_GLOCK();
+diff --git a/src/cf/linux-test4.m4 b/src/cf/linux-test4.m4
+index dc30770..4a6ec02 100644
+--- a/src/cf/linux-test4.m4
++++ b/src/cf/linux-test4.m4
+@@ -727,3 +727,17 @@ AC_DEFUN([LINUX_IOP_I_CREATE_TAKES_BOOL], [
+ 		       [define if your iops.create takes a bool argument],
+ 		       [-Werror])
+ ])
++
++
++AC_DEFUN([LINUX_DOP_D_REVALIDATE_TAKES_UNSIGNED], [
++  AC_CHECK_LINUX_BUILD([whether dentry_operations.d_revalidate takes an unsigned int],
++			[ac_cv_linux_func_d_revalidate_takes_unsigned],
++			[#include <linux/fs.h>
++			#include <linux/namei.h>],
++			[struct dentry_operations dops;
++			int reval(struct dentry *d, unsigned int i) { return 0; };
++			dops.d_revalidate = reval;],
++		       [DOP_REVALIDATE_TAKES_UNSIGNED],
++		       [define if your dops.d_revalidate takes an unsigned int argument],
++		       [-Werror])
++])
+-- 
+1.7.11.4
+

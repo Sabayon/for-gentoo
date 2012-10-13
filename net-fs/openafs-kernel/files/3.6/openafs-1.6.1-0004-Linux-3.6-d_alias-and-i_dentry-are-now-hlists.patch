@@ -1,0 +1,115 @@
+From 1eaf7b62e12affca7e529b790597fad330da01ee Mon Sep 17 00:00:00 2001
+From: Marc Dionne <marc.c.dionne@gmail.com>
+Date: Mon, 13 Aug 2012 21:55:25 -0400
+Subject: [PATCH 4/8] Linux 3.6: d_alias and i_dentry are now hlists
+
+The d_alias pointer is now the head of an hlist.  This means the
+iterator is a different macro and has no "reverse" version since
+hlists have no direct pointer to the list tail.
+
+inode->i_dentry gets the same treatment.  Adjust where we use it.
+
+Reviewed-on: http://gerrit.openafs.org/7983
+Tested-by: BuildBot <buildbot@rampaginggeek.com>
+Reviewed-by: Derrick Brashear <shadow@dementix.org>
+(cherry picked from commit 6bea047fb404bde828c6358ae06f7941aa2bc959)
+
+Change-Id: I7e7b87e5f5c240f3f0ff25fa723c857ab9d0108c
+---
+ acinclude.m4               |  1 +
+ src/afs/LINUX/osi_vcache.c | 12 ++++++++++++
+ src/afs/afs_daemons.c      |  5 +++++
+ src/cf/linux-test4.m4      | 13 +++++++++++++
+ 4 files changed, 31 insertions(+)
+
+diff --git a/acinclude.m4 b/acinclude.m4
+index d99c755..d52d149 100644
+--- a/acinclude.m4
++++ b/acinclude.m4
+@@ -961,6 +961,7 @@ case $AFS_SYSNAME in *_linux* | *_umlinux*)
+ 		 LINUX_EXPORT_OP_ENCODE_FH_TAKES_INODES
+ 		 LINUX_KMAP_ATOMIC_TAKES_NO_KM_TYPE
+ 		 LINUX_DENTRY_OPEN_TAKES_PATH
++		 LINUX_D_ALIAS_IS_HLIST
+ 
+ 		 dnl If we are guaranteed that keyrings will work - that is
+ 		 dnl  a) The kernel has keyrings enabled
+diff --git a/src/afs/LINUX/osi_vcache.c b/src/afs/LINUX/osi_vcache.c
+index e82d78e..cd61c65 100644
+--- a/src/afs/LINUX/osi_vcache.c
++++ b/src/afs/LINUX/osi_vcache.c
+@@ -19,7 +19,11 @@ osi_TryEvictVCache(struct vcache *avc, int *slept, int defersleep) {
+ 
+     struct dentry *dentry;
+     struct inode *inode = AFSTOV(avc);
++#if defined(D_ALIAS_IS_HLIST)
++    struct hlist_node *cur, *head;
++#else
+     struct list_head *cur, *head;
++#endif
+ 
+     /* First, see if we can evict the inode from the dcache */
+     if (defersleep && avc != afs_globalVp && VREFCOUNT(avc) > 1 && avc->opens == 0) {
+@@ -53,12 +57,20 @@ restart:
+ 	spin_unlock(&dcache_lock);
+ #else /* HAVE_DCACHE_LOCK */
+ 	spin_lock(&inode->i_lock);
++#if defined(D_ALIAS_IS_HLIST)
++	head = inode->i_dentry.first;
++#else
+ 	head = &inode->i_dentry;
++#endif
+ 
+ restart:
+ 	cur = head;
+ 	while ((cur = cur->next) != head) {
++#if defined(D_ALIAS_IS_HLIST)
++	    dentry = hlist_entry(cur, struct dentry, d_alias);
++#else
+ 	    dentry = list_entry(cur, struct dentry, d_alias);
++#endif
+ 
+ 	    spin_lock(&dentry->d_lock);
+ 	    if (d_unhashed(dentry)) {
+diff --git a/src/afs/afs_daemons.c b/src/afs/afs_daemons.c
+index 23655e3..f47be0e 100644
+--- a/src/afs/afs_daemons.c
++++ b/src/afs/afs_daemons.c
+@@ -396,8 +396,13 @@ afs_CheckRootVolume(void)
+ 		    spin_lock(&dp->d_lock);
+ #endif
+ #endif
++#if defined(D_ALIAS_IS_HLIST)
++		    hlist_del_init(&dp->d_alias);
++		    hlist_add_head(&dp->d_alias, &(AFSTOV(vcp)->i_dentry));
++#else
+ 		    list_del_init(&dp->d_alias);
+ 		    list_add(&dp->d_alias, &(AFSTOV(vcp)->i_dentry));
++#endif
+ 		    dp->d_inode = AFSTOV(vcp);
+ #if defined(AFS_LINUX24_ENV)
+ #if defined(AFS_LINUX26_ENV)
+diff --git a/src/cf/linux-test4.m4 b/src/cf/linux-test4.m4
+index 427c5e1..6b70059 100644
+--- a/src/cf/linux-test4.m4
++++ b/src/cf/linux-test4.m4
+@@ -699,3 +699,16 @@ AC_DEFUN([LINUX_DENTRY_OPEN_TAKES_PATH], [
+ 			[define if dentry_open takes a path argument],
+ 			[-Werror])
+ ])
++
++
++AC_DEFUN([LINUX_D_ALIAS_IS_HLIST], [
++  AC_CHECK_LINUX_BUILD([whether dentry->d_alias is an hlist],
++			[ac_cv_linux_d_alias_is_hlist],
++			[#include <linux/fs.h>],
++			[struct dentry *d = NULL;
++			struct hlist_node *hn = NULL;
++			d->d_alias = *hn;],
++			[D_ALIAS_IS_HLIST],
++			[define if dentry->d_alias is an hlist],
++			[])
++])
+-- 
+1.7.11.4
+

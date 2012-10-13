@@ -1,0 +1,80 @@
+From 2e1c365052d43813ab2c7f5a4d4268c3b03315f0 Mon Sep 17 00:00:00 2001
+From: Marc Dionne <marc.c.dionne@gmail.com>
+Date: Tue, 14 Aug 2012 16:34:42 -0400
+Subject: [PATCH 2/8] Linux 3.6: kmap_atomic API change
+
+kmap_atomic no longer requires a KM_TYPE argument.  Test for this
+and adjust the affected code.
+
+Reviewed-on: http://gerrit.openafs.org/7981
+Tested-by: BuildBot <buildbot@rampaginggeek.com>
+Reviewed-by: Derrick Brashear <shadow@dementix.org>
+(cherry picked from commit 049c485b4a39ba510035788b4959d839ef668c55)
+
+Change-Id: Iac8be7901da4b277864b1b6cc987cf5087992789
+---
+ acinclude.m4              |  1 +
+ src/afs/afs_bypasscache.c |  8 ++++++++
+ src/cf/linux-test4.m4     | 12 ++++++++++++
+ 3 files changed, 21 insertions(+)
+
+diff --git a/acinclude.m4 b/acinclude.m4
+index 25484cf..20fd15e 100644
+--- a/acinclude.m4
++++ b/acinclude.m4
+@@ -959,5 +959,6 @@ case $AFS_SYSNAME in *_linux* | *_umlinux*)
+ 		 LINUX_IOP_MKDIR_TAKES_UMODE_T
+ 		 LINUX_IOP_CREATE_TAKES_UMODE_T
++		 LINUX_KMAP_ATOMIC_TAKES_NO_KM_TYPE
+ 
+ 		 dnl If we are guaranteed that keyrings will work - that is
+ 		 dnl  a) The kernel has keyrings enabled
+diff --git a/src/afs/afs_bypasscache.c b/src/afs/afs_bypasscache.c
+index b350233..1138f89 100644
+--- a/src/afs/afs_bypasscache.c
++++ b/src/afs/afs_bypasscache.c
+@@ -325,13 +325,21 @@ afs_bypass_copy_page(bypass_page_t pp, int pageoff, struct iovec *rxiov,
+ 	dolen = auio->uio_iov[curiov].iov_len - pageoff;
+ 
+ #if !defined(UKERNEL)
++# if defined(KMAP_ATOMIC_TAKES_NO_KM_TYPE)
++    address = kmap_atomic(pp);
++# else
+     address = kmap_atomic(pp, KM_USER0);
++# endif
+ #else
+     address = pp;
+ #endif
+     memcpy(address + pageoff, (char *)(rxiov[iovno].iov_base) + iovoff, dolen);
+ #if !defined(UKERNEL)
++# if defined(KMAP_ATOMIC_TAKES_NO_KM_TYPE)
++    kunmap_atomic(address);
++# else
+     kunmap_atomic(address, KM_USER0);
++# endif
+ #endif
+ }
+ 
+diff --git a/src/cf/linux-test4.m4 b/src/cf/linux-test4.m4
+index f13e97d..7db805f 100644
+--- a/src/cf/linux-test4.m4
++++ b/src/cf/linux-test4.m4
+@@ -675,3 +675,15 @@ AC_DEFUN([LINUX_EXPORT_OP_ENCODE_FH_TAKES_INODES], [
+ 			[define if encode_fh export op takes inode arguments],
+ 			[-Werror])
+ ])
++
++
++AC_DEFUN([LINUX_KMAP_ATOMIC_TAKES_NO_KM_TYPE], [
++  AC_CHECK_LINUX_BUILD([whether kmap_atomic takes no km_type argument],
++			[ac_cv_linux_kma_atomic_takes_no_km_type],
++			[#include <linux/highmem.h>],
++			[struct page *p = NULL;
++			kmap_atomic(p);],
++			[KMAP_ATOMIC_TAKES_NO_KM_TYPE],
++			[define if kmap_atomic takes no km_type argument],
++			[-Werror])
++])
+-- 
+1.7.11.4
+

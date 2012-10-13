@@ -1,0 +1,128 @@
+From a9b3e53dcb693182b51e7f5b43586e3e2dc29b8a Mon Sep 17 00:00:00 2001
+From: Marc Dionne <marc.c.dionne@gmail.com>
+Date: Mon, 13 Aug 2012 20:32:08 -0400
+Subject: [PATCH 1/8] Linux: bypass: consolidate copy_page macros into a
+ single function
+
+The copy_page(s) macros are very similar; combine them into a
+single function that can be used for all cases.
+
+This will make it easier to add some pre-processor logic around
+the kmap_atomic calls to adapt to Linux API changes.
+
+Reviewed-on: http://gerrit.openafs.org/7980
+Tested-by: BuildBot <buildbot@rampaginggeek.com>
+Reviewed-by: Derrick Brashear <shadow@dementix.org>
+(cherry picked from commit 0a8256a26fafb490b454f2a857b0c15d859572c5)
+
+Change-Id: I6835a024428b26a8cd8d073f6304d0d0b3042b24
+---
+ src/afs/afs_bypasscache.c | 63 ++++++++++++++++++-----------------------------
+ 1 file changed, 24 insertions(+), 39 deletions(-)
+
+diff --git a/src/afs/afs_bypasscache.c b/src/afs/afs_bypasscache.c
+index e447024..b350233 100644
+--- a/src/afs/afs_bypasscache.c
++++ b/src/afs/afs_bypasscache.c
+@@ -270,49 +270,12 @@ done:
+ #ifdef UKERNEL
+ typedef void * bypass_page_t;
+ 
+-#define copy_page(pp, pageoff, rxiov, iovno, iovoff, auio, curiov)	\
+-    do { \
+-	int dolen = auio->uio_iov[curiov].iov_len - pageoff; \
+-	memcpy(((char *)pp) + pageoff,		       \
+-	       ((char *)rxiov[iovno].iov_base) + iovoff, dolen);	\
+-	auio->uio_resid -= dolen; \
+-    } while(0)
+-
+-#define copy_pages(pp, pageoff, rxiov, iovno, iovoff, auio, curiov)	\
+-    do { \
+-	int dolen = rxiov[iovno].iov_len - iovoff; \
+-	memcpy(((char *)pp) + pageoff,				\
+-	       ((char *)rxiov[iovno].iov_base) + iovoff, dolen);	\
+-	auio->uio_resid -= dolen;	\
+-    } while(0)
+-
+ #define unlock_and_release_pages(auio)
+ #define release_full_page(pp, pageoff)
+ 
+ #else
+ typedef struct page * bypass_page_t;
+ 
+-#define copy_page(pp, pageoff, rxiov, iovno, iovoff, auio, curiov)	\
+-    do { \
+-        char *address;						\
+-	int dolen = auio->uio_iov[curiov].iov_len - pageoff; \
+-	address = kmap_atomic(pp, KM_USER0); \
+-	memcpy(address + pageoff, \
+-	       (char *)(rxiov[iovno].iov_base) + iovoff, dolen);	\
+-	kunmap_atomic(address, KM_USER0); \
+-    } while(0)
+-
+-#define copy_pages(pp, pageoff, rxiov, iovno, iovoff, auio, curiov)	\
+-    do { \
+-        char *address; \
+-	int dolen = rxiov[iovno].iov_len - iovoff; \
+-	address = kmap_atomic(pp, KM_USER0); \
+-	memcpy(address + pageoff, \
+-	       (char *)(rxiov[iovno].iov_base) + iovoff, dolen);	\
+-	kunmap_atomic(address, KM_USER0); \
+-    } while(0)
+-
+-
+ #define unlock_and_release_pages(auio) \
+     do { \
+ 	struct iovec *ciov;	\
+@@ -347,8 +310,30 @@ typedef struct page * bypass_page_t;
+ 	    afs_warn("afs_NoCacheFetchProc: page not locked!\n"); \
+ 	put_page(pp); /* decrement refcount */ \
+     } while(0)
++#endif
++
++static void
++afs_bypass_copy_page(bypass_page_t pp, int pageoff, struct iovec *rxiov,
++	int iovno, int iovoff, struct uio *auio, int curiov, int partial)
++{
++    char *address;
++    int dolen;
++
++    if (partial)
++	dolen = rxiov[iovno].iov_len - iovoff;
++    else
++	dolen = auio->uio_iov[curiov].iov_len - pageoff;
+ 
++#if !defined(UKERNEL)
++    address = kmap_atomic(pp, KM_USER0);
++#else
++    address = pp;
+ #endif
++    memcpy(address + pageoff, (char *)(rxiov[iovno].iov_base) + iovoff, dolen);
++#if !defined(UKERNEL)
++    kunmap_atomic(address, KM_USER0);
++#endif
++}
+ 
+ /* no-cache prefetch routine */
+ static afs_int32
+@@ -447,7 +432,7 @@ afs_NoCacheFetchProc(struct rx_call *acall,
+ 		if (pageoff + (rxiov[iovno].iov_len - iovoff) <= auio->uio_iov[curpage].iov_len) {
+ 		    /* Copy entire (or rest of) current iovec into current page */
+ 		    if (pp)
+-			copy_pages(pp, pageoff, rxiov, iovno, iovoff, auio, curpage);
++			afs_bypass_copy_page(pp, pageoff, rxiov, iovno, iovoff, auio, curpage, 0);
+ 		    length -= (rxiov[iovno].iov_len - iovoff);
+ 		    pageoff += rxiov[iovno].iov_len - iovoff;
+ 		    iovno++;
+@@ -455,7 +440,7 @@ afs_NoCacheFetchProc(struct rx_call *acall,
+ 		} else {
+ 		    /* Copy only what's needed to fill current page */
+ 		    if (pp)
+-			copy_page(pp, pageoff, rxiov, iovno, iovoff, auio, curpage);
++			afs_bypass_copy_page(pp, pageoff, rxiov, iovno, iovoff, auio, curpage, 1);
+ 		    length -= (auio->uio_iov[curpage].iov_len - pageoff);
+ 		    iovoff += auio->uio_iov[curpage].iov_len - pageoff;
+ 		    pageoff = auio->uio_iov[curpage].iov_len;
+-- 
+1.7.11.4
+
