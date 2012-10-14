@@ -58,8 +58,10 @@ pkg_setup() {
 src_prepare() {
 	sed -i.bak -e '/\smake\s/s/make/$(MAKE)/g' modules/linux/{vmblock,vmci,vmhgfs,vmsync,vmxnet,vsock}/Makefile\
 		|| die "Sed failed."
-	# Linux 3.4 kernel support
-	epatch "${FILESDIR}/open-vm-tools-kmod-linux-3.4.patch"
+	# Linux 3.6 build fixes
+	if kernel_is ge 3 6 0; then
+		epatch "${FILESDIR}/${PN}-linux-3.6.patch"
+	fi
 }
 
 src_configure() {
