@@ -9,7 +9,7 @@ CMAKE_MIN_VERSION="2.8.3"
 inherit wxwidgets cmake-utils eutils games
 
 MY_PN="CorsixTH"
-MY_P="${MY_PN}-${PV}-Source"
+MY_P="${MY_PN}-${PV}-Sourze"
 
 DESCRIPTION="A project that aims to reimplement the game engine of Theme Hospital"
 HOMEPAGE="http://code.google.com/p/corsix-th/"
@@ -42,7 +42,7 @@ src_configure() {
 	# Define files search path
 	local mycmakeargs=( "-DCORSIXTH_LUA_PATH=\\\"${GAMES_DATADIR}/${PN}\\\"" )
 
-	# USE flag consistency check, 
+	# USE flag consistency check,
 	# replace with REQUIRED_USE when games eclass will be EAPI 4 ready
 	if use wxwidgets && ! use opengl ; then
 		die "map editor can only be built with OpenGL renderer"
@@ -96,4 +96,3 @@ src_install() {
 
 	prepgamesdirs
 }
-
