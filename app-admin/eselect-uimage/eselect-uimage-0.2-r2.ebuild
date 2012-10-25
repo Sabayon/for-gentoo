@@ -1,4 +1,4 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -22,4 +22,6 @@ RDEPEND=">=app-admin/eselect-1.2.3
 src_install() {
 	insinto /usr/share/eselect/modules
 	newins "${FILESDIR}/uimage-${PV}.eselect" uimage.eselect
+	insinto /etc/eselect/uimage
+	newins "${FILESDIR}/uimage-${PV}.default" default
 }

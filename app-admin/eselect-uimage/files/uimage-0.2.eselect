@@ -1,5 +1,5 @@
 # -*-eselect-*-  vim: ft=eselect
-# Copyright 2004-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2 or later
 # $Id: $
 
@@ -13,6 +13,10 @@ KERNEL_PREFIX="kernel-"
 INITRAMFS_PREFIX="initramfs-"
 UIMAGE_SYM="${BOOT_DIR}/uImage"
 UINITRD_SYM="${BOOT_DIR}/uInitrd"
+
+# Make possible to override the environment variables above
+# Bug 3765
+[ -e /etc/eselect/uimage/default ] && . /etc/eselect/uimage/default
 
 _is_kernel() {
     local f="${1}"
