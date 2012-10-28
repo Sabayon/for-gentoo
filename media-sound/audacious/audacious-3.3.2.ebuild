@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/media-sound/audacious/audacious-3.3.ebuild,v 1.2 2012/07/31 02:22:54 jdhore Exp $
+# $Header: /var/cvsroot/gentoo-x86/media-sound/audacious/audacious-3.3.2.ebuild,v 1.1 2012/10/20 14:47:28 jdhore Exp $
 
 EAPI=4
 inherit eutils
