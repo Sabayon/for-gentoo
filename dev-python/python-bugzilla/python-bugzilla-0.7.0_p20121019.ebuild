@@ -3,6 +3,7 @@
 # $Header: $
 
 EAPI=4
+PYTHON_DEPEND="2"
 inherit distutils eutils
 
 MY_P=${P%_*}
@@ -22,6 +23,11 @@ PYTHON_MODNAME="bugzilla"
 src_prepare() {
 	epatch "${FILESDIR}"/${MY_P}-82c2c.patch
 	distutils_src_prepare
+}
+
+pkg_setup() {
+	python_set_active_version 2
+	python_pkg_setup
 }
 
 pkg_postinst() {
