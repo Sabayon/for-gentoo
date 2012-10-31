@@ -19,8 +19,7 @@ KEYWORDS="~amd64 ~x86"
 IUSE=""
 
 DEPEND="dev-python/python-distutils-extra"
-RDEPEND="|| ( dev-python/argparse >=dev-lang/python-2.7 )
-	x11-libs/gtk+:3[introspection]
+RDEPEND="x11-libs/gtk+:3[introspection]
 	dev-python/gst-python
 	dev-python/pycairo
 	dev-python/pygobject:3
@@ -31,6 +30,7 @@ RDEPEND="|| ( dev-python/argparse >=dev-lang/python-2.7 )
 	media-plugins/gst-plugins-x264
 	media-plugins/gst-plugins-ximagesrc
 	media-sound/pulseaudio
+	virtual/python-argparse
 	virtual/ffmpeg
 "
 
@@ -42,6 +42,8 @@ src_prepare() {
 	# correct name of .desktop file
 	sed -i -e 's/avidemux-gtk/avidemux2-gtk/' ${PN}/frontend/combobox.py \
 		|| die
+	# fix a warning: value "GNOME" requires GTK to be present
+	sed -i -e 's/GNOME;/GNOME;GTK;/' data/kazam.desktop.in || die
 	distutils_src_prepare
 }
 
