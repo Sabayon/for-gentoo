@@ -1,0 +1,20 @@
+--- trunk/libbitdht/src/bitdht/bdnode.cc	2012/10/25 18:06:33	5722
++++ trunk/libbitdht/src/bitdht/bdnode.cc	2012/10/25 18:50:47	5723
+@@ -134,14 +134,14 @@
+ 		{
+ 			default:
+ 			case BITDHT_MODE_TRAFFIC_LOW:
+-				mMaxAllowedMsgs = BDNODE_HIGH_MSG_RATE;
+-				break;
+-			case BITDHT_MODE_TRAFFIC_HIGH:
+ 				mMaxAllowedMsgs = BDNODE_LOW_MSG_RATE;
+ 				break;
+ 			case BITDHT_MODE_TRAFFIC_MED:
+ 				mMaxAllowedMsgs = BDNODE_MED_MSG_RATE;
+ 				break;
++			case BITDHT_MODE_TRAFFIC_HIGH:
++				mMaxAllowedMsgs = BDNODE_HIGH_MSG_RATE;
++				break;
+ 			case BITDHT_MODE_TRAFFIC_TRICKLE:
+ 				mMaxAllowedMsgs = BDNODE_TRICKLE_MSG_RATE;
+ 				break;
