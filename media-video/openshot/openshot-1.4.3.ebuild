@@ -1,4 +1,4 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -7,7 +7,7 @@ EAPI=3
 PYTHON_DEPEND=2:2.5
 PYTHON_USE_WITH=xml
 
-inherit versionator distutils fdo-mime python
+inherit versionator distutils fdo-mime
 
 DESCRIPTION="OpenShot Video Editor is a non-linear video editor"
 HOMEPAGE="http://www.openshotvideo.com"
@@ -20,13 +20,13 @@ IUSE=""
 
 DEPEND=""
 RDEPEND="
-	>=x11-libs/gtk+-2.18:2
+	x11-libs/gtk+:2
 	dev-python/pygtk
 	dev-python/pygoocanvas
 	dev-python/pyxdg
 	dev-python/librsvg-python
 	dev-python/httplib2
-	>=media-libs/mlt-0.4.6-r1[ffmpeg,frei0r,gtk,melt,python,sdl,xml]
+	media-libs/mlt[ffmpeg,frei0r,gtk,melt,python,sdl,xml]
 	media-sound/sox[encode,ffmpeg]
 	>=virtual/ffmpeg-0.6[encode,sdl]
 	dev-python/imaging
