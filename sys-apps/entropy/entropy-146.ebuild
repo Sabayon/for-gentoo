@@ -44,16 +44,12 @@ pkg_setup() {
 src_compile() {
 	cd "${S}"/lib || die
 	emake || die "make failed"
-	cd "${S}"/client/po || die
-	emake || die "make failed"
 }
 
 src_install() {
 	cd "${S}"/lib || die
 	# TODO: drop VARDIR after 146
 	emake DESTDIR="${D}" VARDIR="/var" LIBDIR="usr/lib" install || die "make install failed"
-	cd "${S}"/client/po || die
-	emake DESTDIR="${D}" LIBDIR="usr/lib" install || die "make install failed"
 }
 
 pkg_postinst() {
