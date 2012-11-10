@@ -3,6 +3,8 @@
 # $Header: $
 
 EAPI=4
+inherit eutils
+
 DESCRIPTION="A gesture-recognition application for X11"
 HOMEPAGE="http://easystroke.wiki.sourceforge.net/"
 SRC_URI="mirror://sourceforge/${PN}/${P}.tar.gz"
@@ -18,6 +20,7 @@ COMMON_DEPEND="dev-cpp/glibmm:2
 	dev-libs/boost
 	dev-libs/dbus-glib
 	dev-libs/libsigc++:2
+	x11-libs/libX11
 	x11-libs/libXi
 	x11-libs/libXrandr
 	x11-libs/libXtst"
@@ -35,6 +38,8 @@ src_prepare() {
 	sed -i -e \
 		"s:^Icon=${PN}:Icon=${EPREFIX}/usr/share/icons/hicolor/scalable/apps/${PN}.svg:" \
 		${PN}.desktop.in || die
+
+	epatch "${FILESDIR}/${PN}-tray-icon.patch"
 }
 
 src_compile() {
@@ -44,5 +49,6 @@ src_compile() {
 
 src_install() {
 	doman ${PN}.1
+	dodoc changelog
 	emake DESTDIR="${D}" PREFIX="${EPREFIX}/usr" install
 }
