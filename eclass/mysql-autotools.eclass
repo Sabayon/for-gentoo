@@ -89,6 +89,12 @@ mysql-autotools_configure_minimal() {
 	else
 		myconf="${myconf} --enable-shared --enable-static"
 	fi
+	# use bundled lzo2 for google-mysql, as this is what
+	# upstream supports actively.
+	# XXX upstream is also using --without-vio, what to do?
+	if [[ "${PN}" == "google-mysql" ]]; then
+		myconf="${myconf} --with-lzo2-dir=bundled"
+	fi
 
 	if ! use latin1 ; then
 		myconf="${myconf} --with-charset=utf8"
@@ -479,8 +485,7 @@ mysql-autotools_src_configure() {
 	export CXXFLAGS
 
 	# bug #283926, with GCC4.4, this is required to get correct behavior.
-	# google-mysql?
-	# append-flags -fno-strict-aliasing
+	append-flags -fno-strict-aliasing
 
 	# bug #335185, #335995, with >= GCC4.3.3 on x86 only, omit-frame-pointer
 	# causes a mis-compile.
