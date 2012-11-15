@@ -26,6 +26,11 @@ DEPEND="|| ( >=sys-devel/gcc-3.4.6 >=sys-devel/gcc-apple-4.0 )
 		>=sys-devel/libtool-2.2.10"
 RDEPEND="${RDEPEND}"
 
+# TODO:
+# - unbundle google-perftools (XXX broken build system?)
+# - merge mysql-autotools eclass upstream (ping mysql herd)
+# - merge google-mysql upstream
+
 # Please do not add a naive src_unpack to this ebuild
 # If you want to add a single patch, copy the ebuild to an overlay
 # and create your own mysql-extras tarball, looking at 000_index.txt
@@ -37,13 +42,11 @@ src_prepare() {
 		-e '/^noinst_PROGRAMS/s/basic-t//g' \
 		"${S}"/unittest/mytap/t/Makefile.am
 
-	# Filter out -fomit-frame-pointer
+	# Filter out -fomit-frame-pointer, we need frame pointers
 	filter-flags -fomit-frame-pointer
-	#append-flags -O0 -g3 -fno-omit-frame-pointer # required
 	append-flags -fno-omit-frame-pointer  # required
-	#append-ldflags $(no-as-needed)
 
-	# Upstream autoconf stuff is broken (lzo, ncurses)
+	# XXX Upstream autoconf stuff is broken (lzo, ncurses)
 	# execute eautoreconf only for the top level dir
 	AT_NO_RECURSIVE=1 eautoreconf
 }
