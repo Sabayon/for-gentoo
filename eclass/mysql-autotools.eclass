@@ -82,6 +82,10 @@ mysql-autotools_configure_minimal() {
 	myconf="${myconf} --with-extra-charsets=none"
 	myconf="${myconf} --enable-local-infile"
 
+	# XXX google-mysql upstream does not compile without -all-static
+	# and friends, linker fails with:
+	# ../libmysql/.libs/libmysqlclient.so: undefined reference to `my_checksum'
+	# It must be fixed though
 	if use static || [[ "${PN}" == "google-mysql" ]]; then
 		[[ "${PN}" == "google-mysql" ]] || \
 			myconf="${myconf} --with-client-ldflags=-all-static"
@@ -462,10 +466,10 @@ mysql-autotools_src_configure() {
 	fi
 
 	# Bug #114895, bug #110149
-	[[ "${PN}" == "google-mysql" ]] || filter-flags "-O" "-O[01]"
+	filter-flags "-O" "-O[01]"
 
 	# glib-2.3.2_pre fix, bug #16496
-	[[ "${PN}" == "google-mysql" ]] || append-flags "-DHAVE_ERRNO_AS_DEFINE=1"
+	append-flags "-DHAVE_ERRNO_AS_DEFINE=1"
 
 	# As discovered by bug #246652, doing a double-level of SSP causes NDB to
 	# fail badly during cluster startup.
