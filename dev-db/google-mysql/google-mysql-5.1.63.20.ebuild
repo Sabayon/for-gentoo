@@ -30,7 +30,7 @@ RDEPEND="${RDEPEND}"
 # If you want to add a single patch, copy the ebuild to an overlay
 # and create your own mysql-extras tarball, looking at 000_index.txt
 src_prepare() {
-	# fix braindamaged eclass
+	# fix braindamaged eclass, _mysql_test_patch_ver_pn
 	mkdir -p "${WORKDIR}/mysql-extras" || die
 
 	sed -i \
@@ -38,11 +38,12 @@ src_prepare() {
 		"${S}"/unittest/mytap/t/Makefile.am
 
 	# Filter out -fomit-frame-pointer
-	filter-flags -fomit-frame-pointer -O{s,1,2,3,4}
-	append-flags -O0 -g3 -fno-omit-frame-pointer # required
-	append-ldflags $(no-as-needed)
+	filter-flags -fomit-frame-pointer
+	#append-flags -O0 -g3 -fno-omit-frame-pointer # required
+	append-flags -fno-omit-frame-pointer  # required
+	#append-ldflags $(no-as-needed)
 
 	# Upstream autoconf stuff is broken (lzo, ncurses)
-	# execute eautoreconf only in top level dir
+	# execute eautoreconf only for the top level dir
 	AT_NO_RECURSIVE=1 eautoreconf
 }
