@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+<herd>mysql</herd>
+<!-- 
+Please note that this list is shared between the following packages:
+dev-db/google-mysql
+dev-db/mysql
+dev-db/mariadb
+-->
+<use>
+	<!-- requires modifications to mysql-v2.eclass -->
+</use>
+</pkgmetadata>
