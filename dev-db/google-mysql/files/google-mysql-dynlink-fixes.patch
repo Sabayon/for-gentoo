@@ -1,0 +1,29 @@
+--- a/mysql/client/Makefile.am
++++ b/mysql/client/Makefile.am
+@@ -53,10 +53,12 @@ bin_PROGRAMS =			mysql \
+ 				mysql_upgrade
+ 
+ mysql_SOURCES =			mysql.cc readline.cc sql_string.cc \
+-				completion_hash.cc
++				completion_hash.cc \
++				$(top_srcdir)/mysys/checksum.c
+ mysql_LDADD =			@readline_link@ @TERMCAP_LIB@ @NCURSES_LIBS@ \
+ 				$(LDADD) $(CXXLDFLAGS)
+-mysqladmin_SOURCES =		mysqladmin.cc
++mysqladmin_SOURCES =		mysqladmin.cc \
++				$(top_srcdir)/mysys/checksum.c
+ 
+ mysqlbinlog_SOURCES =		mysqlbinlog.cc \
+ 				$(top_srcdir)/mysys/checksum.c \
+--- a/mysql/libmysql/Makefile.shared
++++ b/mysql/libmysql/Makefile.shared
+@@ -31,7 +31,8 @@ noinst_PROGRAMS = conf_to_src
+ 
+ 
+ target_sources = 	libmysql.c password.c manager.c \
+-			get_password.c errmsg.c
++			get_password.c errmsg.c \
++			$(top_srcdir)/mysys/checksum.c
+ 
+ mystringsobjects =	strmov.lo strxmov.lo strxnmov.lo strnmov.lo \
+ 			strmake.lo strend.lo strtod.lo \

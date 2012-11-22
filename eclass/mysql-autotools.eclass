@@ -82,13 +82,8 @@ mysql-autotools_configure_minimal() {
 	myconf="${myconf} --with-extra-charsets=none"
 	myconf="${myconf} --enable-local-infile"
 
-	# XXX google-mysql upstream does not compile without -all-static
-	# and friends, linker fails with:
-	# ../libmysql/.libs/libmysqlclient.so: undefined reference to `my_checksum'
-	# It must be fixed though
-	if use static || [[ "${PN}" == "google-mysql" ]]; then
-		[[ "${PN}" == "google-mysql" ]] || \
-			myconf="${myconf} --with-client-ldflags=-all-static"
+	if use static; then
+		myconf="${myconf} --with-client-ldflags=-all-static"
 		myconf="${myconf} --disable-shared --with-pic"
 	else
 		myconf="${myconf} --enable-shared --enable-static"
@@ -128,11 +123,9 @@ mysql-autotools_configure_common() {
 	myconf="${myconf} --with-unix-socket-path=${EPREFIX}/var/run/mysqld/mysqld.sock"
 	myconf="${myconf} --without-libwrap"
 
-	if use static || [[ "${PN}" == "google-mysql" ]]; then
-		[[ "${PN}" == "google-mysql" ]] || \
-			myconf="${myconf} --with-mysqld-ldflags=-all-static"
-		[[ "${PN}" == "google-mysql" ]] || \
-			myconf="${myconf} --with-client-ldflags=-all-static"
+	if use static; then
+		myconf="${myconf} --with-mysqld-ldflags=-all-static"
+		myconf="${myconf} --with-client-ldflags=-all-static"
 		myconf="${myconf} --disable-shared --with-pic"
 	else
 		myconf="${myconf} --enable-shared --enable-static"

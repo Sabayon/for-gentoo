@@ -7,7 +7,7 @@ EAPI="4"
 # Build type
 BUILD="autotools"
 
-inherit flag-o-matic toolchain-funcs mysql-v2
+inherit eutils flag-o-matic toolchain-funcs mysql-v2
 
 SRC_URI="mirror://sabayon/dev-db/${P}.tar.gz"
 
@@ -45,6 +45,9 @@ src_prepare() {
 	# Filter out -fomit-frame-pointer, we need frame pointers
 	filter-flags -fomit-frame-pointer
 	append-flags -fno-omit-frame-pointer  # required
+
+	# Fix compilation without USE=static, upstreamed
+	epatch "${FILESDIR}/google-mysql-dynlink-fixes.patch"
 
 	# XXX Upstream autoconf stuff is broken (lzo, ncurses)
 	# execute eautoreconf only for the top level dir
