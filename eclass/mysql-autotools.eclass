@@ -82,7 +82,7 @@ mysql-autotools_configure_minimal() {
 	myconf="${myconf} --with-extra-charsets=none"
 	myconf="${myconf} --enable-local-infile"
 
-	if use static; then
+	if use static ; then
 		myconf="${myconf} --with-client-ldflags=-all-static"
 		myconf="${myconf} --disable-shared --with-pic"
 	else
@@ -123,7 +123,7 @@ mysql-autotools_configure_common() {
 	myconf="${myconf} --with-unix-socket-path=${EPREFIX}/var/run/mysqld/mysqld.sock"
 	myconf="${myconf} --without-libwrap"
 
-	if use static; then
+	if use static ; then
 		myconf="${myconf} --with-mysqld-ldflags=-all-static"
 		myconf="${myconf} --with-client-ldflags=-all-static"
 		myconf="${myconf} --disable-shared --with-pic"
