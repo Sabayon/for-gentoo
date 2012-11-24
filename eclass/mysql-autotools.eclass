@@ -476,7 +476,9 @@ mysql-autotools_src_configure() {
 
 	CXXFLAGS="${CXXFLAGS} -fno-exceptions -fno-strict-aliasing"
 	CXXFLAGS="${CXXFLAGS} -felide-constructors -fno-rtti"
-	# googlestats engine in google-mysql is using C++ templates.
+	# storage/googlestats, sql/ in google-mysql are using C++ templates
+	# implicitly. Upstream might be interested in this, exclude
+	# -fno-implicit-templates for google-mysql for now.
 	mysql_version_is_at_least "5.0" \
 	&& [[ "${PN}" != "google-mysql" ]] \
 	&& CXXFLAGS="${CXXFLAGS} -fno-implicit-templates"
