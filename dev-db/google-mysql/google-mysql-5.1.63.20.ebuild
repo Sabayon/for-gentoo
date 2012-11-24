@@ -22,9 +22,13 @@ KEYWORDS="~amd64 ~x86"
 EPATCH_EXCLUDE=''
 
 # Most of these are in the eclass
-DEPEND="|| ( >=sys-devel/gcc-3.4.6 >=sys-devel/gcc-apple-4.0 )
-		>=sys-devel/libtool-2.2.10"
-RDEPEND="${RDEPEND}"
+COMMON_DEPEND="
+	dev-libs/lzo
+	dev-util/google-perftools"
+DEPEND="${COMMON_DEPEND}
+	|| ( >=sys-devel/gcc-3.4.6 >=sys-devel/gcc-apple-4.0 )
+	>=sys-devel/libtool-2.2.10"
+RDEPEND="${COMMON_DEPEND} ${RDEPEND}"
 
 # TODO:
 # - unbundle google-perftools (XXX broken build system?)
