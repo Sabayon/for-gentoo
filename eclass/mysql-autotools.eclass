@@ -308,8 +308,13 @@ mysql-autotools_configure_51() {
 	plugins_dyn=""
 
 	# Google MySQL, bundle what upstream supports
-	[[ "${PN}" == "google-mysql" ]] && plugins_sta="innodb_plugin googlestats" && \
-		plugins_dyn=""
+	if [[ "${PN}" == "google-mysql" ]]; then
+		for x in innodb_plugin innodb ; do
+			plugins_sta="${plugins_sta//$x}"
+			plugins_dyn="${plugins_dyn//$x}"
+		done
+		plugins_sta="${plugins_sta} innodb_plugin googlestats"
+	fi
 	myconf="${myconf} --with-perftools-dir=bundled --enable-perftools-tcmalloc"
 
 	einfo "Available plugins: ${plugins_avail}"
