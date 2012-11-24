@@ -15,7 +15,7 @@ SRC_URI="mirror://sabayon/dev-db/${P}.tar.gz"
 IUSE="$IUSE"
 
 # REMEMBER: also update eclass/mysql*.eclass before committing!
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~sparc-fbsd ~x86-fbsd ~amd64-linux ~ppc-macos ~x64-macos ~x86-solaris"
+KEYWORDS="~amd64 ~x86"
 
 # When MY_EXTRAS is bumped, the index should be revised to exclude these.
 # This is often broken still
