@@ -53,6 +53,9 @@ src_prepare() {
 	epatch "${FILESDIR}/google-mysql-fix-gperftools-includedir.patch"
 	rm "${S}"/google-perftools || die
 	rm -r "${S}"/google-perftools-1.8.3 || die
+	# Unbundle lzo as well
+	rm "${S}"/lzo || die
+	rm -r "${S}"/lzo-2.03 || die
 
 	# XXX Upstream autoconf stuff is broken (lzo, ncurses)
 	# execute eautoreconf only for the top level dir

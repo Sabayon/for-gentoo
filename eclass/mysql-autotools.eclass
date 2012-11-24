@@ -88,11 +88,6 @@ mysql-autotools_configure_minimal() {
 	else
 		myconf="${myconf} --enable-shared --enable-static"
 	fi
-	# use bundled lzo2 for google-mysql, as this is what
-	# upstream supports actively.
-	if [[ "${PN}" == "google-mysql" ]]; then
-		myconf="${myconf} --with-lzo2-dir=bundled"
-	fi
 
 	if ! use latin1 ; then
 		myconf="${myconf} --with-charset=utf8"
@@ -314,6 +309,8 @@ mysql-autotools_configure_51() {
 		done
 		plugins_sta="${plugins_sta} innodb_plugin googlestats"
 		myconf="${myconf} --with-perftools-dir=/usr --enable-perftools-tcmalloc"
+		# use system lzo for google-mysql
+		myconf="${myconf} --with-lzo2-dir=/usr"
 	fi
 
 	einfo "Available plugins: ${plugins_avail}"
