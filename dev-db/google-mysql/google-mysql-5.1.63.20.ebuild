@@ -42,10 +42,6 @@ src_prepare() {
 		-e '/^noinst_PROGRAMS/s/basic-t//g' \
 		"${S}"/unittest/mytap/t/Makefile.am
 
-	# Filter out -fomit-frame-pointer, we need frame pointers
-	filter-flags -fomit-frame-pointer
-	append-flags -fno-omit-frame-pointer  # required
-
 	# Fix compilation without USE=static, upstreamed
 	epatch "${FILESDIR}/google-mysql-dynlink-fixes.patch"
 	# Fix system google-perftools header detection
