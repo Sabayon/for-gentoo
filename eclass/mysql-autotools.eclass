@@ -475,11 +475,9 @@ mysql-autotools_src_configure() {
 		filter-flags "-fstack-protector-all"
 	fi
 
-	CXXFLAGS="${CXXFLAGS} -fno-exceptions"
-	CXXFLAGS="${CXXFLAGS} -fno-strict-aliasing"
+	CXXFLAGS="${CXXFLAGS} -fno-exceptions -fno-strict-aliasing"
 	CXXFLAGS="${CXXFLAGS} -felide-constructors -fno-rtti"
-	# googlestats engine in google-mysql is using
-	# C++ templates.
+	# googlestats engine in google-mysql is using C++ templates.
 	mysql_version_is_at_least "5.0" \
 	&& [[ "${PN}" != "google-mysql" ]] \
 	&& CXXFLAGS="${CXXFLAGS} -fno-implicit-templates"
