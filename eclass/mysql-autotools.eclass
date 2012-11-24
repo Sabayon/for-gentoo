@@ -314,7 +314,7 @@ mysql-autotools_configure_51() {
 			plugins_dyn="${plugins_dyn//$x}"
 		done
 		plugins_sta="${plugins_sta} innodb_plugin googlestats"
-		myconf="${myconf} --with-perftools-dir=bundled --enable-perftools-tcmalloc"
+		myconf="${myconf} --with-perftools-dir=/usr --enable-perftools-tcmalloc"
 	fi
 
 	einfo "Available plugins: ${plugins_avail}"

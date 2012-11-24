@@ -48,6 +48,11 @@ src_prepare() {
 
 	# Fix compilation without USE=static, upstreamed
 	epatch "${FILESDIR}/google-mysql-dynlink-fixes.patch"
+	# Fix system google-perftools header detection
+	# our google-perftools are installed in /usr/include/gperftools
+	epatch "${FILESDIR}/google-mysql-fix-gperftools-includedir.patch"
+	rm "${S}"/google-perftools || die
+	rm -r "${S}"/google-perftools-1.8.3 || die
 
 	# XXX Upstream autoconf stuff is broken (lzo, ncurses)
 	# execute eautoreconf only for the top level dir
