@@ -90,7 +90,6 @@ mysql-autotools_configure_minimal() {
 	fi
 	# use bundled lzo2 for google-mysql, as this is what
 	# upstream supports actively.
-	# XXX upstream is also using --without-vio, what to do?
 	if [[ "${PN}" == "google-mysql" ]]; then
 		myconf="${myconf} --with-lzo2-dir=bundled"
 	fi
