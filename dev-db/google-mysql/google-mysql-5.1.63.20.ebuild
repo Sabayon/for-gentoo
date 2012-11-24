@@ -23,6 +23,7 @@ EPATCH_EXCLUDE=''
 
 # Most of these are in the eclass
 COMMON_DEPEND="
+	static? ( dev-libs/lzo[static-libs] )
 	dev-libs/lzo
 	dev-util/google-perftools"
 DEPEND="${COMMON_DEPEND}
@@ -31,9 +32,7 @@ DEPEND="${COMMON_DEPEND}
 RDEPEND="${COMMON_DEPEND} ${RDEPEND}"
 
 # TODO:
-# - unbundle google-perftools (XXX broken build system?)
-# - merge mysql-autotools eclass upstream (ping mysql herd)
-# - merge google-mysql upstream
+# - disable USE=embedded, broken in many different places
 
 # Please do not add a naive src_unpack to this ebuild
 # If you want to add a single patch, copy the ebuild to an overlay
