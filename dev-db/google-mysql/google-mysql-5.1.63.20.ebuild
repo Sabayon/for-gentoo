@@ -62,9 +62,9 @@ src_prepare() {
 }
 
 # Official test instructions:
-# USE='berkdb -cluster embedded extraengine perl ssl community' \
+# USE='berkdb -cluster -embedded extraengine perl ssl community' \
 # FEATURES='test userpriv -usersandbox' \
-# ebuild mysql-X.X.XX.ebuild \
+# ebuild google-mysql-X.X.XX.ebuild \
 # digest clean package
 src_test() {
 	# Bug #213475 - MySQL _will_ object strenously if your machine is named
@@ -217,6 +217,21 @@ src_test() {
 				parts.partition_auto_increment_ndb ; do
 					mysql-v2_disable_test $t "ndb not supported in mariadb"
 			done
+		elif [ "${PN}" == "google-mysql" ]; then
+			case ${PV} in
+				5.1.63.*)
+				# Upstream broken tests
+				for t in mapped_users.mapped_users main.partition_not_blackhole ; do
+					mysql-v2_disable_test "$t" "Broken upstream"
+				done
+				# *** buffer overflow detected *** mysqld terminated
+				for t in rpl.rpl_googlestats_dml main.show_stats_server_status ; do
+					mysql-v2_disable_test "$t" "Buffer overflow bug"
+				done
+				# Internal check failed, broken upstream
+				mysql-v2_disable_test "main.partition_innodb_plugin" "Broken upstream"
+				;;
+			esac
 		fi
 
 		# This fail with XtraDB in place of normal InnoDB
