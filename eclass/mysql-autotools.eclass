@@ -102,6 +102,14 @@ mysql-autotools_configure_minimal() {
 	if [[ "${PN}" == "mariadb" ]]  && mysql_version_is_at_least "5.1.61" ; then
 		myconf="${myconf} --disable-distribution"
 	fi
+
+	# Google MySQL requires extra configure flags
+	if [[ "${PN}" == "google-mysql" ]]; then
+		# use system google-perftools
+		myconf="${myconf} --with-perftools-dir=/usr --enable-perftools-tcmalloc"
+		# use system lzo
+		myconf="${myconf} --with-lzo2-dir=/usr"
+	fi
 }
 
 # @FUNCTION: mysql-autotools_configure_common
@@ -308,8 +316,9 @@ mysql-autotools_configure_51() {
 			plugins_dyn="${plugins_dyn//$x}"
 		done
 		plugins_sta="${plugins_sta} innodb_plugin googlestats"
+		# use system perftools
 		myconf="${myconf} --with-perftools-dir=/usr --enable-perftools-tcmalloc"
-		# use system lzo for google-mysql
+		# use system lzo
 		myconf="${myconf} --with-lzo2-dir=/usr"
 	fi
 

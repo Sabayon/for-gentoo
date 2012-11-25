@@ -7,7 +7,7 @@ EAPI="4"
 # Build type
 BUILD="autotools"
 
-inherit eutils flag-o-matic toolchain-funcs mysql-v2
+inherit autotools eutils flag-o-matic toolchain-funcs mysql-v2
 
 SRC_URI="mirror://sabayon/dev-db/${P}.tar.gz"
 
@@ -31,19 +31,18 @@ DEPEND="${COMMON_DEPEND}
 	>=sys-devel/libtool-2.2.10"
 RDEPEND="${COMMON_DEPEND} ${RDEPEND}"
 
-# TODO:
-# - disable USE=embedded, broken in many different places
-
 # Please do not add a naive src_unpack to this ebuild
 # If you want to add a single patch, copy the ebuild to an overlay
 # and create your own mysql-extras tarball, looking at 000_index.txt
 src_prepare() {
-	# fix braindamaged eclass, _mysql_test_patch_ver_pn
-	mkdir -p "${WORKDIR}/mysql-extras" || die
-
 	sed -i \
 		-e '/^noinst_PROGRAMS/s/basic-t//g' \
 		"${S}"/unittest/mytap/t/Makefile.am
+
+	# mysql_fx.eclass expects to find a mysql-extras
+	# directory. Google MySQL does not have any extras
+	# at this time.
+	mkdir -p "${WORKDIR}/mysql-extras" || die
 
 	# Fix compilation without USE=static, upstreamed
 	epatch "${FILESDIR}/google-mysql-dynlink-fixes.patch"
@@ -52,13 +51,14 @@ src_prepare() {
 	epatch "${FILESDIR}/google-mysql-fix-gperftools-includedir.patch"
 	rm "${S}"/google-perftools || die
 	rm -r "${S}"/google-perftools-1.8.3 || die
-	# Unbundle lzo as well
+	# Unbundle lzo
 	rm "${S}"/lzo || die
 	rm -r "${S}"/lzo-2.03 || die
+	# Unbundle ncurses, broken autoconf as well
+	rm "${S}"/ncurses || die
+	rm -r "${S}"/ncurses-5.7 || die
 
-	# XXX Upstream autoconf stuff is broken (lzo, ncurses)
-	# execute eautoreconf only for the top level dir
-	AT_NO_RECURSIVE=1 eautoreconf
+	eautoreconf
 }
 
 # Official test instructions:
