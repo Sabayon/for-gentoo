@@ -39,6 +39,10 @@ src_prepare() {
 		-e '/^noinst_PROGRAMS/s/basic-t//g' \
 		"${S}"/unittest/mytap/t/Makefile.am
 
+	# googlestats plugin has problems with -D_FORTIFY_SOURCE=2
+	# and also tests are failing. Upstream has been notified.
+	append-cppflags "-U_FORTIFY_SOURCE"
+
 	# mysql_fx.eclass expects to find a mysql-extras
 	# directory. Google MySQL does not have any extras
 	# at this time.
@@ -222,12 +226,13 @@ src_test() {
 				5.1.63.*)
 				# Upstream broken tests
 				for t in mapped_users.mapped_users main.partition_not_blackhole ; do
-					mysql-v2_disable_test "$t" "Broken upstream"
+					mysql-v2_disable_test "$t" "$t is broken upstream"
 				done
 				# *** buffer overflow detected *** mysqld terminated
-				for t in rpl.rpl_googlestats_dml main.show_stats_server_status ; do
-					mysql-v2_disable_test "$t" "Buffer overflow bug"
-				done
+				# -D_FORTIFY_SOURCE=2 causes this.
+				#for t in rpl.rpl_googlestats_dml main.show_stats_server_status ; do
+				#	mysql-v2_disable_test "$t" "Buffer overflow bug"
+				#done
 				# Internal check failed, broken upstream
 				mysql-v2_disable_test "main.partition_innodb_plugin" "Broken upstream"
 				;;
