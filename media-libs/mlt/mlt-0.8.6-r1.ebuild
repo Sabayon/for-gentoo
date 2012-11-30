@@ -6,6 +6,11 @@ EAPI=4
 PYTHON_DEPEND="python? 2:2.6"
 inherit eutils toolchain-funcs multilib python
 
+# the meaning of kde flag is weird here because I don't want to change
+# what it means in Gentoo (should be something like 'kdenlive');
+# 'kdelink' flag added (should be: 'kde')
+# proper fix requested in Gentoo bug 445230
+
 DESCRIPTION="An open source multimedia framework, designed and developed for television broadcasting"
 HOMEPAGE="http://www.mltframework.org/"
 SRC_URI="mirror://sourceforge/mlt/${P}.tar.gz"
@@ -13,7 +18,7 @@ SRC_URI="mirror://sourceforge/mlt/${P}.tar.gz"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~ppc ~ppc64 ~x86 ~x86-fbsd ~amd64-linux ~x86-linux"
-IUSE="compressed-lumas dv debug ffmpeg frei0r gtk jack kde libsamplerate melt
+IUSE="compressed-lumas dv debug ffmpeg frei0r gtk jack kde kdelink libsamplerate melt
 mmx qt4 quicktime rtaudio sdl sse sse2 swfdec vorbis xine xml lua python ruby vdpau" # java perl php tcl
 IUSE="${IUSE} kernel_linux"
 
@@ -40,7 +45,7 @@ RDEPEND="ffmpeg? ( virtual/ffmpeg[vdpau?] )
 		x11-libs/qt-gui:4
 		x11-libs/qt-svg:4
 		media-libs/libexif
-		kde? ( kde-base/kdelibs:4 ) )
+		kdelink? ( kde-base/kdelibs:4 ) )
 	!media-libs/mlt++
 	lua? ( >=dev-lang/lua-5.1.4-r4 )
 	ruby? ( dev-lang/ruby )"
@@ -109,7 +114,7 @@ src_configure() {
 	use ffmpeg && myconf="${myconf} --avformat-swscale"
 
 	{ use quicktime && use dv; } ||  myconf="${myconf} --disable-kino"
-	{ use qt4 && use !kde; } && myconf="${myconf} --without-kde"
+	{ use qt4 && use !kdelink; } && myconf="${myconf} --without-kde"
 
 	use compressed-lumas && myconf="${myconf} --luma-compress"
 
