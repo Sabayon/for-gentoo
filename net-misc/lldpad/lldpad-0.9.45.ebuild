@@ -34,3 +34,9 @@ src_prepare() {
 	sed -i -e '/AM_CFLAGS/ s/-Werror //' Makefile.am || die
 	autotools-utils_src_prepare
 }
+
+src_install() {
+	autotools-utils_src_install
+	rm -r "${D}"/etc/bash_completion.d || die
+	rm -r "${D}"etc/init.d || die
+}
