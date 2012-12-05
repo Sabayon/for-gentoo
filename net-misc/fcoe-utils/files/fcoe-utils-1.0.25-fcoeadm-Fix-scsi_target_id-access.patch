@@ -1,0 +1,118 @@
+From 2e92b21a3c075c4f0558c6323664d377281c8bd7 Mon Sep 17 00:00:00 2001
+From: Mark Rustad <mark.d.rustad@intel.com>
+Date: Thu, 25 Oct 2012 04:51:07 +0000
+Subject: [PATCH 7/7] fcoeadm: Fix scsi_target_id access
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+This fixes a few problems with how the function show_target_info
+accesses the scsi_target_id. First off, it tries to read it as a
+u32 value, but checks for the special value -1. There are two
+problems with that, -1 can't be read by sa_sys_read_u32 (it
+will return an error) and if it were to return 0xffffffff in
+the u32, the comparison with -1 would always be false. A third
+problem is that the error return from sa_sys_read_u32 is not
+checked. Fix this by adding a function sa_sys_read_int and
+use it properly.
+
+Signed-off-by: Mark Rustad <mark.d.rustad@intel.com>
+Tested-by: Ross Brattain <ross.b.brattain@intel.com>
+Signed-off-by: Robert Love <robert.w.love@intel.com>
+Signed-off-by: Petr Šabata <contyk@redhat.com>
+---
+ fcoeadm_display.c       | 13 +++++++++----
+ include/fcoemon_utils.h |  1 +
+ lib/sa_sys.c            | 26 ++++++++++++++++++++++++++
+ 3 files changed, 36 insertions(+), 4 deletions(-)
+
+diff --git a/fcoeadm_display.c b/fcoeadm_display.c
+index 85aa0a0..e1cbd48 100644
+--- a/fcoeadm_display.c
++++ b/fcoeadm_display.c
+@@ -239,7 +239,7 @@ static void show_target_info(const char *symbolic_name,
+ 			     HBA_PORTATTRIBUTES *rp_info)
+ {
+ 	char buf[256];
+-	u_int32_t tgt_id;
++	int tgt_id;
+ 	int rc;
+ 	char *ifname;
+ 
+@@ -259,9 +259,14 @@ static void show_target_info(const char *symbolic_name,
+ 	show_wwn(rp_info->PortWWN.wwn);
+ 	printf("\n");
+ 
+-	rc = sa_sys_read_u32(rp_info->OSDeviceName, "scsi_target_id", &tgt_id);
+-	if (tgt_id != -1)
+-		printf("    Target ID:        %d\n", tgt_id);
++	rc = sa_sys_read_int(rp_info->OSDeviceName, "scsi_target_id", &tgt_id);
++	printf("    Target ID:        ");
++	if (rc)
++		printf("Unknown\n");
++	else if (tgt_id != -1)
++		printf("%d\n", tgt_id);
++	else
++		printf("Unset\n");
+ 
+ 	printf("    MaxFrameSize:     %d\n", rp_info->PortMaxFrameSize);
+ 
+diff --git a/include/fcoemon_utils.h b/include/fcoemon_utils.h
+index 3bdb377..a8ad27b 100644
+--- a/include/fcoemon_utils.h
++++ b/include/fcoemon_utils.h
+@@ -288,6 +288,7 @@ struct sa_table {
+  */
+ extern int sa_sys_read_line(const char *, const char *, char *, size_t);
+ extern int sa_sys_write_line(const char *, const char *, const char *);
++extern int sa_sys_read_int(const char *, const char *, int *);
+ extern int sa_sys_read_u32(const char *, const char *, u_int32_t *);
+ extern int sa_sys_read_u64(const char *, const char *, u_int64_t *);
+ extern int sa_dir_read(char *, int (*)(struct dirent *, void *), void *);
+diff --git a/lib/sa_sys.c b/lib/sa_sys.c
+index bb35083..86988ca 100644
+--- a/lib/sa_sys.c
++++ b/lib/sa_sys.c
+@@ -18,6 +18,8 @@
+ 
+ #include "fcoemon_utils.h"
+ 
++#include <limits.h>
++
+ /*
+  * Read a line from the specified file in the specified directory
+  * into the buffer.  The file is opened and closed.
+@@ -90,6 +92,30 @@ sa_sys_write_line(const char *dir, const char *file, const char *string)
+ 	return rc;
+ }
+ 
++int sa_sys_read_int(const char *dir, const char *file, int *vp)
++{
++	char buf[256];
++	int rc;
++	long val;
++	char *endptr;
++
++	rc = sa_sys_read_line(dir, file, buf, sizeof(buf));
++	if (rc)
++		return rc;
++
++	val = strtol(buf, &endptr, 0);
++	if (*endptr != '\0') {
++		fprintf(stderr, "%s: parse error. file %s/%s line '%s'\n",
++			__func__, dir, file, buf);
++		return -1;
++	}
++	if (val > INT_MAX  || val < INT_MIN)
++		return ERANGE;
++
++	*vp = val;
++	return 0;
++}
++
+ int
+ sa_sys_read_u32(const char *dir, const char *file, u_int32_t *vp)
+ {
+-- 
+1.7.11.7
+

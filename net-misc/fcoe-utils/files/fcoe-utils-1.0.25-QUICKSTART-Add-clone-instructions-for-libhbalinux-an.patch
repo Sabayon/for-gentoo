@@ -1,0 +1,56 @@
+From 1b380ac803a682113616f4cd1e85f371fad997f8 Mon Sep 17 00:00:00 2001
+From: Robert Love <robert.w.love@intel.com>
+Date: Wed, 10 Oct 2012 07:14:01 +0000
+Subject: [PATCH 2/7] QUICKSTART: Add clone instructions for libhbalinux and
+ fcoe-utils
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The QUICKSTART lists these repos at the top of the file, but doesn't
+mention the repo names at all in the install instructions. This
+patch explains where to clone from in the install instructions for
+both libhbalinux.git and fcoe-utils.git.
+
+Signed-off-by: Robert Love <robert.w.love@intel.com>
+Tested-by: Ross Brattain <ross.b.brattain@intel.com>
+Signed-off-by: Petr Šabata <contyk@redhat.com>
+---
+ QUICKSTART | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
+
+diff --git a/QUICKSTART b/QUICKSTART
+index a273d98..3634ee2 100644
+--- a/QUICKSTART
++++ b/QUICKSTART
+@@ -165,7 +165,12 @@ DEPENDENCIES
+ 
+ PROCESS
+ 
+-1) Bootstrap, configure, make and make install
++1) Obtain the latest source
++
++   git clone git://open-fcoe.org/fcoe/libhbalinux.git
++
++2) Bootstrap, configure, make and make install
++   # cd libhbalinux
+    # ./bootstrap.sh
+    # rpm --eval "%configure" | sh
+    # make
+@@ -190,7 +195,12 @@ DEPENDENCIES
+ 
+ PROCESS
+ 
+-1) Bootstrap, configure, make and make install
++1) Obtain the latest source
++
++   git clone git://open-fcoe.org/fcoe/fcoe-utils.git
++
++2) Bootstrap, configure, make and make install
++   # cd fcoe-utils
+    # ./bootstrap.sh
+    # rpm --eval "%configure" | sh
+    # make
+-- 
+1.7.11.7
+

@@ -1,38 +1,39 @@
-# Copyright 1999-2010 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI="2"
+EAPI="4"
 
-EGIT_REPO_URI="git://open-fcoe.org/openfc/${PN}.git"
-EGIT_COMMIT="v${PV}"
-inherit base git autotools linux-info
+inherit base autotools linux-info
 
 DESCRIPTION="Fibre Channel over Ethernet utilities"
 HOMEPAGE="http://www.open-fcoe.org"
-SRC_URI=""
+SRC_URI="mirror://sabayon/${CATEGORY}/${P}.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="+dcb kernel_linux"
+IUSE="kernel_linux"
 
-DEPEND="sys-apps/hbaapi
-	dcb? ( >=net-misc/dcbd-0.9.24 )
+COMMON_DEPEND=">=net-misc/lldpad-0.9.43
+	>=sys-apps/hbaapi-2.2
+	>=sys-apps/libhbalinux-1.0.14"
+
+DEPEND="${COMMON_DEPEND}
+	sys-fs/multipath-tools
 	kernel_linux? ( virtual/linux-sources )
 	>=sys-kernel/linux-headers-2.6.32"
-RDEPEND="sys-apps/hbaapi
-	dcb? ( >=net-misc/dcbd-0.9.24 )"
+RDEPEND="${COMMON_DEPEND}"
 
-PATCHES=( "${FILESDIR}/${PN}-1.0.7-init.patch"
-	"${FILESDIR}/${PN}-1.0.7-init-condrestart.patch"
-	"${FILESDIR}/${PN}-1.0.8-init-LSB.patch"
-	"${FILESDIR}/${PN}-add-kernel-include-dir.patch"
-	"${FILESDIR}/${P}-makefile-data-hook.patch"
+PATCHES=(
+	"${FILESDIR}/${PN}-1.0.19-make.patch"
+	"${FILESDIR}/${PN}-1.0.18-help.patch"
+	"${FILESDIR}/${PN}-1.0.18-config.patch"
+	"${FILESDIR}/${PN}-1.0.23-archiver.patch"
+	"${FILESDIR}/${P}-"*.patch
 )
 
 src_prepare() {
-	git_src_prepare
 	base_src_prepare
 
 	eautoreconf || die "failed to run eautoreconf"
@@ -53,4 +54,8 @@ src_install() {
 	dodir /usr/libexec/fcoe
 	exeinto /usr/libexec/fcoe
 	doexe "${FILESDIR}"/fcoe_edd.sh
+
+	# Stuff we don't want
+	rm -rf "${ED}/etc/init.d"
+	rm -rf "${ED}/etc/bash_completion.d"
 }
