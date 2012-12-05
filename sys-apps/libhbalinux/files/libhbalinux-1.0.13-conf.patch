@@ -1,0 +1,28 @@
+diff --git a/Makefile.am b/Makefile.am
+index 1349e7b..7c5ac14 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -12,23 +12,3 @@ pkgconfigdir = $(libdir)/pkgconfig
+ pkgconfig_DATA = libhbalinux.pc
+ 
+ dist_noinst_DATA = README COPYING INSTALL libhbalinux.pc.in libhbalinux.spec
+-
+-install-data-hook: libhbalinux.la
+-	. $${PWD}/$<; \
+-	ORG=org.open-fcoe.libhbalinux; \
+-	LIB=${libdir}/$${dlname}; \
+-	STR="$$ORG	$$LIB"; \
+-	CONF=${sysconfdir}/hba.conf; \
+-	if test -f $$CONF; then \
+-		grep -E -q ^[[:space:]]*$$ORG[[:space:]]+$$LIB $$CONF; \
+-		if test $$? -ne 0; then \
+-			echo $$STR >> $$CONF; \
+-		else \
+-			echo "** $$CONF already configured"; \
+-			echo "** system configuration not updated"; \
+-		fi; \
+-	else \
+-		echo "** WARNING: $$CONF does not exist"; \
+-		echo "** system configuration not updated"; \
+-	fi
+-
