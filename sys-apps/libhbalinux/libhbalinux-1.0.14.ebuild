@@ -15,7 +15,8 @@ SLOT="0"
 KEYWORDS="~x86 ~amd64"
 IUSE=""
 
-DEPEND="sys-apps/hbaapi"
+DEPEND="sys-apps/hbaapi
+	x11-libs/libpciaccess"
 
 src_prepare() {
 	epatch "${FILESDIR}/${PN}-1.0.13-conf.patch"
