@@ -21,14 +21,13 @@ KEYWORDS=""
 IUSE=""
 
 COMMON_DEPEND="dev-python/pygobject:3
-	>=gnome-base/gnome-menus-3.2.0.1:3[introspection]
+	>=gnome-base/gnome-menus-3.5.2:3[introspection]
 "
 
 RDEPEND="${COMMON_DEPEND}
 	x11-libs/gdk-pixbuf:2[introspection]
 	x11-libs/gtk+:3[introspection]
 	xfce-base/exo
-	xfce-base/xfce4-panel
 	!x11-misc/alacarte
 "
 DEPEND="${COMMON_DEPEND}
@@ -46,10 +45,6 @@ src_prepare() {
 	# Fix desktop item editor dialog, avoids gnome-panel dependency
 	sed -e "s/gnome-desktop-item-edit/exo-desktop-item-edit/g" \
 		-i Alacarte/MainWindow.py || die
-
-	# Fix menu path, actually edit Xfce panel entries
-	sed -e "s/Menu('applications.menu')/Menu('xfce-applications.menu')/g" \
-		-i Alacarte/MenuEditor.py || die
 
 	gnome2_src_prepare
 	python_clean_py-compile_files
