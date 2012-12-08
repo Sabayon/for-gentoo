@@ -28,6 +28,7 @@ RDEPEND="${COMMON_DEPEND}
 	x11-libs/gdk-pixbuf:2[introspection]
 	x11-libs/gtk+:3[introspection]
 	xfce-base/exo
+	xfce-base/xfce4-panel
 	!x11-misc/alacarte
 "
 DEPEND="${COMMON_DEPEND}
@@ -42,7 +43,14 @@ pkg_setup() {
 }
 
 src_prepare() {
-	sed -e 's/gnome-desktop-item-edit/exo-desktop-item-edit/g' -i Alacarte/MainWindow.py || die
+	# Fix desktop item editor dialog, avoids gnome-panel dependency
+	sed -e "s/gnome-desktop-item-edit/exo-desktop-item-edit/g" \
+		-i Alacarte/MainWindow.py || die
+
+	# Fix menu path, actually edit Xfce panel entries
+	sed -e "s/Menu('applications.menu')/Menu('xfce-applications.menu')/g" \
+		-i Alacarte/MenuEditor.py || die
+
 	gnome2_src_prepare
 	python_clean_py-compile_files
 
