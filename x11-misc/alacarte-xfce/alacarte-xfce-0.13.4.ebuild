@@ -13,11 +13,12 @@ RESTRICT_PYTHON_ABIS="3.*"
 inherit gnome.org gnome2 python
 
 DESCRIPTION="Alacarte based menu editor for Xfce"
+HOMEPAGE="http://live.gnome.org/"
 
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~arm ~x86"
-IUSE="emacs"
+IUSE=""
 
 COMMON_DEPEND="dev-python/pygobject:3
 	>=gnome-base/gnome-menus-3.2.0.1:3[introspection]
