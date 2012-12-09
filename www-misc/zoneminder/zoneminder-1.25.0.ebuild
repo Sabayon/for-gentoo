@@ -59,6 +59,7 @@ PATCHES=(
 	"${FILESDIR}"/1.25.0/Makefile.am.2.patch
 	"${FILESDIR}"/1.24.2/db_upgrade_script_location.patch
 	"${FILESDIR}"/1.25.0/avutil-mathematics-header.patch
+	"${FILESDIR}"/1.25.0/kernel-3.5-v4l.patch
 )
 
 pkg_setup() {
