@@ -1,38 +1,38 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-wireless/ndiswrapper/ndiswrapper-1.56.ebuild,v 1.7 2011/02/19 16:53:04 angelos Exp $
+# $Header: $
 
-EAPI=2
+EAPI=4
 inherit base linux-mod toolchain-funcs
 
+MY_PV=${PV/_}
 DESCRIPTION="Wrapper for using Windows drivers for some wireless cards"
 HOMEPAGE="http://ndiswrapper.sourceforge.net/"
-SRC_URI="mirror://sourceforge/${PN}/stable/${PV/_/-}/${P/_}.tar.gz"
+SRC_URI="mirror://sourceforge/${PN}/testing/${PN}-${MY_PV}.tar.gz"
 
 LICENSE="GPL-2"
-KEYWORDS="amd64 x86"
+KEYWORDS="~amd64 ~x86"
 IUSE="debug usb"
 
 DEPEND="sys-apps/pciutils"
 RDEPEND="${DEPEND}
 	net-wireless/wireless-tools"
-S="${WORKDIR}/${P/_}"
 
-PATCHES=( "${FILESDIR}"/${PN}-1.56-cflags.patch "${FILESDIR}"/${PN}-1.57-3.3.patch )
+S=${WORKDIR}/${PN}-${MY_PV}
+
+PATCHES=(
+	"${FILESDIR}"/${PN}-1.56-cflags.patch
+	"${FILESDIR}"/${P}-linux-3.7.patch
+	)
 MODULE_NAMES="ndiswrapper(misc:${S}/driver)"
 BUILD_TARGETS="all"
 MODULESD_NDISWRAPPER_ALIASES=("wlan0 ndiswrapper")
 
-pkg_setup() {
-	echo
-	einfo "See http://www.gentoo.org/doc/en/gentoo-kernel.xml"
-	einfo "for a list of supported kernels."
-	echo
-
-	CONFIG_CHECK="WIRELESS_EXT"
-	use usb && CONFIG_CHECK="${CONFIG_CHECK} USB"
+pkg_pretend() {
+	CONFIG_CHECK="~WEXT_PRIV"
+	use usb && CONFIG_CHECK="${CONFIG_CHECK} ~USB"
 	ERROR_USB="You need to enable USB support in your kernel to use usb support in ndiswrapper."
-	ERROR_WIRELESS_EXT="Starting with 2.6.33 it is not possible to select WIRELESS_EXT anymore, you have to enable a wireless driver that enables WIRELESS_EXT, for example PRISM54 or IPW2200"
+	ERROR_WEXT_PRIV="Your kernel does not support WEXT_PRIV. To enable it you need to enable a wireless driver that enables it, for example PRISM54 or IPW2200"
 	linux-mod_pkg_setup
 }
 
@@ -46,7 +46,7 @@ src_compile() {
 	fi
 
 	cd utils
-	emake CC=$(tc-getCC) || die "Compile of utils failed!"
+	emake CC=$(tc-getCC)
 
 	use usb || params="${params} DISABLE_USB=1"
 
@@ -55,15 +55,15 @@ src_compile() {
 }
 
 src_install() {
-	dodoc AUTHORS ChangeLog INSTALL README || die "dodoc failed"
-	doman ndiswrapper.8 || die "doman failed"
+	dodoc AUTHORS ChangeLog INSTALL README
+	doman ndiswrapper.8
 
 	keepdir /etc/ndiswrapper
 
 	linux-mod_src_install
 
 	cd utils
-	emake DESTDIR="${D}" install || die "emake install failed"
+	emake DESTDIR="${D}" install
 }
 
 pkg_postinst() {
