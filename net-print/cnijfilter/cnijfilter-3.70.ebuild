@@ -90,7 +90,8 @@ src_prepare() {
 		"${FILESDIR}/${PN}"-3.70-png.patch \
 		"${FILESDIR}/${PN}"-3.70-ppd.patch \
 		"${FILESDIR}/${PN}"-3.70-ppd2.patch \
-		"${FILESDIR}/${PN}"-3.70-libexec-cups.patch
+		"${FILESDIR}/${PN}"-3.70-libexec-cups.patch \
+		"${FILESDIR}/${PN}"-3.70-libexec-backend.patch
 
 	_dir_build "${DIRS}" "eautoreconf"
 	_dir_build "${DIRS_PRINTER}" "eautoreconf"
