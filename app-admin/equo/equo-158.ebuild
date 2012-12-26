@@ -1,4 +1,4 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -17,7 +17,8 @@ SRC_URI="mirror://sabayon/sys-apps/entropy-${PV}.tar.bz2"
 
 S="${WORKDIR}/entropy-${PV}"
 
-DEPEND="~sys-apps/entropy-${PV}"
+DEPEND="app-text/asciidoc
+	~sys-apps/entropy-${PV}"
 RDEPEND="${DEPEND} sys-apps/file[python]"
 
 src_compile() {
