@@ -7,7 +7,7 @@ fi
 OLD=$1
 NEW=$2
 PACKAGES="sys-apps/rigo-daemon sys-apps/entropy app-admin/equo
-	app-admin/rigo sys-apps/entropy-server
+	app-admin/matter app-admin/rigo sys-apps/entropy-server
 	sys-apps/magneto-core app-misc/magneto-loader
 	kde-misc/magneto-kde x11-misc/magneto-gtk x11-misc/magneto-gtk3"
 
