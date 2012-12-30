@@ -46,7 +46,11 @@ _dir_build() {
 		echo ">>> Working in: ${d}"
 		pushd ${d} >/dev/null
 		# progpath must be set otherwise we go for /usr/local/bin
-		${command} --enable-progpath="${EPREFIX}/usr/bin"
+		if [[ ${command} == econf* ]]; then
+			${command} --enable-progpath="${EPREFIX}/usr/bin"
+		else
+			${command}
+		fi
 		popd > /dev/null
 	done
 }
