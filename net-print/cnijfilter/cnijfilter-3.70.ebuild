@@ -42,9 +42,11 @@ _dir_build() {
 	[[ $# -ne 2 ]] && die "Call as: _dir_build DIRS COMMAND"
 
 	for d in ${dirs}; do
+		local suffix=""
 		echo ">>> Working in: ${d}"
 		pushd ${d} >/dev/null
-		${command}
+		# progpath must be set otherwise we go for /usr/local/bin
+		${command} --enable-progpath="${EPREFIX}/usr/bin"
 		popd > /dev/null
 	done
 }
