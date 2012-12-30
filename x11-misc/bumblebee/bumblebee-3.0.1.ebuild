@@ -1,14 +1,13 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: $
+# $Header: /var/cvsroot/gentoo-x86/x11-misc/bumblebee/bumblebee-3.0.1.ebuild,v 1.1 2012/09/14 20:24:21 pacho Exp $
 
-EAPI="4"
-
-inherit multilib user
+EAPI=4
+inherit multilib systemd user
 
 DESCRIPTION="Service providing elegant and stable means of managing Optimus graphics chipsets"
 HOMEPAGE="https://github.com/Bumblebee-Project/Bumblebee"
-SRC_URI="mirror://github/Bumblebee-Project/${PN/bu/Bu}/${P/bu/Bu}.tar.gz"
+SRC_URI="mirror://github/Bumblebee-Project/${PN/bu/Bu}/${P}.tar.gz"
 
 SLOT="0"
 LICENSE="GPL-3"
@@ -19,7 +18,6 @@ IUSE="+bbswitch video_cards_nouveau video_cards_nvidia"
 RDEPEND="x11-misc/virtualgl
 	bbswitch? ( sys-power/bbswitch )
 	virtual/opengl"
-# no need to directly depend against nvidia or nouveau
 DEPEND=">=sys-devel/autoconf-2.68
 	sys-devel/automake
 	sys-devel/gcc
@@ -50,21 +48,21 @@ src_configure() {
 }
 
 src_install() {
-	newconfd "${FILESDIR}"/bumblebee.nouveau-confd bumblebee # The same conf.d file can be used for nvidia also
+	newconfd "${FILESDIR}"/bumblebee.confd bumblebee
 	newinitd "${FILESDIR}"/bumblebee.initd bumblebee
+	newenvd  "${FILESDIR}"/bumblebee.envd 99bumblebee
+	systemd_dounit scripts/systemd/bumblebeed.service
 	default
 }
 
 pkg_preinst() {
-	! use video_cards_nvidia && rm "${ED}"/etc/bumblebee/xorg.conf.nvidia
-	! use video_cards_nouveau && rm "${ED}"/etc/bumblebee/xorg.conf.nouveau
+	use video_cards_nvidia || rm "${ED}"/etc/bumblebee/xorg.conf.nvidia
+	use video_cards_nouveau || rm "${ED}"/etc/bumblebee/xorg.conf.nouveau
 
 	enewgroup bumblebee
 }
 
 pkg_postinst() {
-	ewarn "This is *NOT* all! Bumblebee still *NOT* ready to use."
-	ewarn "You may need to setup your /etc/bumblebee/bumblebee.conf!"
-	ewarn "For example, default config suggests you have bbswitch installed."
-	ewarn "Also you should add your user to 'bumblebee' group."
+	ewarn "In order to use Bumblebee, add your user to 'bumblebee' group."
+	ewarn "You may need to setup your /etc/bumblebee/bumblebee.conf"
 }
