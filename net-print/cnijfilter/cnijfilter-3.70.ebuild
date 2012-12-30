@@ -154,6 +154,8 @@ src_install() {
 			cp -a "${pid}/${_libdir_pkg}"/* "${D}/${_libdir}" || die
 			exeinto ${_libdir}/cnijlib
 			doexe ${pid}/database/*
+			# create symlink for the cnijlib to bjlib as some formats need it
+			dosym ${_libdir}/cnijlib ${_libdir}/bjlib
 			insinto ${_ppddir}
 			doins ppd/canon${name}.ppd
 		fi
