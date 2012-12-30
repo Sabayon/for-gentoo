@@ -13,8 +13,8 @@ SRC_URI="http://gdlp01.c-wss.com/gds/3/0100004693/01/${PN}-source-${PV}-1.tar.gz
 LICENSE="GPL-2 cnijfilter"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-PRINTER_USE=( ip100 mx710 mx890 mx370 mx430 mx510 e600 )
-PRINTER_ID=( 303 394 395 396 397 398 399 )
+PRINTER_USE=( mp230 mg2200 e510 mg3200 mg4200 ip7200 mg5400 mg6300 )
+PRINTER_ID=( 401 402 403 404 405 406 407 408 )
 IUSE="${PRINTER_USE[@]} +net +servicetools"
 
 RDEPEND="
@@ -76,14 +76,14 @@ pkg_setup() {
 	use net && DIRS+=" backendnet"
 	use servicetools && DIRS+=" cngpij cngpijmon cngpijmon/cnijnpr"
 	DIRS_PRINTER="cnijfilter"
-	use servicetools && DIRS_PRINTER+=" printui lgmon"
+	use servicetools && DIRS_PRINTER+=" maintenance lgmon"
 }
 
 src_prepare() {
 	local d i
 
 	# missing macros directory make aclocal fail
-	mkdir printui/m4 || die
+	mkdir maintenance/m4 || die
 
 	epatch \
 		"${FILESDIR}/${PN}"-3.70-png.patch \

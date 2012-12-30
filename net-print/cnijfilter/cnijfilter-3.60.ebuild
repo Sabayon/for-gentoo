@@ -13,8 +13,8 @@ SRC_URI="http://gdlp01.c-wss.com/gds/3/0100004693/01/${PN}-source-${PV}-1.tar.gz
 LICENSE="GPL-2 cnijfilter"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-PRINTER_USE=( ip100 mx710 mx890 mx370 mx430 mx510 e600 )
-PRINTER_ID=( 303 394 395 396 397 398 399 )
+PRINTER_USE=( mg2100 mg3100 mg4100 mg5300 mg6200 mg8200 ip4900 e500 )
+PRINTER_ID=( 386 387 388 389 390 391 392 393 )
 IUSE="${PRINTER_USE[@]} +net +servicetools"
 
 RDEPEND="
