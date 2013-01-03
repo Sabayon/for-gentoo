@@ -4,7 +4,7 @@
 
 EAPI="4"
 
-inherit eutils multilib qt4-r2
+inherit multilib qt4-r2
 
 MY_PN="RetroShare"
 MY_P="${MY_PN}-v${PV}"
@@ -40,7 +40,6 @@ S="${WORKDIR}/trunk"
 
 src_prepare()
 {
-	epatch "${FILESDIR}"/${P}-labels.patch
 	sed -i -e \
 		"s|/usr/lib/retroshare/extensions/|/usr/$(get_libdir)/${PN}/extensions/|" \
 		libretroshare/src/rsserver/rsinit.cc \
