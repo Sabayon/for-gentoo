@@ -1,4 +1,4 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -17,11 +17,11 @@ HOMEPAGE="http://live.gnome.org/"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS=""
+KEYWORDS="~amd64 ~arm ~x86"
 IUSE=""
 
 COMMON_DEPEND="dev-python/pygobject:3
-	>=gnome-base/gnome-menus-3.5.2:3[introspection]
+	>=gnome-base/gnome-menus-3.5.3:3[introspection]
 "
 
 RDEPEND="${COMMON_DEPEND}
