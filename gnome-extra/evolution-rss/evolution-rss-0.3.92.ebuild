@@ -1,8 +1,8 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI="2"
+EAPI="4"
 
 inherit eutils gnome2
 #inherit autotools eutils gnome2
@@ -14,39 +14,23 @@ SRC_URI="mirror://sabayon/${CATEGORY}/${PN}/${P}.tar.gz"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~x86 ~amd64"
-IUSE="+gtk3 nls webkit"
-RDEPEND="app-text/enchant
-	dev-libs/dbus-glib
-	dev-libs/expat
+IUSE="nls webkit"
+
+RDEPEND="dev-libs/dbus-glib
 	>=dev-libs/glib-2.26.1:2
 	>=gnome-base/gconf-2.32.0-r1
-	>=gnome-base/libglade-2
-	gnome-base/orbit:2
 	gnome-extra/evolution-data-server
+	gnome-extra/gtkhtml:4.0
 	net-libs/libsoup:2.4
 	net-libs/libsoup-gnome:2.4
-	media-libs/fontconfig
-	media-libs/freetype:2
-	media-libs/libpng:0
+	>=mail-client/evolution-3.6
+	x11-libs/gtk+:3
+	x11-libs/libX11
 	x11-libs/pango
-	gtk3? (
-		gnome-extra/gtkhtml:4.0
-		webkit? ( net-libs/webkit-gtk:3 )
-		x11-libs/gtk+:3
-		>=mail-client/evolution-3
-	)
-	!gtk3? (
-		gnome-extra/gtkhtml:3.14
-		webkit? ( net-libs/webkit-gtk:2 )
-		x11-libs/gtk+:2
-		<mail-client/evolution-3
-	)"
+	webkit? ( net-libs/webkit-gtk:3 )
+"
 
 # does not compile with gecko
-#xulrunner? ( || (
-#		net-libs/xulrunner:1.9
-#		www-client/seamonkey
-#		www-client/firefox ) )
 
 DEPEND="${RDEPEND}
 	virtual/pkgconfig
@@ -75,4 +59,14 @@ src_prepare() {
 	# intltoolize --force --copy --automake || die "intltoolize failed"
 	# eautoreconf
 	NOCONFIGURE=1 ./autogen.sh || die "autogen failed"
+}
+
+pkg_postinst() {
+	gnome2_pkg_postinst
+	if [[ -n ${REPLACING_VERSIONS} ]] \
+		&& [[ ${REPLACING_VERSIONS} < 0.3.92 ]]
+	then
+		ewarn "In 0.3.92 feeds were migrated from gconf to GSettings."
+		ewarn "You need to configure them again."
+	fi
 }
