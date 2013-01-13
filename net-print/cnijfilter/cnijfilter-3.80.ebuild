@@ -13,9 +13,7 @@ SRC_URI="http://gdlp01.c-wss.com/gds/3/0100004693/01/${PN}-source-${PV}-1.tar.gz
 LICENSE="GPL-2 cnijfilter"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-PRINTER_USE=( mp230 mg2200 e510 mg3200 mg4200 ip7200 mg5400 mg6300 )
-PRINTER_ID=( 401 402 403 404 405 406 407 408 )
-IUSE="${PRINTER_USE[@]} +net +servicetools"
+IUSE="+net +servicetools"
 
 RDEPEND="
 	>=media-libs/libpng-1.5
@@ -29,8 +27,6 @@ RDEPEND="
 DEPEND="${DEPEND}
 	sys-devel/gettext
 "
-
-REQUIRED_USE="|| ( ${PRINTER_USE[@]} )"
 
 S="${WORKDIR}/${PN}-source-${PV}-1"
 
@@ -55,41 +51,16 @@ _dir_build() {
 	done
 }
 
-_printer_dir_build() {
-	local command=$1
-	local d
-
-	[[ $# -ne 1 ]] && die "Call as: _printer_dir_build COMMAND"
-
-	for (( i=0; i<${#PRINTER_USE[@]}; i++ )); do
-		local name="${PRINTER_USE[$i]}"
-		if use ${name}; then
-			for d in ${DIRS_PRINTER}; do
-				echo ">>> Working in: ${name}/${d}"
-				pushd ${name}/${d} > /dev/null
-				# substitution here is for configure phase
-				${command/\%name\%/${name}}
-				popd > /dev/null
-			done
-		fi
-	done
-}
-
 pkg_setup() {
 	[[ -z ${LINGUAS} ]] && LINGUAS="en"
 
 	DIRS="libs pstocanonij backend"
 	use net && DIRS+=" backendnet"
-	use servicetools && DIRS+=" cngpij cngpijmon cngpijmon/cnijnpr"
-	DIRS_PRINTER="cnijfilter"
-	use servicetools && DIRS_PRINTER+=" maintenance lgmon"
+	use servicetools && DIRS+=" cngpij cngpijmon/cnijnpr"
 }
 
 src_prepare() {
 	local d i
-
-	# missing macros directory make aclocal fail
-	mkdir maintenance/m4 || die
 
 	epatch \
 		"${FILESDIR}/${PN}"-3.70-png.patch \
@@ -99,43 +70,23 @@ src_prepare() {
 		"${FILESDIR}/${PN}"-3.70-libexec-backend.patch
 
 	_dir_build "${DIRS}" "eautoreconf"
-	_dir_build "${DIRS_PRINTER}" "eautoreconf"
-
-	for (( i=0; i<${#PRINTER_USE[@]}; i++ )); do
-		local name="${PRINTER_USE[$i]}"
-		local pid="${PRINTER_ID[$i]}"
-		if use ${name}; then
-			mkdir -p ${name} || die
-			ln -s "${S}"/${pid} ${name}/ || die
-			ln -s "${S}"/com ${name}/ || die
-			for d in ${DIRS_PRINTER}; do
-				cp -a ${d} ${name} || die
-			done
-		fi
-	done
 }
 
 src_configure() {
 	local d i
 
 	_dir_build "${DIRS}" "econf"
-	_dir_build "lgmon" "econf" # workaround for cnijnpr which needs generic compiled lgmon
-	_printer_dir_build "econf --program-suffix=%name%"
 }
 
 src_compile() {
-	_dir_build "lgmon" "emake" # workaround for cnijnpr which needs generic	compiled lgmon
 	_dir_build "${DIRS}" "emake"
-	_printer_dir_build "emake"
 }
 
 src_install() {
 	local _libdir="${EPREFIX}/usr/$(get_libdir)"
 	local _libdir_pkg=libs_bin$(use amd64 && echo 64 || echo 32)
-	local _ppddir="${EPREFIX}/usr/share/cups/model"
 
 	_dir_build "${DIRS}" "emake DESTDIR=${D} install"
-	_printer_dir_build "emake DESTDIR=${D} install"
 
 	if use net; then
 		pushd com/${_libdir_pkg} > /dev/null
@@ -144,22 +95,6 @@ src_install() {
 		cp -a libcnnet.so* "${D}/${_libdir}" || die
 		popd > /dev/null
 	fi
-
-	for (( i=0; i<${#PRINTER_USE[@]}; i++ )); do
-		local name="${PRINTER_USE[$i]}"
-		local pid="${PRINTER_ID[$i]}"
-		if use ${name}; then
-			dodir ${_libdir}
-			# no doexe due to symlinks
-			cp -a "${pid}/${_libdir_pkg}"/* "${D}/${_libdir}" || die
-			exeinto ${_libdir}/cnijlib
-			doexe ${pid}/database/*
-			# create symlink for the cnijlib to bjlib as some formats need it
-			dosym ${_libdir}/cnijlib ${_libdir}/bjlib
-			insinto ${_ppddir}
-			doins ppd/canon${name}.ppd
-		fi
-	done
 }
 
 pkg_postinst() {
