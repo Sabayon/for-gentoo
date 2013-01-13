@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=3
+EAPI=5
 
 MY_PN="equinox"
 ODTAG="121881"
@@ -22,10 +22,10 @@ RDEPEND="${DEPEND}"
 
 S="${WORKDIR}/${MY_P}"
 
-src_configure () {
-	econf --enable-animation
+src_prepare() {
+	sed -i 's#glib/gtimer.h#glib.h#' src/animation.c
 }
 
-src_install () {
-	emake DESTDIR="${D}" install
+src_configure () {
+	econf --enable-animation
 }
