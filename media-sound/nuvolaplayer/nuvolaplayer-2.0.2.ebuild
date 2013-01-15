@@ -18,8 +18,10 @@ RDEPEND="
 	x11-libs/gtk+:3
 	dev-libs/libgee:0
 	dev-libs/json-glib
-	>=net-libs/webkit-gtk-1.2
-	>=dev-libs/libunique-0.9
+	net-libs/webkit-gtk:3[gstreamer]
+	media-libs/gstreamer:1.0
+	media-plugins/gst-plugins-mad:1.0
+	dev-libs/libunique:3
 	>=net-libs/libsoup-2.34
 "
 DEPEND="${RDEPEND}
