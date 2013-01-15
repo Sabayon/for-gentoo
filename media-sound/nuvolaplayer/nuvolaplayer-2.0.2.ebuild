@@ -14,15 +14,18 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE="debug"
 
+RDEPEND="
+	x11-libs/gtk+:3
+	dev-libs/libgee:0
+	dev-libs/json-glib
+	>=net-libs/webkit-gtk-1.2
+	>=dev-libs/libunique-0.9
+	>=net-libs/libsoup-2.34
+"
 DEPEND="${RDEPEND}
-		$(vala_depend)
-		dev-util/intltool
-		>=net-libs/libsoup-2.34
-		>=x11-libs/gtk+-3.0
-		>=dev-libs/libunique-0.9
-		>=dev-libs/libgee-0.5
-		>=net-libs/webkit-gtk-1.2
-		dev-libs/json-glib"
+	$(vala_depend)
+	dev-util/intltool
+"
 
 src_prepare() {
 	vala_src_prepare --ignore-use
