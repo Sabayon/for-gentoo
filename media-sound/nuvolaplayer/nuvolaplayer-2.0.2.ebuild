@@ -23,6 +23,7 @@ RDEPEND="
 	media-plugins/gst-plugins-mad:1.0
 	dev-libs/libunique:3
 	>=net-libs/libsoup-2.34
+	x11-libs/gdk-pixbuf[jpeg]
 "
 DEPEND="${RDEPEND}
 	$(vala_depend)
@@ -30,6 +31,7 @@ DEPEND="${RDEPEND}
 "
 
 src_prepare() {
+	epatch "${FILESDIR}/notification_set_image_from_pixbuf.diff"
 	vala_src_prepare --ignore-use
 }
 
