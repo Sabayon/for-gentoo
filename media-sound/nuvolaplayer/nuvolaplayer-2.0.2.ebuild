@@ -4,7 +4,7 @@
 
 EAPI=4
 
-inherit vala waf-utils
+inherit gnome2-utils vala waf-utils
 
 DESCRIPTION="Cloud music integration for your Linux desktop"
 HOMEPAGE="https://launchpad.net/nuvola-player"
@@ -39,4 +39,12 @@ src_configure() {
 	waf-utils_src_configure \
 		--no-svg-optimization \
 		--no-unity-quick-list
+}
+
+pkg_postinst() {
+	gnome2_icon_cache_update
+}
+
+pkg_postrm() {
+	gnome2_icon_cache_update
 }
