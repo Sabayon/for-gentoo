@@ -56,7 +56,8 @@ pkg_setup() {
 
 	DIRS="libs pstocanonij backend"
 	use net && DIRS+=" backendnet"
-	use servicetools && DIRS+=" cngpij cngpijmon/cnijnpr"
+	#use servicetools && DIRS+=" cngpij cngpijmon/cnijnpr"
+	use servicetools && DIRS+=" cngpij"
 }
 
 src_prepare() {
@@ -67,7 +68,8 @@ src_prepare() {
 		"${FILESDIR}/${PN}"-3.70-ppd.patch \
 		"${FILESDIR}/${PN}"-3.70-ppd2.patch \
 		"${FILESDIR}/${PN}"-3.70-libexec-cups.patch \
-		"${FILESDIR}/${PN}"-3.70-libexec-backend.patch
+		"${FILESDIR}/${PN}"-3.70-libexec-backend.patch \
+		"${FILESDIR}/${P}"-cups1.6.patch
 
 	_dir_build "${DIRS}" "eautoreconf"
 }
