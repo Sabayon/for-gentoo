@@ -17,7 +17,7 @@ INITRD_SYM="${BOOT_DIR}/Initrd"
 _is_kernel() {
     local f="${1}"
     outcome=$(LC_ALL=C /usr/bin/file --brief "${f}" 2> /dev/null | \
-        grep -i "boot executable bzImage")
+        grep -i -E "(boot executable bzImage|x86 boot sector)")
     [[ -n "${outcome}" ]] && return 0
     return 1
 }
