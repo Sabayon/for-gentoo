@@ -66,7 +66,7 @@ src_install() {
 
 	# Sabayon: tweak default settings
 	sed -i "s:TurnCardOffAtExit=.*:TurnCardOffAtExit=true:g" \
-		"${ED}/etc/bumblebee/bumblebee.conf" || die
+		"${S}/conf/bumblebee.conf" || die
 
 	if use bbswitch; then
 		# This is much better than the udev rule below
