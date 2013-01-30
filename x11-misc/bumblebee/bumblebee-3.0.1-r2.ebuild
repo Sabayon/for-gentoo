@@ -68,9 +68,14 @@ src_install() {
 	sed -i "s:TurnCardOffAtExit=.*:TurnCardOffAtExit=true:g" \
 		"${ED}/etc/bumblebee/bumblebee.conf" || die
 
+	# Downstream says: this is just plain wrong, how about
+	# the situation in where the user has bumblebee installed
+	# but they are not actually on an Optimus system? This
+	# disables the nvidia driver forever.
+	##
 	# Install udev rule to handle nvidia card switching,
 	# https://github.com/Bumblebee-Project/Bumblebee/issues/283
-	udev_dorules "${FILESDIR}"/99-remove-nvidia-dev.rules
+	# udev_dorules "${FILESDIR}"/99-remove-nvidia-dev.rules
 
 	readme.gentoo_create_doc
 
