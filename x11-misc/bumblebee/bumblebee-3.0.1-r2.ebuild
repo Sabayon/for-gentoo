@@ -68,6 +68,13 @@ src_install() {
 	sed -i "s:TurnCardOffAtExit=.*:TurnCardOffAtExit=true:g" \
 		"${ED}/etc/bumblebee/bumblebee.conf" || die
 
+	if use bbswitch; then
+		# This is much better than the udev rule below
+		doinitd "${FILESDIR}/bbswitch-setup"
+		sed -i "s:need xdm:need bbswitch-setup xdm:" \
+			"${ED}/etc/init.d/bumblebee" || die
+	fi
+
 	# Downstream says: this is just plain wrong, how about
 	# the situation in where the user has bumblebee installed
 	# but they are not actually on an Optimus system? This
