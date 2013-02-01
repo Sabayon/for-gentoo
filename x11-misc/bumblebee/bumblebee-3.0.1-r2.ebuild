@@ -3,7 +3,7 @@
 # $Header: /var/cvsroot/gentoo-x86/x11-misc/bumblebee/bumblebee-3.0.1-r2.ebuild,v 1.1 2013/01/21 21:19:16 pacho Exp $
 
 EAPI=5
-inherit eutils multilib readme.gentoo systemd udev user
+inherit eutils multilib systemd udev user
 
 DESCRIPTION="Service providing elegant and stable means of managing Optimus graphics chipsets"
 HOMEPAGE="https://github.com/Bumblebee-Project/Bumblebee"
@@ -83,8 +83,6 @@ src_install() {
 	# Install udev rule to handle nvidia card switching,
 	# https://github.com/Bumblebee-Project/Bumblebee/issues/283
 	# udev_dorules "${FILESDIR}"/99-remove-nvidia-dev.rules
-
-	readme.gentoo_create_doc
 
 	default
 }
