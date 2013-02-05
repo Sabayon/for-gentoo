@@ -1,4 +1,4 @@
-# Copyright 2004-2010 Sabayon
+# Copyright 2004-2013 Sabayon
 # Distributed under the terms of the GNU General Public License v2
 
 BC_REVISION="4"
@@ -11,7 +11,7 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86"
 
 IUSE=""
-DEPEND=">=sys-apps/hotplug-20040923"
+DEPEND=""
 
 pkg_preinst() {
 	ewarn "This firmware is suitable ONLY for mac80211 Broadcom driver"
@@ -20,7 +20,7 @@ pkg_preinst() {
 }
 
 src_install() {
-	cd ${WORKDIR}/bcm-${PV}-${BC_REVISION}
+	cd "${WORKDIR}/bcm-${PV}-${BC_REVISION}"
 	insinto /lib/firmware
 	doins *.fw
 }
