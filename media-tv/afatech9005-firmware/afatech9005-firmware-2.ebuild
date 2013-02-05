@@ -1,4 +1,4 @@
-# Copyright 2004-2010 Sabayon
+# Copyright 2004-2013 Sabayon
 # Distributed under the terms of the GNU General Public License v2
 
 BC_REVISION="1"
@@ -11,15 +11,15 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86 ~ppc"
 
 IUSE=""
-RDEPEND=">=sys-apps/hotplug-20040923"
+RDEPEND=""
 
 src_unpack()
 {
-	cp ${DISTDIR}/af9005-2.fw ${WORKDIR}/af9005.fw
+	cp "${DISTDIR}"/af9005-2.fw "${WORKDIR}"/af9005.fw
 }
 
 src_install() {
-	cd ${WORKDIR}/
+	cd "${WORKDIR}"/
 	insinto /lib/firmware
 	doins *.fw
 }
