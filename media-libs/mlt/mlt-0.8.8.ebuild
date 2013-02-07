@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/media-libs/mlt/mlt-0.8.6.ebuild,v 1.1 2012/11/21 00:48:52 aballier Exp $
+# $Header: /var/cvsroot/gentoo-x86/media-libs/mlt/mlt-0.8.8.ebuild,v 1.2 2013/01/27 14:50:55 yngwin Exp $
 
 EAPI=4
 PYTHON_DEPEND="python? 2:2.6"
@@ -10,10 +10,10 @@ DESCRIPTION="An open source multimedia framework, designed and developed for tel
 HOMEPAGE="http://www.mltframework.org/"
 SRC_URI="mirror://sourceforge/mlt/${P}.tar.gz"
 
-LICENSE="GPL-2"
+LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64 ~ppc ~ppc64 ~x86 ~x86-fbsd ~amd64-linux ~x86-linux"
-IUSE="compressed-lumas dv debug ffmpeg frei0r gtk jack kde libsamplerate melt
+IUSE="compressed-lumas dv debug ffmpeg frei0r gtk jack kde kdenlive libsamplerate melt
 mmx qt4 quicktime rtaudio sdl sse sse2 swfdec vorbis xine xml lua python ruby vdpau" # java perl php tcl
 IUSE="${IUSE} kernel_linux"
 
@@ -36,7 +36,11 @@ RDEPEND="ffmpeg? ( virtual/ffmpeg[vdpau?] )
 	rtaudio? ( kernel_linux? ( media-libs/alsa-lib ) )
 	swfdec? ( media-libs/swfdec )
 	xine? ( >=media-libs/xine-lib-1.1.2_pre20060328-r7 )
-	qt4? ( x11-libs/qt-gui:4 x11-libs/qt-svg:4 media-libs/libexif )
+	qt4? ( x11-libs/qt-gui:4
+		x11-libs/qt-svg:4
+		media-libs/libexif )
+	kde? ( kde-base/kdelibs:4
+		media-libs/libexif )
 	!media-libs/mlt++
 	lua? ( >=dev-lang/lua-5.1.4-r4 )
 	ruby? ( dev-lang/ruby )"
@@ -72,12 +76,15 @@ src_prepare() {
 		sed -i "/mlt.so/s: -lmlt++ :& ${CFLAGS} ${LDFLAGS} :" src/swig/$x/build || die
 	done
 	sed -i "/^LDFLAGS/s: += :& ${LDFLAGS} :" src/swig/ruby/build || die
+
+	epatch_user
 }
 
 src_configure() {
 	tc-export CC CXX
 
 	local myconf="--enable-gpl
+		--enable-gpl3
 		--enable-motion-est
 		$(use_enable debug)
 		$(use_enable dv)
@@ -96,15 +103,14 @@ src_configure() {
 		$(use vdpau && echo ' --avformat-vdpau')
 		$(use_enable xml)
 		$(use_enable xine)
-		$(use_enable kde kdenlive)
+		$(use_enable kdenlive)
 		$(use_enable qt4 qimage)
 		--disable-sox"
 		#$(use_enable sox)  FIXME
 
 	use ffmpeg && myconf="${myconf} --avformat-swscale"
-
+	use kde || myconf="${myconf} --without-kde"
 	(use quicktime && use dv) ||  myconf="${myconf} --disable-kino"
-
 	use compressed-lumas && myconf="${myconf} --luma-compress"
 
 	if use x86 || use amd64; then
