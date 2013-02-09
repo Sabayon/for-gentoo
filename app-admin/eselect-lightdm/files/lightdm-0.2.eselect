@@ -74,7 +74,7 @@ do_show() {
     [[ -z "${quiet}" ]] && write_list_start "Current greeter:"
     if [[ -L "${GREETER_SYM}" ]] && [[ -e "${GREETER_SYM}" ]]; then
         local greeter=$(canonicalise "${GREETER_SYM}")
-        local greeter_bn=$(basename "${greeter%/}")
+        local greeter_bn=$(basename "${greeter%.desktop}")
         if [[ -n "${quiet}" ]]; then
             echo "${greeter_bn}"
         else
@@ -99,7 +99,7 @@ describe_list_options() {
 }
 
 do_list() {
-    local quiet=""
+    local quiet
 
     while [[ $# -gt 0 ]]; do
         case ${1##--} in
@@ -138,20 +138,39 @@ describe_set_parameters() {
 
 describe_set_options() {
     echo "target : Target name or number (from 'list' action)"
+    echo "--use-old : use the old value if target is already set"
 }
 
 do_set() {
-    [[ -z "${1}" ]] && die -q "You didn't tell me what to set the symlink to"
+    local use_old
+    local target="${1}"
+
+    while [[ $# -gt 0 ]]; do
+        case ${1##--} in
+            use-old)
+                use_old="1"
+                ;;
+        esac
+        shift
+    done
+
+    [[ -z "${target}" ]] && \
+       die -q "You didn't tell me what to set the symlink to"
     [[ ${#} -gt 1 ]] && die -q "Too many parameters"
+
+    if [[ "${use_old}" = "1" ]]; then
+       old_target=$(do_show --quiet)
+       target="${old_target:-${target}}"
+    fi
 
     if [[ -L "${GREETER_SYM}" ]]; then
         # existing symlink
         remove_symlink || die -q "Couldn't remove existing symlink"
-        set_symlink "${1}" || die -q "Couldn't set a new symlink"
+        set_symlink "${target}" || die -q "Couldn't set a new symlink"
     elif [[ -e "${GREETER_SYM}" ]]; then
         # we have something strange
         die -q "${GREETER_SYM} exists but is not a symlink"
     else
-        set_symlink "${1}" || die -q "Couldn't set a new symlink"
+        set_symlink "${target}" || die -q "Couldn't set a new symlink"
     fi
 }
