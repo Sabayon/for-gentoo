@@ -73,6 +73,8 @@ RESTRICT="test" # tests are failing atm
 src_prepare() {
 	epatch "${FILESDIR}"/${PN}-0.7.x-npapi-sdk.patch #383141
 	epatch "${FILESDIR}"/${PN}-0.7.x-npapi-api-change.patch #416711
+	# Entropy patches
+	epatch "${FILESDIR}/${P}-forward-compat.patch"
 	# http://pkgs.fedoraproject.org/gitweb/?p=PackageKit.git;a=commit;h=0b378668288db34890b82c7be007fc76c7fcd956
 	sed -i -e '/polkit-backend-1/d' configure || die #423431
 }
