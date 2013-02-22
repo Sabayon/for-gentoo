@@ -1,4 +1,4 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -30,6 +30,7 @@ COMMON_DEPEND="
 	x11-libs/gdk-pixbuf:2
 	x11-libs/gtk+:3
 	x11-libs/gtkglext
+	x11-libs/libXrandr
 	x11-libs/libXrender
 	xcomposite? (
 		x11-libs/libXcomposite
@@ -43,12 +44,13 @@ DEPEND="${COMMON_DEPEND}
 	virtual/pkgconfig
 "
 RDEPEND="${COMMON_DEPEND}
+	net-misc/wget
 	x11-apps/xwininfo
+	x11-terms/xterm
 "
 
 src_prepare() {
-	epatch "${FILESDIR}/fix_lib6464.patch"
-	epatch "${FILESDIR}/${PN}-dbus-thread.patch"
+	epatch "${FILESDIR}/${PN}-runpath.patch"
 }
 
 pkg_postinst() {

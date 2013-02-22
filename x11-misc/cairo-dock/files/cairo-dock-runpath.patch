@@ -1,0 +1,10 @@
+--- CMakeLists.txt	2013-02-22 11:38:10.686539486 +0100
++++ CMakeLists.txt.new	2013-02-22 11:38:45.060912985 +0100
+@@ -49,6 +49,7 @@
+ 	message(FATAL_ERROR "Cairo-Dock requires an air-conditioned room. Please close Windows!")
+ endif( WIN32 )
+ 
++set (CMAKE_SKIP_RPATH TRUE)
+ set (PACKAGE ${CMAKE_PROJECT_NAME})
+ set (GETTEXT_PACKAGE ${PACKAGE})
+ 
