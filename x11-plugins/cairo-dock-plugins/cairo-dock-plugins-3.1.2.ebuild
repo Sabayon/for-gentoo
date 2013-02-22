@@ -32,7 +32,7 @@ RDEPEND="
 
 	alsa? ( media-libs/alsa-lib )
 	exif? ( media-libs/libexif )
-	gmenu? ( gnome-base/gnome-menus )
+	gmenu? ( gnome-base/gnome-menus:0 )
 	kde? ( kde-base/kdelibs )
 	terminal? ( x11-libs/vte:2.90 )
 	vala? ( dev-lang/vala:0.12 )
