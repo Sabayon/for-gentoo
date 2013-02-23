@@ -1,61 +1,29 @@
-From 4abbb4b8ca5c84448be398cdf9715073cb7fc3b1 Mon Sep 17 00:00:00 2001
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
-Date: Tue, 19 Feb 2013 08:14:49 +0100
-Subject: [PATCH] Add patch to build on linux 3.8.
-
----
- .../vmware-modules/files/271-devinit.patch         | 29 ++++++++++++++++++++++
- .../vmware-modules/vmware-modules-271.1-r1.ebuild  |  1 +
- 2 files changed, 30 insertions(+)
- create mode 100644 app-emulation/vmware-modules/files/271-devinit.patch
-
-diff --git a/app-emulation/vmware-modules/files/271-devinit.patch b/app-emulation/vmware-modules/files/271-devinit.patch
-new file mode 100644
-index 0000000..4c29f3e
---- /dev/null
-+++ b/app-emulation/vmware-modules/files/271-devinit.patch
-@@ -0,0 +1,29 @@
-+--- vmci-only/linux/driver.c	2012-08-16 05:53:18.000000000 +1000
-++++ vmci-only3.8rc4/linux/driver.c	2013-01-23 11:19:10.325897824 +1100
-+@@ -124,7 +124,7 @@
-+    .name     = "vmci",
-+    .id_table = vmci_ids,
-+    .probe = vmci_probe_device,
-+-   .remove = __devexit_p(vmci_remove_device),
-++   .remove = vmci_remove_device,
-+ };
-+ 
-+ #if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 19)
-+@@ -1750,7 +1750,7 @@
-+  *-----------------------------------------------------------------------------
-+  */
-+ 
-+-static int __devinit
-++static int
-+ vmci_probe_device(struct pci_dev *pdev,           // IN: vmci PCI device
-+                   const struct pci_device_id *id) // IN: matching device ID
-+ {
-+@@ -1978,7 +1978,7 @@
-+  *-----------------------------------------------------------------------------
-+  */
-+ 
-+-static void __devexit
-++static void
-+ vmci_remove_device(struct pci_dev* pdev)
-+ {
-+    struct vmci_device *dev = pci_get_drvdata(pdev);
-diff --git a/app-emulation/vmware-modules/vmware-modules-271.1-r1.ebuild b/app-emulation/vmware-modules/vmware-modules-271.1-r1.ebuild
-index 5c5ce2c..293d25c 100644
---- a/app-emulation/vmware-modules/vmware-modules-271.1-r1.ebuild
-+++ b/app-emulation/vmware-modules/vmware-modules-271.1-r1.ebuild
-@@ -65,6 +65,7 @@ src_prepare() {
- 	use pax_kernel && epatch "${FILESDIR}/hardened.patch"
- 	epatch "${FILESDIR}/${PV_MAJOR}-apic.patch"
- 	kernel_is ge 3 7 0 && epatch "${FILESDIR}/${PV_MAJOR}-putname.patch"
-+	kernel_is ge 3 8 0 && epatch "${FILESDIR}/${PV_MAJOR}-devinit.patch"
- }
+--- vmci-only/linux/driver.c	2012-08-16 05:53:18.000000000 +1000
++++ vmci-only3.8rc4/linux/driver.c	2013-01-23 11:19:10.325897824 +1100
+@@ -124,7 +124,7 @@
+    .name     = "vmci",
+    .id_table = vmci_ids,
+    .probe = vmci_probe_device,
+-   .remove = __devexit_p(vmci_remove_device),
++   .remove = vmci_remove_device,
+ };
  
- src_install() {
--- 
-1.8.1.2
-
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 19)
+@@ -1750,7 +1750,7 @@
+  *-----------------------------------------------------------------------------
+  */
+ 
+-static int __devinit
++static int
+ vmci_probe_device(struct pci_dev *pdev,           // IN: vmci PCI device
+                   const struct pci_device_id *id) // IN: matching device ID
+ {
+@@ -1978,7 +1978,7 @@
+  *-----------------------------------------------------------------------------
+  */
+ 
+-static void __devexit
++static void
+ vmci_remove_device(struct pci_dev* pdev)
+ {
+    struct vmci_device *dev = pci_get_drvdata(pdev);
