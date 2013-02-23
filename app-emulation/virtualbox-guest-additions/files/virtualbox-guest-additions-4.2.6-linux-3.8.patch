@@ -1,17 +1,5 @@
-From 59b15494306713084fc0a1cdda12e5e501bb9394 Mon Sep 17 00:00:00 2001
-From: vboxsync <vboxsync@cfe28804-0f27-0410-a406-dd0f0b0b656f>
-Date: Mon, 21 Jan 2013 09:44:44 +0000
-Subject: [PATCH] Additions/VBoxGuest: compile fix for Linux 3.8-rc4
-
-git-svn-id: https://www.virtualbox.org/svn/vbox/trunk@44317 cfe28804-0f27-0410-a406-dd0f0b0b656f
----
- .../Additions/common/VBoxGuest/VBoxGuest-linux.c   |    6 +++++-
- 1 files changed, 5 insertions(+), 1 deletions(-)
-
-diff --git a/src/VBox/Additions/common/VBoxGuest/VBoxGuest-linux.c b/src/VBox/Additions/common/VBoxGuest/VBoxGuest-linux.c
-index 1d10315..2d8ed99 100644
---- a/src/VBox/Additions/common/VBoxGuest/VBoxGuest-linux.c
-+++ b/src/VBox/Additions/common/VBoxGuest/VBoxGuest-linux.c
+--- a/vboxguest/VBoxGuest-linux.c
++++ b/vboxguest/VBoxGuest-linux.c
 @@ -196,7 +196,11 @@ static struct miscdevice        g_MiscDeviceUser =
  
  

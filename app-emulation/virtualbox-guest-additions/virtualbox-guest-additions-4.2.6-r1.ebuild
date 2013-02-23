@@ -71,11 +71,8 @@ src_prepare() {
 	# PaX fixes (see bug #298988)
 	pushd "${WORKDIR}" &>/dev/null || die
 	epatch "${FILESDIR}"/vboxguest-4.1.0-log-use-c99.patch
+	epatch "${FILESDIR}/${P}-linux-3.8.patch"
 	popd &>/dev/null || die
-
-	if kernel_is ge 3 3; then
-		epatch "${FILESDIR}/${P}-linux-3.8.patch"
-	fi
 
 	# Disable things unused or splitted into separate ebuilds
 	cp "${FILESDIR}/${PN}-3-localconfig" LocalConfig.kmk
