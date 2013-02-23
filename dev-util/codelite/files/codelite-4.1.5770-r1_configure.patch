@@ -1,0 +1,55 @@
+--- a/configure	2012-08-28 09:43:41.000000000 +0300
++++ b/configure	2012-11-26 14:33:33.000000000 +0200
+@@ -144,7 +144,7 @@ createVariables()
+ 		configuration="Release_gcc_unicode"
+ 		ext=u
+ 		debug_flag=""
+-		optimization=" -O3 -DREGEXP_UNICODE "
++		optimization="-DREGEXP_UNICODE ${CFLAGS}"
+ 		wxcfg="--unicode=yes --debug=no"
+ 	fi
+ 
+@@ -334,7 +334,7 @@ createCodeLiteCppcheckMakefile ()
+ 	else
+ 		configuration="Release"
+ 		debug_flag=""
+-		optimization=" -O2 "
++		optimization="${CFLAGS}"
+ 	fi
+ 
+ 	echo "OPT=${optimization}" >> Makefile
+@@ -419,7 +419,7 @@ createCodeLiteClangMakefile()
+ 	else
+ 		configuration="Release"
+ 		debug_flag=""
+-		optimization=" -O2 "
++		optimization="${CFLAGS}"
+ 	fi
+ 
+ 	echo "OPT=${optimization}" >> Makefile
+@@ -519,7 +519,7 @@ createCodeLiteGCCMakefile ()
+ 	else
+ 		configuration="Release"
+ 		debug_flag=""
+-		optimization=" -O2 "
++		optimization="${CFLAGS}"
+ 	fi
+ 
+ 	echo "OPT=${optimization}" >> Makefile
+@@ -622,7 +622,7 @@ createCodeLiteIndexerMakefile ()
+ 	else
+ 		configuration="Release"
+ 		debug_flag=""
+-		optimization=" -O2 "
++		optimization="${CFLAGS}"
+ 	fi
+ 
+ 	echo "OPT=${optimization}" >> Makefile
+@@ -1017,7 +1017,6 @@ createInstallTarget()
+ 	echo "	@cp -fpr Runtime/src/*.gz \"\$(DESTDIR)${prefix}/share/codelite/src/\"" >> Makefile
+ 	echo "	@cp -fpr Runtime/codelite-icons.zip \"\$(DESTDIR)${prefix}/share/codelite/\"" >> Makefile
+ 	echo "	@cp -fpr Runtime/codelite-icons-fresh-farm.zip \"\$(DESTDIR)${prefix}/share/codelite/\"" >> Makefile
+-	echo "	@chmod 0666 \"\$(DESTDIR)${prefix}/share/codelite/codelite-icons.zip\"" >> Makefile
+ 	
+ 	if [ "$with_clang" = "yes" ]; then 
+ 		echo "	@cp -fpr ${lib_clang} \"\$(DESTDIR)${non_plugins_dir}/\"" >> Makefile
