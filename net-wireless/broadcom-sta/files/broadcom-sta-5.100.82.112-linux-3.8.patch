@@ -1,0 +1,40 @@
+--- a/src/wl/sys/wl_cfg80211.c
++++ b/src/wl/sys/wl_cfg80211.c
+@@ -761,7 +761,11 @@ wl_cfg80211_join_ibss(struct wiphy *wiph
+ 	else
+ 		memset(&join_params.params.bssid, 0, ETHER_ADDR_LEN);
+ 
++#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 8, 0)
+ 	wl_ch_to_chanspec(params->channel, &join_params, &join_params_size);
++#else
++	wl_ch_to_chanspec(params->chandef.chan, &join_params, &join_params_size);
++#endif
+ 
+ 	err = wl_dev_ioctl(dev, WLC_SET_SSID, &join_params, join_params_size);
+ 	if (err) {
+@@ -1076,7 +1080,11 @@ wl_cfg80211_connect(struct wiphy *wiphy,
+ 	memcpy(wl->profile->ssid.SSID, &join_params.ssid.SSID, join_params.ssid.SSID_len);
+ 	wl->profile->ssid.SSID_len = join_params.ssid.SSID_len;
+ 
++#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 8, 0)
+ 	wl_ch_to_chanspec(sme->channel, &join_params, &join_params_size);
++#else
++	wl_ch_to_chanspec(sme->chandef.chan, &join_params, &join_params_size);
++#endif
+ 	WL_DBG(("join_param_size %u\n", (unsigned int)join_params_size));
+ 
+ 	if (join_params.ssid.SSID_len < IEEE80211_MAX_SSID_LEN) {
+@@ -2093,8 +2101,13 @@ static s32 wl_update_bss_info(struct wl_
+ 		beacon_interval = cpu_to_le16(bi->beacon_period);
+ 	} else {
+ 		WL_DBG(("Found the AP in the list - BSSID %pM\n", bss->bssid));
++#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 8, 0)
+ 		ie = bss->information_elements;
+ 		ie_len = bss->len_information_elements;
++#else
++		ie = bss->ies->data;
++		ie_len = bss->ies->len;
++#endif
+ 		beacon_interval = bss->beacon_interval;
+ 		cfg80211_put_bss(bss);
+ 	}
