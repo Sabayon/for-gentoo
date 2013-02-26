@@ -20,8 +20,8 @@ KEYWORDS="~amd64 ~x86"
 IUSE=""
 
 DEPEND="dev-python/pygtk
-	dev-python/gst-python
-	media-libs/gstreamer"
+	dev-python/gst-python:0.10
+	media-libs/gstreamer:0.10"
 RDEPEND="${DEPEND}"
 
 src_prepare() {

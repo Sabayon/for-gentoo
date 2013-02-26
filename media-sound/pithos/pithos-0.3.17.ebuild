@@ -1,4 +1,4 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -30,12 +30,12 @@ RDEPEND="dev-python/pyxdg
 	dev-python/pygobject
 	dev-python/notify-python
 	dev-python/pygtk
-	dev-python/gst-python
+	dev-python/gst-python:0.10
 	dev-python/dbus-python
-	media-libs/gst-plugins-good
-	media-libs/gst-plugins-bad
-	media-plugins/gst-plugins-faad
-	media-plugins/gst-plugins-soup
+	media-libs/gst-plugins-good:0.10
+	media-libs/gst-plugins-bad:0.10
+	media-plugins/gst-plugins-faad:0.10
+	media-plugins/gst-plugins-soup:0.10
 	|| ( gnome-base/gnome-settings-daemon
 		dev-libs/keybinder )
 "

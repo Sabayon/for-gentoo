@@ -1,4 +1,4 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -20,15 +20,15 @@ IUSE=""
 
 DEPEND="dev-python/python-distutils-extra"
 RDEPEND="x11-libs/gtk+:3[introspection]
-	dev-python/gst-python
+	dev-python/gst-python:0.10
 	dev-python/pycairo
 	dev-python/pygobject:3
 	dev-python/pyxdg
 	dev-python/gdata
 	dev-python/pycurl
-	media-libs/gst-plugins-good
-	media-plugins/gst-plugins-x264
-	media-plugins/gst-plugins-ximagesrc
+	media-libs/gst-plugins-good:0.10
+	media-plugins/gst-plugins-x264:0.10
+	media-plugins/gst-plugins-ximagesrc:0.10
 	media-sound/pulseaudio
 	virtual/python-argparse
 	virtual/ffmpeg
