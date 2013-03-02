@@ -31,7 +31,7 @@ CDEPEND="connman? ( net-misc/connman )
 		x11-libs/pango
 	)
 	policykit? ( >=sys-auth/polkit-0.98 )
-	udev? ( || ( >=sys-fs/udev-171[gudev] >=sys-fs/udev-145[extras] ) )
+	udev? ( virtual/udev[gudev] )
 	dev-db/sqlite:3
 	>=dev-libs/dbus-glib-0.74
 	>=dev-libs/glib-2.26.1:2
@@ -72,7 +72,6 @@ RESTRICT="test" # tests are failing atm
 
 src_prepare() {
 	epatch "${FILESDIR}"/${PN}-0.7.x-npapi-sdk.patch #383141
-	epatch "${FILESDIR}"/${PN}-0.7.x-npapi-api-change.patch #416711
 	# Entropy patches
 	epatch "${FILESDIR}/${P}-forward-compat.patch"
 	epatch "${FILESDIR}/${P}-forward-compat-2.patch"
