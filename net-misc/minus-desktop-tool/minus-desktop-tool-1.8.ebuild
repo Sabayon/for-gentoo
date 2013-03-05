@@ -15,7 +15,7 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
 
-RDEPEND="x11-libs/qt-core
+RDEPEND="dev-qt/qtcore
 	dev-libs/qjson
 	"
 DEPEND=""
