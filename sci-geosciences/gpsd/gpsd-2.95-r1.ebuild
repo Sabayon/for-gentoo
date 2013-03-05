@@ -36,7 +36,7 @@ RDEPEND="
 		dev-libs/dbus-glib
 	)
 	ntp? ( net-misc/ntp )
-	qt4? ( x11-libs/qt-gui )"
+	qt4? ( dev-qt/qtgui )"
 
 DEPEND="${RDEPEND}
 	app-text/xmlto
