@@ -18,9 +18,9 @@ SLOT="0"
 KEYWORDS="~amd64 ~arm ~x86"
 IUSE=""
 
-RDEPEND=">=x11-libs/qt-core-4.4.0
-	>=x11-libs/qt-dbus-4.4.0
-	>=x11-libs/qt-sql-4.4.0
+RDEPEND=">=dev-qt/qtcore-4.4.0
+	>=dev-qt/qtdbus-4.4.0
+	>=dev-qt/qtsql-4.4.0
 	~app-admin/packagekit-base-${PV}"
 DEPEND="${RDEPEND}
 	dev-libs/libxslt
