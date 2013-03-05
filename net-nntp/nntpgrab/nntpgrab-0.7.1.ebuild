@@ -25,7 +25,7 @@ DEPEND=">=sys-libs/zlib-1.1.4
 		dbus? ( sys-apps/dbus )
 		net-libs/libproxy
 		net-misc/networkmanager
-		qt4? ( x11-libs/qt-gui )"
+		qt4? ( dev-qt/qtgui )"
 RDEPEND="${DEPEND}"
 
 src_unpack() {
