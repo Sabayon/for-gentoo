@@ -35,8 +35,8 @@ RDEPEND="
 	)
 	opencc? ( app-i18n/opencc )
 	qt? (
-		x11-libs/qt-gui:4
-		x11-libs/qt-dbus:4
+		dev-qt/qtgui:4
+		dev-qt/qtdbus:4
 	)
 	sys-apps/dbus
 	x11-libs/libX11"
