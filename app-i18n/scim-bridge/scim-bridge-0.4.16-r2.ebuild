@@ -23,8 +23,8 @@ RDEPEND=">=app-i18n/scim-1.4.6
 		>=x11-libs/pango-1.1
 	)
 	qt4? (
-		x11-libs/qt-gui:4
-		x11-libs/qt-core:4
+		dev-qt/qtgui:4
+		dev-qt/qtcore:4
 		>=x11-libs/pango-1.1
 	)"
 DEPEND="${RDEPEND}
