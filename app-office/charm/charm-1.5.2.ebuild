@@ -16,9 +16,9 @@ KEYWORDS="~amd64 ~x86"
 
 IUSE="debug idledetection timesheettools"
 
-DEPEND=">=x11-libs/qt-core-4.6.0
-	>=x11-libs/qt-gui-4.6.0
-	>=x11-libs/qt-sql-4.6.0
+DEPEND=">=dev-qt/qtcore-4.6.0
+	>=dev-qt/qtgui-4.6.0
+	>=dev-qt/qtsql-4.6.0
 	idledetection? ( x11-libs/libXScrnSaver )
 	timesheettools? ( dev-db/mysql dev-db/mysql-connector-c++ )
 "
