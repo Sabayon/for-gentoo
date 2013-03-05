@@ -22,15 +22,15 @@ RDEPEND="
 	dev-libs/openssl:0
 	gnome-base/libgnome-keyring
 	net-libs/libupnp
-	x11-libs/qt-core:4
+	dev-qt/qtcore:4
 	X? (
 		x11-libs/libXScrnSaver
-		x11-libs/qt-gui:4
+		dev-qt/qtgui:4
 	)
 	voip? (
 		media-libs/speex
-		x11-libs/qt-mobility[multimedia]
-		x11-libs/qt-multimedia
+		dev-qt/qt-mobility[multimedia]
+		dev-qt/qtmultimedia
 	)"
 DEPEND="${RDEPEND}"
 
