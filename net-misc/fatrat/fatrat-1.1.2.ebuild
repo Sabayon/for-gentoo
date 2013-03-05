@@ -15,15 +15,15 @@ SLOT="0"
 KEYWORDS="~x86 ~amd64"
 IUSE="bittorrent +curl -debug doc jabber nls webinterface"
 
-RDEPEND="x11-libs/qt-gui:4[dbus]
-	x11-libs/qt-svg:4
+RDEPEND="dev-qt/qtgui:4[dbus]
+	dev-qt/qtsvg:4
 	bittorrent? ( >=net-libs/rb_libtorrent-0.14.1
 				>=dev-cpp/asio-1.1.0
-				x11-libs/qt-webkit:4 )
+				dev-qt/qtwebkit:4 )
 	curl? ( >=net-misc/curl-7.18.2 )
-	doc? ( x11-libs/qt-assistant:4 )
+	doc? ( dev-qt/qthelp:4 )
 	jabber? ( net-libs/gloox )
-	webinterface? ( x11-libs/qt-script:4 )"
+	webinterface? ( dev-qt/qtscript:4 )"
 DEPEND=">=dev-util/cmake-2.6.0
 		${RDEPEND}"
 
