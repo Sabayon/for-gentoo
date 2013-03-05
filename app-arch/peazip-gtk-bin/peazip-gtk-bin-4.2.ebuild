@@ -30,8 +30,8 @@ MY_GTK_RDEPEND="!${CATEGORY}/${MY_PN}-qt4-bin
 
 MY_QT4_RDEPEND="!${CATEGORY}/${MY_PN}-gtk-bin
 	amd64? ( app-emulation/emul-linux-x86-qtlibs )
-	x86? ( x11-libs/qt-core
-		x11-libs/qt-gui )"
+	x86? ( dev-qt/qtcore
+		dev-qt/qtgui )"
 
 [[ ${PN} = *-gtk-bin ]] && MY_RDEPEND=${MY_GTK_RDEPEND} || \
 	MY_RDEPEND=${MY_QT4_RDEPEND}
