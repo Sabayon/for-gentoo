@@ -20,7 +20,7 @@ IUSE="debug +exif +geolocation +kipi +raw +semantic-desktop"
 
 DEPEND="
 	$(add_kdebase_dep kdelibs 'semantic-desktop=')
-	>=x11-libs/qt-sql-4.4:4[sqlite]
+	>=dev-qt/qtsql-4.4:4[sqlite]
 	virtual/jpeg
 	exif? ( >=media-gfx/exiv2-0.17 )
 	geolocation? ( $(add_kdebase_dep marble) )
