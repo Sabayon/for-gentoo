@@ -25,8 +25,8 @@ RDEPEND=">=media-libs/alsa-lib-1.0.0
 	qt4? (
 		dev-python/dbus-python
 		dev-python/PyQt4
-		x11-libs/qt-core
-		x11-libs/qt-gui )"
+		dev-qt/qtcore
+		dev-qt/qtgui )"
 
 DEPEND="${RDEPEND}
 	dev-util/scons"
