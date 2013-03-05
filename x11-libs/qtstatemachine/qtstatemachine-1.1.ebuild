@@ -15,8 +15,8 @@ LICENSE="|| ( LGPL-2.1 GPL-3 QPL-1.0 )"
 
 RDEPEND="dev-libs/glib
 	media-libs/libpng
-	x11-libs/qt-core:4
-	x11-libs/qt-gui:4"
+	dev-qt/qtcore:4
+	dev-qt/qtgui:4"
 DEPEND="${RDEPEND}"
 
 S="${WORKDIR}/${P}-opensource"
