@@ -16,9 +16,9 @@ KEYWORDS="~amd64 ~x86"
 IUSE="debug doc"
 
 RDEPEND="
-	x11-libs/qt-gui[qt3support]
-	x11-libs/qt-assistant:4
-	x11-libs/qt-qt3support:4"
+	dev-qt/qtgui[qt3support]
+	dev-qt/qthelp:4
+	dev-qt/qt3support:4"
 DEPEND="${RDEPEND}"
 
 src_unpack() {
