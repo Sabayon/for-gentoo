@@ -25,11 +25,11 @@ RDEPEND="sci-libs/hdf5[mpi=]
 	mpi? ( || (
 				sys-cluster/openmpi
 				sys-cluster/mpich2[cxx] ) )
-	gui? ( x11-libs/qt-gui:4
-			x11-libs/qt-qt3support:4
-			x11-libs/qt-opengl:4
-			|| ( >=x11-libs/qt-assistant-4.7.0:4[compat]
-				<x11-libs/qt-assistant-4.7.0:4 ) )
+	gui? ( dev-qt/qtgui:4
+			dev-qt/qt3support:4
+			dev-qt/qtopengl:4
+			|| ( >=dev-qt/qthelp-4.7.0:4[compat]
+				<dev-qt/qthelp-4.7.0:4 ) )
 	mysql? ( virtual/mysql )
 	postgres? ( dev-db/postgresql-base )
 	odbc? ( dev-db/unixODBC )
