@@ -21,6 +21,7 @@ RDEPEND="app-admin/firstboot"
 
 PATCHES=(
 	"${FILESDIR}/${P}-russian-layout.patch"
+	"${FILESDIR}/${P}-turkish-f-layout.patch"
 )
 
 src_install() {
