@@ -21,9 +21,10 @@ def _configure_system(root, keymap, variant, options):
         'tj': 'tj_alt-UTF8',
         'tr': 'trq',
         'tr_f': 'trf',
+        'gb': 'uk',
     }
     vt_keymaps_fixes_us = ['ad', 'af', 'al', 'am', 'ara', 'az', 'ba', 'bd',
-        'bt', 'ca', 'cd', 'cs',  'ee', 'epo', 'fi_smi', 'fo', 'fr_oss', 'gb',
+        'bt', 'ca', 'cd', 'cs',  'ee', 'epo', 'fi_smi', 'fo', 'fr_oss',
         'ge', 'gh', 'hr', 'ie', 'in', 'in_guj', 'in_guru', 'in_kan', 'in_mal',
         'in_tam', 'in_tel', 'iq', 'ir', 'kg', 'kh', 'kr', 'kz', 'lk', 'lv', 'mao',
         'mm', 'mn', 'mt', 'mv', 'ng', 'pk', 'si', 'sy', 'th', 'uz', 'vn', 'za']
