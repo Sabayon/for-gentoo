@@ -1,11 +1,11 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
 EAPI="3"
 inherit eutils toolchain-funcs
 
-DESCRIPTION="A light and easy to use libvte based X terminal emulator"
+DESCRIPTION="A lightweight and easy to use libvte based X terminal emulator"
 HOMEPAGE="http://lilyterm.luna.com.tw"
 SRC_URI="${HOMEPAGE}/file/${P}.tar.gz"
 
@@ -22,7 +22,8 @@ RDEPEND="
 	x11-libs/gdk-pixbuf:2
 	x11-libs/gtk+:2
 	x11-libs/pango
-	x11-libs/vte:0"
+	x11-libs/vte:0
+	nls? ( virtual/libintl )"
 DEPEND="${RDEPEND}
 	virtual/pkgconfig
 	nls? ( sys-devel/gettext )"
@@ -31,7 +32,6 @@ src_prepare() {
 	sed -e "/^DOCDIR/s/\$(BINARY)/&-${PVR}/" \
 		-i .default || die "sed failed"
 	epatch "${FILESDIR}"/${P}-configure.patch
-	epatch "${FILESDIR}"/${P}-which.patch
 }
 
 src_configure() {
@@ -48,8 +48,9 @@ src_compile() {
 }
 
 src_install() {
-	EXAMPLES_DIR="${EPREFIX}"usr/share/doc/${PF}/examples \
-		emake DESTDIR="${D}" install || die "emake install failed."
+	emake DESTDIR="${D}" \
+		EXAMPLES_DIR="${EPREFIX}"usr/share/doc/${PF}/examples \
+		install || die "emake install failed."
 	rm "${ED}"usr/share/doc/${PF}/COPYING || die
 	dodoc README TODO || die "dodoc failed"
 }
