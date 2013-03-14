@@ -10,6 +10,7 @@ TARGET_VERSION="${3}"
 
 PACKAGES="sys-apps/entropy
 	app-admin/equo
+	app-admin/matter
 	sys-apps/entropy-server
 	sys-apps/rigo-daemon
 	app-admin/rigo
