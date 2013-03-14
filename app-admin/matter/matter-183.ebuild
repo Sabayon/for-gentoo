@@ -19,8 +19,7 @@ S="${WORKDIR}/entropy-${PV}/${PN}"
 
 DEPEND=""
 RDEPEND="entropy? ( ~sys-apps/entropy-${PV} )
-	sys-apps/file[python]
-	>=sys-apps/portage-2.2"
+	sys-apps/file[python]"
 
 src_install() {
 	emake DESTDIR="${D}" install || die "make install failed"
