@@ -9,7 +9,7 @@ CMAKE_MIN_VERSION="2.8.3"
 inherit wxwidgets cmake-utils eutils games
 
 MY_PN="CorsixTH"
-MY_P="${MY_PN}-${PV}-Sourze"
+MY_P="${MY_PN}-${PV}-Source"
 
 DESCRIPTION="A project that aims to reimplement the game engine of Theme Hospital"
 HOMEPAGE="http://code.google.com/p/corsix-th/"
@@ -29,8 +29,7 @@ RDEPEND="
 	wxwidgets? ( x11-libs/wxGTK:2.9[X] )"
 DEPEND="${RDEPEND}"
 
-BUILD_DIR="${P}_build"
-S="${WORKDIR}"
+S="${WORKDIR}/${MY_P}"
 
 src_prepare() {
 	# Patch CorsixTH.lua search path to allow separating the main executable
@@ -76,6 +75,8 @@ src_compile() {
 }
 
 src_install() {
+	local BUILD_DIR="${P}_build"
+
 	# Rewrite install procedure to fit with the filesystem
 	cd "${MY_PN}" || die "cd failed"
 	newgamesbin "${WORKDIR}/${BUILD_DIR}/CorsixTH/${MY_PN}" ${PN} || die "binary install failed"
