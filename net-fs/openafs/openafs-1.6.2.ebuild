@@ -1,10 +1,10 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-fs/openafs/openafs-1.6.1.ebuild,v 1.1 2012/04/05 00:19:30 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/net-fs/openafs/openafs-1.6.2_pre3.ebuild,v 1.1 2013/01/26 17:37:45 vapier Exp $
 
-EAPI="2"
+EAPI="4"
 
-inherit flag-o-matic eutils autotools toolchain-funcs versionator pam
+inherit flag-o-matic eutils autotools multilib toolchain-funcs versionator pam
 
 MY_PV=$(delete_version_separator '_')
 MY_P="${PN}-${MY_PV}"
@@ -12,13 +12,13 @@ PVER="1"
 DESCRIPTION="The OpenAFS distributed file system"
 HOMEPAGE="http://www.openafs.org/"
 # We always d/l the doc tarball as man pages are not USE=doc material
-SRC_URI="http://openafs.org/dl/openafs/${MY_PV}/${MY_P}-src.tar.bz2
-	http://openafs.org/dl/openafs/${MY_PV}/${MY_P}-doc.tar.bz2
-	mirror://gentoo/${P}-patches-${PVER}.tar.bz2"
+SRC_URI="http://openafs.org/dl/${MY_PV}/${MY_P}-src.tar.bz2
+	http://openafs.org/dl/${MY_PV}/${MY_P}-doc.tar.bz2
+	mirror://gentoo/${P}_pre3-patches-${PVER}.tar.bz2"
 
-LICENSE="IBM BSD openafs-krb5-a APSL-2 sun-rpc"
+LICENSE="IBM BSD openafs-krb5-a APSL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~sparc ~x86"
+KEYWORDS="~amd64 ~sparc ~x86 ~amd64-linux ~x86-linux"
 IUSE="doc kerberos pam"
 
 RDEPEND="~net-fs/openafs-kernel-${PV}
@@ -29,7 +29,6 @@ RDEPEND="~net-fs/openafs-kernel-${PV}
 S="${WORKDIR}/${MY_P}"
 
 src_prepare() {
-	EPATCH_EXCLUDE="012_all_kbuild.patch" \
 	EPATCH_SUFFIX="patch" \
 	epatch "${WORKDIR}"/gentoo/patches
 
@@ -61,41 +60,41 @@ src_configure() {
 }
 
 src_compile() {
-	emake all_nolibafs || die
+	emake all_nolibafs
 }
 
 src_install() {
 	local CONFDIR=${WORKDIR}/gentoo/configs
 	local SCRIPTDIR=${WORKDIR}/gentoo/scripts
 
-	emake DESTDIR="${D}" install_nolibafs || die
+	emake DESTDIR="${ED}" install_nolibafs
 
 	insinto /etc/openafs
-	doins src/afsd/CellServDB || die
-	echo "/afs:/var/cache/openafs:200000" > "${D}"/etc/openafs/cacheinfo
-	echo "openafs.org" > "${D}"/etc/openafs/ThisCell
+	doins src/afsd/CellServDB
+	echo "/afs:/var/cache/openafs:200000" > "${ED}"/etc/openafs/cacheinfo
+	echo "openafs.org" > "${ED}"/etc/openafs/ThisCell
 
 	# pam_afs and pam_afs.krb have been installed in irregular locations, fix
 	if use pam ; then
-		dopammod "${D}"/usr/$(get_libdir)/pam_afs* || die
+		dopammod "${ED}"/usr/$(get_libdir)/pam_afs*
 	fi
-	rm -f "${D}"/usr/$(get_libdir)/pam_afs* || die
+	rm -f "${ED}"/usr/$(get_libdir)/pam_afs* || die
 
 	# remove kdump stuff provided by kexec-tools #222455
-	rm -rf "${D}"/usr/sbin/kdump*
+	rm -rf "${ED}"/usr/sbin/kdump*
 
 	# avoid collision with mit_krb5's version of kpasswd
-	mv "${D}"/usr/bin/kpasswd{,_afs} || die
-	mv "${D}"/usr/share/man/man1/kpasswd{,_afs}.1 || die
+	mv "${ED}"/usr/bin/kpasswd{,_afs} || die
+	mv "${ED}"/usr/share/man/man1/kpasswd{,_afs}.1 || die
 
 	# move lwp stuff around #200674 #330061
-	mv "${D}"/usr/include/{lwp,lock,timer}.h "${D}"/usr/include/afs/ || die
-	mv "${D}"/usr/$(get_libdir)/liblwp* "${D}"/usr/$(get_libdir)/afs/ || die
+	mv "${ED}"/usr/include/{lwp,lock,timer}.h "${ED}"/usr/include/afs/ || die
+	mv "${ED}"/usr/$(get_libdir)/liblwp* "${ED}"/usr/$(get_libdir)/afs/ || die
 	# update paths to the relocated lwp headers
 	sed -ri \
 		-e '/^#include <(lwp|lock|timer).h>/s:<([^>]*)>:<afs/\1>:' \
-		"${D}"/usr/include/*.h \
-		"${D}"/usr/include/*/*.h \
+		"${ED}"/usr/include/*.h \
+		"${ED}"/usr/include/*/*.h \
 		|| die
 
 	# minimal documentation
@@ -135,8 +134,8 @@ pkg_preinst() {
 	## (when they are not present)
 	local x
 	for x in cacheinfo CellServDB ThisCell ; do
-		if [ -e "${ROOT}"/etc/openafs/${x} ] ; then
-			cp "${ROOT}"/etc/openafs/${x} "${D}"/etc/openafs/
+		if [ -e "${EROOT}"/etc/openafs/${x} ] ; then
+			cp "${EROOT}"/etc/openafs/${x} "${ED}"/etc/openafs/
 		fi
 	done
 }
