@@ -1,0 +1,12 @@
+diff -Nurp Pylons-1.0.1.orig/pylons/controllers/util.py Pylons-1.0.1/pylons/controllers/util.py
+--- Pylons-1.0.1.orig/pylons/controllers/util.py	2011-12-13 22:40:32.000000000 +0000
++++ Pylons-1.0.1/pylons/controllers/util.py	2013-03-18 19:49:53.774373984 +0000
+@@ -56,7 +56,7 @@ class Request(WebObRequest):
+     def languages(self):
+         # And we now have the old best_matches code that webob ditched!
+         al = self.accept_language
+-        items = [i for i, q in sorted(al._parsed, key=lambda iq: -iq[1])]
++        items = [i for i, q in sorted(getattr(al, '_parsed', []), key=lambda iq: -iq[1])]
+         for index, item in enumerate(items):
+             if al._match(item, self.language):
+                 items[index:] = [self.language]

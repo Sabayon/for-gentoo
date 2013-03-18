@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-python/pylons/pylons-1.0.1.ebuild,v 1.1 2012/08/29 06:09:27 patrick Exp $
+# $Header: $
 
 EAPI="3"
 PYTHON_DEPEND="2"
@@ -8,7 +8,7 @@ SUPPORT_PYTHON_ABIS="1"
 RESTRICT_PYTHON_ABIS="3.*"
 DISTUTILS_SRC_TEST="nosetests"
 
-inherit distutils
+inherit eutils distutils
 
 MY_PN="Pylons"
 MY_P="${MY_PN}-${PV}"
@@ -50,3 +50,10 @@ DEPEND="${RDEPEND}
 	)"
 
 S="${WORKDIR}/${MY_P}"
+
+src_prepare() {
+	# Sabayon: we need this
+	epatch "${FILESDIR}/${P}-new-webob-support.patch"
+
+	distutils_src_prepare
+}
