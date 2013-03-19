@@ -75,6 +75,7 @@ src_prepare() {
 	# Entropy patches
 	epatch "${FILESDIR}/${P}-forward-compat.patch"
 	epatch "${FILESDIR}/${P}-forward-compat-2.patch"
+	epatch "${FILESDIR}/${P}-forward-compat-3.patch"
 	# http://pkgs.fedoraproject.org/gitweb/?p=PackageKit.git;a=commit;h=0b378668288db34890b82c7be007fc76c7fcd956
 	sed -i -e '/polkit-backend-1/d' configure || die #423431
 }
