@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI="3"
+EAPI="4"
 PYTHON_DEPEND="2"
 PYTHON_USE_WITH="sqlite"
 inherit eutils python user
@@ -17,7 +17,7 @@ KEYWORDS="~amd64 ~arm ~x86"
 IUSE=""
 SRC_URI="mirror://sabayon/${CATEGORY}/${P}.tar.bz2"
 
-RDEPEND="dev-db/sqlite[soundex]
+RDEPEND="dev-db/sqlite:3[soundex(+)]
 	net-misc/rsync
 	sys-apps/diffutils
 	sys-apps/sandbox
