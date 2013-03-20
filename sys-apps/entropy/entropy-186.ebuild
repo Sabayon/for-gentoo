@@ -39,6 +39,8 @@ pkg_setup() {
 	# Create unprivileged entropy user
 	enewgroup entropy-nopriv || die "failed to create entropy-nopriv group"
 	enewuser entropy-nopriv -1 -1 -1 entropy-nopriv || die "failed to create entropy-nopriv user"
+
+	python_pkg_setup
 }
 
 src_compile() {
