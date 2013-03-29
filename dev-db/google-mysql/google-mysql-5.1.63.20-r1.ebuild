@@ -304,3 +304,13 @@ src_test() {
 		einfo "Skipping server tests due to minimal build."
 	fi
 }
+
+pkg_config() {
+	# Sabayon bug #3647, Gentoo bug #463680
+	local run_mysqld="${EROOT}/var/run/mysqld"
+	if [ ! -d "${run_mysqld}" ]; then
+		mkdir "${run_mysqld}" || die
+	fi
+	chown -R mysql:mysql "${run_mysqld}" || die
+	mysql-v2_pkg_config
+}
