@@ -140,7 +140,8 @@ src_install() {
 	dodir ${PYLOAD_WORKDIR}
 	# install default config
 	if ! test -f /etc/pyload/pyload.conf; then
-		cp ${S}/module/config/default.conf ${D}/etc/pyload/pyload.conf
+		insinto /etc/pyload
+		newins "${S}/module/config/default.conf" pyload.conf
 	fi
 
 	#fix tmpdir
