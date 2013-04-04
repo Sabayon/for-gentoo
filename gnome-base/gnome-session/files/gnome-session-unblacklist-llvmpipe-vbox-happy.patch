@@ -1,0 +1,10 @@
+Index: gnome-session-3.4.2.1/data/hardware-compatibility
+===================================================================
+--- gnome-session-3.4.2.1.orig/data/hardware-compatibility
++++ gnome-session-3.4.2.1/data/hardware-compatibility
+@@ -24,4 +24,4 @@
+ 
+ # Gallium has softpipe and llvmpipe
+ -softpipe
+--llvmpipe
++#-llvmpipe
