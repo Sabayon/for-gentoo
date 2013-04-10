@@ -25,7 +25,7 @@ COMMON_DEPEND=">=app-cdr/dvd+rw-tools-7.1
 	>=virtual/ffmpeg-0.6.90[encode]
 	x11-libs/wxGTK:2.8[gstreamer,X]
 	gnome? ( >=gnome-base/libgnomeui-2 )
-	kernel_linux? ( sys-fs/udev )"
+	kernel_linux? ( virtual/udev )"
 RDEPEND="${COMMON_DEPEND}
 	>=app-cdr/dvdisaster-0.72.2"
 DEPEND="${COMMON_DEPEND}
