@@ -28,7 +28,7 @@ RDEPEND=">=dev-perl/gtk2-perl-1.140
 	dev-util/desktop-file-utils
 	>=app-antivirus/clamav-0.95
 	nls? ( dev-perl/Locale-gettext )
-	sys-fs/udev"
+	virtual/udev"
 
 src_unpack() {
 	unpack ${A}
