@@ -52,8 +52,7 @@ RDEPEND="${COMMON_DEPEND}
 	>=gnome-base/gsettings-desktop-schemas-0.1.7
 	>=x11-themes/gnome-themes-standard-2.91.92
 	sys-apps/dbus[X]
-	systemd? ( >=sys-apps/systemd-183 )
-	!systemd? ( sys-auth/consolekit )
+	|| ( sys-auth/consolekit >=sys-apps/systemd-183 )
 "
 DEPEND="${COMMON_DEPEND}
 	>=dev-lang/perl-5
