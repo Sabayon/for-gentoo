@@ -9,20 +9,16 @@ PYTHON_USE_WITH="sqlite"
 
 inherit base eutils python systemd
 
-if [[ ${PV} == *9999 ]]; then
-	EHG_REPO_URI="http://bitbucket.org/spoob/pyload/"
-	inherit mercurial
-else
-	SRC_URI="http://get.pyload.org/static/${PN}-src-v${PV}.zip"
-	KEYWORDS="~amd64 ~x86"
-fi
+SRC_URI="http://get.pyload.org/static/${PN}-src-v${PV}.zip"
+KEYWORDS="~amd64 ~x86"
+
 DESCRIPTION="A fast, lightweight and full featured download manager for many One-Click-Hosters."
 HOMEPAGE="http://www.pyload.org"
 #Upstreams says GPL but part of the source is not available to users
 #We need a review about this and find the right license.
 LICENSE="freedist"
 SLOT="0"
-IUSE="captcha clicknload container qt4 rar ssl systemd"
+IUSE="captcha clicknload container qt4 rar ssl"
 
 DEPEND="app-arch/unzip"
 
@@ -150,9 +146,7 @@ src_install() {
 	newinitd ${FILESDIR}/pyload.initd pyload
 	newconfd ${FILESDIR}/pyload.confd pyload
 
-	if use systemd; then
-		systemd_dounit ${FILESDIR}/pyload.service
-	fi
+	systemd_dounit ${FILESDIR}/pyload.service
 
 	python_convert_shebangs -q -r 2 "${D}"
 }
