@@ -15,7 +15,7 @@ KEYWORDS="~amd64 ~x86"
 IUSE=""
 
 DEPEND=""
-RDEPEND=">=sys-fs/udev-104"
+RDEPEND="virtual/udev"
 
 CONFIG_CHECK="~USB_HIDDEV"
 ERROR_USB_HIDDEN="You need to enable the CONFIG_USB_HIDDEV option."
