@@ -26,7 +26,7 @@ RDEPEND="css? ( media-libs/libdvdcss )
 		media-libs/gst-plugins-base
 		media-plugins/gst-plugins-meta
                 dev-util/intltool
-     		>=sys-fs/udev-147[extras]
+     		virtual/udev[gudev]
 	     )"
 DEPEND="${RDEPEND}
 	=sys-devel/automake-1.11*
