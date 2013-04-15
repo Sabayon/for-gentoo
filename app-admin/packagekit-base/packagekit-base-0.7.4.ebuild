@@ -31,7 +31,7 @@ CDEPEND="connman? ( net-misc/connman )
 		x11-libs/pango
 	)
 	policykit? ( >=sys-auth/polkit-0.98 )
-	udev? ( || ( >=sys-fs/udev-171[gudev] >=sys-fs/udev-145[extras] ) )
+	udev? ( virtual/udev-171[gudev] )
 	dev-db/sqlite:3
 	>=dev-libs/dbus-glib-0.74
 	>=dev-libs/glib-2.26.1:2
