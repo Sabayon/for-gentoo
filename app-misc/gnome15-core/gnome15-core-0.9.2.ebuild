@@ -7,11 +7,11 @@ MY_S="${WORKDIR}/${MY_P}"
 
 DESCRIPTION="Gnome tools for the Logitech G Series Keyboards And Z-10 Speakers"
 HOMEPAGE="http://www.gnome15.org/"
-SRC_URI="http://www.gnome15.org/downloads/Gnome15/Old/${MY_P}.tar.gz"
+SRC_URI="http://www.gnome15.org/downloads/Gnome15/Required/${MY_P}.tar.gz"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~alpha amd64 ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
+KEYWORDS="~amd64 ~arm ~x86"
 IUSE="ayatana cairo gnome lg4l-module systray title"
 
 RDEPEND="dev-python/pygtk
@@ -23,6 +23,7 @@ RDEPEND="dev-python/pygtk
 		 dev-python/imaging
 		 dev-python/python-xlib
 		 dev-python/librsvg-python
+		 dev-python/keyring
 		 dev-python/pyalsa
 		 dev-python/pyalsaaudio
 		 dev-python/feedparser
@@ -30,6 +31,7 @@ RDEPEND="dev-python/pygtk
 		 dev-python/libwnck-python
 		 dev-python/pyusb
 		 dev-python/python-uinput
+		 dev-python/python-virtkey
 		 virtual/udev
 		!app-misc/gnome15-indicator
 		!app-misc/gnome15-panel-applet
@@ -63,6 +65,3 @@ src_compile() {
 src_install() {
 	cd ${MY_S} && emake DESTDIR="${D}" install || die "emake install failed"
 }
-
-
-
