@@ -55,7 +55,7 @@ RDEPEND="sys-libs/zlib
 	gtk? (
 		>=dev-libs/dbus-glib-0.98
 		x11-libs/gtk+:2
-		>=sys-fs/udev-171[gudev]
+		>=virtual/udev-171[gudev]
 		x11-libs/libnotify )
 	gstreamer? (
 		media-libs/gstreamer
