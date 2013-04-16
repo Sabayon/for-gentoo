@@ -7,7 +7,7 @@ EAPI="4"
 # Build type
 BUILD="autotools"
 
-inherit autotools eutils flag-o-matic toolchain-funcs mysql-v2
+inherit autotools eutils flag-o-matic toolchain-funcs mysql-v2 systemd
 
 SRC_URI="mirror://sabayon/dev-db/${P}.tar.gz"
 
@@ -63,6 +63,15 @@ src_prepare() {
 	rm -r "${S}"/ncurses-5.7 || die
 
 	eautoreconf
+}
+
+src_install() {
+	mysql-v2_src_install
+
+	# systemd unit installation
+	exeinto /usr/libexec
+	doexe "${FILESDIR}"/{mysqld-prepare-db-dir,mysqld-wait-ready}
+	systemd_dounit "${FILESDIR}/mysqld.service"
 }
 
 # Official test instructions:
