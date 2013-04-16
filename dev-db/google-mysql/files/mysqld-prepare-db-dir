@@ -19,7 +19,7 @@ get_mysql_option(){
 # Defaults here had better match what mysqld_safe will default to
 get_mysql_option mysqld datadir "/var/lib/mysql"
 datadir="$result"
-get_mysql_option mysqld_safe log-error "/var/log/mysqld.log"
+get_mysql_option mysqld_safe log-error "/var/log/mysql/mysql.log"
 errlogfile="$result"
 
 # Absorb configuration settings from the specified systemd service file,
@@ -64,7 +64,8 @@ if [ ! -d "$datadir/mysql" ] ; then
 
     # Now create the database
     echo "Initializing MySQL database"
-    /usr/share/mysql/scripts/mysql_install_db --datadir="$datadir" --user="$myuser"
+    /usr/share/mysql/scripts/mysql_install_db \
+        --datadir="$datadir" --user="$myuser" --basedir="/usr"
     ret=$?
     if [ $ret -ne 0 ] ; then
         echo "Initialization of MySQL database failed." >&2
