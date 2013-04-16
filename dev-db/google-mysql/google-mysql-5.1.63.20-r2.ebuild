@@ -73,7 +73,7 @@ src_install() {
 	doexe "${FILESDIR}"/{mysqld-prepare-db-dir,mysqld-wait-ready}
 
 	systemd_dounit "${FILESDIR}/mysqld.service"
-	systemd_dotmpfilesd "${FILESDIR}/${PN}.conf"
+	systemd_dotmpfilesd "${FILESDIR}/mysql.conf"
 }
 
 # Official test instructions:
