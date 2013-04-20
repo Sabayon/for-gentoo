@@ -30,7 +30,9 @@ def _configure_system(root, keymap, variant, options):
         'mm', 'mn', 'mt', 'mv', 'ng', 'pk', 'si', 'sy', 'th', 'uz', 'vn', 'za']
     for k in vt_keymaps_fixes_us:
         vt_keymaps_fixes[k] = "us"
+
     confd_keymaps = os.path.join(root, "etc/conf.d/keymaps")
+    vconsole_conf = os.path.join(root, "etc/vconsole.conf")
     sys_key = vt_keymaps_fixes.get(keymap, keymap)
 
     output = []
@@ -47,6 +49,21 @@ def _configure_system(root, keymap, variant, options):
         f.writelines(output)
         f.flush()
     os.rename(confd_keymaps+".tmp", confd_keymaps)
+
+    # /etc/vconsole.conf support
+    output = []
+    if os.path.isfile(vconsole_conf):
+        with open(vconsole_conf, "r") as f:
+            for line in f.readlines():
+                if line.startswith("KEYMAP="):
+                    continue
+                output.append(line)
+
+    output.append("KEYMAP=%s\n" % (sys_key,))
+    with open(vconsole_conf+".tmp", "w") as f:
+        f.writelines(output)
+        f.flush()
+    os.rename(vconsole_conf+".tmp", vconsole_conf)
 
     return 0
 
