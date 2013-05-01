@@ -24,7 +24,7 @@ IUSE=""
 
 S=${WORKDIR}/${MY_P}
 
-CONFIG_CHECK="!DEBUG_RODATA ~!AFS_FS KEYS"
+CONFIG_CHECK="~!DEBUG_RODATA ~!AFS_FS KEYS"
 ERROR_DEBUG_RODATA="OpenAFS is incompatible with linux' CONFIG_DEBUG_RODATA option"
 ERROR_AFS_FS="OpenAFS conflicts with the in-kernel AFS-support.  Make sure not to load both at the same time!"
 ERROR_KEYS="OpenAFS needs CONFIG_KEYS option enabled"
