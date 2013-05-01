@@ -62,6 +62,9 @@ src_prepare() {
 	if kernel_is ge 3 8; then
 		epatch "${FILESDIR}/${PN}-linux-3.8.patch"
 	fi
+	if kernel_is ge 3 9; then
+		epatch "${FILESDIR}/${PN}-linux-3.9.patch"
+	fi
 }
 
 src_configure() {
