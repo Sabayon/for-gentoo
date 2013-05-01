@@ -33,6 +33,13 @@ pkg_pretend() {
 	linux-mod_pkg_setup
 }
 
+src_prepare() {
+	base_src_prepare
+	if kernel_is ge 3 9 0; then
+		epatch "${FILESDIR}/${P}-linux-3.9.patch"
+	fi
+}
+
 src_compile() {
 	local params
 
