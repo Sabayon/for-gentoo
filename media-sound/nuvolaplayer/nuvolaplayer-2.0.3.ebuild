@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header:
 
-EAPI=4
+EAPI=5
 
 inherit gnome2-utils vala waf-utils
 
@@ -31,7 +31,6 @@ DEPEND="${RDEPEND}
 "
 
 src_prepare() {
-	epatch "${FILESDIR}/notification_set_image_from_pixbuf.diff"
 	vala_src_prepare --ignore-use
 }
 
