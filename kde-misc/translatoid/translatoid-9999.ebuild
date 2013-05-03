@@ -2,8 +2,9 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI="3"
+EAPI=5
 
+KDE_SCM="svn"
 KMNAME="playground/base/plasma/applets"
 inherit kde4-base subversion
 
