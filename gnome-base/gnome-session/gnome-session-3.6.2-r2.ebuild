@@ -72,9 +72,6 @@ src_prepare() {
 	# upower-client problems, bug #450150; fixed in 3.6.3
 	epatch "${FILESDIR}/${P}-upower.patch"
 
-	# Sabayon: unblacklist llvmpipe makes Virtual Machines happy
-	epatch "${FILESDIR}/${PN}-unblacklist-llvmpipe-vbox-happy.patch"
-
 	# Silence errors due to weird checks for libX11
 	sed -e 's/\(PANGO_PACKAGES="\)pangox/\1/' -i configure.ac configure || die
 	gnome2_src_prepare
