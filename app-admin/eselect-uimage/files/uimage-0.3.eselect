@@ -30,7 +30,7 @@ _is_kernel() {
 
 _get_initramfs() {
     local kernel_bn="${1}"
-    echo "${kernel_bn/^${KERNEL_PREFIX}/${INITRAMFS_PREFIX}}"
+    echo "${kernel_bn/${KERNEL_PREFIX}/${INITRAMFS_PREFIX}}"
 }
 
 find_targets() {
