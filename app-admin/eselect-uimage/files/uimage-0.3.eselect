@@ -49,6 +49,30 @@ remove_symlink() {
     rm "${UIMAGE_SYM}"
 }
 
+move_file() {
+    local src="${1}" dst="${2}"
+
+    local created=0
+    ln -sf "${src}" "${dst}" && created=1 || {
+        echo "Cannot create ${dst}, falling back to file copy" >&2;
+    }
+
+    # file copy fallback, vfat doesn't like symlinks
+    if [[ ${created} == 0 ]]; then
+        cp --remove-destination "${src}" "${dst}.cp" || {
+            die "Cannot copy to ${dst}, aborting";
+        }
+        mv --force --no-target-directory "${dst}.cp" "${dst}" || {
+            rm -f "${dst}.cp";
+            die "Cannot rename ${dst}.cp to ${dst}";
+        }
+        created=1
+    fi
+
+    [[ ${created} == 0 ]] && return 1
+    return 0
+}
+
 set_symlink() {
     local target="${1}"
 
@@ -61,13 +85,14 @@ set_symlink() {
         && die -q "Target \"${target}\" doesn't appear to be valid!"
 
     echo "Setting uImage to ${target}"
-    ln -sf "${target}" "${UIMAGE_SYM}" || die "Cannot create symlink"
+    move_file "${target}" "${UIMAGE_SYM}" || die "Cannot setup ${UIMAGE_SYM}"
 
     local initramfs_target=$(_get_initramfs "${target}")
     if [ -f "${BOOT_DIR}/${initramfs_target}" ]; then
         echo "Setting uInitrd to ${initramfs_target}"
-        ln -sf "${initramfs_target}" "${UINITRD_SYM}" || \
-            die "Cannot create initrd symlink"
+        move_file "${initramfs_target}" "${UINITRD_SYM}" || \
+            die "Cannot setup ${UINITRD_SYM}"
+
     elif [ -L "${UINITRD_SYM}" ]; then
         echo "No uInitrd found, removing ${UINITRD_SYM}"
         rm "${UINITRD_SYM}"
