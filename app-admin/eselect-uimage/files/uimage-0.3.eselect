@@ -20,15 +20,17 @@ UINITRD_SYM="${BOOT_DIR}/uInitrd"
 
 _is_kernel() {
     local f="${1}"
-    outcome=$(LC_ALL=C /usr/bin/file --brief "${f}" 2> /dev/null | \
-        grep "^u-boot" | grep -e "uImage" -e "zImage")
+    if [[ "$(basename ${f})" != kernel-* ]]; then
+        return 1
+    fi
+    outcome=$(LC_ALL=C /usr/bin/file --brief "${f}" 2> /dev/null | grep -e "uImage" -e "zImage")
     [[ -n "${outcome}" ]] && return 0
     return 1
 }
 
 _get_initramfs() {
     local kernel_bn="${1}"
-    echo "${kernel_bn/${KERNEL_PREFIX}/${INITRAMFS_PREFIX}}"
+    echo "${kernel_bn/^${KERNEL_PREFIX}/${INITRAMFS_PREFIX}}"
 }
 
 find_targets() {
