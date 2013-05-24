@@ -21,7 +21,7 @@ UINITRD_SYM="${BOOT_DIR}/uInitrd"
 _is_kernel() {
     local f="${1}"
     outcome=$(LC_ALL=C /usr/bin/file --brief "${f}" 2> /dev/null | \
-        grep "^u-boot" | grep -i "kernel image")
+        grep "^u-boot" | grep -e "uImage" -e "zImage")
     [[ -n "${outcome}" ]] && return 0
     return 1
 }
