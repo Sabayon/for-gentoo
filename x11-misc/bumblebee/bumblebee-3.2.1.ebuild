@@ -61,6 +61,10 @@ src_install() {
 	sed -i "s:TurnCardOffAtExit=.*:TurnCardOffAtExit=true:g" \
 		"${S}/conf/bumblebee.conf" || die
 
+	readme.gentoo_create_doc
+
+	default
+
 	if use bbswitch; then
 		# This is much better than the udev rule below
 		doinitd "${FILESDIR}/bbswitch-setup"
@@ -73,10 +77,6 @@ src_install() {
 	# disables the nvidia driver forever.
 	##
 	rm "${ED}/lib/udev/rules.d/99-bumblebee-nvidia-dev.rules" || die
-
-	readme.gentoo_create_doc
-
-	default
 }
 
 pkg_preinst() {
