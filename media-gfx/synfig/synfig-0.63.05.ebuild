@@ -18,7 +18,7 @@ IUSE="imagemagick ffmpeg dv openexr truetype jpeg tiff fontconfig"
 DEPEND=">=dev-libs/libsigc++-2.0.0
 	>=dev-cpp/libxmlpp-2.6.1
 	>=media-libs/libpng-1.5
-	>=dev-cpp/ETL-0.04.14
+	>=dev-cpp/ETL-0.04.15
 	ffmpeg? ( virtual/ffmpeg )
 	openexr? ( media-libs/openexr )
 	truetype? ( >=media-libs/freetype-2.1.9 )
