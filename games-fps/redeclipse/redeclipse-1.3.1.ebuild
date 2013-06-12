@@ -1,4 +1,4 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -10,7 +10,6 @@ DESCRIPTION="First-person ego-shooter, built as a total conversion of Cube Engin
 HOMEPAGE="http://www.redeclipse.net/"
 SRC_URI="mirror://sourceforge/${PN}/${PN}_${PV}_all.tar.bz2"
 
-# According to license.txt file
 LICENSE="as-is ZLIB CCPL-Attribution-ShareAlike-3.0"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
@@ -32,25 +31,21 @@ S="${WORKDIR}"/${P}
 
 src_prepare() {
 	cd "${S}" || die
-	# Respect GAMES_DATADIR
 	sed -i -e "s:\(addpackagedir(\"\)data:\1${GAMES_DATADIR}/${PN}/data:" \
 		src/engine/server.cpp || die "sed failed"
-	echo "\n ${GAMES_DATADIR} \n This is the variabile"
 
-	# Unbundle enet
 	sed -i \
 		-e "s:\(client\)\: libenet:\1\::" \
 		-e   "s:\(server\)\: libenet:\1\::" \
 		src/Makefile || die "sed failed"
 
-	# Remove strip
-	sed -i "/STRIP=strip/d" src/Makefile || die "sed failed"
+	sed -i "/STRIP=strip/d" src/Makefile || die
 }
 
 src_compile() {
 	cd src
 	if ! use dedicated ; then
-		emake CXXFLAGS="${CXXFLAGS}" client server || die "Make failed"
+		emake CXXFLAGS="${CXXFLAGS}" client server
 	else
 		emake CXXFLAGS="${CXXFLAGS}" server
 	fi
@@ -58,18 +53,13 @@ src_compile() {
 
 src_install() {
 	newgamesbin src/reserver ${PN}-server || die
-	dodir ${GAMES_DATADIR}/${PN}/ || die "Was not able to create the directory"
-	insinto ${GAMES_DATADIR}/${PN}/ || die "There is no such directory or file"
-	doins -r "${S}"/data || die "Cannot copy the directory: Not existent"
+	dodir "${GAMES_DATADIR}"/${PN}/ || die 
+	insinto "${GAMES_DATADIR}"/${PN}/ || die
+	doins -r "${S}"/data || die
 
 	dodoc readme.txt
 	if ! use dedicated ; then
-		newgamesbin src/reclient ${PN} || die
-		#insinto "${GAMES_DATADIR}"/${PN}
-		#doins -r data
-		#newicon src/site/bits/favicon.png ${PN}.png || die
-		#make_desktop_entry ${PN} "Red Eclipse" ${PN}
+		newgamesbin src/reclient "${PN}" || die
 	fi
-
 	prepgamesdirs
 }
