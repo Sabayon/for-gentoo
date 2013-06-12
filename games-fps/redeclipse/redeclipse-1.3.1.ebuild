@@ -32,12 +32,12 @@ S="${WORKDIR}"/${P}
 src_prepare() {
 	cd "${S}" || die
 	sed -i -e "s:\(addpackagedir(\"\)data:\1${GAMES_DATADIR}/${PN}/data:" \
-		src/engine/server.cpp || die "sed failed"
+		src/engine/server.cpp || die "Sed failed"
 
 	sed -i \
 		-e "s:\(client\)\: libenet:\1\::" \
 		-e   "s:\(server\)\: libenet:\1\::" \
-		src/Makefile || die "sed failed"
+		src/Makefile || die "Sed failed"
 
 	sed -i "/STRIP=strip/d" src/Makefile || die
 }
@@ -45,9 +45,9 @@ src_prepare() {
 src_compile() {
 	cd src
 	if ! use dedicated ; then
-		emake CXXFLAGS="${CXXFLAGS}" client server
+		emake CXXFLAGS="${CXXFLAGS}" client server || die
 	else
-		emake CXXFLAGS="${CXXFLAGS}" server
+		emake CXXFLAGS="${CXXFLAGS}" server || die
 	fi
 }
 
