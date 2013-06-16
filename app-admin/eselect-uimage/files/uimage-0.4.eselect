@@ -9,6 +9,7 @@ VERSION="0.1"
 
 # Module variables
 BOOT_DIR="${EROOT}/boot"
+CURRENT_KERNEL="${BOOT_DIR}/.eselect-uimage.current"
 KERNEL_PREFIX="kernel-"
 INITRAMFS_PREFIX="initramfs-"
 UIMAGE_SYM="${BOOT_DIR}/uImage"
@@ -23,7 +24,10 @@ _is_kernel() {
     if [[ "$(basename ${f})" != kernel-* ]]; then
         return 1
     fi
-    outcome=$(LC_ALL=C /usr/bin/file --brief "${f}" 2> /dev/null | grep -e "uImage" -e "zImage")
+    # Raspberry Pi crappy kernel image header has file
+    # return "DBase 3 index file"
+    outcome=$(LC_ALL=C /usr/bin/file --brief "${f}" 2> /dev/null \
+        | grep -e "uImage" -e "zImage" -e "DBase 3 index file")
     [[ -n "${outcome}" ]] && return 0
     return 1
 }
@@ -31,6 +35,30 @@ _is_kernel() {
 _get_initramfs() {
     local kernel_bn="${1}"
     echo "${kernel_bn/${KERNEL_PREFIX}/${INITRAMFS_PREFIX}}"
+}
+
+_is_vfat=
+_is_boot_vfat() {
+    [[ -n "${_is_vfat}" ]] && return ${_is_vfat}
+    if mountpoint -q "${BOOT_DIR}"; then
+        if df -T | awk '{ print $7 " " $2 }' | grep ^"${BOOT_DIR}" | \
+            grep vfat > /dev/null; then
+            _is_vfat=0
+            return 0
+        fi
+    fi
+    _is_vfat=1
+    return 1
+}
+
+_resolve_symlink() {
+    if _is_boot_vfat; then
+        cat "${CURRENT_KERNEL}" 2>/dev/null
+    else
+        if [[ -L "${UIMAGE_SYM}" ]] && [[ -e "${UIMAGE_SYM}" ]]; then
+            echo $(canonicalise "${UIMAGE_SYM}")
+        fi
+    fi
 }
 
 find_targets() {
@@ -52,26 +80,23 @@ remove_symlink() {
 }
 
 move_file() {
-    local src="${1}" dst="${2}"
+    local src="${1}" dst="${2}" is_kernel="${3}"
 
-    local created=0
-    ln -sf "${src}" "${dst}" && created=1 || {
-        echo "Cannot create ${dst}, falling back to file copy" >&2;
-    }
-
-    # file copy fallback, vfat doesn't like symlinks
-    if [[ ${created} == 0 ]]; then
-        cp --remove-destination "${src}" "${dst}.cp" || {
-            die "Cannot copy to ${dst}, aborting";
-        }
+    if _is_boot_vfat; then
+        cp --remove-destination "${BOOT_DIR}/${src}" "${dst}.cp" || \
+            die "Cannot copy to ${dst}, aborting"
         mv --force --no-target-directory "${dst}.cp" "${dst}" || {
             rm -f "${dst}.cp";
             die "Cannot rename ${dst}.cp to ${dst}";
         }
-        created=1
+        if [[ -n "${is_kernel}" ]]; then
+            echo "${src}" > "${CURRENT_KERNEL}" || \
+                die "Cannot set the current kernel information"
+        fi
+    else
+        ln -sf "${src}" "${dst}.es-uimage" || die "Cannot set ${dst}.es-uimage"
+        mv "${dst}.es-uimage" "${dst}" || die "cannot move to ${dst}"
     fi
-
-    [[ ${created} == 0 ]] && return 1
     return 0
 }
 
@@ -87,7 +112,8 @@ set_symlink() {
         && die -q "Target \"${target}\" doesn't appear to be valid!"
 
     echo "Setting uImage to ${target}"
-    move_file "${target}" "${UIMAGE_SYM}" || die "Cannot setup ${UIMAGE_SYM}"
+    move_file "${target}" "${UIMAGE_SYM}" "1" \
+        || die "Cannot setup ${UIMAGE_SYM}"
 
     local initramfs_target=$(_get_initramfs "${target}")
     if [ -f "${BOOT_DIR}/${initramfs_target}" ]; then
@@ -125,8 +151,8 @@ do_show() {
     done
 
     [[ -z "${quiet}" ]] && write_list_start "Current kernel:"
-    if [[ -L "${UIMAGE_SYM}" ]] && [[ -e "${UIMAGE_SYM}" ]]; then
-        local kernel=$(canonicalise "${UIMAGE_SYM}")
+    local kernel=$(_resolve_symlink)
+    if [[ -n "${kernel}" ]]; then
         local kernel_bn=$(basename "${kernel%/}")
         if [[ -n "${quiet}" ]]; then
             echo "${kernel_bn}"
@@ -170,7 +196,7 @@ do_list() {
         if [[ -z "${quiet}" ]]; then
             # highlight the target where the symlink is pointing to
             [[ ${targets[i]} = \
-                $(basename "$(canonicalise "${UIMAGE_SYM}")") ]] \
+                $(basename "$(_resolve_symlink)") ]] \
                     && targets[i]=$(highlight_marker "${targets[i]}")
         else
             echo "${targets[i]}"
@@ -201,7 +227,7 @@ do_set() {
         # existing symlink
         remove_symlink || die -q "Couldn't remove existing symlink"
         set_symlink "$1" || die -q "Couldn't set a new symlink"
-    elif [[ -e "${UIMAGE_SYM}" ]]; then
+    elif [[ -e "${UIMAGE_SYM}" ]] && ! _is_boot_vfat; then
         # we have something strange
         die -q "${UIMAGE_SYM} exists but is not a symlink"
     else
