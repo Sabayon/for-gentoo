@@ -24,12 +24,3 @@ diff -ur vmblock-onlya/linux/control.c vmblock-only/linux/control.c
     return 0;
  }
  
-@@ -293,7 +294,7 @@
- 
-    retval = i < 0 ? -EINVAL : blockOp(name, blocker);
- 
--   putname(name);
-+   __putname(name);
- 
-    return retval;
- }
