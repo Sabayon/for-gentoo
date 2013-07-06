@@ -63,7 +63,7 @@ src_prepare() {
 	epatch "${FILESDIR}/frozen.patch"
 	epatch "${FILESDIR}/putname.patch"
 	kernel_is ge 3 10 0 && epatch "${FILESDIR}"/vmblock-9.0.2-5.0.2-3.10.patch
-	#kernel_is ge 3 10 0 && epatch "${FILESDIR}"/vmnet-9.0.2-5.0.2-3.10.patch
+	kernel_is ge 3 10 0 && epatch "${FILESDIR}"/vmsync-3.10.patch
 	epatch_user
 }
 
