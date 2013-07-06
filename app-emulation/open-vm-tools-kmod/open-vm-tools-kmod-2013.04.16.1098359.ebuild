@@ -38,7 +38,9 @@ pkg_setup() {
 	linux-mod_pkg_setup
 
 	VMWARE_MOD_DIR="modules/linux"
-	VMWARE_MODULE_LIST="vmblock vmci vmhgfs vmsync vmxnet vsock"
+	VMWARE_MODULE_LIST="vmblock vmci vmsync vmxnet vsock"
+	# vmhgfs does not build with Linux 3.10
+	kernel_is lt 3 10 0 && VMWARE_MODULE_LIST+=" vmhgfs"
 
 	MODULE_NAMES=""
 	BUILD_TARGETS="auto-build HEADER_DIR=${KERNEL_DIR}/include BUILD_DIR=${KV_OUT_DIR} OVT_SOURCE_DIR=${S}"
