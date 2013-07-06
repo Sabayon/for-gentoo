@@ -1,4 +1,4 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -65,7 +65,13 @@ src_prepare() {
 	use pax_kernel && epatch "${FILESDIR}/hardened.patch"
 	epatch "${FILESDIR}/${PV_MAJOR}-apic.patch"
 	kernel_is ge 3 7 0 && epatch "${FILESDIR}/${PV_MAJOR}-putname.patch"
-	kernel_is ge 3 8 0 && epatch "${FILESDIR}/${PV_MAJOR}-linux-3.8.patch"
+
+	# Linux 3.10 support
+	kernel_is ge 3 10 0 && epatch "${FILESDIR}/vmblock-9.0.2-5.0.2-3.10.patch"
+	kernel_is ge 3 10 0 && epatch "${FILESDIR}/vmnet-9.0.2-5.0.2-3.10.patch"
+
+	# Allow user patches so they can support RC kernels and whatever else
+	epatch_user
 }
 
 src_install() {
