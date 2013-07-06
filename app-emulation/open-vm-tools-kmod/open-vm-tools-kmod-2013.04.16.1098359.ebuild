@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-emulation/open-vm-tools-kmod/open-vm-tools-kmod-2012.12.26.958366.ebuild,v 1.1 2013/01/20 12:09:12 vadimk Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-emulation/open-vm-tools-kmod/open-vm-tools-kmod-2013.04.16.1098359.ebuild,v 1.1 2013/06/22 23:27:33 phajdan.jr Exp $
 
 EAPI="4"
 
@@ -59,12 +59,10 @@ src_prepare() {
 	sed -i.bak -e '/\smake\s/s/make/$(MAKE)/g' modules/linux/{vmblock,vmci,vmhgfs,vmsync,vmxnet,vsock}/Makefile\
 		|| die "Sed failed."
 	epatch "${FILESDIR}/frozen.patch"
-	if kernel_is ge 3 8; then
-		epatch "${FILESDIR}/${PN}-linux-3.8.patch"
-	fi
-	if kernel_is ge 3 9; then
-		epatch "${FILESDIR}/${PN}-linux-3.9.patch"
-	fi
+	epatch "${FILESDIR}/putname.patch"
+	kernel_is ge 3 10 0 && epatch "${FILESDIR}"/vmblock-9.0.2-5.0.2-3.10.patch
+	#kernel_is ge 3 10 0 && epatch "${FILESDIR}"/vmnet-9.0.2-5.0.2-3.10.patch
+	epatch_user
 }
 
 src_configure() {
