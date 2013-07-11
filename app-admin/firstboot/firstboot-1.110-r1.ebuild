@@ -31,7 +31,7 @@ DEPEND="${RDEPEND}
 PDEPEND="app-admin/system-config-keyboard"
 
 src_install() {
-	distutils_src_install
+	distutils-r1_src_install
 	# remove fedorish init script completely
 	rm -r "${ED}"/etc/rc.d || die
 }
