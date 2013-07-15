@@ -68,6 +68,7 @@ src_prepare() {
 	epatch "${FILESDIR}/${PN}-2.4.5-fix-scons.patch"
 	epatch "${FILESDIR}/${PN}-2.2-r1-fix-boost.patch"
 	epatch "${FILESDIR}/${PN}-2.4.5-boost-size-fix.patch"
+	epatch "${FILESDIR}/${PN}-2.4.5-use-damn-size_t.patch"
 
 	# bug #462606
 	sed -i -e "s@\$INSTALL_DIR/lib@\$INSTALL_DIR/$(get_libdir)@g" src/SConscript.client || die
