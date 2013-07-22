@@ -25,7 +25,7 @@ REQUIRED_USE="
 "
 
 COMMON_DEPEND="
-	>=dev-qt/qtgui-4.5:4[dbus?]
+	>=dev-qt/qtgui-4.5:4
 	>=dev-qt/qtopengl-4.5:4
 	>=dev-qt/qtsql-4.5:4[sqlite]
 	dev-db/sqlite[fts3(+)]
