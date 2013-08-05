@@ -1,10 +1,12 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=3
+EAPI=4
 
-inherit eutils
+inherit user versionator
+
+MY_PN=${PN/-core-bin}
 
 DESCRIPTION="Qt4/KDE4 IRC client. This provides the \"core\" (server) component (static build, no Qt dependency)."
 HOMEPAGE="http://quassel-irc.org/"
@@ -21,8 +23,9 @@ IUSE=""
 RDEPEND=""
 DEPEND="!net-irc/quassel-core"
 
-# MY_P=${P/-core-bin}
-MY_PN=${PN/-core-bin}
+S=${WORKDIR}
+
+QA_PRESTRIPPED="usr/bin/quasselcore"
 
 pkg_setup() {
 	QUASSEL_DIR=/var/lib/${MY_PN}
@@ -41,17 +44,20 @@ src_install() {
 	fowners "${QUASSEL_USER}":"${QUASSEL_USER}" "${QUASSEL_DIR}"
 
 	# init scripts
-	newinitd "${FILESDIR}"/quasselcore.init quasselcore || die "newinitd failed"
-	newconfd "${FILESDIR}"/quasselcore.conf quasselcore || die "newconfd failed"
+	newinitd "${FILESDIR}"/quasselcore.init quasselcore
+	newconfd "${FILESDIR}"/quasselcore.conf quasselcore
 
 	# logrotate
 	insinto /etc/logrotate.d
-	newins "${FILESDIR}/quassel.logrotate" quassel || die "newins failed"
+	newins "${FILESDIR}/quassel.logrotate" quassel
 }
 
 pkg_postinst() {
 	einfo "If you want to generate SSL certificate remember to run:"
 	einfo "	emerge --config =${CATEGORY}/${PF}"
+
+	einfo "Quassel can use net-misc/oidentd package if installed on your system."
+	einfo "Consider installing it if you want to run quassel within identd daemon."
 
 	# temporary info mesage
 	if [[ $(get_version_component_range 2 ${REPLACING_VERSIONS}) -lt 7 ]]; then
