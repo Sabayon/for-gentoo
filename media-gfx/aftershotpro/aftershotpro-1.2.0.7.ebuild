@@ -1,4 +1,4 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -9,7 +9,8 @@ inherit eutils multilib versionator
 DESCRIPTION="Professional photo workflow and RAW conversion software"
 HOMEPAGE="http://www.corel.com/corel/product/index.jsp?pid=prod4670071"
 RESTRICT="mirror strip"
-SRC_URI="http://www.corel.com/akdlm/6763/downloads/${PN}/$(get_major_version)/PF/${PN}_i386.deb
+MINVERSION=$(replace_all_version_separators '_' $(get_version_component_range 1-2))
+SRC_URI="http://www.corel.com/akdlm/6763/downloads/AfterShotPro/$(get_major_version)/Patches/${MINVERSION}/AfterShotPro_i386.deb
 	-> ${PN}-${PV}_i386.deb"
 
 LICENSE="AfterShotPro"
@@ -19,17 +20,29 @@ IUSE="nuance"
 
 DEPEND="sys-apps/debianutils"
 RDEPEND="virtual/libc
-	media-libs/fontconfig
-	media-libs/freetype
 	sys-libs/zlib
 	dev-libs/expat
 	dev-libs/glib:2
 	x86? (
 		media-libs/libpng:1.2
+		media-libs/fontconfig
+		media-libs/freetype
 	)
 	amd64? (
 		app-emulation/emul-linux-x86-baselibs
-		app-emulation/emul-linux-x86-xlibs
+		|| (
+			(
+				media-libs/fontconfig[abi_x86_32]
+				media-libs/freetype[abi_x86_32]
+				x11-libs/libX11[abi_x86_32]
+				x11-libs/libXau[abi_x86_32]
+				x11-libs/libxcb[abi_x86_32]
+				x11-libs/libXdmcp[abi_x86_32]
+				x11-libs/libXext[abi_x86_32]
+				x11-libs/libXrender[abi_x86_32]
+			)
+			app-emulation/emul-linux-x86-xlibs
+		)
 	)
 	!media-plugins/asp-plugins-nostalgia"
 
@@ -39,7 +52,8 @@ PDEPEND="nuance? ( media-plugins/asp-plugins-nuance )"
 QA_TEXTRELS="opt/${PN}/lib/libkodakcms.so*"
 QA_EXECSTACK="opt/${PN}/bin/AfterShotPro
 	opt/${PN}/lib/libkodakcms.so*"
-QA_FLAGS_IGNORED="opt/${PN}/supportfiles/libs/NoiseNinja/libnoiseninja\.so.*"
+QA_FLAGS_IGNORED="opt/${PN}/supportfiles/libs/NoiseNinja/libnoiseninja\.so.*
+	opt/${PN}/lib/libOpenCL\.so.*"
 
 S="${WORKDIR}"
 
