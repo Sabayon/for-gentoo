@@ -20,7 +20,7 @@ COMMON_DEPEND="
 	x11-libs/fltk:1[opengl,threads]
 "
 DEPEND="${COMMON_DEPEND}
-	=dev-games/simgear-2.8*
+	>=dev-games/simgear-2
 	>=dev-libs/boost-1.34
 "
 RDEPEND="${COMMON_DEPEND}
