@@ -25,6 +25,8 @@ RDEPEND="~app-misc/magneto-loader-${PV}[${PYTHON_USEDEP}]
 	dev-python/pygtk:2
 	${DEPEND}"
 
+REQUIRED_USE="${PYTHON_REQUIRED_USE}"
+
 src_install() {
 	emake DESTDIR="${D}" LIBDIR="usr/lib" magneto-gtk-install || die "make install failed"
 

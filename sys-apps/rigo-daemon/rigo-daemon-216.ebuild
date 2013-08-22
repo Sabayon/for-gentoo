@@ -28,6 +28,8 @@ RDEPEND="${PYTHON_DEPS}
 	sys-auth/polkit[introspection]
 	sys-devel/gettext"
 
+REQUIRED_USE="${PYTHON_REQUIRED_USE}"
+
 src_install() {
 	emake DESTDIR="${D}" install || die "make install failed"
 

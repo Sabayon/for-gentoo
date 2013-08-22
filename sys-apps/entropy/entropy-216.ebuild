@@ -29,6 +29,8 @@ RDEPEND="dev-db/sqlite:3[soundex(+)]
 DEPEND="${RDEPEND}
 	dev-util/intltool"
 
+REQUIRED_USE="${PYTHON_REQUIRED_USE}"
+
 S="${S}/lib"
 
 REPO_CONFPATH="${ROOT}/etc/entropy/repositories.conf"

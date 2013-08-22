@@ -29,6 +29,8 @@ RDEPEND="${PYTHON_DEPS}
 	x11-libs/vte:2.90
 	>=x11-misc/xdg-utils-1.1.0_rc1_p20120319"
 
+REQUIRED_USE="${PYTHON_REQUIRED_USE}"
+
 src_install() {
 	emake DESTDIR="${D}" install || die "make install failed"
 

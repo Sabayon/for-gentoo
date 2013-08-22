@@ -24,6 +24,8 @@ DEPEND="~sys-apps/rigo-daemon-${PV}[${PYTHON_USEDEP}]
 RDEPEND="${DEPEND}
 	x11-misc/xdg-utils"
 
+REQUIRED_USE="${PYTHON_REQUIRED_USE}"
+
 src_install() {
 	emake DESTDIR="${D}" LIBDIR="usr/lib" magneto-core-install || die "make install failed"
 	python_optimize "${D}/usr/$(get_libdir)/entropy/magneto"

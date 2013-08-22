@@ -26,6 +26,8 @@ RDEPEND="~sys-apps/entropy-${PV}[${PYTHON_USEDEP}]
 	"
 DEPEND="app-text/asciidoc"
 
+REQUIRED_USE="${PYTHON_REQUIRED_USE}"
+
 src_install() {
 	emake DESTDIR="${D}" install || die "make install failed"
 	newbashcomp "${S}/eit-completion.bash" eit

@@ -25,6 +25,8 @@ RDEPEND="~app-misc/magneto-loader-${PV}[${PYTHON_USEDEP}]
 	dev-python/PyQt4[dbus]
 	${DEPEND}"
 
+REQUIRED_USE="${PYTHON_REQUIRED_USE}"
+
 src_install() {
 	emake DESTDIR="${D}" LIBDIR="usr/lib" magneto-kde-install || die "make install failed"
 	python_optimize "${D}/usr/lib/entropy/magneto/magneto/kde"

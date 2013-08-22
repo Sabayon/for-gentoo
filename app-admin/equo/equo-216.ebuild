@@ -23,6 +23,8 @@ DEPEND="${PYTHON_DEPS}
 	~sys-apps/entropy-${PV}[${PYTHON_USEDEP}]"
 RDEPEND="${DEPEND} sys-apps/file[python]"
 
+REQUIRED_USE="${PYTHON_REQUIRED_USE}"
+
 src_compile() {
 	cd "${S}"/client || die
 	emake || die "make failed"

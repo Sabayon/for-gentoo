@@ -25,8 +25,9 @@ RDEPEND="${DEPEND}
 	dev-libs/gobject-introspection
 	x11-libs/gdk-pixbuf[introspection]
 	x11-libs/gtk+:3[introspection]
-	x11-libs/libnotify[introspection]
-"
+	x11-libs/libnotify[introspection]"
+
+REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
 src_install() {
 	emake DESTDIR="${D}" LIBDIR="usr/lib" magneto-gtk3-install || die "make install failed"

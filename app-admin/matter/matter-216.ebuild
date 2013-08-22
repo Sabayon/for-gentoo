@@ -24,6 +24,8 @@ RDEPEND="entropy? ( ~sys-apps/entropy-${PV}[${PYTHON_USEDEP}] )
 	sys-apps/file[python]
 	${PYTHON_DEPS}"
 
+REQUIRED_USE="${PYTHON_REQUIRED_USE}"
+
 src_install() {
 	emake DESTDIR="${D}" install || die "make install failed"
 	emake DESTDIR="${D}" base-install || die "make base-install failed"
