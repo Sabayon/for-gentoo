@@ -8,17 +8,17 @@ PORTDIR="${1}"
 TARGET_VERSION="${2}"
 
 PACKAGES="
+	app-admin/matter
 	x11-misc/magneto-gtk
 	kde-misc/magneto-kde
 	app-misc/magneto-loader
 	sys-apps/magneto-core
-	kde-misc/entropy-kioslaves
 	app-admin/rigo
 	sys-apps/rigo-daemon
 	sys-apps/entropy-server
 	app-admin/equo
-	sys-apps/entropy-client-services
-	sys-apps/entropy"
+	sys-apps/entropy
+	"
 
 
 for package in ${PACKAGES}; do
