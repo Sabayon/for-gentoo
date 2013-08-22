@@ -6,9 +6,9 @@ fi
 
 PACKAGES="sys-apps/rigo-daemon sys-apps/entropy \
 	sys-apps/entropy-client-services app-admin/equo \
-	app-admin/rigo app-admin/sulfur sys-apps/entropy-server \
+	app-admin/rigo sys-apps/entropy-server \
 	sys-apps/magneto-core app-misc/magneto-loader \
-	kde-misc/magneto-kde x11-misc/magneto-gtk"
+	kde-misc/magneto-kde x11-misc/magneto-gtk app-admin/matter"
 
 for ver in ${@}; do
 	for package in ${PACKAGES}; do
