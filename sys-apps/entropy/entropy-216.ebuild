@@ -2,10 +2,12 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI="4"
-PYTHON_DEPEND="2"
-PYTHON_USE_WITH="sqlite"
-inherit eutils python user
+EAPI=5
+
+PYTHON_COMPAT=( python2_7 )
+PYTHON_REQ_USE="sqlite"
+
+inherit eutils python-single-r1 user
 
 DESCRIPTION="Entropy Package Manager foundation library"
 HOMEPAGE="http://www.sabayon.org"
@@ -22,7 +24,8 @@ RDEPEND="dev-db/sqlite:3[soundex(+)]
 	sys-apps/diffutils
 	sys-apps/sandbox
 	>=sys-apps/portage-2.1.9
-	sys-devel/gettext"
+	sys-devel/gettext
+	${PYTHON_DEPS}"
 DEPEND="${RDEPEND}
 	dev-util/intltool"
 
@@ -31,6 +34,7 @@ REPO_D_CONFPATH="${ROOT}/etc/entropy/repositories.conf.d"
 ENTROPY_CACHEDIR="${ROOT}/var/lib/entropy/caches"
 
 pkg_setup() {
+	python-single-r1_pkg_setup
 	# Can:
 	# - update repos
 	# - update security advisories
@@ -39,8 +43,6 @@ pkg_setup() {
 	# Create unprivileged entropy user
 	enewgroup entropy-nopriv || die "failed to create entropy-nopriv group"
 	enewuser entropy-nopriv -1 -1 -1 entropy-nopriv || die "failed to create entropy-nopriv user"
-
-	python_pkg_setup
 }
 
 src_compile() {
@@ -56,6 +58,8 @@ src_install() {
 	cd "${S}"/lib || die
 	# TODO: drop VARDIR after 146
 	emake DESTDIR="${D}" VARDIR="/var" LIBDIR="usr/lib" install || die "make install failed"
+
+	python_optimize "${D}/usr/lib/entropy/lib/entropy"
 }
 
 pkg_postinst() {
@@ -108,14 +112,8 @@ pkg_postinst() {
 	chown root:entropy "${ROOT}/var/lib/entropy/client/packages" # no recursion
 	chown root:entropy "${ROOT}/var/log/entropy" # no recursion
 
-	python_mod_optimize "/usr/lib/entropy/lib/entropy"
-
 	echo
 	elog "If you want to enable Entropy packages delta download support, please"
 	elog "install dev-util/bsdiff."
 	echo
-}
-
-pkg_postrm() {
-	python_mod_cleanup "/usr/lib/entropy/lib/entropy"
 }
