@@ -1,4 +1,4 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -22,8 +22,8 @@ S="${WORKDIR}/entropy-${PV}/rigo"
 DEPEND="${PYTHON_DEPS}"
 RDEPEND="${PYTHON_DEPS}
 	|| ( dev-python/pygobject-cairo:3 dev-python/pygobject:3[cairo] )
-	~sys-apps/entropy-${PV}
-	~sys-apps/rigo-daemon-${PV}
+	~sys-apps/entropy-${PV}[${PYTHON_USEDEP}]
+	~sys-apps/rigo-daemon-${PV}[${PYTHON_USEDEP}]
 	sys-devel/gettext
 	x11-libs/gtk+:3
 	x11-libs/vte:2.90

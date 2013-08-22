@@ -20,7 +20,7 @@ SRC_URI="mirror://sabayon/sys-apps/entropy-${PV}.tar.bz2"
 S="${WORKDIR}/entropy-${PV}/magneto"
 
 DEPEND="${PYTHON_DEPS}"
-RDEPEND="~app-misc/magneto-loader-${PV}
+RDEPEND="~app-misc/magneto-loader-${PV}[${PYTHON_USEDEP}]
 	dev-python/notify-python
 	dev-python/pygtk:2
 	${DEPEND}"

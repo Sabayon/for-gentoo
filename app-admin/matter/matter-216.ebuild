@@ -20,7 +20,7 @@ SRC_URI="mirror://sabayon/sys-apps/entropy-${PV}.tar.bz2"
 S="${WORKDIR}/entropy-${PV}/${PN}"
 
 DEPEND=""
-RDEPEND="entropy? ( ~sys-apps/entropy-${PV} )
+RDEPEND="entropy? ( ~sys-apps/entropy-${PV}[${PYTHON_USEDEP}] )
 	sys-apps/file[python]
 	${PYTHON_DEPS}"
 

@@ -19,7 +19,7 @@ IUSE=""
 SRC_URI="mirror://sabayon/sys-apps/entropy-${PV}.tar.bz2"
 S="${WORKDIR}/entropy-${PV}/magneto"
 
-DEPEND="~sys-apps/rigo-daemon-${PV}
+DEPEND="~sys-apps/rigo-daemon-${PV}[${PYTHON_USEDEP}]
 	${PYTHON_DEPS}"
 RDEPEND="${DEPEND}
 	x11-misc/xdg-utils"

@@ -23,7 +23,7 @@ RDEPEND="dev-db/sqlite:3[soundex(+)]
 	net-misc/rsync
 	sys-apps/diffutils
 	sys-apps/sandbox
-	>=sys-apps/portage-2.1.9
+	>=sys-apps/portage-2.1.9[${PYTHON_USEDEP}]
 	sys-devel/gettext
 	${PYTHON_DEPS}"
 DEPEND="${RDEPEND}

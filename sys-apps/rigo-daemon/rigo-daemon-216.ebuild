@@ -24,7 +24,7 @@ DEPEND="${PYTHON_DEPS}"
 RDEPEND="${PYTHON_DEPS}
 	dev-python/dbus-python
 	dev-python/pygobject:3
-	~sys-apps/entropy-${PV}
+	~sys-apps/entropy-${PV}[${PYTHON_USEDEP}]
 	sys-auth/polkit[introspection]
 	sys-devel/gettext"
 

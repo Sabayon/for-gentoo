@@ -20,7 +20,7 @@ SRC_URI="mirror://sabayon/sys-apps/entropy-${PV}.tar.bz2"
 
 S="${WORKDIR}/entropy-${PV}/server"
 
-RDEPEND="~sys-apps/entropy-${PV}
+RDEPEND="~sys-apps/entropy-${PV}[${PYTHON_USEDEP}]
 	matter? ( ~app-admin/matter-${PV}[entropy] )
 	${PYTHON_DEPS}
 	"
