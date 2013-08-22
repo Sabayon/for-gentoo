@@ -22,6 +22,7 @@ S="${WORKDIR}/entropy-${PV}/server"
 
 RDEPEND="~sys-apps/entropy-${PV}
 	matter? ( ~app-admin/matter-${PV}[entropy] )
+	${PYTHON_DEPS}
 	"
 DEPEND="app-text/asciidoc"
 
