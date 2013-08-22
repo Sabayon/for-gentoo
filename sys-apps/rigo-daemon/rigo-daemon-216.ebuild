@@ -1,10 +1,12 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI="3"
-PYTHON_DEPEND="2"
-inherit eutils python
+EAPI=5
+
+PYTHON_COMPAT=( python2_7 )
+
+inherit eutils python-single-r1
 
 MY_PN="RigoDaemon"
 DESCRIPTION="Entropy Client DBus Services, aka RigoDaemon"
@@ -18,19 +20,18 @@ SRC_URI="mirror://sabayon/sys-apps/entropy-${PV}.tar.bz2"
 
 S="${WORKDIR}/entropy-${PV}/rigo/${MY_PN}"
 
-DEPEND=""
-RDEPEND="dev-python/dbus-python
+DEPEND="${PYTHON_DEPS}"
+RDEPEND="${PYTHON_DEPS}
+	dev-python/dbus-python
 	dev-python/pygobject:3
 	~sys-apps/entropy-${PV}
 	sys-auth/polkit[introspection]
 	sys-devel/gettext"
 
-src_compile() {
-	emake || die "make failed"
-}
-
 src_install() {
 	emake DESTDIR="${D}" install || die "make install failed"
+
+	python_optimize "${D}/usr/lib/rigo/${MY_PN}"
 }
 
 pkg_preinst() {
@@ -38,12 +39,4 @@ pkg_preinst() {
 	# TODO: this will be removed in future
 	local shutdown_exec=${EROOT}/usr/lib/rigo/${MY_PN}/shutdown.py
 	[[ -x "${shutdown_exec}" ]] && "${shutdown_exec}"
-}
-
-pkg_postinst() {
-	python_mod_optimize "/usr/lib/rigo/${MY_PN}"
-}
-
-pkg_postrm() {
-	python_mod_cleanup "/usr/lib/rigo/${MY_PN}"
 }
