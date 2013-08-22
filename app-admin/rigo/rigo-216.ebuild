@@ -2,9 +2,11 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI="3"
-PYTHON_DEPEND="2"
-inherit eutils gnome2-utils fdo-mime python
+EAPI=5
+
+PYTHON_COMPAT=( python2_7 )
+
+inherit eutils gnome2-utils fdo-mime python-single-r1
 
 DESCRIPTION="Rigo, the Sabayon Application Browser"
 HOMEPAGE="http://www.sabayon.org"
@@ -17,7 +19,8 @@ IUSE=""
 SRC_URI="mirror://sabayon/sys-apps/entropy-${PV}.tar.bz2"
 S="${WORKDIR}/entropy-${PV}/rigo"
 
-RDEPEND="
+DEPEND="${PYTHON_DEPS}"
+RDEPEND="${PYTHON_DEPS}
 	|| ( dev-python/pygobject-cairo:3 dev-python/pygobject:3[cairo] )
 	~sys-apps/entropy-${PV}
 	~sys-apps/rigo-daemon-${PV}
@@ -25,24 +28,19 @@ RDEPEND="
 	x11-libs/gtk+:3
 	x11-libs/vte:2.90
 	>=x11-misc/xdg-utils-1.1.0_rc1_p20120319"
-DEPEND=""
-
-src_compile() {
-	emake || die "make failed"
-}
 
 src_install() {
 	emake DESTDIR="${D}" install || die "make install failed"
+
+	python_optimize "${D}/usr/lib/rigo/${PN}"
 }
 
 pkg_postinst() {
 	fdo-mime_mime_database_update
 	fdo-mime_desktop_database_update
-	python_mod_optimize "/usr/lib/rigo/${PN}"
 }
 
 pkg_postrm() {
 	fdo-mime_mime_database_update
 	fdo-mime_desktop_database_update
-	python_mod_cleanup "/usr/lib/rigo/${PN}"
 }
