@@ -1,10 +1,12 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI="3"
-PYTHON_DEPEND="2"
-inherit eutils python
+EAPI=5
+
+PYTHON_COMPAT=( python2_7 )
+
+inherit eutils python-single-r1
 
 DESCRIPTION="Entropy Package Manager notification applet KDE frontend"
 HOMEPAGE="http://www.sabayon.org"
@@ -17,23 +19,13 @@ IUSE=""
 SRC_URI="mirror://sabayon/sys-apps/entropy-${PV}.tar.bz2"
 S="${WORKDIR}/entropy-${PV}/magneto"
 
+DEPEND="${PYTHON_DEPS}"
 RDEPEND="~app-misc/magneto-loader-${PV}
 	kde-base/pykde4
-	dev-python/PyQt4[dbus]"
-DEPEND=""
-
-src_compile() {
-	einfo "nothing to compile"
-}
+	dev-python/PyQt4[dbus]
+	${DEPEND}"
 
 src_install() {
 	emake DESTDIR="${D}" LIBDIR="usr/lib" magneto-kde-install || die "make install failed"
-}
-
-pkg_postinst() {
-	python_mod_optimize "/usr/lib/entropy/magneto/magneto/kde"
-}
-
-pkg_postrm() {
-	python_mod_cleanup "/usr/lib/entropy/magneto/magneto/kde"
+	python_optimize "${D}/usr/lib/entropy/magneto/magneto/kde"
 }
