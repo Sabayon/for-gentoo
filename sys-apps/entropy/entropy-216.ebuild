@@ -100,7 +100,6 @@ pkg_postinst() {
 	done
 
 	# Setup Entropy Library directories ownership
-	chown -R root:entropy "${ROOT}/var/tmp/entropy"
 	chown root:entropy "${ROOT}/var/lib/entropy" # no recursion
 	chown root:entropy "${ROOT}/var/lib/entropy/client/packages" # no recursion
 	chown root:entropy "${ROOT}/var/log/entropy" # no recursion
