@@ -1,0 +1,24 @@
+diff --git a/src/osgPlugins/ffmpeg/FFmpegHeaders.hpp b/src/osgPlugins/ffmpeg/FFmpegHeaders.hpp
+index dc79df3..c362b97 100644
+--- a/src/osgPlugins/ffmpeg/FFmpegHeaders.hpp
++++ b/src/osgPlugins/ffmpeg/FFmpegHeaders.hpp
+@@ -9,13 +9,13 @@ extern "C"
+ #define FF_API_OLD_SAMPLE_FMT 0
+ #include <errno.h>    // for error codes defined in avformat.h
+ #include <stdint.h>
+-#include <avcodec.h>
+-#include <avformat.h>
+-#include <avdevice.h>
+-#include <mathematics.h>
++#include <libavcodec/avcodec.h>
++#include <libavformat/avformat.h>
++#include <libavdevice/avdevice.h>
++#include <libavutil/mathematics.h>
+ 
+-#ifdef USE_SWSCALE    
+-    #include <swscale.h>
++#ifdef USE_SWSCALE
++    #include <libswscale/swscale.h>
+ #endif
+ 
+ #if LIBAVUTIL_VERSION_INT <  AV_VERSION_INT(50,38,0)
