@@ -71,13 +71,12 @@ src_prepare() {
 	# PaX fixes (see bug #298988)
 	pushd "${WORKDIR}" &>/dev/null || die
 	epatch "${FILESDIR}"/vboxguest-4.1.0-log-use-c99.patch
+	# Linux 3.11 support
+	epatch "${FILESDIR}/${PN}-4.2.16-3.11.patch"
 	popd &>/dev/null || die
 
 	# Disable things unused or splitted into separate ebuilds
 	cp "${FILESDIR}/${PN}-3-localconfig" LocalConfig.kmk
-
-	# Linux 3.11 support
-	epatch "${FILESDIR}/${PN}-4.2.16-3.10.patch"
 
 	# stupid new header references...
 	for vboxheader in {product,revision}-generated.h ; do
