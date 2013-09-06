@@ -69,6 +69,7 @@ src_prepare() {
 	# Linux 3.10 support
 	kernel_is ge 3 10 0 && epatch "${FILESDIR}/vmblock-9.0.2-5.0.2-3.10.patch"
 	kernel_is ge 3 10 0 && epatch "${FILESDIR}/vmnet-9.0.2-5.0.2-3.10.patch"
+	kernel_is ge 3 11 0 && epatch "${FILESDIR}/vmblock-3.11.patch"
 
 	# Allow user patches so they can support RC kernels and whatever else
 	epatch_user
