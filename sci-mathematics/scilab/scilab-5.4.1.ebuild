@@ -10,10 +10,6 @@ VIRTUALX_REQUIRED="manual"
 inherit eutils autotools bash-completion-r1 check-reqs fdo-mime flag-o-matic \
 	fortran-2 java-pkg-opt-2 toolchain-funcs virtualx
 
-# Things that don't work:
-# - tests
-# - can't build without docs (-doc) 
-
 DESCRIPTION="Scientific software package for numerical computations"
 HOMEPAGE="http://www.scilab.org/"
 SRC_URI="http://www.scilab.org/download/${PV}/${P}-src.tar.gz"
@@ -21,7 +17,7 @@ SRC_URI="http://www.scilab.org/download/${PV}/${P}-src.tar.gz"
 LICENSE="CeCILL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="bash-completion debug +doc fftw +gui +matio nls openmp
+IUSE="bash-completion debug fftw +gui +matio nls openmp
 	static-libs test tk +umfpack +xcos"
 REQUIRED_USE="xcos? ( gui ) doc? ( gui )"
 
@@ -213,14 +209,6 @@ src_configure() {
 src_compile() {
 	emake
 	use doc && emake doc
-}
-
-src_test() {
-	if use gui; then
-		Xemake check
-	else
-		emake check
-	fi
 }
 
 src_install() {
