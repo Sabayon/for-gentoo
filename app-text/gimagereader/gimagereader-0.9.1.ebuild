@@ -1,10 +1,10 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=3
-PYTHON_DEPEND="2"
-inherit python distutils
+EAPI=4
+PYTHON_COMPAT=( python2_7 )
+inherit distutils-r1
 
 DESCRIPTION="A tesseract OCR front-end"
 HOMEPAGE="http://www.sourceforge.com/projects/gimagereader"
@@ -19,13 +19,15 @@ DEPEND=""
 RDEPEND="
 	app-text/tesseract
 	dev-python/gtkspell-python
-	dev-python/imaging
-	dev-python/pycairo
-	dev-python/pyenchant
-	dev-python/pygtk
-	dev-python/python-poppler
+	dev-python/pycairo[${PYTHON_USEDEP}]
+	dev-python/pyenchant[${PYTHON_USEDEP}]
+	dev-python/pygtk:2[${PYTHON_USEDEP}]
+	dev-python/python-poppler[${PYTHON_USEDEP}]
+	virtual/python-imaging[${PYTHON_USEDEP}]
 "
-src_prepare() {
+
+python_prepare_all() {
 	sed "/data.append/s/'COPYING',//" \
-		-i setup.py
+		-i setup.py || die
+	distutils-r1_python_prepare_all
 }
