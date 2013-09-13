@@ -30,8 +30,8 @@ RDEPEND="${DEPEND}
 	dev-python/pycurl
 	dev-python/jinja
 	captcha? (
-		dev-python/imaging
 		app-text/tesseract
+		virtual/python-imaging
 	)
 	clicknload? (
 	|| (
@@ -70,7 +70,8 @@ src_unpack() {
 }
 
 src_prepare() {
-	epatch "${FILESDIR}/${P}-sanitize-config.patch"
+	epatch "${FILESDIR}/${P}-sanitize-config.patch" \
+		"${FILESDIR}/${P}-PIL.patch"
 
 	# replace some shipped dependencies with the system libraries
 	rm -r \
