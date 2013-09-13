@@ -1,4 +1,4 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -21,20 +21,23 @@ CDEPEND="
 	gnome-base/libglade
 	dev-python/gconf-python
 	dev-python/hachoir-regex
-	dev-python/imaging
 	dev-python/libgtop-python
 	dev-python/pycairo
 	dev-python/pygtk
-	dev-python/twisted
+	dev-python/twisted-core
 	dev-python/twisted-web
-	media-libs/alsa-lib"
+	media-libs/alsa-lib
+	virtual/python-imaging"
 
 DEPEND="${CDEPEND}
+	app-text/gnome-doc-utils
+	app-text/rarian
 	virtual/pkgconfig"
 RDEPEND="${CDEPEND}
 	x11-libs/libgksu"
 
 src_prepare() {
+	epatch "${FILESDIR}/${P}-PIL.patch"
 	sed -i 's/^Exec=/Exec=gksu /' \
 		client/gnome/admin/data/nanny-admin-console.desktop.in \
 		|| die "sed failed"
