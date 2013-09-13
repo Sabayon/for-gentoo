@@ -1,4 +1,4 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: Exp $
 
@@ -7,12 +7,13 @@ PYTHON_DEPEND="2:2.5"
 SUPPORT_PYTHON_ABIS="1"
 RESTRICT_PYTHON_ABIS="3.*"
 
-inherit distutils fdo-mime
+inherit eutils distutils fdo-mime
 
 DESCRIPTION="Simple to use cross-platform GUI Photo Batch Processor"
 HOMEPAGE="http://photobatch.stani.be/"
 
-SRC_URI="mirror://sabayon/${CATEGORY}/${PN}/${P}.tar.xz"
+SRC_URI="mirror://sabayon/${CATEGORY}/${PN}/${P}.tar.xz
+	mirror://sabayon/${CATEGORY}/${PN}/${PN}-fix-PIL-imports.patch.gz"
 
 # last tarball released by upstream was versioned 0.2.7.1
 # but the .1 isn't mentioned in their VCS log or sources
@@ -26,7 +27,7 @@ KEYWORDS="~amd64 ~x86"
 IUSE=""
 
 CDEPEND="dev-python/wxpython:2.8
-	dev-python/imaging
+	virtual/python-imaging
 "
 DEPEND="${CDEPEND}
 	app-arch/xz-utils
@@ -34,6 +35,11 @@ DEPEND="${CDEPEND}
 RDEPEND="${CDEPEND}
 	sys-apps/mlocate
 "
+
+src_prepare() {
+	epatch "${WORKDIR}/${PN}-fix-PIL-imports.patch"
+	distutils_src_prepare
+}
 
 src_install() {
 	distutils_src_install
