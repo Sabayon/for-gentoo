@@ -1,4 +1,4 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -34,7 +34,8 @@ COMMON_DEPEND=">=dev-libs/libpcre-5.0
 RDEPEND="${COMMON_DEPEND}
 	gstreamer? ( media-libs/gst-plugins-good
 		media-plugins/gst-plugins-alsa )
-	nls? ( virtual/libintl )"
+	nls? ( virtual/libintl )
+	gtk3? ( !x11-misc/gxneur )"
 DEPEND="${COMMON_DEPEND}
 	virtual/pkgconfig
 	nls? ( sys-devel/gettext )"
@@ -46,8 +47,7 @@ src_prepare() {
 		ltmain.sh aclocal.m4 || die
 
 	sed -i -e "s/-Werror -g0//" configure.in || die
-	# allow to select between gtk2 or gtk3, or none
-	epatch "${FILESDIR}/${PV}-select-gtk.patch"
+	sed -i -e 's/@LDFLAGS@ //' xnconfig.pc.in || die
 	eautoreconf
 }
 
@@ -99,6 +99,11 @@ src_install() {
 pkg_postinst() {
 	elog "This is command line tool. If you are looking for GUI frontend just"
 	elog "emerge gxneur, which uses xneur transparently as backend."
+
+	elog
+	elog "It is recommended to install dictionary for your language"
+	elog "(myspell or aspell), for example app-dicts/aspell-ru."
+
 	ewarn
 	ewarn "Note: if xneur became slow, try to comment out AddBind options in config file."
 }
