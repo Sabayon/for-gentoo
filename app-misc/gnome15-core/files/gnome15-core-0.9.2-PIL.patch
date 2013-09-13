@@ -1,0 +1,78 @@
+diff -Nurp gnome15-0.9.2/configure gnome15-0.9.2.new/configure
+--- gnome15-0.9.2/configure	2012-11-23 12:59:08.000000000 +0100
++++ gnome15-0.9.2.new/configure	2013-09-13 17:20:47.613149869 +0200
+@@ -3997,7 +3997,7 @@ fi
+     PYTHON_NAME=`basename $PYTHON`
+     { $as_echo "$as_me:${as_lineno-$LINENO}: checking $PYTHON_NAME module: Image" >&5
+ $as_echo_n "checking $PYTHON_NAME module: Image... " >&6; }
+-	$PYTHON -c "import Image" 2>/dev/null
++	$PYTHON -c "import PIL.Image" 2>/dev/null
+ 	if test $? -eq 0;
+ 	then
+ 		{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+diff -Nurp gnome15-0.9.2/configure.in gnome15-0.9.2.new/configure.in
+--- gnome15-0.9.2/configure.in	2012-11-21 13:05:36.000000000 +0100
++++ gnome15-0.9.2.new/configure.in	2013-09-13 17:20:22.159817241 +0200
+@@ -110,7 +110,7 @@ AX_PYTHON_MODULE(virtkey, [])
+ AS_IF([test "x${HAVE_PYMOD_VIRTKEY}" = "xno"],
+      [AC_MSG_ERROR([Requires Python Virtkey Library])])
+      
+-AX_PYTHON_MODULE(Image, [])
++AX_PYTHON_MODULE(PIL.Image, [])
+ AS_IF([test "x${HAVE_PYMOD_IMAGE}" = "xno"],
+      [AC_MSG_ERROR([Requires Python Image Library])])
+      
+diff -Nurp gnome15-0.9.2/src/main/python/gnome15/drivers/driver_g15direct.py gnome15-0.9.2.new/src/main/python/gnome15/drivers/driver_g15direct.py
+--- gnome15-0.9.2/src/main/python/gnome15/drivers/driver_g15direct.py	2012-11-21 22:21:24.000000000 +0100
++++ gnome15-0.9.2.new/src/main/python/gnome15/drivers/driver_g15direct.py	2013-09-13 17:17:36.639821832 +0200
+@@ -38,8 +38,8 @@ import gconf
+ import gtk
+ import traceback 
+ import logging
+-import ImageMath
+-import Image
++from PIL import ImageMath
++from PIL import Image
+ import array
+ load_error = None
+ try :
+diff -Nurp gnome15-0.9.2/src/main/python/gnome15/drivers/driver_gtk.py gnome15-0.9.2.new/src/main/python/gnome15/drivers/driver_gtk.py
+--- gnome15-0.9.2/src/main/python/gnome15/drivers/driver_gtk.py	2012-07-29 01:24:01.000000000 +0200
++++ gnome15-0.9.2.new/src/main/python/gnome15/drivers/driver_gtk.py	2013-09-13 17:17:36.639821832 +0200
+@@ -25,8 +25,8 @@ import gtk.gdk
+ import gobject
+ import cairo
+ 
+-import Image
+-import ImageMath
++from PIL import Image
++from PIL import ImageMath
+ import logging
+ logger = logging.getLogger("driver") 
+ 
+diff -Nurp gnome15-0.9.2/src/main/python/gnome15/drivers/driver_kernel.py gnome15-0.9.2.new/src/main/python/gnome15/drivers/driver_kernel.py
+--- gnome15-0.9.2/src/main/python/gnome15/drivers/driver_kernel.py	2012-11-21 12:22:50.000000000 +0100
++++ gnome15-0.9.2.new/src/main/python/gnome15/drivers/driver_kernel.py	2013-09-13 17:17:36.643155165 +0200
+@@ -34,8 +34,8 @@ import cairo
+ import re
+ import usb
+ import fb
+-import Image
+-import ImageMath
++from PIL import Image
++from PIL import ImageMath
+ import array
+ import dbus
+ import gobject
+diff -Nurp gnome15-0.9.2/src/main/python/gnome15/g15util.py gnome15-0.9.2.new/src/main/python/gnome15/g15util.py
+--- gnome15-0.9.2/src/main/python/gnome15/g15util.py	2012-11-07 20:40:05.000000000 +0100
++++ gnome15-0.9.2.new/src/main/python/gnome15/g15util.py	2013-09-13 17:17:36.613155165 +0200
+@@ -25,7 +25,7 @@ import re
+ import cairo
+ import math
+ import dbus
+-import Image
++from PIL import Image
+ import rsvg
+ import urllib
+ import base64

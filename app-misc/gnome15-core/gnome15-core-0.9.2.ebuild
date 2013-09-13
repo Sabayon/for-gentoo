@@ -1,5 +1,5 @@
 EAPI="3"
-SUPPORT_PYTHON_ABIS="1"
+inherit eutils
 
 MY_PN="gnome15"
 MY_P="${MY_PN}-${PV}"
@@ -20,7 +20,6 @@ RDEPEND="dev-python/pygtk
 		 dev-python/libgtop-python
 		 dev-python/lxml
 		 dev-python/pycairo
-		 dev-python/imaging
 		 dev-python/python-xlib
 		 dev-python/librsvg-python
 		 dev-python/keyring
@@ -32,6 +31,7 @@ RDEPEND="dev-python/pygtk
 		 dev-python/pyusb
 		 dev-python/python-uinput
 		 dev-python/python-virtkey
+		 virtual/python-imaging
 		 virtual/udev
 		!app-misc/gnome15-indicator
 		!app-misc/gnome15-panel-applet
@@ -48,6 +48,10 @@ lg4l-module? ( dev-python/pyinputevent
 			   app-misc/lgsetled )
 title? ( dev-python/setproctitle )"
 DEPEND="${RDEPEND}"
+
+src_prepare() {
+	epatch "${FILESDIR}/${P}-PIL.patch"
+}
 
 src_configure() {
 	cd ${MY_S} && econf \
