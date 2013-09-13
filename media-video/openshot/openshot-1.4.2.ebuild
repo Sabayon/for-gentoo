@@ -1,4 +1,4 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -29,7 +29,7 @@ RDEPEND="
 	>=media-libs/mlt-0.4.6-r1[ffmpeg,frei0r,gtk,melt,python,sdl,xml]
 	media-sound/sox[encode,ffmpeg]
 	>=virtual/ffmpeg-0.6[encode,sdl]
-	dev-python/imaging
+	virtual/python-imaging
 	"
 #>=virtual/ffmpeg-0.6[encode,faac?,ieee1394?,mp3?,sdl,theora?,vorbis?,vpx,x264?,xvid?]
 pkg_setup() {
