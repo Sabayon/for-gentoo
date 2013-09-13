@@ -1,4 +1,4 @@
-# Copyright 1999-2010 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -17,18 +17,17 @@ SRC_URI="mirror://sourceforge/${PN}/${MY_PN_URI}-${PV}.tar.gz"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~ppc ~x86"
-IUSE="doc guitarhero psyco"
+IUSE="doc guitarhero"
 
 # NOTES :
 # pyopengl-2.0.0.44 (stable) makes the game crash with some configs
 DEPEND=""
 RDEPEND="dev-python/pygame
 	>=dev-python/pyopengl-2.0.1.09-r1
-	dev-python/imaging
 	dev-python/numpy
 	media-libs/sdl-mixer[vorbis]
+	virtual/python-imaging
 	doc? ( >=dev-python/epydoc-3.0.1 )
-	psyco? ( dev-python/psyco )
 	guitarhero? ( media-sound/vorbis-tools )"
 
 S=${WORKDIR}/${MY_PN}-${PV}
@@ -44,6 +43,8 @@ src_prepare() {
 	sed -i -e \
 		"s:os.path.join(\"..\", \"\(data\)\"):\"${GAMES_DATADIR}/${PN}/\1\":" \
 		src/Version.py || die "patching src/Version.py failed"
+
+	epatch "${FILESDIR}/${P}-PIL.patch"
 }
 
 src_compile() {
