@@ -3,7 +3,7 @@
 # $Header: $
 
 EAPI=5
-inherit bash-completion-r1 eutils linux-info systemd
+inherit bash-completion-r1 eutils linux-info systemd udev
 
 DESCRIPTION="Daemon providing interfaces to work with storage devices"
 HOMEPAGE="http://www.freedesktop.org/wiki/Software/udisks"
@@ -11,15 +11,15 @@ SRC_URI="http://udisks.freedesktop.org/releases/${P}.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="2"
-KEYWORDS="alpha amd64 arm ia64 ~mips ppc ppc64 ~sparc x86"
-IUSE="debug crypt +gptfdisk +introspection selinux systemd"
+KEYWORDS="~alpha ~amd64 ~arm ~ia64 ~mips ~ppc ~ppc64 ~sh ~sparc ~x86"
+IUSE="debug cryptsetup +gptfdisk +introspection selinux systemd"
 
 UDEV_VERSION="197"
 COMMON_DEPEND=">=dev-libs/glib-2.32
 	>=dev-libs/libatasmart-0.19
 	>=sys-auth/polkit-0.110
 	virtual/acl
-	>=virtual/udev-${UDEV_VERSION}[gudev,hwdb]
+	>=virtual/udev-${UDEV_VERSION}[gudev,hwdb(+)]
 	introspection? ( >=dev-libs/gobject-introspection-1.30 )
 	selinux? ( sec-policy/selinux-devicekit )
 	systemd? ( >=sys-apps/systemd-${UDEV_VERSION} )"
@@ -29,7 +29,10 @@ RDEPEND="${COMMON_DEPEND}
 	>=sys-apps/util-linux-2.20.1-r2
 	>=sys-block/parted-3
 	virtual/eject
-	crypt? ( sys-fs/cryptsetup )
+	cryptsetup? (
+		sys-fs/cryptsetup[udev(+)]
+		sys-fs/lvm2[udev(+)]
+		)
 	gptfdisk? ( >=sys-apps/gptfdisk-0.8 )"
 DEPEND="${COMMON_DEPEND}
 	app-text/docbook-xsl-stylesheets
@@ -48,9 +51,9 @@ pkg_setup() {
 	if use amd64 || use arm || use ppc || use ppc64 || use x86; then
 		CONFIG_CHECK="~!IDE" #319829
 		CONFIG_CHECK+=" ~TMPFS_POSIX_ACL" #412377
-		CONFIG_CHECK+=" ~USB_SUSPEND" #331065
 		CONFIG_CHECK+=" ~SWAP" # http://forums.gentoo.org/viewtopic-t-923640.html
 		CONFIG_CHECK+=" ~NLS_UTF8" #425562
+		kernel_is lt 3 10 && CONFIG_CHECK+=" ~USB_SUSPEND" #331065, #477278
 		linux-info_pkg_setup
 	fi
 }
@@ -58,7 +61,7 @@ pkg_setup() {
 src_prepare() {
 	# Fix certain DVD playback by setting proper udf filesystem perms
 	epatch "${FILESDIR}/${PN}-2.0.91-udf-dvd-fix-dmask.patch"
-
+	epatch "${FILESDIR}"/${PN}-2.1.0-W_define.patch
 	use systemd || { sed -i -e 's:libsystemd-login:&disable:' configure || die; }
 }
 
@@ -70,6 +73,7 @@ src_configure() {
 		--disable-gtk-doc \
 		$(use_enable introspection) \
 		--with-html-dir="${EPREFIX}"/usr/share/doc/${PF}/html \
+		--with-udevdir="$(get_udevdir)" \
 		"$(systemd_with_unitdir)"
 }
 
