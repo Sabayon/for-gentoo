@@ -1,11 +1,11 @@
-# Copyright 1999-2008 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 EAPI="3"
 
 WX_GTK_VER="2.8"
 
-inherit cmake-utils eutils flag-o-matic games git pax-utils wxwidgets
+inherit cmake-utils eutils flag-o-matic games git-2 pax-utils wxwidgets
 
 DESCRIPTION="Free. open source emulator for Nintendo GameCube and Wii"
 HOMEPAGE="http://www.dolphin-emu.com/"
