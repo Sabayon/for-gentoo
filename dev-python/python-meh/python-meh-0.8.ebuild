@@ -6,7 +6,7 @@ EAPI="3"
 
 EGIT_REPO_URI="git://git.fedorahosted.org/python-meh.git"
 EGIT_COMMIT="r${PV}-1"
-inherit distutils git eutils
+inherit distutils git-2 eutils
 
 DESCRIPTION="Python exception handling library"
 HOMEPAGE="http://git.fedoraproject.org/git/python-meh.git?p=python-meh.git;a=summary"
