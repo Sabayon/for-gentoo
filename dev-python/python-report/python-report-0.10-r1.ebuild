@@ -2,11 +2,11 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI="2"
+EAPI="3"
 
 EGIT_REPO_URI="git://git.fedorahosted.org/report.git"
 EGIT_COMMIT="${PV}"
-inherit base git autotools eutils
+inherit base git-2 autotools eutils
 
 DESCRIPTION="Provides a single configurable problem/bug/issue reporting API."
 HOMEPAGE="http://git.fedoraproject.org/git/?p=report.git;a=summary"
