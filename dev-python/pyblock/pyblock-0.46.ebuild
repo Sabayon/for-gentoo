@@ -1,11 +1,11 @@
-# Copyright 2004-2010 Sabayon
+# Copyright 2004-2013 Sabayon
 # Distributed under the terms of the GNU General Public License v2
 # $
 
-EAPI="2"
+EAPI="3"
 EGIT_COMMIT="${PN}-${PV}-1"
 EGIT_REPO_URI="git://git.fedorahosted.org/pyblock.git"
-inherit base git
+inherit base git-2
 
 DESCRIPTION="Python interface for working with block devices"
 HOMEPAGE="http://git.fedoraproject.org/git/pyblock.git?p=pyblock.git;a=summary"
