@@ -1,11 +1,11 @@
-# Copyright 2004-2010 Sabayon
+# Copyright 2004-2013 Sabayon
 # Distributed under the terms of the GNU General Public License v2
 # $
 
 EAPI="3"
 EGIT_COMMIT="r${PV}-1"
 EGIT_REPO_URI="git://git.fedorahosted.org/git/pykickstart.git"
-inherit base distutils git
+inherit base distutils git-2
 
 DESCRIPTION="pykickstart is a python library that is used for reading and writing kickstart files."
 HOMEPAGE="http://fedoraproject.org/wiki/Pykickstart"
