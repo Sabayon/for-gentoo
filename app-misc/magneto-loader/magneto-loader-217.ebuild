@@ -4,7 +4,9 @@
 
 EAPI=5
 
-inherit eutils
+PYTHON_COMPAT=( python2_7 )
+
+inherit eutils python-single-r1
 
 DESCRIPTION="Official Sabayon Linux Entropy Notification Applet Loader"
 HOMEPAGE="http://www.sabayon.org"
@@ -17,13 +19,12 @@ IUSE=""
 SRC_URI="mirror://sabayon/sys-apps/entropy-${PV}.tar.bz2"
 S="${WORKDIR}/entropy-${PV}/magneto"
 
-DEPEND="~sys-apps/magneto-core-${PV}
-	~app-admin/rigo-${PV}"
+DEPEND="${PYTHON_DEPS}
+	~sys-apps/magneto-core-${PV}[${PYTHON_USEDEP}]
+	~app-admin/rigo-${PV}[${PYTHON_USEDEP}]"
 RDEPEND="${DEPEND}"
 
-src_compile() {
-	einfo "nothing to compile"
-}
+REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
 src_install() {
 	emake DESTDIR="${D}" LIBDIR="usr/lib" magneto-loader-install || die "make install failed"
