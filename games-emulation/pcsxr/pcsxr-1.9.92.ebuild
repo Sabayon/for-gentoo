@@ -1,4 +1,4 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -60,8 +60,11 @@ src_prepare() {
 	done
 
 	# fix icon and .desktop path
-	epatch "${FILESDIR}/${PN}-datadir.patch"
-	epatch "${FILESDIR}/${PN}-include.patch"
+	epatch "${FILESDIR}/${PN}-datadir.patch" \
+		"${FILESDIR}/${PN}-include.patch"
+
+	# fix linking error with -Wl,--as-needed
+	epatch "${FILESDIR}/${P}-as-needed.patch"
 
 	# regenerate for changes to spread
 	eautoreconf
