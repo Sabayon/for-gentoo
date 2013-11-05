@@ -18,7 +18,7 @@ else
 	inherit eutils versionator
 	MY_PV=$(replace_version_separator 3 '-')
 	SRC_URI="https://github.com/zfsonlinux/zfs/archive/zfs-${MY_PV}.tar.gz
-		http://dev.gentoo.org/~ryao/dist/zfs-kmod-${MY_PV}-p0.tar.xz
+		http://dev.gentoo.org/~ryao/dist/zfs-kmod-${MY_PV}-p1.tar.xz
 		https://github.com/zfsonlinux/spl/archive/spl-${MY_PV}.tar.gz
 		http://dev.gentoo.org/~ryao/dist/spl-${MY_PV}-p0.tar.xz"
 	S="${WORKDIR}"
