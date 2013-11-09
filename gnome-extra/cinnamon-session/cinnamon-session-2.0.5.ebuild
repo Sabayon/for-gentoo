@@ -97,8 +97,8 @@ src_configure() {
 src_install() {
 	gnome2_src_install
 
-	dodir /usr/share/gnome/applications/
-	insinto /usr/share/gnome/applications/
+	dodir /usr/share/cinnamon/applications/
+	insinto /usr/share/cinnamon/applications/
 	newins "${FILESDIR}/defaults.list-r1" defaults.list
 
 	dodir /etc/X11/xinit/xinitrc.d/
