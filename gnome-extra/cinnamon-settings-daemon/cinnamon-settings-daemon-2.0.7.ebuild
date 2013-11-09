@@ -77,7 +77,6 @@ DEPEND="${COMMON_DEPEND}
 src_prepare() {
 	# Taken from Arch.
 	epatch "${FILESDIR}/keyboard.patch"
-	epatch "${FILESDIR}/automount-plugin.patch"
 
 	epatch_user
 	eautoreconf
