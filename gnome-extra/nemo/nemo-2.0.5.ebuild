@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/gnome-extra/nemo/nemo-1.8.3.ebuild,v 1.1 2013/06/27 18:30:30 pacho Exp $
+# $Header: $
 
 EAPI="5"
 GCONF_DEBUG="no"
@@ -15,14 +15,14 @@ SRC_URI="https://github.com/linuxmint/nemo/tarball/${PV} -> ${P}.tar.gz"
 LICENSE="GPL-2+ LGPL-2+ FDL-1.1"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="exif +introspection packagekit tracker xmp" # doc
+IUSE="exif +introspection tracker xmp" # doc
 
 COMMON_DEPEND="
 	>=dev-libs/glib-2.31.9:2
 	>=x11-libs/pango-1.28.3
 	>=x11-libs/gtk+-3.3.17:3[introspection?]
 	>=dev-libs/libxml2-2.7.8:2
-	>=gnome-base/gnome-desktop-3.0.0:3=
+	>=gnome-extra/cinnamon-desktop-1.0.0
 
 	gnome-base/dconf:=
 	gnome-base/gsettings-desktop-schemas
@@ -37,8 +37,8 @@ COMMON_DEPEND="
 	xmp? ( >=media-libs/exempi-2.1.0:= )
 "
 RDEPEND="${COMMON_DEPEND}
+	gnome-base/gnome-panel
 	x11-themes/gnome-icon-theme-symbolic
-	packagekit? ( app-admin/packagekit-base )
 "
 DEPEND="${COMMON_DEPEND}
 	>=dev-lang/perl-5
@@ -56,7 +56,7 @@ DEPEND="${COMMON_DEPEND}
 #	gnome-base/gnome-common, dev-util/gtk-doc (not only -am!)
 PDEPEND=">=gnome-base/gvfs-0.1.2"
 
-S="${WORKDIR}/linuxmint-nemo-b920cd7"
+S="${WORKDIR}/linuxmint-nemo-1aa53ae"
 
 src_prepare() {
 	eautoreconf # no configure in tarball
@@ -69,7 +69,6 @@ src_configure() {
 		--disable-update-mimedb \
 		$(use_enable exif libexif) \
 		$(use_enable introspection) \
-		$(use_enable packagekit) \
 		$(use_enable tracker) \
 		$(use_enable xmp)
 }
@@ -88,3 +87,4 @@ src_test() {
 	Xemake check
 	unset GSETTINGS_BACKEND
 }
+
