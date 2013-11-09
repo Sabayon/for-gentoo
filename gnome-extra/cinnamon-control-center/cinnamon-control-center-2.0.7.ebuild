@@ -53,8 +53,8 @@ COMMON_DEPEND="
 	cups? ( >=net-print/cups-1.4[dbus] )
 	>=app-i18n/ibus-1.4.99
 	networkmanager? (
-		>=gnome-extra/nm-applet-0.9.9.0
-		>=net-misc/networkmanager-0.8.992 )
+		>=gnome-extra/nm-applet-0.9
+		>=net-misc/networkmanager-0.9 )
 	socialweb? ( net-libs/libsocialweb )"
 
 DEPEND="${COMMON_DEPEND}"
