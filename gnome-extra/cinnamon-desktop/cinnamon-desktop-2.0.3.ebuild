@@ -7,8 +7,8 @@ GCONF_DEBUG="yes"
 
 inherit autotools gnome2
 
-DESCRIPTION="Libraries for the gnome desktop that are not part of the UI"
-HOMEPAGE="https://git.gnome.org/browse/gnome-desktop"
+DESCRIPTION="Libraries for the Cinnamon desktop that are not part of the UI"
+HOMEPAGE="https://github.com/linuxmint/cinnamon-desktop"
 
 SRC_URI="https://github.com/linuxmint/${PN}/archive/${PV}.tar.gz -> ${P}.tar.gz"
 
