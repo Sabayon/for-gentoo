@@ -112,6 +112,7 @@ src_prepare() {
 	epatch "${FILESDIR}/remove_GC.patch"
 	epatch "${FILESDIR}/keyboard_applet.patch"
 	epatch "${FILESDIR}/input_keybindings.patch"
+	epatch "${FILESDIR}/lspci.patch"
 
 	# Gentoo uses /usr/$(get_libdir), not /usr/lib even for python
 	sed -e "s:/usr/lib/:/usr/$(get_libdir)/:" \
