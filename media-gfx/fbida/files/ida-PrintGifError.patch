@@ -9,7 +9,7 @@ diff -Naur fbida-2.09-orig/rd/read-gif.c fbida-2.09/rd/read-gif.c
 +localPrintGifError(void)
 +{
 +    int ErrorCode=0;
-+    GifErrorString(ErrorCode);
++    // GifErrorString(ErrorCode);
 +    fprintf(stderr, "\nGIF-LIB error: %i.\n", ErrorCode);
 +}
 +
