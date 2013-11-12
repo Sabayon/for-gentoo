@@ -4,8 +4,9 @@
 
 EAPI="5"
 GCONF_DEBUG="no"
+PYTHON_COMPAT=( python{2_6,2_7} )
 
-inherit autotools gnome2 pax-utils virtualx
+inherit autotools gnome2 pax-utils python-any-r1 virtualx
 
 DESCRIPTION="Javascript bindings for Cinnamon"
 HOMEPAGE="https://github.com/linuxmint/cjs"
@@ -14,7 +15,7 @@ SRC_URI="https://github.com/linuxmint/${PN}/archive/${PV}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="MIT || ( MPL-1.1 LGPL-2+ GPL-2+ )"
 SLOT="0"
-IUSE="examples"
+IUSE="examples test"
 KEYWORDS="~alpha ~amd64 ~arm ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~amd64-fbsd"
 
 RDEPEND="
@@ -30,6 +31,7 @@ RDEPEND="
 DEPEND="${RDEPEND}
 	sys-devel/gettext
 	virtual/pkgconfig
+	test? ( ${PYTHON_DEPS} )
 "
 
 src_prepare() {
@@ -41,10 +43,13 @@ src_configure() {
 	# AUTHORS, ChangeLog are empty
 	DOCS="NEWS README"
 
+	use test && python_setup
+
 	gnome2_src_configure \
 		--disable-systemtap \
 		--disable-dtrace \
-		--disable-coverage
+		--disable-coverage \
+		$(use_enable test tests)
 }
 
 src_test() {
