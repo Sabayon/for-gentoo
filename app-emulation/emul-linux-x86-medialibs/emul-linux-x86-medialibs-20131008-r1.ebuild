@@ -46,7 +46,7 @@ RDEPEND="~app-emulation/emul-linux-x86-baselibs-${PV}
 		>=dev-libs/fribidi-0.19.5-r2[abi_x86_32(-)]
 		>=dev-libs/libcdio-0.90-r1[abi_x86_32(-)]
 		>=dev-libs/libcdio-paranoia-0.90_p1-r1[abi_x86_32(-)]
-		>=virtual/ffmpeg-0.10.8:0.10[abi_x86_32(-)]
+		>=virtual/ffmpeg-0.10.8:0[abi_x86_32(-)]
 		>=media-libs/libdv-1.0.0-r3[abi_x86_32(-)]
 	)
 	"
