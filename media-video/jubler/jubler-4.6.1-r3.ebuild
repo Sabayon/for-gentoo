@@ -18,7 +18,7 @@ IUSE="mplayer nls spell"
 
 RDEPEND=">=virtual/jre-1.5
 	virtual/ffmpeg
-	mplayer? ( media-video/mplayer[ass] )
+	mplayer? ( media-video/mplayer[libass] )
 	spell? (
 		app-text/aspell
 		>=dev-java/zemberek-2.0[linguas_tr]
