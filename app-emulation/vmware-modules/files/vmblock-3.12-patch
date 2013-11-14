@@ -1,6 +1,6 @@
-diff -Naur a/linux/control.c b/linux/control.c
---- a/linux/control.c	2013-10-03 04:29:47.471339204 -0400
-+++ b/linux/control.c	2013-10-03 04:31:56.607334636 -0400
+diff -Naur a/vmblock-only/linux/control.c b/vmblock-only/linux/control.c
+--- a/vmblock-only/linux/control.c	2013-10-03 04:29:47.471339204 -0400
++++ b/vmblock-only/linux/control.c	2013-10-03 04:31:56.607334636 -0400
 @@ -283,7 +283,7 @@
     int i;
     int retval;
@@ -10,9 +10,9 @@ diff -Naur a/linux/control.c b/linux/control.c
     if (IS_ERR(name)) {
        return PTR_ERR(name);
     }
-diff -Naur a/linux/dentry.c b/linux/dentry.c
---- a/linux/dentry.c	2013-10-03 04:29:47.471339204 -0400
-+++ b/linux/dentry.c	2013-10-03 04:31:56.607334636 -0400
+diff -Naur a/vmblock-only/linux/dentry.c b/vmblock-only/linux/dentry.c
+--- a/vmblock-only/linux/dentry.c	2013-10-03 04:29:47.471339204 -0400
++++ b/vmblock-only/linux/dentry.c	2013-10-03 04:31:56.607334636 -0400
 @@ -32,7 +32,7 @@
  #include "block.h"
  
@@ -40,9 +40,9 @@ diff -Naur a/linux/dentry.c b/linux/dentry.c
     }
  
     if (compat_path_lookup(iinfo->name, 0, &actualNd)) {
-diff -Naur a/linux/inode.c b/linux/inode.c
---- a/linux/inode.c	2013-10-03 04:29:47.471339204 -0400
-+++ b/linux/inode.c	2013-10-03 04:31:56.607334636 -0400
+diff -Naur a/vmblock-only/linux/inode.c b/vmblock-only/linux/inode.c
+--- a/vmblock-only/linux/inode.c	2013-10-03 04:29:47.471339204 -0400
++++ b/vmblock-only/linux/inode.c	2013-10-03 04:31:56.607334636 -0400
 @@ -36,7 +36,7 @@
  
  /* Inode operations */
