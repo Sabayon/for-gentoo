@@ -70,3 +70,14 @@ diff -Naur a/vmblock-only/linux/inode.c b/vmblock-only/linux/inode.c
  
  out:
  #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 13)
+@@ -135,7 +135,8 @@ InodeOpLookup(struct inode *dir,      //
+    inode->i_size = INODE_TO_IINFO(inode)->nameLen;
+    inode->i_version = 1;
+    inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
+-   inode->i_uid = inode->i_gid = 0;
++   inode->i_uid = KUIDT_INIT(0);
++   inode->i_gid = KGIDT_INIT(0);
+    inode->i_op = &LinkInodeOps;
+ 
+    d_add(dentry, inode);
+
