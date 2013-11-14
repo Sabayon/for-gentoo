@@ -67,9 +67,9 @@ src_prepare() {
 	kernel_is ge 3 7 0 && epatch "${FILESDIR}/${PV_MAJOR}-putname.patch"
 	kernel_is ge 3 10 0 && epatch "${FILESDIR}/${PV_MAJOR}-vmblock.patch"
 	kernel_is ge 3 11 0 && epatch "${FILESDIR}/vmblock-3.11.patch"
-	kernel_is ge 3 12 0 && epatch "${FILESDIR}/vmblock-3.12-patch"
+	kernel_is ge 3 12 0 && epatch "${FILESDIR}/vmblock-3.12.patch"
 	# This is just wrong
-	kernel_is ge 3 12 0 && epatch "${FILESDIR}/vmci-3.12-patch"
+	kernel_is ge 3 12 0 && epatch "${FILESDIR}/vmci-3.12.patch"
 
 	# Allow user patches so they can support RC kernels and whatever else
 	epatch_user
