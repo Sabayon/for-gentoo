@@ -1,0 +1,98 @@
+commit 641359d3cb70706f367014648cd961e905bca2dd
+Author: Christian Urich <christian.urich@gmail.com>
+Date:   Tue Sep 10 12:21:08 2013 +1000
+
+    fix #8507
+    
+    made void connectNotify( const char * signal ) protected instead of private
+    made bool eventFilter( QObject *obj, QEvent *event ) protected instead of private
+    made void showEvent( QShowEvent * ) and void hideEvent( QHideEvent * ) instead of private
+
+diff --git a/src/core/qgsmaplayerregistry.h b/src/core/qgsmaplayerregistry.h
+index 98ce29b..1c484d2 100644
+--- a/src/core/qgsmaplayerregistry.h
++++ b/src/core/qgsmaplayerregistry.h
+@@ -239,6 +239,11 @@ class CORE_EXPORT QgsMapLayerRegistry : public QObject
+     //! protected constructor
+     QgsMapLayerRegistry( QObject * parent = 0 );
+ 
++    /** debugging member
++        invoked when a connect() is made to this object
++    */
++    void connectNotify( const char * signal );
++
+   private:
+ 
+     static QgsMapLayerRegistry* mInstance;
+@@ -246,10 +251,6 @@ class CORE_EXPORT QgsMapLayerRegistry : public QObject
+     QMap<QString, QgsMapLayer*> mMapLayers;
+     QSet<QgsMapLayer*> mOwnedLayers;
+ 
+-    /** debugging member
+-        invoked when a connect() is made to this object
+-    */
+-    void connectNotify( const char * signal );
+ 
+ 
+ }; // class QgsMapLayerRegistry
+diff --git a/src/gui/qgsattributedialog.h b/src/gui/qgsattributedialog.h
+index 647e76c..e721445 100644
+--- a/src/gui/qgsattributedialog.h
++++ b/src/gui/qgsattributedialog.h
+@@ -59,9 +59,10 @@ class GUI_EXPORT QgsAttributeDialog : public QObject
+ 
+     void dialogDestroyed();
+ 
+-  private:
++  protected:
+     bool eventFilter( QObject *obj, QEvent *event );
+ 
++  private:
+     QDialog *mDialog;
+     QString mSettingsPath;
+     // Used to sync multiple widgets for the same field
+diff --git a/src/gui/qgsmapcanvas.h b/src/gui/qgsmapcanvas.h
+index 131ffd3..09e6256 100644
+--- a/src/gui/qgsmapcanvas.h
++++ b/src/gui/qgsmapcanvas.h
+@@ -410,6 +410,11 @@ class GUI_EXPORT QgsMapCanvas : public QGraphicsView
+     /// Handle pattern for implementation object
+     std::auto_ptr<CanvasProperties> mCanvasProperties;
+ 
++    /**debugging member
++       invoked when a connect() is made to this object
++    */
++    void connectNotify( const char * signal );
++
+   private slots:
+     void crsTransformEnabled( bool );
+ 
+@@ -459,11 +464,6 @@ class GUI_EXPORT QgsMapCanvas : public QGraphicsView
+        the last entry in case a lot of resize events arrive in short time*/
+     QList< QPair<int, int> > mResizeQueue;
+ 
+-    /**debugging member
+-       invoked when a connect() is made to this object
+-    */
+-    void connectNotify( const char * signal );
+-
+     //! current layer in legend
+     QgsMapLayer* mCurrentLayer;
+ 
+diff --git a/src/gui/qgsmessagelogviewer.h b/src/gui/qgsmessagelogviewer.h
+index 148edf7..01b4834 100644
+--- a/src/gui/qgsmessagelogviewer.h
++++ b/src/gui/qgsmessagelogviewer.h
+@@ -42,10 +42,11 @@ class GUI_EXPORT QgsMessageLogViewer: public QDialog, private Ui::QgsMessageLogV
+   public slots:
+     void logMessage( QString message, QString tag, QgsMessageLog::MessageLevel level );
+ 
+-  private:
++  protected:
+     void showEvent( QShowEvent * );
+     void hideEvent( QHideEvent * );
+ 
++  private:
+     QToolButton *mButton;
+     int mCount;
+ 
