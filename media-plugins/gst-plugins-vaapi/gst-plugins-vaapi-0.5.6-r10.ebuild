@@ -13,7 +13,7 @@ SRC_URI="http://www.freedesktop.org/software/vaapi/releases/${MY_PN}/${MY_PN}-${
 
 LICENSE=""
 SLOT="0.10"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="~amd64"
 IUSE="+X opengl wayland"
 
 RDEPEND="
