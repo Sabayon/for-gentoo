@@ -56,9 +56,12 @@ DEPEND="${COMMON_DEPEND}
 #	gnome-base/gnome-common, dev-util/gtk-doc (not only -am!)
 PDEPEND=">=gnome-base/gvfs-0.1.2"
 
-S="${WORKDIR}/linuxmint-nemo-1aa53ae"
+S="${WORKDIR}/linuxmint-nemo-13796e7"
 
 src_prepare() {
+	# upstream fixes, drop on next release
+	epatch "${FILESDIR}"/0001-Use-gksu-instead-of-pkexec-until-systemd-glib-whatev.patch
+
 	eautoreconf # no configure in tarball
 	gnome2_src_prepare
 }
