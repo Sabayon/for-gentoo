@@ -19,7 +19,8 @@ KEYWORDS="~amd64 ~arm ~ia64 ~ppc ~ppc64 ~x86"
 IUSE=""
 SRC_URI="mirror://sabayon/${CATEGORY}/${P}.tar.bz2"
 
-RDEPEND="dev-db/sqlite:3[soundex(+)]
+RDEPEND="app-misc/pax-utils
+	dev-db/sqlite:3[soundex(+)]
 	net-misc/rsync
 	sys-apps/diffutils
 	sys-apps/sandbox
