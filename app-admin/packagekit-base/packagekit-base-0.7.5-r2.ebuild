@@ -19,7 +19,7 @@ SRC_URI="http://www.packagekit.org/releases/${MY_P}.tar.xz"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~mips ~ppc ~ppc64 ~x86"
-IUSE="connman consolekit cron doc +introspection networkmanager nsplugin pm-utils +policykit entropy static-libs test udev"
+IUSE="connman consolekit cron command-not-found doc +introspection networkmanager nsplugin pm-utils +policykit entropy static-libs test udev"
 
 CDEPEND="connman? ( net-misc/connman )
 	introspection? ( >=dev-libs/gobject-introspection-0.9.9 )
@@ -115,7 +115,7 @@ src_configure() {
 		--disable-strict \
 		--disable-local \
 		$(use_enable doc gtk-doc) \
-		--enable-command-not-found \
+		$(use_enable command-not-found) \
 		--disable-debuginfo-install \
 		--disable-gstreamer-plugin \
 		--disable-service-packs \
