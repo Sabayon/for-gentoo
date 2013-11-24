@@ -65,13 +65,15 @@ done
 S="${WORKDIR}/${MY_P}"
 
 src_prepare() {
-	echo
+	# Stuff that will appear in 0.8.14
 	EPATCH_EXCLUDE="
 		0001-trivial-post-release-version-bump.patch
 		0002-trivial-Update-the-example-spec-file-to-reflect-real.patch
 		0003-zif-Remove-the-backend-as-nearly-all-functionality-i.patch
 	"
 	epatch "${WORKDIR}/${PN}-0.8.14/"*.patch
+	epatch "${FILESDIR}"/${P}-entropy-fix-package-path.patch
+
 	epatch "${FILESDIR}"/${PN}-0.8.x-npapi-sdk.patch #383141
 
 	epatch_user
