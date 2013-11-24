@@ -18,7 +18,7 @@ SRC_URI="https://github.com/linuxmint/cinnamon-control-center/archive/${MY_PV}.t
 
 LICENSE="GPL-2+"
 SLOT="0"
-IUSE="+cups +networkmanager +socialweb systemd"
+IUSE="+cups kerberos +networkmanager +socialweb systemd"
 KEYWORDS="~amd64 ~x86"
 
 COMMON_DEPEND="
@@ -51,6 +51,7 @@ COMMON_DEPEND="
 
 	>=net-wireless/gnome-bluetooth-3.5.5:=
 	cups? ( >=net-print/cups-1.4[dbus] )
+	kerberos? ( virtual/krb5 )
 	>=app-i18n/ibus-1.4.99
 	networkmanager? (
 		>=gnome-extra/nm-applet-0.9
@@ -62,6 +63,7 @@ RDEPEND="${COMMON_DEPEND}"
 PDEPEND=">=gnome-extra/cinnamon-1.8.0"
 
 src_prepare() {
+	epatch "${FILESDIR}/${PN}-2-optional-kerberos.patch"
 	eautoreconf
 	gnome2_src_prepare
 
@@ -73,6 +75,7 @@ src_configure() {
 		--disable-static
 		--enable-documentation
 		$(use_enable cups)
+		$(use_enable kerberos)
 		$(use_with socialweb libsocialweb)
 		$(use_enable systemd)"
 
