@@ -37,7 +37,7 @@ CDEPEND="connman? ( net-misc/connman )
 	>=dev-libs/dbus-glib-0.74
 	>=dev-libs/glib-2.32.0:2[${PYTHON_USEDEP}]
 	>=sys-auth/polkit-0.98
-	>=sys-apps/dbus-1.3.0[${PYTHON_USEDEP}]
+	>=sys-apps/dbus-1.3.0
 	${PYTHON_DEPS}"
 DEPEND="${CDEPEND}
 	doc? ( dev-util/gtk-doc[${PYTHON_USEDEP}] )
