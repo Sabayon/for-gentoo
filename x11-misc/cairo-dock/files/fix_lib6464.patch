@@ -1,0 +1,20 @@
+diff -ru cairo-dock-3.0.0/CMakeLists.txt cairo-dock-3.0.0.new//CMakeLists.txt
+--- cairo-dock-3.0.0/CMakeLists.txt	2012-04-18 10:36:48.240150064 -0700
++++ cairo-dock-3.0.0.new//CMakeLists.txt	2012-04-18 10:37:11.259152049 -0700
+@@ -44,6 +44,7 @@
+ 	message(FATAL_ERROR "Cairo-Dock requires an air-conditioned room. Please close Windows!")
+ endif( WIN32 )
+ 
++set (CMAKE_SKIP_RPATH TRUE)
+ set (PACKAGE ${CMAKE_PROJECT_NAME})
+ set (GETTEXT_PACKAGE ${PACKAGE})
+ 
+@@ -58,7 +59,7 @@
+ if( CMAKE_SIZEOF_VOID_P EQUAL 8 AND "${FORCE_LIB64}" STREQUAL "yes")  # 64bits and force install in lib64
+ 	set (libdir "${prefix}/lib64")
+ else()
+-	set (libdir "${prefix}/${CMAKE_INSTALL_LIBDIR}${LIB_SUFFIX}")  # (...)/lib
++	set (libdir "${CMAKE_INSTALL_LIBDIR}")  # (...)/lib
+ endif()
+ 
+ set (includedir "${prefix}/${CMAKE_INSTALL_INCLUDEDIR}")  # (...)/include
