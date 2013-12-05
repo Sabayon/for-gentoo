@@ -18,9 +18,9 @@ else
 	inherit eutils versionator
 	MY_PV=$(replace_version_separator 3 '-')
 	SRC_URI="https://github.com/zfsonlinux/zfs/archive/zfs-${MY_PV}.tar.gz
-		http://dev.gentoo.org/~ryao/dist/zfs-kmod-${MY_PV}-p1.tar.xz
+		http://dev.gentoo.org/~ryao/dist/zfs-kmod-${MY_PV}-p2.tar.xz
 		https://github.com/zfsonlinux/spl/archive/spl-${MY_PV}.tar.gz
-		http://dev.gentoo.org/~ryao/dist/spl-${MY_PV}-p0.tar.xz"
+		http://dev.gentoo.org/~ryao/dist/spl-${MY_PV}-p1.tar.xz"
 	S="${WORKDIR}"
 	ZFS_S="${WORKDIR}/zfs-zfs-${MY_PV}"
 	SPL_S="${WORKDIR}/spl-spl-${MY_PV}"
@@ -65,7 +65,7 @@ pkg_setup() {
 	kernel_is ge 2 6 26 || die "Linux 2.6.26 or newer required"
 
 	[ ${PV} != "9999" ] && \
-		{ kernel_is le 3 11 || die "Linux 3.11 is the latest supported version."; }
+		{ kernel_is le 3 12 || die "Linux 3.12 is the latest supported version."; }
 
 	check_extra_config
 }
