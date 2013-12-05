@@ -4,7 +4,9 @@
 
 EAPI="5"
 
+AT_M4DIR="config"
 AUTOTOOLS_AUTORECONF="1"
+AUTOTOOLS_IN_SOURCE_BUILD="1"
 
 inherit bash-completion-r1 flag-o-matic linux-info linux-mod toolchain-funcs autotools-utils
 
@@ -22,7 +24,6 @@ else
 	S="${WORKDIR}"
 	ZFS_S="${WORKDIR}/zfs-zfs-${MY_PV}"
 	SPL_S="${WORKDIR}/spl-spl-${MY_PV}"
-	SPL_B="${WORKDIR}/spl-spl-${MY_PV}_build"
 	KEYWORDS="~amd64"
 fi
 
@@ -95,15 +96,12 @@ src_prepare() {
 	# splat is unnecessary unless we are debugging
 	use debug || sed -e 's/^subdir-m += splat$//' -i "${SPL_S}/module/Makefile.in"
 
-	einfo "Preparing SPL"
-	pushd "${SPL_S}"
-	S="${SPL_S}" autotools-utils_src_prepare
-	popd
-
-	einfo "Preparing ZFS"
-	pushd "${ZFS_S}"
-	S="${ZFS_S}" autotools-utils_src_prepare
-	popd
+	local d
+	for d in "${ZFS_S}" "${SPL_S}"; do
+		pushd "${d}"
+		S="${d}" autotools-utils_src_prepare
+		popd
+	done
 }
 
 src_configure() {
@@ -123,8 +121,7 @@ src_configure() {
 		$(use_enable debug-log)
 	)
 	pushd "${SPL_S}"
-	BUILD_DIR="${SPL_B}" ECONF_SOURCE="${SPL_S}" autotools-utils_src_configure
-	unset AUTOTOOLS_BUILD_DIR
+	ECONF_SOURCE="${SPL_S}" autotools-utils_src_configure
 	popd
 
 	einfo "Configuring ZFS..."
@@ -135,13 +132,9 @@ src_configure() {
 		--with-linux="${KV_DIR}"
 		--with-linux-obj="${KV_OUT_DIR}"
 		--with-spl="${SPL_S}"
-		--with-spl-obj="${SPL_B}"
 		$(use_enable debug)
 	)
 	pushd "${ZFS_S}"
-
-	#AT_M4DIR="config" \
-	AUTOTOOLS_IN_SOURCE_BUILD="1" \
 	ECONF_SOURCE="${ZFS_S}" autotools-utils_src_configure
 	popd
 }
@@ -149,29 +142,21 @@ src_configure() {
 src_compile() {
 	einfo "Compiling SPL..."
 	pushd "${SPL_S}"
-	BUILD_DIR="${SPL_B}" ECONF_SOURCE="${SPL_S}" autotools-utils_src_compile
-	unset AUTOTOOLS_BUILD_DIR
+	ECONF_SOURCE="${SPL_S}" autotools-utils_src_compile
 	popd
 
 	einfo "Compiling ZFS..."
 	pushd "${ZFS_S}"
-
-	#AT_M4DIR="config" \
-	AUTOTOOLS_IN_SOURCE_BUILD="1" \
 	ECONF_SOURCE="${ZFS_S}" autotools-utils_src_compile
 	popd
 }
 
 src_install() {
 	pushd "${SPL_S}"
-	BUILD_DIR="${SPL_B}" ECONF_SOURCE="${SPL_S}" autotools-utils_src_install
-	unset AUTOTOOLS_BUILD_DIR
+	ECONF_SOURCE="${SPL_S}" autotools-utils_src_install
 	popd
 
 	pushd "${ZFS_S}"
-
-	#AT_M4DIR="config" \
-	AUTOTOOLS_IN_SOURCE_BUILD="1" \
 	ECONF_SOURCE="${ZFS_S}" autotools-utils_src_install
 	dodoc "${ZFS_S}"/AUTHORS "${ZFS_S}"/COPYRIGHT "${ZFS_S}"/DISCLAIMER "${ZFS_S}"/README.markdown
 	popd
