@@ -65,6 +65,9 @@ S="${WORKDIR}/${MY_P}"
 src_prepare() {
 	epatch "${FILESDIR}"/${PN}-0.8.x-npapi-sdk.patch #383141
 
+	# Upstreamed patches
+	epatch "${FILESDIR}/0001-entropy-PackageKitEntropyClient.output-API-update.patch"
+
 	epatch_user
 
 	# npapi-sdk patch and epatch_user
