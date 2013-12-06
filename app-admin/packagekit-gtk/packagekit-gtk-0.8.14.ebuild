@@ -34,24 +34,18 @@ src_configure() {
 		--disable-cron \
 		--disable-debuginfo-install \
 		--disable-dependency-tracking \
-		--disable-device-rebind \
 		--disable-gstreamer-plugin \
 		--disable-gtk-doc \
 		--disable-local \
 		--disable-man-pages \
 		--disable-networkmanager \
-		--disable-pm-utils \
-		--disable-service-packs \
-		--disable-strict \
 		--disable-systemd \
-		--disable-tests \
 		--enable-dummy \
 		--enable-gtk-module \
 		--enable-introspection=yes \
 		--enable-libtool-lock \
 		--enable-option-checking \
-		--localstatedir=/var \
-		--with-security-framework=polkit
+		--localstatedir=/var
 }
 
 src_compile() {
