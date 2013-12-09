@@ -63,7 +63,7 @@ RDEPEND="${COMMON_DEPEND}"
 PDEPEND=">=gnome-extra/cinnamon-1.8.0"
 
 src_prepare() {
-	epatch "${FILESDIR}/${PN}-2-optional-kerberos.patch"
+	epatch "${FILESDIR}/${PN}-optional-kerberos-2.patch"
 	eautoreconf
 	gnome2_src_prepare
 
