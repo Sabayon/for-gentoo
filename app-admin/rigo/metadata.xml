@@ -6,6 +6,7 @@
 		<name>Fabio Erculiani</name>
 	</maintainer>
 	<use>
+		<flag name="passwordless-upgrade">Enable passwordless system upgrades if user is in the entropy group</flag>
 	</use>
 </pkgmetadata>
 
