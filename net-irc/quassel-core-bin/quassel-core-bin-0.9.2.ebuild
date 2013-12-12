@@ -1,10 +1,10 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
 EAPI=4
 
-inherit eutils
+inherit user versionator
 
 MY_PN=${PN/-core-bin}
 
@@ -24,6 +24,8 @@ RDEPEND=""
 DEPEND="!net-irc/quassel-core"
 
 S=${WORKDIR}
+
+QA_PRESTRIPPED="usr/bin/quasselcore"
 
 pkg_setup() {
 	QUASSEL_DIR=/var/lib/${MY_PN}
@@ -53,6 +55,9 @@ src_install() {
 pkg_postinst() {
 	einfo "If you want to generate SSL certificate remember to run:"
 	einfo "	emerge --config =${CATEGORY}/${PF}"
+
+	einfo "Quassel can use net-misc/oidentd package if installed on your system."
+	einfo "Consider installing it if you want to run quassel within identd daemon."
 
 	# temporary info mesage
 	if [[ $(get_version_component_range 2 ${REPLACING_VERSIONS}) -lt 7 ]]; then
