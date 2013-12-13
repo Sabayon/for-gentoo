@@ -40,7 +40,10 @@ src_prepare() {
 	bzr_src_prepare
 
 	# 0 fails the test in configure, so it fails if the code isnt under bzr
-	sed -i 's#revision = 0#revision = 1#' waflib/nuvolaextras.py || die
+	sed -i 's#revision = 0#revision = "0"#' waflib/nuvolaextras.py || die
+
+	# Fix build failure by using our own vapi file... I know
+	cp "${FILESDIR}/libnotify.vapi" "${S}/vapi" || die
 
 	vala_src_prepare --ignore-use
 }
@@ -48,7 +51,8 @@ src_prepare() {
 src_configure() {
 	waf-utils_src_configure \
 		--no-svg-optimization \
-		--no-unity-quick-list
+		--no-unity-quick-list \
+		--with-gstreamer=1.0
 }
 
 src_compile() {
