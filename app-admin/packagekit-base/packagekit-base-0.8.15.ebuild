@@ -19,7 +19,7 @@ SRC_URI="http://www.packagekit.org/releases/${MY_P}.tar.xz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~mips ~ppc ~ppc64 ~x86"
+KEYWORDS="~alpha ~amd64 ~arm ~mips ~ppc ~ppc64 ~x86"
 IUSE="connman cron command-not-found doc +introspection networkmanager nsplugin entropy static-libs systemd udev"
 
 CDEPEND="connman? ( net-misc/connman )
