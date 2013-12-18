@@ -8,12 +8,7 @@ PORTDIR="${1}"
 OVERLAY_DIR="${2}"
 TARGET_VERSION="${3}"
 
-PACKAGES="sys-apps/entropy
-	app-admin/equo
-	app-admin/matter
-	sys-apps/entropy-server
-	sys-apps/rigo-daemon
-	app-admin/rigo
+PACKAGES="
 	sys-apps/magneto-core
 	app-misc/magneto-loader
 	kde-misc/magneto-kde
