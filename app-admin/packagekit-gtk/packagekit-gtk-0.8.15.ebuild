@@ -29,6 +29,7 @@ S="${WORKDIR}/${MY_P}"
 
 src_configure() {
 	econf \
+		--disable-bash-completion \
 		--disable-browser-plugin \
 		--disable-command-not-found \
 		--disable-cron \
