@@ -7,7 +7,6 @@
 	</maintainer>
 	<use>
 		<flag name="command-not-found">Enable packagekit support on shell "command not found"</flag>
-		<flag name="connman">Add support for <pkg>net-misc/connman</pkg></flag>
 		<flag name="cron">Install cron script for auto-update</flag>
 		<flag name="entropy">
 			Enable Entropy backend
