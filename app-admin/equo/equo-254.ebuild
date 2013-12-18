@@ -37,4 +37,3 @@ src_install() {
 
 	python_optimize "${D}/usr/lib/entropy/client"
 }
-
