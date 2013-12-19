@@ -68,6 +68,7 @@ src_prepare() {
 
 	# Upstreamed patches
 	epatch "${FILESDIR}/0001-entropy-PackageKitEntropyClient.output-API-update.patch"
+	epatch "${FILESDIR}/packagekit-base-0.8.15-qtdbus-annotate.patch"
 
 	epatch_user
 
