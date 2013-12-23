@@ -6,7 +6,7 @@ EAPI=5
 DESCRIPTION="Simple GNOME menu editor (meta package)"
 HOMEPAGE="https://git.gnome.org/browse/alacarte"
 
-LICENSE="GPL-2+"
+LICENSE="metapackage"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
