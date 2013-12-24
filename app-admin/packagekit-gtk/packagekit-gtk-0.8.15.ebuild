@@ -41,6 +41,7 @@ src_configure() {
 		--disable-man-pages \
 		--disable-networkmanager \
 		--disable-systemd \
+		--disable-systemd-updates \
 		--enable-dummy \
 		--enable-gtk-module \
 		--enable-introspection=yes \
