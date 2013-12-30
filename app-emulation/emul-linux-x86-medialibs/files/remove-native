@@ -25,6 +25,7 @@ usr/lib32/liba52.so.0.0.0
 usr/lib32/libavcodec.so
 usr/lib32/libavcodec.so.53
 usr/lib32/libavcodec.so.53.61.100
+usr/lib32/libavdevice.so
 usr/lib32/libavfilter.so
 usr/lib32/libavfilter.so.2
 usr/lib32/libavfilter.so.2.61.100
@@ -188,6 +189,8 @@ usr/lib32/libspeexdsp.so.1.5.0
 usr/lib32/libspeex.so
 usr/lib32/libspeex.so.1
 usr/lib32/libspeex.so.1.5.0
+usr/lib32/libswscale.so
+usr/lib32/libswscale.so.2
 usr/lib32/libtheoradec.so
 usr/lib32/libtheoradec.so.1
 usr/lib32/libtheoradec.so.1.1.4
