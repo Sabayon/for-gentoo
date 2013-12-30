@@ -1,3 +1,4 @@
+
 usr/lib32/gstreamer-0.10/libgstadder.so
 usr/lib32/gstreamer-0.10/libgstapp.so
 usr/lib32/gstreamer-0.10/libgstaudioconvert.so
@@ -170,6 +171,9 @@ usr/lib32/liboil-0.3.so.0.3.0
 usr/lib32/libreplaygain.so
 usr/lib32/libreplaygain.so.1
 usr/lib32/libreplaygain.so.1.0.0
+usr/lib32/libSDL-1.2.so.0
+usr/lib32/libSDL-1.2.so.0.11.4
+usr/lib32/libSDL.so
 usr/lib32/libshout.so
 usr/lib32/libshout.so.3
 usr/lib32/libshout.so.3.2.0
@@ -274,6 +278,7 @@ usr/lib32/pkgconfig/libv4l2.pc
 usr/lib32/pkgconfig/libv4lconvert.pc
 usr/lib32/pkgconfig/libvisual-0.4.pc
 usr/lib32/pkgconfig/mad.pc
+usr/lib32/pkgconfig/sdl.pc
 usr/lib32/pkgconfig/shout.pc
 usr/lib32/pkgconfig/speexdsp.pc
 usr/lib32/pkgconfig/speex.pc
