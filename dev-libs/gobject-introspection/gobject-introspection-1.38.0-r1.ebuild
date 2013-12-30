@@ -43,20 +43,19 @@ pkg_setup() {
 disable_python_for_x86() {
 	# x86 build on AMD64 fails due to missing 32bit python. We just remove the
 	# Python parts and those that depend on it as they are not required.
-	
 	if use amd64 && [ "$ABI" == "x86" ]; then
 		cd ${BUILD_DIR}
-		
+
 		# disable configure checks
 		epatch ${FILESDIR}/disable_python.patch
-		
+
 		# disable python bindings
 		sed -i "s/include Makefile-giscanner.am//" Makefile.am || die "sed failed"
-		
+
 		# disable stuff that doesn't get installed anyways
 		sed -i "s/include Makefile-tools.am//" Makefile.am || die "sed failed"
 		sed -i "s/include Makefile-gir.am//" Makefile.am || die "sed failed"
-		
+
 		# disable tests
 		sed -i "s/SUBDIRS = . docs tests/SUBDIRS = . docs/" Makefile.am || die "sed failed"
 		eautoreconf
@@ -79,7 +78,7 @@ src_prepare() {
 		export CAIRO_LIBS="-lcairo -lcairo-gobject"
 		export CAIRO_CFLAGS="-I${EPREFIX}/usr/include/cairo"
 	fi
-	
+
 	multilib_copy_sources
 	multilib_foreach_abi disable_python_for_x86
 }
