@@ -41,7 +41,6 @@ RDEPEND="~app-emulation/emul-linux-x86-baselibs-${PV}
 		>=media-libs/libmms-0.6.2-r1[abi_x86_32(-)]
 		>=media-libs/libvisual-0.4.0-r3:0.4[abi_x86_32(-)]
 		>=media-libs/libmpeg2-0.5.1-r2[abi_x86_32(-)]
-		>=media-libs/libsdl-1.2.15-r5[abi_x86_32(-)]
 		>=dev-libs/liboil-0.3.17-r2[abi_x86_32(-)]
 		>=sys-libs/libieee1284-0.2.11-r3[abi_x86_32(-)]
 		>=dev-libs/fribidi-0.19.5-r2[abi_x86_32(-)]
