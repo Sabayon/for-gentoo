@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+
+<pkgmetadata>
+<herd>no-herd</herd>
+<maintainer>
+	<email>doctorwhoguy@gmail.com</email>
+</maintainer>
+<longdescription>
+Today we want to present you our latest project Pipelight, which allows to run 
+your favorite Silverlight application directly inside your Linux browser. The 
+project combines the effort by Erich E. Hoover with a new browser plugin that 
+embeds Silverlight directly in any Linux browser supporting the Netscape Plugin 
+API (Firefox, Chrome / Chromium, Midori, Opera, …). He worked on a set of Wine 
+patches to get Playready DRM protected content working inside Wine and 
+afterwards created an Ubuntu package called Netflix Desktop. This package 
+allows one to use Silverlight inside a Windows version of Firefox, which works 
+as a temporary solution but is not really user-friendly and moreover requires 
+Wine to translate all API calls of the browser. To solve this problem we 
+created Pipelight.
+
+Pipelight consists out of two parts: A Linux library which is loaded into the 
+browser and a Windows program started in Wine. The Windows program, called 
+pluginloader.exe, simply simulates a browser and loads the Silverlight DLLs. 
+When you open a page with a Silverlight application the library will send all 
+commands from the browser through a pipe to the Windows process and act like a 
+bridge between your browser and Silverlight. The used pipes do not have any big 
+impact on the speed of the rendered video since all the video and audio data is 
+not send through the pipe. Only the initialization parameters and (sometimes) 
+the network traffic is send through them. As a user you will not notice anything 
+from that "magic" and you can simply use Silverlight the same way as on Windows.
+</longdescription>
+<use>
+	<flag name="binary-pluginloader">If enabled, use the upstream binary pluginloader.exe. 
+		If disabled, compile your own binary; this requires a cross compiler.</flag>
+	<flag name="flash">Enable Flash plugin by default.</flag>
+	<flag name="foxitpdf">Enable Foxit PDF Reader plugin by default.</flag>
+	<flag name="grandstream">Enable Grandstream plugin by default.</flag>
+	<flag name="installation-dialogs">If enabled, you will be presented with the installation 
+		dialogs of the browser plugins when they are downloaded. If disabled, Pipelight 
+		will install them automatically without user intervention.</flag>
+	<flag name="shockwave">Enable Shockwave plugin by default.</flag>
+	<flag name="silverlight">Enable Silverlight plugin by default.</flag>
+	<flag name="static">Compile a statically linked pluginloader.exe. This has no effect if 
+		using the upstream binary.</flag>
+	<flag name="unity3d">Enable the Unity3D plugin by default.</flag>
+</use>
+</pkgmetadata>
