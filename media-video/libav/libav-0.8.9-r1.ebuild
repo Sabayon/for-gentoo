@@ -114,64 +114,6 @@ REQUIRED_USE="bindist? ( !faac !openssl )
 			  amr? ( gpl ) aac? ( gpl ) x264? ( gpl ) X? ( gpl ) cdio? ( gpl )
 			  test? ( encode )"
 
-MULTILIB_WRAPPED_HEADERS=(
-	usr/include/libavcodec/opt.h
-	usr/include/libavutil/common.h
-	usr/include/libavfilter/vsrc_buffer.h
-	usr/include/libavfilter/buffersrc.h
-	usr/include/libswscale/swscale.h
-	usr/include/libavutil/md5.h
-	usr/include/libavutil/random_seed.h
-	usr/include/libavutil/pixfmt.h
-	usr/include/libavutil/intreadwrite.h
-	usr/include/libavutil/adler32.h
-	usr/include/libavutil/crc.h
-	usr/include/libavutil/intfloat_readwrite.h
-	usr/include/libavfilter/version.h
-	usr/include/libavcodec/avcodec.h
-	usr/include/libavutil/avconfig.h
-	usr/include/libavutil/aes.h
-	usr/include/libavutil/intfloat.h
-	usr/include/libavutil/file.h
-	usr/include/libavutil/sha.h
-	usr/include/libavcodec/dxva2.h
-	usr/include/libavutil/base64.h
-	usr/include/libavutil/lfg.h
-	usr/include/libavutil/avassert.h
-	usr/include/libavutil/opt.h
-	usr/include/libavutil/lzo.h
-	usr/include/libavutil/cpu.h
-	usr/include/libavformat/avio.h
-	usr/include/libavdevice/avdevice.h
-	usr/include/libavcodec/vdpau.h
-	usr/include/libavutil/bswap.h
-	usr/include/libavcodec/avfft.h
-	usr/include/libavutil/attributes.h
-	usr/include/libavutil/error.h
-	usr/include/libavfilter/avfilter.h
-	usr/include/libavcodec/vda.h
-	usr/include/libavutil/mathematics.h
-	usr/include/libavutil/rational.h
-	usr/include/libavcodec/vaapi.h
-	usr/include/libavfilter/avfiltergraph.h
-	usr/include/libavutil/fifo.h
-	usr/include/libavutil/dict.h
-	usr/include/libavformat/version.h
-	usr/include/libavcodec/version.h
-	usr/include/libavutil/mem.h
-	usr/include/libavutil/parseutils.h
-	usr/include/libavutil/imgutils.h
-	usr/include/libavutil/eval.h
-	usr/include/libavutil/log.h
-	usr/include/libavutil/avstring.h
-	usr/include/libavutil/samplefmt.h
-	usr/include/libavutil/audioconvert.h
-	usr/include/libavcodec/xvmc.h
-	usr/include/libavutil/pixdesc.h
-	usr/include/libavutil/avutil.h
-	usr/include/libavformat/avformat.h
-)
-
 src_prepare() {
 	# if we have snapshot then we need to hardcode the version
 	if [[ ${PV%_p*} != ${PV} ]]; then
@@ -351,7 +293,7 @@ multilib_src_compile() {
 }
 
 multilib_src_install() {
-	emake DESTDIR="${D}" install-libs
+	emake DESTDIR="${D}" install-libs install-headers
 	if multilib_is_native_abi; then
 		emake DESTDIR="${D}" install install-man
 		use qt-faststart && dobin tools/qt-faststart
