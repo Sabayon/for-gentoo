@@ -7,7 +7,7 @@ inherit eutils multilib
 DESCRIPTION="A browser plugin which allows one to use windows-only plugins inside Linux browsers."
 HOMEPAGE="http://fds-team.de/cms/index.html https://launchpad.net/pipelight"
 SRC_URI="https://bitbucket.org/mmueller2012/pipelight/get/v${PV}.tar.gz -> ${P}.tar.gz
-	binary-pluginloader? ( https://launchpad.net/pipelight/trunk/0.2/+download/pluginloader-prebuilt-v${PV}.tar.xz )"
+	binary-pluginloader? ( https://launchpad.net/pipelight/trunk/0.2/+download/pluginloader-prebuilt-v${PV}.tar.xz -> pluginloader-prebuilt-v${PV}.tar.gz )"
 
 LICENSE="GPL-2 LGPL-2.1 MPL-1.1"
 SLOT="0"
