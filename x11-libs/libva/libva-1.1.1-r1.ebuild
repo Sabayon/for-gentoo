@@ -62,10 +62,10 @@ AUTOTOOLS_PRUNE_LIBTOOL_FILES=all
 DOCS=( NEWS )
 
 
-src_configure() {
-	autotools-multilib_src_configure \
+multilib_src_configure() {
+	autotools-utils_src_configure \
 		--disable-silent-rules \
-		--with-drivers-path="${EPREFIX}/usr/@GET_LIBDIR@/va/drivers" \
+		--with-drivers-path="${EPREFIX}/usr/$(get_libdir)/va/drivers" \
 		$(use_enable video_cards_dummy dummy-driver) \
 		$(use_enable opengl glx) \
 		$(use_enable X x11) \
