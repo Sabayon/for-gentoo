@@ -47,6 +47,7 @@ DEPEND="${RDEPEND}
 "
 
 src_configure() {
+	sed -i s/Gtk-3.0/Gtk-2.0/ src/libnm-gtk/Makefile.in
 	gnome2_src_configure \
 		--with-gtkver=2 \
 		--disable-more-warnings \
