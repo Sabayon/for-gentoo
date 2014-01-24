@@ -71,6 +71,8 @@ src_prepare() {
 	# This is just wrong
 	kernel_is ge 3 12 0 && epatch "${FILESDIR}/vmci-3.12.patch"
 	kernel_is ge 3 12 0 && epatch "${FILESDIR}/vsock-3.12.patch"
+	# Linux 3.13
+	epatch "${FILESDIR}/vmnet-3.13.patch"
 
 	# Allow user patches so they can support RC kernels and whatever else
 	epatch_user
