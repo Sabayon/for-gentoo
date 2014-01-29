@@ -6,7 +6,7 @@ EAPI="5"
 
 PYTHON_COMPAT=( python2_{5,6,7} )
 
-inherit autotools eutils gnome2-utils python-single-r1
+inherit eutils gnome2-utils python-single-r1
 
 if [[ ${PV} = *9999* ]]; then
 	ESVN_REPO_URI="svn://svn.handbrake.fr/HandBrake/trunk"
@@ -42,7 +42,7 @@ RDEPEND="
 	media-libs/libvorbis
 	media-libs/x264
 	media-sound/lame
-	ffmpeg? ( =virtual/ffmpeg-9 )
+	ffmpeg? ( virtual/ffmpeg:9 )
 	sys-libs/glibc:2.2
 	sys-libs/zlib
 	gst? (
@@ -95,19 +95,6 @@ src_prepare() {
 
 	# Make use of an unpatched version of a52 that does not make a private field public.
 	epatch "${FILESDIR}"/handbrake-9999-use-unpatched-a52.patch
-
-	# Fixup configure.ac with newer automake
-	cd "${S}/gtk"
-	sed -i \
-		-e 's:AM_CONFIG_HEADER:AC_CONFIG_HEADERS:g' \
-		-e 's:AM_PROG_CC_STDC:AC_PROG_CC:g' \
-		-e 's:am_cv_prog_cc_stdc:ac_cv_prog_cc_stdc:g' \
-		configure.ac || die "Fixing up configure.ac failed"
-
-	# Don't run autogen.sh
-	sed -i '/autogen.sh/d' module.rules || die "Removing autogen.sh call failed"
-	eautoreconf
-
 }
 
 src_configure() {
