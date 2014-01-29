@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-emulation/emul-linux-x86-baselibs/emul-linux-x86-baselibs-20131008-r6.ebuild,v 1.1 2013/12/04 09:12:07 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-emulation/emul-linux-x86-baselibs/emul-linux-x86-baselibs-20131008-r9.ebuild,v 1.1 2014/01/24 11:59:24 ssuominen Exp $
 
 EAPI=5
 inherit emul-linux-x86
@@ -10,7 +10,7 @@ LICENSE="Artistic GPL-1 GPL-2 GPL-3 BSD BSD-2 BZIP2 AFL-2.1 LGPL-2.1 BSD-4 MIT
 	Sleepycat UoI-NCSA ZLIB openafs-krb5-a HPND ISC RSA IJG libmng libtiff
 	openssl tcp_wrappers_license"
 
-KEYWORDS="-* amd64"
+KEYWORDS="-* ~amd64"
 IUSE="abi_x86_32"
 
 DEPEND=""
@@ -23,7 +23,7 @@ RDEPEND="!<app-emulation/emul-linux-x86-medialibs-10.2
 		>=virtual/libffi-3.0.13-r1[abi_x86_32(-)]
 		>=sys-devel/llvm-3.3-r1[abi_x86_32(-)]
 		>=media-libs/libpng-1.2.50-r1:1.2[abi_x86_32(-)]
-		>=media-libs/libjpeg-turbo-1.3.0-r2:0[abi_x86_32(-)]
+		virtual/jpeg:62[abi_x86_32(-)]
 		>=sys-libs/libraw1394-2.1.0-r1[abi_x86_32(-)]
 		>=sys-libs/libavc1394-0.5.4-r1[abi_x86_32(-)]
 		>=dev-libs/expat-2.1.0-r3[abi_x86_32(-)]
@@ -52,6 +52,9 @@ RDEPEND="!<app-emulation/emul-linux-x86-medialibs-10.2
 		>=sys-apps/tcp-wrappers-7.6.22-r1[abi_x86_32(-)]
 		>=sys-libs/gdbm-1.10-r1[abi_x86_32(-)]
 		>=dev-libs/json-c-0.11-r1[abi_x86_32(-)]
+		>=dev-libs/libxml2-2.9.1-r2[abi_x86_32(-)]
+		>=dev-libs/dbus-glib-0.100.2-r1[abi_x86_32(-)]
+		>=sys-libs/readline-6.2_p5-r1:0[abi_x86_32(-)]
 	)
 	>=sys-libs/glibc-2.15" # bug 340613
 
