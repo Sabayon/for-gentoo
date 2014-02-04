@@ -1,0 +1,672 @@
+From c020923597d3bc30dffa89ba0a47f3b9517dd5fb Mon Sep 17 00:00:00 2001
+From: Thomas Hellstrom <thellstrom@vmware.com>
+Date: Mon, 16 Dec 2013 06:13:25 -0800
+Subject: [PATCH 13/19] vmwgfx: Add support for XMir v2.
+
+Use the hosted infrastructure to add support for XMir.
+Helpers go in vmwgfx_saa.c.
+
+v2: Added comments for the helpers, and added a
+vmwgfx_flush_dri2 to be executed when coming back from vt switch.
+
+Signed-off-by: Thomas Hellstrom <thellstrom@vmware.com>
+Reviewed-by: Brian Paul <brianp@vmware.com>
+Reviewed-by: Jakob Bornecrantz <jakob@vmware.com>
+---
+ vmwgfx/Makefile.am          |   1 +
+ vmwgfx/vmwgfx_drmi.c        |  39 +++++++-
+ vmwgfx/vmwgfx_drmi.h        |   8 +-
+ vmwgfx/vmwgfx_hosted.c      |   5 +-
+ vmwgfx/vmwgfx_hosted.h      |   1 +
+ vmwgfx/vmwgfx_hosted_priv.h |   3 +
+ vmwgfx/vmwgfx_saa.c         | 213 ++++++++++++++++++++++++++++++++++++++++----
+ vmwgfx/vmwgfx_saa.h         |   5 ++
+ vmwgfx/vmwgfx_xmir.c        | 178 ++++++++++++++++++++++++++++++++++++
+ 9 files changed, 433 insertions(+), 20 deletions(-)
+ create mode 100644 vmwgfx/vmwgfx_xmir.c
+
+diff --git a/vmwgfx/Makefile.am b/vmwgfx/Makefile.am
+index 2b0380b..41833a1 100644
+--- a/vmwgfx/Makefile.am
++++ b/vmwgfx/Makefile.am
+@@ -28,5 +28,6 @@ libvmwgfx_la_SOURCES = \
+ 	vmwgfx_hosted.c \
+ 	vmwgfx_hosted.h \
+ 	vmwgfx_hosted_priv.h \
++	vmwgfx_xmir.c \
+ 	wsbm_util.h
+ endif
+diff --git a/vmwgfx/vmwgfx_drmi.c b/vmwgfx/vmwgfx_drmi.c
+index 496a16b..d926019 100644
+--- a/vmwgfx/vmwgfx_drmi.c
++++ b/vmwgfx/vmwgfx_drmi.c
+@@ -284,7 +284,7 @@ vmwgfx_dmabuf_destroy(struct vmwgfx_dmabuf *buf)
+ }
+ 
+ int
+-vmwgfx_dma(unsigned int host_x, unsigned int host_y,
++vmwgfx_dma(int host_x, int host_y,
+ 	   RegionPtr region, struct vmwgfx_dmabuf *buf,
+ 	   uint32_t buf_pitch, uint32_t surface_handle, int to_surface)
+ {
+@@ -500,3 +500,40 @@ vmwgfx_max_fb_size(int drm_fd, size_t *size)
+ 
+     return 0;
+ }
++
++/**
++ * vmwgfx_prime_fd_to_handle - Return a TTM handle to a prime object
++ *
++ * @drm_fd: File descriptor for the drm connection.
++ * @prime_fd: File descriptor identifying the prime object.
++ * @handle: Pointer to returned TTM handle.
++ *
++ * Takes a reference on the underlying object and returns a TTM handle to it.
++ */
++int
++vmwgfx_prime_fd_to_handle(int drm_fd, int prime_fd, uint32_t *handle)
++{
++    *handle = 0;
++
++    return drmPrimeFDToHandle(drm_fd, prime_fd, handle);
++}
++
++/**
++ * vmwgfx_prime_release_handle - Release a reference on a TTM object
++ *
++ * @drm_fd: File descriptor for the drm connection.
++ * @handle: TTM handle as returned by vmwgfx_prime_fd_to_handle.
++ *
++ * Releases the reference obtained by vmwgfx_prime_fd_to_handle().
++ */
++void
++vmwgfx_prime_release_handle(int drm_fd, uint32_t handle)
++{
++    struct drm_vmw_surface_arg s_arg;
++
++    memset(&s_arg, 0, sizeof(s_arg));
++    s_arg.sid = handle;
++
++    (void) drmCommandWrite(drm_fd, DRM_VMW_UNREF_SURFACE, &s_arg,
++			   sizeof(s_arg));
++}
+diff --git a/vmwgfx/vmwgfx_drmi.h b/vmwgfx/vmwgfx_drmi.h
+index 2435009..1494485 100644
+--- a/vmwgfx/vmwgfx_drmi.h
++++ b/vmwgfx/vmwgfx_drmi.h
+@@ -60,7 +60,7 @@ extern void
+ vmwgfx_dmabuf_unmap(struct vmwgfx_dmabuf *buf);
+ 
+ extern int
+-vmwgfx_dma(unsigned int host_x, unsigned int host_y,
++vmwgfx_dma(int host_x, int host_y,
+ 	   RegionPtr region, struct vmwgfx_dmabuf *buf,
+ 	   uint32_t buf_pitch, uint32_t surface_handle, int to_surface);
+ 
+@@ -84,4 +84,10 @@ vmwgfx_update_gui_layout(int drm_fd, unsigned int num_rects,
+ 			 struct drm_vmw_rect *rects);
+ int
+ vmwgfx_get_param(int drm_fd, uint32_t param, uint64_t *out);
++
++int
++vmwgfx_prime_fd_to_handle(int drm_fd, int prime_fd, uint32_t *handle);
++
++void
++vmwgfx_prime_release_handle(int drm_fd, uint32_t handle);
+ #endif
+diff --git a/vmwgfx/vmwgfx_hosted.c b/vmwgfx/vmwgfx_hosted.c
+index b42d962..018b88b 100644
+--- a/vmwgfx/vmwgfx_hosted.c
++++ b/vmwgfx/vmwgfx_hosted.c
+@@ -46,7 +46,9 @@
+ const struct vmwgfx_hosted_driver *
+ vmwgfx_hosted_detect(void)
+ {
+-    return NULL;
++    const struct vmwgfx_hosted_driver *tmp = vmwgfx_xmir_detect();
++
++    return tmp;
+ }
+ 
+ /**
+@@ -61,4 +63,5 @@ vmwgfx_hosted_detect(void)
+ void
+ vmwgfx_hosted_modify_flags(uint32_t *flags)
+ {
++    vmwgfx_xmir_modify_flags(flags);
+ }
+diff --git a/vmwgfx/vmwgfx_hosted.h b/vmwgfx/vmwgfx_hosted.h
+index 8f3b243..78dc7cd 100644
+--- a/vmwgfx/vmwgfx_hosted.h
++++ b/vmwgfx/vmwgfx_hosted.h
+@@ -23,6 +23,7 @@
+  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+  *
+  * Author: Thomas Hellstrom <thellstrom@vmware.com>
++ * Note: "Hosted" is a term stolen from the xf86-video-intel driver.
+  */
+ 
+ #ifndef _VMWGFX_HOSTED_H
+diff --git a/vmwgfx/vmwgfx_hosted_priv.h b/vmwgfx/vmwgfx_hosted_priv.h
+index 05ded25..c81f5ee 100644
+--- a/vmwgfx/vmwgfx_hosted_priv.h
++++ b/vmwgfx/vmwgfx_hosted_priv.h
+@@ -31,4 +31,7 @@
+ #include <stdint.h>
+ #include "vmwgfx_hosted.h"
+ 
++extern const struct vmwgfx_hosted_driver *vmwgfx_xmir_detect(void);
++extern void vmwgfx_xmir_modify_flags(uint32_t *flags);
++
+ #endif
+diff --git a/vmwgfx/vmwgfx_saa.c b/vmwgfx/vmwgfx_saa.c
+index e76bd09..c8b4df1 100644
+--- a/vmwgfx/vmwgfx_saa.c
++++ b/vmwgfx/vmwgfx_saa.c
+@@ -282,32 +282,44 @@ static Bool
+ vmwgfx_saa_dma(struct vmwgfx_saa *vsaa,
+ 	       PixmapPtr pixmap,
+ 	       RegionPtr reg,
+-	       Bool to_hw)
++	       Bool to_hw,
++	       int dx,
++	       int dy,
++	       struct xa_surface *srf)
+ {
+     struct vmwgfx_saa_pixmap *vpix = vmwgfx_saa_pixmap(pixmap);
+ 
+-    if (!vpix->hw || (!vpix->gmr && !vpix->malloc))
++    if (!srf)
++	srf = vpix->hw;
++
++    if (!srf || (!vpix->gmr && !vpix->malloc))
+ 	return TRUE;
+ 
+     if (vpix->gmr && vsaa->can_optimize_dma) {
+ 	uint32_t handle, dummy;
+ 
+-	if (_xa_surface_handle(vpix->hw, &handle, &dummy) != 0)
++	if (_xa_surface_handle(srf, &handle, &dummy) != 0)
+ 	    goto out_err;
+-	if (vmwgfx_dma(0, 0, reg, vpix->gmr, pixmap->devKind, handle,
++	if (vmwgfx_dma(dx, dy, reg, vpix->gmr, pixmap->devKind, handle,
+ 		       to_hw) != 0)
+ 	    goto out_err;
+     } else {
+-	void *data = vpix->malloc;
++	uint8_t *data = (uint8_t *) vpix->malloc;
+ 	int ret;
+ 
+ 	if (vpix->gmr) {
+-	    data = vmwgfx_dmabuf_map(vpix->gmr);
++	    data = (uint8_t *) vmwgfx_dmabuf_map(vpix->gmr);
+ 	    if (!data)
+ 		goto out_err;
+ 	}
+ 
+-	ret = xa_surface_dma(vsaa->xa_ctx, vpix->hw, data, pixmap->devKind,
++	if (dx || dy) {
++	    REGION_TRANSLATE(pScreen, reg, dx, dy);
++	    data -= ((dx * pixmap->drawable.bitsPerPixel + 7)/8 +
++		     dy * pixmap->devKind);
++	}
++
++	ret = xa_surface_dma(vsaa->xa_ctx, srf, data, pixmap->devKind,
+ 			     (int) to_hw,
+ 			     (struct xa_box *) REGION_RECTS(reg),
+ 			     REGION_NUM_RECTS(reg));
+@@ -315,6 +327,8 @@ vmwgfx_saa_dma(struct vmwgfx_saa *vsaa,
+ 	    xa_context_flush(vsaa->xa_ctx);
+ 	if (vpix->gmr)
+ 	    vmwgfx_dmabuf_unmap(vpix->gmr);
++	if (dx || dy)
++	    REGION_TRANSLATE(pScreen, reg, -dx, -dy);
+ 	if (ret)
+ 	    goto out_err;
+     }
+@@ -353,7 +367,7 @@ vmwgfx_download_from_hw(struct saa_driver *driver, PixmapPtr pixmap,
+     if (!vmwgfx_pixmap_create_sw(vsaa, pixmap))
+ 	goto out_err;
+ 
+-    if (!vmwgfx_saa_dma(vsaa, pixmap, readback, FALSE))
++    if (!vmwgfx_saa_dma(vsaa, pixmap, readback, FALSE, 0, 0, NULL))
+ 	goto out_err;
+     REGION_SUBTRACT(vsaa->pScreen, &spix->dirty_hw, &spix->dirty_hw, readback);
+     REGION_UNINIT(vsaa->pScreen, &intersection);
+@@ -368,7 +382,8 @@ static Bool
+ vmwgfx_upload_to_hw(struct saa_driver *driver, PixmapPtr pixmap,
+ 		    RegionPtr upload)
+ {
+-    return vmwgfx_saa_dma(to_vmwgfx_saa(driver), pixmap, upload, TRUE);
++    return vmwgfx_saa_dma(to_vmwgfx_saa(driver), pixmap, upload, TRUE,
++			  0, 0, NULL);
+ }
+ 
+ static void
+@@ -753,6 +768,33 @@ vmwgfx_check_hw_contents(struct vmwgfx_saa *vsaa,
+     REGION_UNINIT(vsaa->pScreen, &intersection);
+ }
+ 
++/**
++ * vmwgfx_prefer_gmr: Prefer a dma buffer over malloced memory for software
++ * rendered storage
++ *
++ * @vsaa: Pointer to a struct vmwgfx_saa accelerator.
++ * @pixmap: Pointer to pixmap whose storage preference we want to alter.
++ *
++ * If possible, alter the storage or future storage of the software contents
++ * of this pixmap to be in a DMA buffer rather than in malloced memory.
++ * This function should be called when it's likely that frequent DMA operations
++ * will occur between a surface and the memory holding the software
++ * contents.
++ */
++static void
++vmwgfx_prefer_gmr(struct vmwgfx_saa *vsaa, PixmapPtr pixmap)
++{
++    struct vmwgfx_saa_pixmap *vpix = vmwgfx_saa_pixmap(pixmap);
++
++    if (vsaa->can_optimize_dma) {
++	if (vpix->malloc) {
++	    (void) vmwgfx_pixmap_create_gmr(vsaa, pixmap);
++	} else if (vpix->backing & VMWGFX_PIX_MALLOC) {
++	    vpix->backing |= VMWGFX_PIX_GMR;
++	    vpix->backing &= ~VMWGFX_PIX_MALLOC;
++	}
++    }
++}
+ 
+ Bool
+ vmwgfx_create_hw(struct vmwgfx_saa *vsaa,
+@@ -786,15 +828,16 @@ vmwgfx_create_hw(struct vmwgfx_saa *vsaa,
+     if (!vmwgfx_pixmap_add_damage(pixmap))
+ 	goto out_no_damage;
+ 
+-    /*
+-     * Even if we don't have a GMR yet, indicate that when needed it
+-     * should be created.
+-     */
+-
+     vpix->hw = hw;
+     vpix->backing |= VMWGFX_PIX_SURFACE;
+     vmwgfx_pixmap_free_storage(vpix);
+ 
++    /*
++     * If there is a HW surface, make sure that the shadow is
++     * (or will be) a GMR, provided we can do fast DMAs from / to it.
++     */
++    vmwgfx_prefer_gmr(vsaa, pixmap);
++
+     return TRUE;
+ 
+ out_no_damage:
+@@ -1226,10 +1269,14 @@ vmwgfx_operation_complete(struct saa_driver *driver,
+      * executed at glxWaitX(). Currently glxWaitX() is broken, so
+      * we flush immediately, unless we're VT-switched away, in which
+      * case a flush would deadlock in the kernel.
++     *
++     * For pixmaps for which vpix->hw_is_hosted is true, we can explicitly
++     * inform the compositor when contents has changed, so for those pixmaps
++     * we defer the upload until the compositor is informed, by putting
++     * them on the sync_x_list. Note that hw_is_dri2_fronts take precedence.
+      */
+-
+-    if (vpix->hw && vpix->hw_is_dri2_fronts) {
+-	if (pScrn->vtSema &&
++    if (vpix->hw && (vpix->hw_is_dri2_fronts || vpix->hw_is_hosted)) {
++	if (pScrn->vtSema && vpix->hw_is_dri2_fronts &&
+ 	    vmwgfx_upload_to_hw(driver, pixmap, &spix->dirty_shadow)) {
+ 
+ 	    REGION_EMPTY(vsaa->pScreen, &spix->dirty_shadow);
+@@ -1539,6 +1586,7 @@ vmwgfx_saa_set_master(ScreenPtr pScreen)
+     struct vmwgfx_saa *vsaa = to_vmwgfx_saa(saa_get_driver(pScreen));
+ 
+     vsaa->is_master = TRUE;
++    vmwgfx_flush_dri2(pScreen);
+ }
+ 
+ void
+@@ -1563,3 +1611,134 @@ vmwgfx_saa_drop_master(ScreenPtr pScreen)
+ 
+     vsaa->is_master = FALSE;
+ }
++
++/*
++ * *************************************************************************
++ * Helpers for hosted.
++ */
++
++#if (XA_TRACKER_VERSION_MAJOR >= 2)
++
++/**
++ * vmwgfx_saa_copy_to_surface - Copy Drawable contents to an external surface.
++ *
++ * @pDraw: Pointer to source drawable.
++ * @surface_fd: Prime file descriptor of external surface to copy to.
++ * @dst_box: BoxRec describing the destination bounding box.
++ * @region: Region of drawable to copy. Note: The code assumes that the
++ * region is relative to the drawable origin, not the underlying pixmap
++ * origin.
++ *
++ * Copies the contents (both software- and accelerated contents) to an
++ * external surface.
++ */
++Bool
++vmwgfx_saa_copy_to_surface(DrawablePtr pDraw, uint32_t surface_fd,
++			   const BoxRec *dst_box, RegionPtr region)
++{
++    ScreenPtr pScreen = pDraw->pScreen;
++    struct vmwgfx_saa *vsaa = to_vmwgfx_saa(saa_get_driver(pScreen));
++    PixmapPtr src;
++    struct saa_pixmap *spix;
++    struct vmwgfx_saa_pixmap *vpix;
++    const BoxRec *box;
++    int n;
++    int sx, sy, dx, dy;
++    struct xa_surface *dst;
++    uint32_t handle;
++    Bool ret = TRUE;
++    RegionRec intersection;
++    RegionPtr copy_region = region;
++
++    if (vmwgfx_prime_fd_to_handle(vsaa->drm_fd, surface_fd, &handle) < 0)
++	return FALSE;
++
++    dst = xa_surface_from_handle(vsaa->xat, pDraw->width, pDraw->height,
++				 pDraw->depth, xa_type_argb,
++				 xa_format_unknown,
++				 XA_FLAG_SHARED | XA_FLAG_RENDER_TARGET,
++				 handle,
++				 (pDraw->width * pDraw->bitsPerPixel + 7) / 8);
++
++    if (!dst) {
++	ret = FALSE;
++	goto out_no_surface;
++    }
++
++    /*
++     * Assume damage region is relative to the source window.
++     */
++    src = saa_get_pixmap(pDraw, &sx, &sy);
++    sx += pDraw->x;
++    sy += pDraw->y;
++    if (sx || sy)
++	REGION_TRANSLATE(pScreen, region, sx, sy);
++
++    dx = dst_box->x1 - sx;
++    dy = dst_box->y1 - sy;
++
++    spix = saa_get_saa_pixmap(src);
++    vpix = to_vmwgfx_saa_pixmap(spix);
++
++    /*
++     * Make sure software contents of the source pixmap is henceforth put
++     * in a GMR to avoid the extra copy in the xa DMA.
++     */
++    vmwgfx_prefer_gmr(vsaa, src);
++
++    /*
++     * Determine the intersection between software contents and region to copy.
++     * XXX: First check that the software contents is compatible with the
++     * external surface format, before applying this optimization.
++     */
++    REGION_NULL(pScreen, &intersection);
++    if (!vpix->hw)
++	REGION_COPY(pScreen, &intersection, region);
++    else if (spix->damage && REGION_NOTEMPTY(pScreen, &spix->dirty_shadow))
++	REGION_INTERSECT(pScreen, &intersection, region, &spix->dirty_shadow);
++
++    /*
++     * DMA software contents directly into the destination. Then subtract
++     * the region we've DMA'd from the region to copy.
++     */
++    if (REGION_NOTEMPTY(pScreen, &intersection)) {
++	if (vmwgfx_saa_dma(vsaa, src, &intersection, TRUE, dx, dy, dst)) {
++	    REGION_SUBTRACT(pScreen, &intersection, region, &intersection);
++	    copy_region = &intersection;
++	}
++    }
++
++    if (!REGION_NOTEMPTY(pScreen, copy_region))
++	goto out_no_copy;
++
++    /*
++     * Copy Hardware contents to the destination
++     */
++    box = REGION_RECTS(copy_region);
++    n = REGION_NUM_RECTS(copy_region);
++
++    if (xa_copy_prepare(vsaa->xa_ctx, dst, vpix->hw) != XA_ERR_NONE) {
++	ret = FALSE;
++	goto out_no_copy;
++    }
++
++    while(n--) {
++	xa_copy(vsaa->xa_ctx, box->x1 + dx, box->y1 + dy, box->x1, box->y1,
++		box->x2 - box->x1, box->y2 - box->y1);
++	box++;
++    }
++
++    xa_copy_done(vsaa->xa_ctx);
++    xa_context_flush(vsaa->xa_ctx);
++
++  out_no_copy:
++    REGION_UNINIT(pScreen, &intersection);
++    if (sx || sy)
++	REGION_TRANSLATE(pScreen, region, -sx, -sy);
++    xa_surface_unref(dst);
++  out_no_surface:
++    vmwgfx_prime_release_handle(vsaa->drm_fd, handle);
++
++    return ret;
++}
++#endif
+diff --git a/vmwgfx/vmwgfx_saa.h b/vmwgfx/vmwgfx_saa.h
+index 5e1f40c..55f0ded 100644
+--- a/vmwgfx/vmwgfx_saa.h
++++ b/vmwgfx/vmwgfx_saa.h
+@@ -52,6 +52,7 @@ struct vmwgfx_saa_pixmap {
+     struct xa_surface *hw;
+     uint32_t fb_id;
+     int hw_is_dri2_fronts;
++    Bool hw_is_hosted;
+     struct _WsbmListHead sync_x_head;
+     struct _WsbmListHead scanout_list;
+     struct _WsbmListHead pixmap_list;
+@@ -115,6 +116,10 @@ vmwgfx_saa_set_master(ScreenPtr pScreen);
+ void
+ vmwgfx_saa_drop_master(ScreenPtr pScreen);
+ 
++Bool
++vmwgfx_saa_copy_to_surface(DrawablePtr pDraw, uint32_t surface_fd,
++			   const BoxRec *dst_box, RegionPtr region);
++
+ #if (XA_TRACKER_VERSION_MAJOR <= 1) && !defined(HAVE_XA_2)
+ 
+ #define _xa_surface_handle(_a, _b, _c) xa_surface_handle(_a, _b, _c)
+diff --git a/vmwgfx/vmwgfx_xmir.c b/vmwgfx/vmwgfx_xmir.c
+new file mode 100644
+index 0000000..e0ff6a4
+--- /dev/null
++++ b/vmwgfx/vmwgfx_xmir.c
+@@ -0,0 +1,178 @@
++/*
++ * Copyright 2013 VMWare, Inc.
++ * All Rights Reserved.
++ *
++ * Permission is hereby granted, free of charge, to any person obtaining a
++ * copy of this software and associated documentation files (the
++ * "Software"), to deal in the Software without restriction, including
++ * without limitation the rights to use, copy, modify, merge, publish,
++ * distribute, sub license, and/or sell copies of the Software, and to
++ * permit persons to whom the Software is furnished to do so, subject to
++ * the following conditions:
++ *
++ * The above copyright notice and this permission notice (including the
++ * next paragraph) shall be included in all copies or substantial portions
++ * of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
++ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
++ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT.
++ * IN NO EVENT SHALL TUNGSTEN GRAPHICS AND/OR ITS SUPPLIERS BE LIABLE FOR
++ * ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
++ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
++ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
++ *
++ * Author: Thomas Hellstrom <thellstrom@vmware.com>
++ */
++
++#ifdef HAVE_CONFIG_H
++#include "config.h"
++#endif
++
++#include "vmwgfx_hosted_priv.h"
++#include <xa_tracker.h>
++
++#if XMIR && (XA_TRACKER_VERSION_MAJOR >= 2)
++
++#include "vmwgfx_hosted.h"
++#include "vmwgfx_saa.h"
++#include <xf86Priv.h>
++#include <xmir.h>
++
++struct vmwgfx_hosted {
++    xmir_screen *xmir;
++    ScrnInfoPtr pScrn;
++    ScreenPtr pScreen;
++};
++
++static void
++vmwgfx_xmir_copy_to_mir(xmir_window *xmir_win, RegionPtr region);
++
++static xmir_driver vmwgfx_xmir_driver = {
++    XMIR_DRIVER_VERSION,
++    vmwgfx_xmir_copy_to_mir
++};
++
++static struct vmwgfx_hosted *
++vmwgfx_xmir_create(ScrnInfoPtr pScrn)
++{
++    struct vmwgfx_hosted *hosted;
++
++    hosted = calloc(1, sizeof(*hosted));
++    if (!hosted)
++	return NULL;
++
++    hosted->xmir = xmir_screen_create(pScrn);
++    if (!hosted->xmir) {
++	free(hosted);
++	return NULL;
++    }
++
++    hosted->pScrn = pScrn;
++    return hosted;
++}
++
++static void
++vmwgfx_xmir_destroy(struct vmwgfx_hosted *hosted)
++{
++    xmir_screen_destroy(hosted->xmir);
++    free(hosted);
++}
++
++static Bool
++vmwgfx_xmir_pre_init(struct vmwgfx_hosted *hosted, int flags)
++{
++    return xmir_screen_pre_init(hosted->pScrn, hosted->xmir,
++				&vmwgfx_xmir_driver);
++}
++
++static int
++vmwgfx_xmir_drm_fd(struct vmwgfx_hosted *hosted, const struct pci_device *pci)
++{
++    char bus_id[20];
++
++    snprintf(bus_id, sizeof(bus_id), "pci:%04x:%02x:%02x.%d",
++	     pci->domain, pci->bus, pci->dev, pci->func);
++    return xmir_get_drm_fd(bus_id);
++}
++
++static Bool
++vmwgfx_xmir_screen_init(struct vmwgfx_hosted *hosted, ScreenPtr pScreen)
++{
++    if (!xmir_screen_init(pScreen, hosted->xmir))
++	return FALSE;
++
++    hosted->pScreen = pScreen;
++
++    return TRUE;
++}
++
++static void
++vmwgfx_xmir_screen_close(struct vmwgfx_hosted *hosted)
++{
++    if (hosted->pScreen)
++	xmir_screen_close(hosted->pScreen, hosted->xmir);
++
++    hosted->pScreen = NULL;
++}
++
++static void
++vmwgfx_xmir_post_damage(struct vmwgfx_hosted *hosted)
++{
++    xmir_screen_for_each_damaged_window(hosted->xmir, vmwgfx_xmir_copy_to_mir);
++}
++
++static int
++vmwgfx_xmir_dri_auth(struct vmwgfx_hosted *hosted, ClientPtr client,
++		     uint32_t magic)
++{
++    return xmir_auth_drm_magic(hosted->xmir, magic);
++}
++
++static void
++vmwgfx_xmir_copy_to_mir(xmir_window *xmir_win, RegionPtr region)
++{
++    DrawablePtr pDraw = (DrawablePtr) xmir_window_to_windowptr(xmir_win);
++    const BoxRec *dst_box = xmir_window_get_drawable_region(xmir_win);
++
++    if (vmwgfx_saa_copy_to_surface(pDraw, xmir_window_get_fd(xmir_win),
++				   dst_box, region))
++	xmir_submit_rendering_for_window(xmir_win, region);
++}
++
++static const struct vmwgfx_hosted_driver vmwgfx_hosted_xmir_driver = {
++    .create = vmwgfx_xmir_create,
++    .destroy = vmwgfx_xmir_destroy,
++    .drm_fd = vmwgfx_xmir_drm_fd,
++    .pre_init = vmwgfx_xmir_pre_init,
++    .screen_init = vmwgfx_xmir_screen_init,
++    .screen_close = vmwgfx_xmir_screen_close,
++    .post_damage = vmwgfx_xmir_post_damage,
++    .dri_auth = vmwgfx_xmir_dri_auth
++};
++
++const struct vmwgfx_hosted_driver *
++vmwgfx_xmir_detect(void)
++{
++    return (xorgMir) ? &vmwgfx_hosted_xmir_driver : NULL;
++}
++
++void vmwgfx_xmir_modify_flags(uint32_t *flags)
++{
++    if (xorgMir)
++	*flags |= HW_SKIP_CONSOLE;
++}
++
++#else
++
++const struct vmwgfx_hosted_driver *
++vmwgfx_xmir_detect(void)
++{
++    return NULL;
++}
++
++void
++vmwgfx_xmir_modify_flags(uint32_t *flags)
++{
++}
++#endif
+-- 
+1.8.5.3
+

@@ -1,0 +1,165 @@
+From 7ac45326eccbf3bea9a4a8f95b9662a36ab58eb0 Mon Sep 17 00:00:00 2001
+From: Thomas Hellstrom <thellstrom@vmware.com>
+Date: Thu, 28 Nov 2013 02:02:20 -0800
+Subject: [PATCH 06/19] vmwgfx: Fix some compilation warnings and indentations
+
+Most of the compilation warnings we're seeing are due to bad xorg headers,
+but fix the ones we can fix in the driver. Some indentation fixes as well.
+
+Signed-off-by: Thomas Hellstrom <thellstrom@vmware.com>
+Reviewed-by: Jakob Bornecrantz <jakob@vmware.com>
+---
+ src/vmware_bootstrap.c    |  2 --
+ src/vmwarevideo.c         |  4 ++--
+ vmwgfx/vmwgfx_driver.c    |  1 -
+ vmwgfx/vmwgfx_output.c    |  2 +-
+ vmwgfx/vmwgfx_overlay.c   |  4 ++--
+ vmwgfx/vmwgfx_tex_video.c | 26 +++++++++++++-------------
+ 6 files changed, 18 insertions(+), 21 deletions(-)
+
+diff --git a/src/vmware_bootstrap.c b/src/vmware_bootstrap.c
+index ea5be19..bb58325 100644
+--- a/src/vmware_bootstrap.c
++++ b/src/vmware_bootstrap.c
+@@ -256,7 +256,6 @@ VMwarePciProbe (DriverPtr           drv,
+                 intptr_t            match_data)
+ {
+     ScrnInfoPtr     scrn = NULL;
+-    EntityInfoPtr   entity;
+ 
+     scrn = xf86ConfigPciEntity(scrn, 0, entity_num, VMWAREPciChipsets,
+                                NULL, NULL, NULL, NULL, NULL);
+@@ -267,7 +266,6 @@ VMwarePciProbe (DriverPtr           drv,
+         scrn->Probe = NULL;
+     }
+ 
+-    entity = xf86GetEntityInfo(entity_num);
+     switch (DEVICE_ID(device)) {
+     case PCI_DEVICE_ID_VMWARE_SVGA2:
+     case PCI_DEVICE_ID_VMWARE_SVGA:
+diff --git a/src/vmwarevideo.c b/src/vmwarevideo.c
+index 745c71f..8d7d171 100644
+--- a/src/vmwarevideo.c
++++ b/src/vmwarevideo.c
+@@ -82,7 +82,7 @@
+ #define VMWARE_VID_MAX_HEIGHT   2048
+ 
+ #define VMWARE_VID_NUM_ENCODINGS 1
+-static XF86VideoEncodingRec vmwareVideoEncodings[] =
++static const XF86VideoEncodingRec vmwareVideoEncodings[] =
+ {
+     {
+        0,
+@@ -108,7 +108,7 @@ static XF86ImageRec vmwareVideoImages[] =
+ };
+ 
+ #define VMWARE_VID_NUM_ATTRIBUTES 2
+-static XF86AttributeRec vmwareVideoAttributes[] =
++static const XF86AttributeRec vmwareVideoAttributes[] =
+ {
+     {
+         XvGettable | XvSettable,
+diff --git a/vmwgfx/vmwgfx_driver.c b/vmwgfx/vmwgfx_driver.c
+index eeaea4b..bfc07f8 100644
+--- a/vmwgfx/vmwgfx_driver.c
++++ b/vmwgfx/vmwgfx_driver.c
+@@ -658,7 +658,6 @@ void xorg_flush(ScreenPtr pScreen)
+ 	if (crtc->enabled) {
+ 	    pixmap = crtc_get_scanout(crtc);
+ 	    if (pixmap) {
+-		unsigned int j;
+ 
+ 		/*
+ 		 * Remove duplicates.
+diff --git a/vmwgfx/vmwgfx_output.c b/vmwgfx/vmwgfx_output.c
+index 4f52f1d..f9e4263 100644
+--- a/vmwgfx/vmwgfx_output.c
++++ b/vmwgfx/vmwgfx_output.c
+@@ -60,7 +60,7 @@ struct output_private
+     Bool is_implicit;
+ };
+ 
+-static char *output_enum_list[] = {
++static const char *output_enum_list[] = {
+     "Unknown",
+     "VGA",
+     "DVI",
+diff --git a/vmwgfx/vmwgfx_overlay.c b/vmwgfx/vmwgfx_overlay.c
+index 6624a10..986dd06 100644
+--- a/vmwgfx/vmwgfx_overlay.c
++++ b/vmwgfx/vmwgfx_overlay.c
+@@ -84,7 +84,7 @@ typedef uint8_t uint8;
+ #define VMWARE_VID_MAX_HEIGHT   2048
+ 
+ #define VMWARE_VID_NUM_ENCODINGS 1
+-static XF86VideoEncodingRec vmwareVideoEncodings[] =
++static const XF86VideoEncodingRec vmwareVideoEncodings[] =
+ {
+     {
+        0,
+@@ -110,7 +110,7 @@ static XF86ImageRec vmwareVideoImages[] =
+ };
+ 
+ #define VMWARE_VID_NUM_ATTRIBUTES 2
+-static XF86AttributeRec vmwareVideoAttributes[] =
++static const XF86AttributeRec vmwareVideoAttributes[] =
+ {
+     {
+         XvGettable | XvSettable,
+diff --git a/vmwgfx/vmwgfx_tex_video.c b/vmwgfx/vmwgfx_tex_video.c
+index a0a4f4a..3ba40ef 100644
+--- a/vmwgfx/vmwgfx_tex_video.c
++++ b/vmwgfx/vmwgfx_tex_video.c
+@@ -70,11 +70,11 @@ static const float bt_709[] = {
+ static Atom xvBrightness, xvContrast, xvSaturation, xvHue;
+ 
+ #define NUM_TEXTURED_ATTRIBUTES 4
+-static XF86AttributeRec TexturedAttributes[NUM_TEXTURED_ATTRIBUTES] = {
+-   {XvSettable | XvGettable, -1000, 1000, "XV_BRIGHTNESS"},
+-   {XvSettable | XvGettable, -1000, 1000, "XV_CONTRAST"},
+-   {XvSettable | XvGettable, -1000, 1000, "XV_SATURATION"},
+-   {XvSettable | XvGettable, -1000, 1000, "XV_HUE"}
++static const XF86AttributeRec TexturedAttributes[NUM_TEXTURED_ATTRIBUTES] = {
++    {XvSettable | XvGettable, -1000, 1000, "XV_BRIGHTNESS"},
++    {XvSettable | XvGettable, -1000, 1000, "XV_CONTRAST"},
++    {XvSettable | XvGettable, -1000, 1000, "XV_SATURATION"},
++    {XvSettable | XvGettable, -1000, 1000, "XV_HUE"}
+ };
+ 
+ #define NUM_FORMATS 3
+@@ -82,7 +82,7 @@ static XF86VideoFormatRec Formats[NUM_FORMATS] = {
+    {15, TrueColor}, {16, TrueColor}, {24, TrueColor}
+ };
+ 
+-static XF86VideoEncodingRec DummyEncoding[1] = {
++static const XF86VideoEncodingRec DummyEncoding[1] = {
+    {
+       0,
+       "XV_IMAGE",
+@@ -416,16 +416,16 @@ copy_packed_data(ScrnInfoPtr pScrn,
+    switch (id) {
+    case FOURCC_YV12: {
+       int pitches[3], offsets[3];
+-      unsigned char *y, *u, *v;
++      unsigned char *yp, *up, *vp;
+       query_image_attributes(pScrn, FOURCC_YV12,
+                              &w, &h, pitches, offsets);
+ 
+-      y = buf + offsets[0];
+-      v = buf + offsets[1];
+-      u = buf + offsets[2];
+-      memcpy(ymap, y, w*h);
+-      memcpy(vmap, v, w*h/4);
+-      memcpy(umap, u, w*h/4);
++      yp = buf + offsets[0];
++      vp = buf + offsets[1];
++      up = buf + offsets[2];
++      memcpy(ymap, yp, w*h);
++      memcpy(vmap, vp, w*h/4);
++      memcpy(umap, up, w*h/4);
+       break;
+    }
+    case FOURCC_UYVY:
+-- 
+1.8.5.3
+

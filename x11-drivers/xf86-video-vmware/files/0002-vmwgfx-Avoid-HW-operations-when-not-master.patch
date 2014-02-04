@@ -1,0 +1,240 @@
+From 835ce4698f916ba080f4132988fd4caf898e0b1e Mon Sep 17 00:00:00 2001
+From: Thomas Hellstrom <thellstrom@vmware.com>
+Date: Thu, 26 Sep 2013 01:25:33 -0700
+Subject: [PATCH 02/19] vmwgfx: Avoid HW operations when not master
+
+Note that for DRI2, a dri2_copy_region becomes a NOP when not master.
+Additionally, all dri2 operations that lead to a potential kernel
+access will return FALSE.
+
+Signed-off-by: Thomas Hellstrom <thellstrom@vmware.com>
+Reviewed-by: Jakob Bornecrantz <jakob@vmware.com>
+---
+ vmwgfx/vmwgfx_dri2.c       | 13 +++++++++++++
+ vmwgfx/vmwgfx_driver.c     |  3 +++
+ vmwgfx/vmwgfx_saa.c        | 44 +++++++++++++++++++++++++++++++++++++++++++-
+ vmwgfx/vmwgfx_saa.h        |  8 ++++++++
+ vmwgfx/vmwgfx_saa_priv.h   |  2 ++
+ vmwgfx/vmwgfx_xa_surface.c |  6 ++++++
+ 6 files changed, 75 insertions(+), 1 deletion(-)
+
+diff --git a/vmwgfx/vmwgfx_dri2.c b/vmwgfx/vmwgfx_dri2.c
+index 2f007f0..57f2d9d 100644
+--- a/vmwgfx/vmwgfx_dri2.c
++++ b/vmwgfx/vmwgfx_dri2.c
+@@ -138,6 +138,8 @@ dri2_do_create_buffer(DrawablePtr pDraw, DRI2Buffer2Ptr buffer, unsigned int for
+       return TRUE;
+     case DRI2BufferStencil:
+     case DRI2BufferDepthStencil:
++	if (!pScrn->vtSema)
++	    return FALSE;
+ 
+ 	depth = (format) ? vmwgfx_zs_format_to_depth(format) : 32;
+ 
+@@ -155,6 +157,9 @@ dri2_do_create_buffer(DrawablePtr pDraw, DRI2Buffer2Ptr buffer, unsigned int for
+ 
+        break;
+     case DRI2BufferDepth:
++	if (!pScrn->vtSema)
++	    return FALSE;
++
+ 	depth = (format) ? vmwgfx_z_format_to_depth(format) :
+ 	    pDraw->bitsPerPixel;
+ 
+@@ -291,6 +296,14 @@ dri2_copy_region(DrawablePtr pDraw, RegionPtr pRegion,
+     DrawablePtr dst_draw;
+     RegionPtr myClip;
+     GCPtr gc;
++    ScrnInfoPtr pScrn = xf86ScreenToScrn(pScreen);
++
++    /*
++     * This is a fragile protection against HW operations when not master.
++     * Needs to be blocked higher up in the dri2 code.
++     */
++    if (!pScrn->vtSema)
++	return;
+ 
+     /*
+      * In driCreateBuffers we dewrap windows into the
+diff --git a/vmwgfx/vmwgfx_driver.c b/vmwgfx/vmwgfx_driver.c
+index 3002285..eeaea4b 100644
+--- a/vmwgfx/vmwgfx_driver.c
++++ b/vmwgfx/vmwgfx_driver.c
+@@ -1116,6 +1116,7 @@ drv_leave_vt(VT_FUNC_ARGS_DECL)
+ 
+     vmwgfx_cursor_bypass(ms->fd, 0, 0);
+     vmwgfx_disable_scanout(pScrn);
++    vmwgfx_saa_drop_master(pScrn->pScreen);
+ 
+     if (drmDropMaster(ms->fd))
+ 	xf86DrvMsg(pScrn->scrnIndex, X_WARNING,
+@@ -1136,6 +1137,8 @@ drv_enter_vt(VT_FUNC_ARGS_DECL)
+     if (!drv_set_master(pScrn))
+ 	return FALSE;
+ 
++    vmwgfx_saa_set_master(pScrn->pScreen);
++
+     if (!xf86SetDesiredModes(pScrn))
+ 	return FALSE;
+ 
+diff --git a/vmwgfx/vmwgfx_saa.c b/vmwgfx/vmwgfx_saa.c
+index ed3c1ee..5534ca3 100644
+--- a/vmwgfx/vmwgfx_saa.c
++++ b/vmwgfx/vmwgfx_saa.c
+@@ -423,6 +423,7 @@ vmwgfx_create_pixmap(struct saa_driver *driver, struct saa_pixmap *spix,
+ 
+     WSBMINITLISTHEAD(&vpix->sync_x_head);
+     WSBMINITLISTHEAD(&vpix->scanout_list);
++    WSBMINITLISTHEAD(&vpix->pixmap_list);
+ 
+     return TRUE;
+ }
+@@ -499,6 +500,7 @@ vmwgfx_destroy_pixmap(struct saa_driver *driver, PixmapPtr pixmap)
+      */
+ 
+     vmwgfx_pixmap_remove_present(vpix);
++    WSBMLISTDELINIT(&vpix->pixmap_list);
+     WSBMLISTDELINIT(&vpix->sync_x_head);
+ 
+     if (vpix->hw_is_dri2_fronts)
+@@ -627,6 +629,8 @@ vmwgfx_modify_pixmap_header (PixmapPtr pixmap, int w, int h, int depth,
+ 			     int bpp, int devkind, void *pixdata)
+ {
+     struct vmwgfx_saa_pixmap *vpix = vmwgfx_saa_pixmap(pixmap);
++    ScreenPtr pScreen = pixmap->drawable.pScreen;
++    struct vmwgfx_saa *vsaa = to_vmwgfx_saa(saa_get_driver(pScreen));
+     unsigned int old_height;
+     unsigned int old_width;
+     unsigned int old_pitch;
+@@ -670,6 +674,8 @@ vmwgfx_modify_pixmap_header (PixmapPtr pixmap, int w, int h, int depth,
+ 
+     vmwgfx_pix_resize(pixmap, old_pitch, old_height, old_width);
+     vmwgfx_pixmap_free_storage(vpix);
++    WSBMLISTADDTAIL(&vpix->pixmap_list, &vsaa->pixmaps);
++
+     return TRUE;
+ 
+   out_no_modify:
+@@ -860,7 +866,7 @@ vmwgfx_copy_prepare(struct saa_driver *driver,
+     Bool has_valid_hw;
+ 
+     if (!vsaa->xat || !SAA_PM_IS_SOLID(&dst_pixmap->drawable, plane_mask) ||
+-	alu != GXcopy)
++	alu != GXcopy || !vsaa->is_master)
+ 	return FALSE;
+ 
+     src_vpix = vmwgfx_saa_pixmap(src_pixmap);
+@@ -1057,6 +1063,9 @@ vmwgfx_composite_prepare(struct saa_driver *driver, CARD8 op,
+     RegionRec empty;
+     struct xa_composite *xa_comp;
+ 
++    if (!vsaa->is_master)
++	return FALSE;
++
+     REGION_NULL(pScreen, &empty);
+ 
+     /*
+@@ -1367,7 +1376,9 @@ vmwgfx_saa_init(ScreenPtr pScreen, int drm_fd, struct xa_tracker *xat,
+     vsaa->use_present_opt = direct_presents;
+     vsaa->only_hw_presents = only_hw_presents;
+     vsaa->rendercheck = rendercheck;
++    vsaa->is_master = TRUE;
+     WSBMINITLISTHEAD(&vsaa->sync_x_list);
++    WSBMINITLISTHEAD(&vsaa->pixmaps);
+ 
+     vsaa->driver = vmwgfx_saa_driver;
+     vsaa->vcomp = vmwgfx_alloc_composite();
+@@ -1518,3 +1529,34 @@ vmwgfx_scanout_unref(struct vmwgfx_screen_entry *entry)
+     entry->pixmap = NULL;
+     pixmap->drawable.pScreen->DestroyPixmap(pixmap);
+ }
++
++void
++vmwgfx_saa_set_master(ScreenPtr pScreen)
++{
++    struct vmwgfx_saa *vsaa = to_vmwgfx_saa(saa_get_driver(pScreen));
++
++    vsaa->is_master = TRUE;
++}
++
++void
++vmwgfx_saa_drop_master(ScreenPtr pScreen)
++{
++    struct vmwgfx_saa *vsaa = to_vmwgfx_saa(saa_get_driver(pScreen));
++    struct _WsbmListHead *list;
++    struct vmwgfx_saa_pixmap *vpix;
++    struct saa_pixmap *spix;
++
++    WSBMLISTFOREACH(list, &vsaa->pixmaps) {
++	vpix = WSBMLISTENTRY(list, struct vmwgfx_saa_pixmap, pixmap_list);
++	spix = &vpix->base;
++
++	if (!vpix->hw)
++	    continue;
++
++	(void) vmwgfx_download_from_hw(&vsaa->driver, spix->pixmap,
++				       &spix->dirty_hw);
++	REGION_EMPTY(draw->pScreen, &spix->dirty_hw);
++    }
++
++    vsaa->is_master = FALSE;
++}
+diff --git a/vmwgfx/vmwgfx_saa.h b/vmwgfx/vmwgfx_saa.h
+index bb8ec96..d8aa3d3 100644
+--- a/vmwgfx/vmwgfx_saa.h
++++ b/vmwgfx/vmwgfx_saa.h
+@@ -54,6 +54,7 @@ struct vmwgfx_saa_pixmap {
+     int hw_is_dri2_fronts;
+     struct _WsbmListHead sync_x_head;
+     struct _WsbmListHead scanout_list;
++    struct _WsbmListHead pixmap_list;
+ 
+     uint32_t xa_flags;
+     uint32_t staging_add_flags;
+@@ -107,4 +108,11 @@ Bool
+ vmwgfx_hw_accel_validate(PixmapPtr pixmap, unsigned int depth,
+ 			 uint32_t add_flags, uint32_t remove_flags,
+ 			 RegionPtr region);
++
++void
++vmwgfx_saa_set_master(ScreenPtr pScreen);
++
++void
++vmwgfx_saa_drop_master(ScreenPtr pScreen);
++
+ #endif
+diff --git a/vmwgfx/vmwgfx_saa_priv.h b/vmwgfx/vmwgfx_saa_priv.h
+index 5f46dee..16583b0 100644
+--- a/vmwgfx/vmwgfx_saa_priv.h
++++ b/vmwgfx/vmwgfx_saa_priv.h
+@@ -54,8 +54,10 @@ struct vmwgfx_saa {
+     Bool use_present_opt;
+     Bool only_hw_presents;
+     Bool rendercheck;
++    Bool is_master;
+     void (*present_flush) (ScreenPtr pScreen);
+     struct _WsbmListHead sync_x_list;
++    struct _WsbmListHead pixmaps;
+     struct vmwgfx_composite *vcomp;
+ };
+ 
+diff --git a/vmwgfx/vmwgfx_xa_surface.c b/vmwgfx/vmwgfx_xa_surface.c
+index 8b30e45..2f23c57 100644
+--- a/vmwgfx/vmwgfx_xa_surface.c
++++ b/vmwgfx/vmwgfx_xa_surface.c
+@@ -362,6 +362,12 @@ vmwgfx_hw_accel_validate(PixmapPtr pixmap, unsigned int depth,
+ Bool
+ vmwgfx_hw_dri2_validate(PixmapPtr pixmap, unsigned int depth)
+ {
++    struct vmwgfx_saa *vsaa =
++	to_vmwgfx_saa(saa_get_driver(pixmap->drawable.pScreen));
++
++    if (!vsaa->is_master)
++	    return FALSE;
++
+     return (vmwgfx_hw_dri2_stage(pixmap, depth) &&
+ 	    vmwgfx_hw_commit(pixmap) &&
+ 	    vmwgfx_hw_validate(pixmap, NULL));
+-- 
+1.8.5.3
+

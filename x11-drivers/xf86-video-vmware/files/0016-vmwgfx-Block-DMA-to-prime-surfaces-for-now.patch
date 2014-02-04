@@ -1,0 +1,109 @@
+From f37684e7169b9c0ab23ff748d5acacb65fad82f7 Mon Sep 17 00:00:00 2001
+From: Thomas Hellstrom <thellstrom@vmware.com>
+Date: Tue, 7 Jan 2014 17:55:49 +0100
+Subject: [PATCH 16/19] vmwgfx: Block DMA to prime surfaces for now
+
+Since there is currently no _good_ way to get the surface format of a
+prime surface, we block DMA to these surfaces; we don't know if our
+software data is compatible with the surface format.
+
+This patch also makes sure that there is a hardware surface backing the
+drawable we copy from.
+
+Signed-off-by: Thomas Hellstrom <thellstrom@vmware.com>
+Reviewed-by: Brian Paul <brianp@vmware.com>
+Reviewed-by: Jakob Bornecrantz <jakob@vmware.com>
+---
+ vmwgfx/vmwgfx_saa.c      | 40 ++++++++++++++++++++++++----------------
+ vmwgfx/vmwgfx_saa_priv.h |  1 +
+ 2 files changed, 25 insertions(+), 16 deletions(-)
+
+diff --git a/vmwgfx/vmwgfx_saa.c b/vmwgfx/vmwgfx_saa.c
+index c323c5f..cb55849 100644
+--- a/vmwgfx/vmwgfx_saa.c
++++ b/vmwgfx/vmwgfx_saa.c
+@@ -1428,6 +1428,7 @@ vmwgfx_saa_init(ScreenPtr pScreen, int drm_fd, struct xa_tracker *xat,
+     vsaa->only_hw_presents = only_hw_presents;
+     vsaa->rendercheck = rendercheck;
+     vsaa->is_master = TRUE;
++    vsaa->known_prime_format = FALSE;
+     WSBMINITLISTHEAD(&vsaa->sync_x_list);
+     WSBMINITLISTHEAD(&vsaa->pixmaps);
+ 
+@@ -1688,23 +1689,24 @@ vmwgfx_saa_copy_to_surface(DrawablePtr pDraw, uint32_t surface_fd,
+ 
+     /*
+      * Determine the intersection between software contents and region to copy.
+-     * XXX: First check that the software contents is compatible with the
+-     * external surface format, before applying this optimization.
+      */
+-    REGION_NULL(pScreen, &intersection);
+-    if (!vpix->hw)
+-	REGION_COPY(pScreen, &intersection, region);
+-    else if (spix->damage && REGION_NOTEMPTY(pScreen, &spix->dirty_shadow))
+-	REGION_INTERSECT(pScreen, &intersection, region, &spix->dirty_shadow);
+ 
+-    /*
+-     * DMA software contents directly into the destination. Then subtract
+-     * the region we've DMA'd from the region to copy.
+-     */
+-    if (REGION_NOTEMPTY(pScreen, &intersection)) {
+-	if (vmwgfx_saa_dma(vsaa, src, &intersection, TRUE, dx, dy, dst)) {
+-	    REGION_SUBTRACT(pScreen, &intersection, region, &intersection);
+-	    copy_region = &intersection;
++    if (vsaa->known_prime_format) {
++	REGION_NULL(pScreen, &intersection);
++	if (!vpix->hw)
++	    REGION_COPY(pScreen, &intersection, region);
++	else if (spix->damage && REGION_NOTEMPTY(pScreen, &spix->dirty_shadow))
++	    REGION_INTERSECT(pScreen, &intersection, region, &spix->dirty_shadow);
++
++	/*
++	 * DMA software contents directly into the destination. Then subtract
++	 * the region we've DMA'd from the region to copy.
++	 */
++	if (REGION_NOTEMPTY(pScreen, &intersection)) {
++	    if (vmwgfx_saa_dma(vsaa, src, &intersection, TRUE, dx, dy, dst)) {
++		REGION_SUBTRACT(pScreen, &intersection, region, &intersection);
++		copy_region = &intersection;
++	    }
+ 	}
+     }
+ 
+@@ -1717,6 +1719,11 @@ vmwgfx_saa_copy_to_surface(DrawablePtr pDraw, uint32_t surface_fd,
+     box = REGION_RECTS(copy_region);
+     n = REGION_NUM_RECTS(copy_region);
+ 
++    if (!vmwgfx_hw_accel_validate(src, 0, 0, 0, copy_region)) {
++	ret = FALSE;
++	goto out_no_copy;
++    }
++
+     if (xa_copy_prepare(vsaa->xa_ctx, dst, vpix->hw) != XA_ERR_NONE) {
+ 	ret = FALSE;
+ 	goto out_no_copy;
+@@ -1732,7 +1739,8 @@ vmwgfx_saa_copy_to_surface(DrawablePtr pDraw, uint32_t surface_fd,
+     xa_context_flush(vsaa->xa_ctx);
+ 
+   out_no_copy:
+-    REGION_UNINIT(pScreen, &intersection);
++    if (vsaa->known_prime_format)
++	REGION_UNINIT(pScreen, &intersection);
+     if (sx || sy)
+ 	REGION_TRANSLATE(pScreen, region, -sx, -sy);
+     xa_surface_unref(dst);
+diff --git a/vmwgfx/vmwgfx_saa_priv.h b/vmwgfx/vmwgfx_saa_priv.h
+index 16583b0..c84827b 100644
+--- a/vmwgfx/vmwgfx_saa_priv.h
++++ b/vmwgfx/vmwgfx_saa_priv.h
+@@ -55,6 +55,7 @@ struct vmwgfx_saa {
+     Bool only_hw_presents;
+     Bool rendercheck;
+     Bool is_master;
++    Bool known_prime_format;
+     void (*present_flush) (ScreenPtr pScreen);
+     struct _WsbmListHead sync_x_list;
+     struct _WsbmListHead pixmaps;
+-- 
+1.8.5.3
+

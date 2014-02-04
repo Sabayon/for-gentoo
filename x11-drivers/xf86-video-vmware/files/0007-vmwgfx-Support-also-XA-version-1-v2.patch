@@ -1,0 +1,170 @@
+From a40cbd7b4fa19219849b4b0a48f07538772c3e22 Mon Sep 17 00:00:00 2001
+From: Thomas Hellstrom <thellstrom@vmware.com>
+Date: Thu, 5 Dec 2013 02:58:47 -0800
+Subject: [PATCH 07/19] vmwgfx: Support also XA version 1 v2
+
+We need to support also XA version 1, since we want to be backwards
+compatible with older mesa releases.
+Unfortunately, the intended way of detecting XA major version at
+compile-time was broken on mesa 10 so we need a workaround that tests
+for XA version 2 at config time.
+
+v2: Update the test for XA version 2.
+
+Signed-off-by: Thomas Hellstrom <thellstrom@vmware.com>
+Reviewed-by: Jakob Bornecrantz <jakob@vmware.com>
+---
+ configure.ac              | 10 +++++++++-
+ vmwgfx/vmwgfx_dri2.c      |  5 ++---
+ vmwgfx/vmwgfx_driver.c    |  3 +--
+ vmwgfx/vmwgfx_saa.c       | 12 +++++-------
+ vmwgfx/vmwgfx_saa.h       | 12 ++++++++++++
+ vmwgfx/vmwgfx_tex_video.c |  2 +-
+ 6 files changed, 30 insertions(+), 14 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index dccfb27..123356c 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -118,7 +118,15 @@ if test x$BUILD_VMWGFX = xyes; then
+ 	PKG_CHECK_MODULES([LIBDRM], [libdrm],[],[BUILD_VMWGFX=no])
+ fi
+ if test x$BUILD_VMWGFX = xyes; then
+-	PKG_CHECK_MODULES([XATRACKER], [xatracker >= 2.0.0],[],[BUILD_VMWGFX=no])
++#
++# Early versions of mesa 10 forgot to bump the XA major version number in
++# the xa_tracker.h header
++#
++	PKG_CHECK_MODULES([XATRACKER], [xatracker >= 0.4.0],
++			  [PKG_CHECK_EXISTS([xatracker = 2.0.0],
++	                  [AC_DEFINE([HAVE_XA_2], 1,
++               		  [Has version 2 of XA])])],
++			  [],[BUILD_VMWGFX=no])
+ fi
+ 
+ DRIVER_NAME=vmware
+diff --git a/vmwgfx/vmwgfx_dri2.c b/vmwgfx/vmwgfx_dri2.c
+index 57f2d9d..4c74a6b 100644
+--- a/vmwgfx/vmwgfx_dri2.c
++++ b/vmwgfx/vmwgfx_dri2.c
+@@ -206,8 +206,7 @@ dri2_do_create_buffer(DrawablePtr pDraw, DRI2Buffer2Ptr buffer, unsigned int for
+     }
+ 
+     private->srf = srf;
+-    if (xa_surface_handle(srf, xa_handle_type_shared,
+-	    &buffer->name, &buffer->pitch) != 0)
++    if (_xa_surface_handle(srf, &buffer->name, &buffer->pitch) != 0)
+ 	return FALSE;
+ 
+     buffer->cpp = xa_format_depth(xa_surface_format(srf)) / 8;
+@@ -228,7 +227,7 @@ dri2_do_destroy_buffer(DrawablePtr pDraw, DRI2BufferPtr buffer)
+     struct vmwgfx_saa_pixmap *vpix = vmwgfx_saa_pixmap(private->pPixmap);
+ 
+     if (--private->refcount == 0 && srf) {
+-	xa_surface_unref(srf);
++	xa_surface_destroy(srf);
+     }
+ 
+     /*
+diff --git a/vmwgfx/vmwgfx_driver.c b/vmwgfx/vmwgfx_driver.c
+index bfc07f8..6301c29 100644
+--- a/vmwgfx/vmwgfx_driver.c
++++ b/vmwgfx/vmwgfx_driver.c
+@@ -617,8 +617,7 @@ vmwgfx_scanout_present(ScreenPtr pScreen, int drm_fd,
+ 	return FALSE;
+     }
+ 
+-    if (xa_surface_handle(vpix->hw, xa_handle_type_shared,
+-	    &handle, &dummy) != 0) {
++    if (_xa_surface_handle(vpix->hw, &handle, &dummy) != 0) {
+ 	LogMessage(X_ERROR, "Could not get present surface handle.\n");
+ 	return FALSE;
+     }
+diff --git a/vmwgfx/vmwgfx_saa.c b/vmwgfx/vmwgfx_saa.c
+index 346e7f4..1459933 100644
+--- a/vmwgfx/vmwgfx_saa.c
++++ b/vmwgfx/vmwgfx_saa.c
+@@ -146,7 +146,7 @@ vmwgfx_pixmap_free_storage(struct vmwgfx_saa_pixmap *vpix)
+ 	vpix->malloc = NULL;
+     }
+     if (!(vpix->backing & VMWGFX_PIX_SURFACE) && vpix->hw) {
+-	xa_surface_unref(vpix->hw);
++	xa_surface_destroy(vpix->hw);
+ 	vpix->hw = NULL;
+     }
+     if (!(vpix->backing & VMWGFX_PIX_GMR) && vpix->gmr) {
+@@ -451,7 +451,7 @@ vmwgfx_hw_kill(struct vmwgfx_saa *vsaa,
+ 				 &spix->dirty_hw))
+ 	return FALSE;
+ 
+-    xa_surface_unref(vpix->hw);
++    xa_surface_destroy(vpix->hw);
+     vpix->hw = NULL;
+ 
+     /*
+@@ -698,8 +698,7 @@ vmwgfx_present_prepare(struct vmwgfx_saa *vsaa,
+ 
+     (void) pScreen;
+     if (src_vpix == dst_vpix || !src_vpix->hw ||
+-	xa_surface_handle(src_vpix->hw, xa_handle_type_shared,
+-		&vsaa->src_handle, &dummy) != 0)
++	_xa_surface_handle(src_vpix->hw, &vsaa->src_handle, &dummy) != 0)
+ 	return FALSE;
+ 
+     REGION_NULL(pScreen, &vsaa->present_region);
+@@ -800,7 +799,7 @@ vmwgfx_create_hw(struct vmwgfx_saa *vsaa,
+     return TRUE;
+ 
+ out_no_damage:
+-    xa_surface_unref(hw);
++    xa_surface_destroy(hw);
+     return FALSE;
+ }
+ 
+@@ -1459,8 +1458,7 @@ vmwgfx_scanout_ref(struct vmwgfx_screen_entry  *entry)
+ 	     */
+ 	    if (!vmwgfx_hw_accel_validate(pixmap, 0, XA_FLAG_SCANOUT, 0, NULL))
+ 		goto out_err;
+-	    if (xa_surface_handle(vpix->hw, xa_handle_type_shared,
+-			 &handle, &dummy) != 0)
++	    if (_xa_surface_handle(vpix->hw, &handle, &dummy) != 0)
+ 		goto out_err;
+ 	    depth = xa_format_depth(xa_surface_format(vpix->hw));
+ 
+diff --git a/vmwgfx/vmwgfx_saa.h b/vmwgfx/vmwgfx_saa.h
+index d8aa3d3..5e1f40c 100644
+--- a/vmwgfx/vmwgfx_saa.h
++++ b/vmwgfx/vmwgfx_saa.h
+@@ -115,4 +115,16 @@ vmwgfx_saa_set_master(ScreenPtr pScreen);
+ void
+ vmwgfx_saa_drop_master(ScreenPtr pScreen);
+ 
++#if (XA_TRACKER_VERSION_MAJOR <= 1) && !defined(HAVE_XA_2)
++
++#define _xa_surface_handle(_a, _b, _c) xa_surface_handle(_a, _b, _c)
++#define xa_context_flush(_a)
++
++#else
++
++#define xa_surface_destroy(_a) xa_surface_unref(_a)
++#define _xa_surface_handle(_a, _b, _c)		\
++    xa_surface_handle(_a, xa_handle_type_shared, _b, _c)
++
++#endif /*  (XA_TRACKER_VERSION_MAJOR <= 1) */
+ #endif
+diff --git a/vmwgfx/vmwgfx_tex_video.c b/vmwgfx/vmwgfx_tex_video.c
+index 3ba40ef..9fd8f22 100644
+--- a/vmwgfx/vmwgfx_tex_video.c
++++ b/vmwgfx/vmwgfx_tex_video.c
+@@ -199,7 +199,7 @@ stop_video(ScrnInfoPtr pScrn, pointer data, Bool shutdown)
+        for (i=0; i<3; ++i) {
+ 	   for (j=0; j<2; ++j) {
+ 	       if (priv->yuv[i]) {
+-		   xa_surface_unref(priv->yuv[j][i]);
++		   xa_surface_destroy(priv->yuv[j][i]);
+ 		   priv->yuv[j][i] = NULL;
+ 	       }
+ 	   }
+-- 
+1.8.5.3
+

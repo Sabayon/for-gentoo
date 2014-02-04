@@ -1,0 +1,27 @@
+From c36cbcefb8526944141eb431e1e736dc4485a36e Mon Sep 17 00:00:00 2001
+From: Thomas Hellstrom <thellstrom@vmware.com>
+Date: Mon, 9 Dec 2013 00:19:55 -0800
+Subject: [PATCH 08/19] vmwgfx: Remove stray 1
+
+Signed-off-by: Thomas Hellstrom <thellstrom@vmware.com>
+Reviewed-by: Jakob Bornecrantz <jakob@vmware.com>
+---
+ vmwgfx/vmwgfx_saa.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/vmwgfx/vmwgfx_saa.c b/vmwgfx/vmwgfx_saa.c
+index 1459933..28819c1 100644
+--- a/vmwgfx/vmwgfx_saa.c
++++ b/vmwgfx/vmwgfx_saa.c
+@@ -1230,7 +1230,7 @@ vmwgfx_operation_complete(struct saa_driver *driver,
+      */
+ 
+     if (vpix->hw && vpix->hw_is_dri2_fronts) {
+-	if (1 && pScrn->vtSema &&
++	if (pScrn->vtSema &&
+ 	    vmwgfx_upload_to_hw(driver, pixmap, &spix->dirty_shadow)) {
+ 
+ 	    REGION_EMPTY(vsaa->pScreen, &spix->dirty_shadow);
+-- 
+1.8.5.3
+
