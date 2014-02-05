@@ -25,13 +25,17 @@ usr/lib32/liba52.so.0.0.0
 usr/lib32/libavcodec.so
 usr/lib32/libavcodec.so.53
 usr/lib32/libavcodec.so.53.61.100
+usr/lib32/libavcodec.so.54
 usr/lib32/libavdevice.so
 usr/lib32/libavfilter.so
 usr/lib32/libavfilter.so.2
 usr/lib32/libavfilter.so.2.61.100
+usr/lib32/libavfilter.so.3
 usr/lib32/libavformat.so
 usr/lib32/libavformat.so.53
 usr/lib32/libavformat.so.53.32.100
+usr/lib32/libavformat.so.54
+usr/lib32/libavresample.so
 usr/lib32/libavutil.so
 usr/lib32/libavutil.so.51
 usr/lib32/libavutil.so.51.73.101
@@ -251,8 +255,10 @@ usr/lib32/pkgconfig/gstreamer-tag-0.10.pc
 usr/lib32/pkgconfig/gstreamer-video-0.10.pc
 usr/lib32/pkgconfig/id3tag.pc
 usr/lib32/pkgconfig/libavcodec.pc
+usr/lib32/pkgconfig/libavdevice.pc
 usr/lib32/pkgconfig/libavfilter.pc
 usr/lib32/pkgconfig/libavformat.pc
+usr/lib32/pkgconfig/libavresample.pc
 usr/lib32/pkgconfig/libavutil.pc
 usr/lib32/pkgconfig/libcdio_cdda.pc
 usr/lib32/pkgconfig/libcdio_paranoia.pc
@@ -271,6 +277,7 @@ usr/lib32/pkgconfig/libmpeg2.pc
 usr/lib32/pkgconfig/liboil-0.3.pc
 usr/lib32/pkgconfig/libsidplay2.pc
 usr/lib32/pkgconfig/libsidutils.pc
+usr/lib32/pkgconfig/libswscale.pc
 usr/lib32/pkgconfig/libudf.pc
 usr/lib32/pkgconfig/libv4l1.pc
 usr/lib32/pkgconfig/libv4l2.pc
