@@ -1,0 +1,93 @@
+From 50819e3ab957af9a39e04655b28ea98267448232 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Ludger=20Kr=C3=A4mer?= <dbluelle@blau-weissoedingen.de>
+Date: Sun, 25 Aug 2013 17:09:26 +0200
+Subject: [PATCH 092/110] fix sorting of dates
+
+---
+ src/scripting/toplevel/Array.cpp |  2 +-
+ src/scripting/toplevel/Date.cpp  | 24 +++++++++++++++++++++++-
+ src/scripting/toplevel/Date.h    |  4 ++++
+ 3 files changed, 28 insertions(+), 2 deletions(-)
+
+diff --git a/src/scripting/toplevel/Array.cpp b/src/scripting/toplevel/Array.cpp
+index a2a0352..430ddd5 100644
+--- a/src/scripting/toplevel/Array.cpp
++++ b/src/scripting/toplevel/Array.cpp
+@@ -763,7 +763,7 @@ bool Array::sortComparatorWrapper::operator()(const data_slot& d1, const data_sl
+ 	assert(comparator);
+ 	_NR<ASObject> ret=_MNR(comparator->call(getSys()->getNullRef(), objs, 2));
+ 	assert_and_throw(ret);
+-	return (ret->toInt()<0); //Less
++	return (ret->toNumber()<0); //Less
+ }
+ 
+ ASFUNCTIONBODY(Array,_sort)
+diff --git a/src/scripting/toplevel/Date.cpp b/src/scripting/toplevel/Date.cpp
+index e618196..fd3f773 100644
+--- a/src/scripting/toplevel/Date.cpp
++++ b/src/scripting/toplevel/Date.cpp
+@@ -819,9 +819,14 @@ ASFUNCTIONBODY(Date,valueOf)
+ 
+ ASObject* Date::msSinceEpoch()
+ {
+-	return abstract_d(milliseconds+extrayears/400*MS_IN_400_YEARS);
++	return abstract_d(getMsSinceEpoch());
++}
++number_t Date::getMsSinceEpoch()
++{
++	return milliseconds+extrayears/400*MS_IN_400_YEARS;
+ }
+ 
++
+ tiny_string Date::toString()
+ {
+ 	assert_and_throw(implEnable);
+@@ -1092,6 +1097,23 @@ number_t Date::parse(tiny_string str)
+ 	
+ 	return res;
+ }
++bool Date::isEqual(ASObject* r)
++{
++	check();
++	//if we are comparing the same object the answer is true
++	if(this==r)
++		return true;
++	if (r->is<Date>())
++		return getMsSinceEpoch() == r->as<Date>()->getMsSinceEpoch();
++	return ASObject::isEqual(r);
++}
++
++TRISTATE Date::isLess(ASObject* o)
++{
++	if (o->is<Date>())
++		return (getMsSinceEpoch() < o->as<Date>()->getMsSinceEpoch())?TTRUE:TFALSE;
++	return ASObject::isLess(o);
++}
+ 
+ void Date::serialize(ByteArray* out, std::map<tiny_string, uint32_t>& stringMap,
+ 				std::map<const ASObject*, uint32_t>& objMap,
+diff --git a/src/scripting/toplevel/Date.h b/src/scripting/toplevel/Date.h
+index d456b53..2f72df7 100644
+--- a/src/scripting/toplevel/Date.h
++++ b/src/scripting/toplevel/Date.h
+@@ -35,6 +35,7 @@ private:
+ 	GDateTime *datetime;
+ 	GDateTime *datetimeUTC;
+ 	ASObject *msSinceEpoch();
++	number_t getMsSinceEpoch();
+ 	tiny_string toString_priv(bool utc, const char* formatstr) const;
+ 	void MakeDate(int64_t year, int64_t month, int64_t day, int64_t hour, int64_t minute, int64_t second, int64_t millisecond, bool bIsLocalTime);
+ 	void MakeDateFromMilliseconds(int64_t ms);
+@@ -103,6 +104,9 @@ public:
+ 	ASFUNCTION(toLocaleString);
+ 	ASFUNCTION(toLocaleDateString);
+ 	ASFUNCTION(toLocaleTimeString);
++
++	bool isEqual(ASObject* r);
++	TRISTATE isLess(ASObject* r);
+ 	tiny_string toString();
+ 	//Serialization interface
+ 	void serialize(ByteArray* out, std::map<tiny_string, uint32_t>& stringMap,
+-- 
+1.8.5.3
+

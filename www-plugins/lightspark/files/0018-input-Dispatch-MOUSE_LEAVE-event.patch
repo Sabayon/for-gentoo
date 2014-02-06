@@ -1,0 +1,77 @@
+From 31e714bb287fb7ab577ee38fa2d4918be3ddccfc Mon Sep 17 00:00:00 2001
+From: Antti Ajanki <antti.ajanki@iki.fi>
+Date: Sun, 28 Apr 2013 19:07:03 +0300
+Subject: [PATCH 018/110] [input] Dispatch MOUSE_LEAVE event
+
+---
+ src/backends/input.cpp      | 15 +++++++++++++++
+ src/backends/input.h        |  1 +
+ src/platforms/engineutils.h |  7 +++++--
+ 3 files changed, 21 insertions(+), 2 deletions(-)
+
+diff --git a/src/backends/input.cpp b/src/backends/input.cpp
+index 96ea76c..fd3591d 100644
+--- a/src/backends/input.cpp
++++ b/src/backends/input.cpp
+@@ -141,6 +141,12 @@ bool InputThread::worker(GdkEvent *event)
+ 			ret=TRUE;
+ 			break;
+ 		}
++		case GDK_LEAVE_NOTIFY:
++		{
++			handleMouseLeave();
++			ret=TRUE;
++			break;
++		}
+ 		default:
+ //#ifdef EXPENSIVE_DEBUG
+ //			LOG(LOG_INFO, "GDKTYPE " << event->type);
+@@ -292,6 +298,15 @@ void InputThread::handleScrollEvent(uint32_t x, uint32_t y, GdkScrollDirection d
+ 		_MR(Class<MouseEvent>::getInstanceS("mouseWheel",localX,localY,true,buttonState,NullRef,delta)));
+ }
+ 
++void InputThread::handleMouseLeave()
++{
++	if(m_sys->currentVm == NULL)
++		return;
++
++	m_sys->currentVm->addEvent(m_sys->mainClip->getStage(),
++		_MR(Class<Event>::getInstanceS("mouseLeave")));
++}
++
+ void InputThread::initKeyTable()
+ {
+ 	int i = 0;
+diff --git a/src/backends/input.h b/src/backends/input.h
+index c1897f8..f02711f 100644
+--- a/src/backends/input.h
++++ b/src/backends/input.h
+@@ -78,6 +78,7 @@ private:
+ 	void handleMouseUp(uint32_t x, uint32_t y, unsigned int buttonState);
+ 	void handleMouseMove(uint32_t x, uint32_t y, unsigned int buttonState);
+ 	void handleScrollEvent(uint32_t x, uint32_t y, GdkScrollDirection direction, unsigned int buttonState);
++        void handleMouseLeave();
+ 
+ 	void initKeyTable();
+ 	bool handleKeyboardShortcuts(const GdkEventKey *keyevent);
+diff --git a/src/platforms/engineutils.h b/src/platforms/engineutils.h
+index 16d8825..44cdb6e 100644
+--- a/src/platforms/engineutils.h
++++ b/src/platforms/engineutils.h
+@@ -99,8 +99,11 @@ public:
+ 		assert(!inputHandlerId);
+ 		inputHandler = ic;
+ 		gtk_widget_set_can_focus(widget,TRUE);
+-		gtk_widget_add_events(widget,GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK |
+-						GDK_POINTER_MOTION_MASK | GDK_EXPOSURE_MASK);
++		gtk_widget_add_events(widget,
++			GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK |
++			GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK |
++			GDK_POINTER_MOTION_MASK | GDK_EXPOSURE_MASK |
++			GDK_LEAVE_NOTIFY_MASK);
+ 		inputHandlerId = g_signal_connect(widget, "event", G_CALLBACK(inputDispatch), this);
+ 	}
+ 	void removeInputHandler()
+-- 
+1.8.5.3
+

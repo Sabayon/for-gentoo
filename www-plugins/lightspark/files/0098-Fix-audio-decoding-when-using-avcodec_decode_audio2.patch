@@ -1,0 +1,38 @@
+From e01bb75a845caf779ca64cb0cf2cb41a9f253573 Mon Sep 17 00:00:00 2001
+From: Antti Ajanki <antti.ajanki@iki.fi>
+Date: Sun, 13 Oct 2013 20:32:14 +0300
+Subject: [PATCH 098/110] Fix audio decoding when using avcodec_decode_audio2
+
+---
+ src/backends/decoder.cpp | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/src/backends/decoder.cpp b/src/backends/decoder.cpp
+index 755a575..fc70599 100755
+--- a/src/backends/decoder.cpp
++++ b/src/backends/decoder.cpp
+@@ -629,9 +629,7 @@ uint32_t FFMpegAudioDecoder::decodeData(uint8_t* data, int32_t datalen, uint32_t
+ #else
+ 	int32_t ret=avcodec_decode_audio3(codecContext, curTail.samples, &maxLen, &pkt);
+ #endif
+-#else
+-	int32_t ret=avcodec_decode_audio2(codecContext, curTail.samples, &maxLen, data, datalen);
+-#endif
++
+ 	if (ret > 0)
+ 	{
+ 		pkt.data += ret;
+@@ -643,6 +641,10 @@ uint32_t FFMpegAudioDecoder::decodeData(uint8_t* data, int32_t datalen, uint32_t
+ 		}
+ 	}
+ 
++#else
++	int32_t ret=avcodec_decode_audio2(codecContext, curTail.samples, &maxLen, data, datalen);
++#endif
++
+ 	curTail.len=maxLen;
+ 	assert(!(curTail.len&0x80000000));
+ 	assert(maxLen%2==0);
+-- 
+1.8.5.3
+

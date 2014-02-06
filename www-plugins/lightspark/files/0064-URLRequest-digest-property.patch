@@ -1,0 +1,95 @@
+From acde05e24c45d89ef963fa3643f0613efd950bbb Mon Sep 17 00:00:00 2001
+From: Antti Ajanki <antti.ajanki@iki.fi>
+Date: Sat, 15 Jun 2013 15:52:32 +0300
+Subject: [PATCH 064/110] [URLRequest] digest property
+
+The value is not actually checked because loading an SWZ is yet not
+supported.
+---
+ src/scripting/flash/net/flashnet.cpp | 41 ++++++++++++++++++++++++++++++++++++
+ src/scripting/flash/net/flashnet.h   |  3 +++
+ 2 files changed, 44 insertions(+)
+
+diff --git a/src/scripting/flash/net/flashnet.cpp b/src/scripting/flash/net/flashnet.cpp
+index c81aafa..7c82210 100644
+--- a/src/scripting/flash/net/flashnet.cpp
++++ b/src/scripting/flash/net/flashnet.cpp
+@@ -49,6 +49,8 @@ void URLRequest::sinit(Class_base* c)
+ 	c->setDeclaredMethodByQName("method","",Class<IFunction>::getFunction(_getMethod),GETTER_METHOD,true);
+ 	c->setDeclaredMethodByQName("data","",Class<IFunction>::getFunction(_setData),SETTER_METHOD,true);
+ 	c->setDeclaredMethodByQName("data","",Class<IFunction>::getFunction(_getData),GETTER_METHOD,true);
++	c->setDeclaredMethodByQName("digest","",Class<IFunction>::getFunction(_setDigest),SETTER_METHOD,true);
++	c->setDeclaredMethodByQName("digest","",Class<IFunction>::getFunction(_getDigest),GETTER_METHOD,true);
+ 	REGISTER_GETTER_SETTER(c,contentType);
+ 	REGISTER_GETTER_SETTER(c,requestHeaders);
+ }
+@@ -283,6 +285,45 @@ ASFUNCTIONBODY(URLRequest,_setData)
+ 	return NULL;
+ }
+ 
++ASFUNCTIONBODY(URLRequest,_getDigest)
++{
++	URLRequest* th=obj->as<URLRequest>();
++	if (th->digest.numChars() == 0)
++		return getSys()->getNullRef();
++	else
++		return Class<ASString>::getInstanceS(th->digest);
++}
++
++ASFUNCTIONBODY(URLRequest,_setDigest)
++{
++	URLRequest* th=obj->as<URLRequest>();
++	tiny_string value;
++	ARG_UNPACK(value);
++
++	int numHexChars = 0;
++	bool validChars = true;
++	for (CharIterator it=value.begin(); it!=value.end(); ++it)
++	{
++		if (((*it >= 'A') && (*it <= 'F')) ||
++		    ((*it >= 'a') && (*it <= 'f')) ||
++		    ((*it >= '0') && (*it <= '9')))
++		{
++			numHexChars++;
++		}
++		else
++		{
++			validChars = false;
++			break;
++		}
++	}
++
++	if (!validChars || numHexChars != 64)
++		throw Class<ArgumentError>::getInstanceS("An invalid digest was supplied", 2034);
++
++	th->digest = value;
++	return NULL;
++}
++
+ ASFUNCTIONBODY_GETTER_SETTER(URLRequest,contentType);
+ ASFUNCTIONBODY_GETTER_SETTER(URLRequest,requestHeaders);
+ 
+diff --git a/src/scripting/flash/net/flashnet.h b/src/scripting/flash/net/flashnet.h
+index 80f2181..aa9be3c 100644
+--- a/src/scripting/flash/net/flashnet.h
++++ b/src/scripting/flash/net/flashnet.h
+@@ -39,6 +39,7 @@ private:
+ 	METHOD method;
+ 	tiny_string url;
+ 	_NR<ASObject> data;
++	tiny_string digest;
+ 	tiny_string validatedContentType() const;
+ 	tiny_string getContentTypeHeader() const;
+ 	void validateHeaderName(const tiny_string& headerName) const;
+@@ -56,6 +57,8 @@ public:
+ 	ASFUNCTION(_setMethod);
+ 	ASFUNCTION(_setData);
+ 	ASFUNCTION(_getData);
++	ASFUNCTION(_getDigest);
++	ASFUNCTION(_setDigest);
+ 	URLInfo getRequestURL() const;
+ 	std::list<tiny_string> getHeaders() const;
+ 	void getPostData(std::vector<uint8_t>& data) const;
+-- 
+1.8.5.3
+

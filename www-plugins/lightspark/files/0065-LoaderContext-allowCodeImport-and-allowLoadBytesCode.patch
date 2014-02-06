@@ -1,0 +1,161 @@
+From ce48e9bf4bebd5a1c48475282cbe6e25e6053a0a Mon Sep 17 00:00:00 2001
+From: Antti Ajanki <antti.ajanki@iki.fi>
+Date: Sat, 15 Jun 2013 16:19:03 +0300
+Subject: [PATCH 065/110] [LoaderContext] allowCodeImport and
+ allowLoadBytesCodeExecution
+
+---
+ src/scripting/flash/display/flashdisplay.cpp | 20 ++++++++++++++------
+ src/scripting/flash/display/flashdisplay.h   |  2 ++
+ src/scripting/flash/system/flashsystem.cpp   | 11 ++++++++++-
+ src/scripting/flash/system/flashsystem.h     |  2 ++
+ src/swf.cpp                                  |  8 ++++++++
+ 5 files changed, 36 insertions(+), 7 deletions(-)
+
+diff --git a/src/scripting/flash/display/flashdisplay.cpp b/src/scripting/flash/display/flashdisplay.cpp
+index 3c730ec..e4d4acf 100644
+--- a/src/scripting/flash/display/flashdisplay.cpp
++++ b/src/scripting/flash/display/flashdisplay.cpp
+@@ -402,12 +402,18 @@ ASFUNCTIONBODY(Loader,load)
+ 	//Check if a security domain has been manually set
+ 	_NR<SecurityDomain> secDomain;
+ 	_NR<SecurityDomain> curSecDomain=ABCVm::getCurrentSecurityDomain(getVm()->currentCallContext);
+-	if(!context.isNull() && !context->securityDomain.isNull())
++	if(!context.isNull())
+ 	{
+-		//The passed domain must be the current one. See Loader::load specs.
+-		if(context->securityDomain!=curSecDomain)
+-			throw Class<SecurityError>::getInstanceS("SecurityError: securityDomain must be current one");
+-		secDomain=curSecDomain;
++		if (!context->securityDomain.isNull())
++		{
++			//The passed domain must be the current one. See Loader::load specs.
++			if(context->securityDomain!=curSecDomain)
++				throw Class<SecurityError>::getInstanceS("SecurityError: securityDomain must be current one");
++			secDomain=curSecDomain;
++		}
++
++		bool sameDomain = (secDomain == curSecDomain);
++		th->allowCodeImport = !sameDomain || context->getAllowCodeImport();
+ 	}
+ 	//Default is to create a child ApplicationDomain if the file is in the same security context
+ 	//otherwise create a child of the system domain. If the security domain is different
+@@ -486,6 +492,8 @@ ASFUNCTIONBODY(Loader,loadBytes)
+ 	_NR<SecurityDomain> curSecDomain=ABCVm::getCurrentSecurityDomain(getVm()->currentCallContext);
+ 	th->contentLoaderInfo->securityDomain = curSecDomain;
+ 
++	th->allowCodeImport = context.isNull() || context->getAllowCodeImport();
++
+ 	if(bytes->getLength()!=0)
+ 	{
+ 		th->incRef();
+@@ -539,7 +547,7 @@ void Loader::finalize()
+ 	contentLoaderInfo.reset();
+ }
+ 
+-Loader::Loader(Class_base* c):DisplayObjectContainer(c),content(NullRef),contentLoaderInfo(NullRef),loaded(false)
++Loader::Loader(Class_base* c):DisplayObjectContainer(c),content(NullRef),contentLoaderInfo(NullRef),loaded(false), allowCodeImport(true)
+ {
+ 	incRef();
+ 	contentLoaderInfo=_MR(Class<LoaderInfo>::getInstanceS(_MR(this)));
+diff --git a/src/scripting/flash/display/flashdisplay.h b/src/scripting/flash/display/flashdisplay.h
+index 3397a9a..c700bbe 100644
+--- a/src/scripting/flash/display/flashdisplay.h
++++ b/src/scripting/flash/display/flashdisplay.h
+@@ -303,6 +303,7 @@ private:
+ 	_NR<LoaderInfo> contentLoaderInfo;
+ 	void unload();
+ 	bool loaded;
++	bool allowCodeImport;
+ public:
+ 	Loader(Class_base* c);
+ 	~Loader();
+@@ -324,6 +325,7 @@ public:
+ 	void setContent(_R<DisplayObject> o);
+ 	_NR<DisplayObject> getContent() { return content; }
+ 	_R<LoaderInfo> getContentLoaderInfo() { return contentLoaderInfo; }
++	bool allowLoadingSWF() { return allowCodeImport; };
+ };
+ 
+ class Sprite: public DisplayObjectContainer, public TokenContainer
+diff --git a/src/scripting/flash/system/flashsystem.cpp b/src/scripting/flash/system/flashsystem.cpp
+index 94ee61b..c195cc9 100644
+--- a/src/scripting/flash/system/flashsystem.cpp
++++ b/src/scripting/flash/system/flashsystem.cpp
+@@ -331,13 +331,16 @@ ASObject* ApplicationDomain::getVariableByMultinameOpportunistic(const multiname
+ }
+ 
+ LoaderContext::LoaderContext(Class_base* c):
+-	ASObject(c),checkPolicyFile(false)
++	ASObject(c),allowCodeImport(true),checkPolicyFile(false)
+ {
+ }
+ 
+ void LoaderContext::sinit(Class_base* c)
+ {
+ 	CLASS_SETUP(c, ASObject, _constructor, CLASS_SEALED);
++	c->setDeclaredMethodByQName("allowLoadBytesCodeExecution","",Class<IFunction>::getFunction(_getter_allowCodeImport),GETTER_METHOD,false);
++	c->setDeclaredMethodByQName("allowLoadBytesCodeExecution","",Class<IFunction>::getFunction(_setter_allowCodeImport),SETTER_METHOD,false);
++	REGISTER_GETTER_SETTER(c, allowCodeImport);
+ 	REGISTER_GETTER_SETTER(c, applicationDomain);
+ 	REGISTER_GETTER_SETTER(c, checkPolicyFile);
+ 	REGISTER_GETTER_SETTER(c, securityDomain);
+@@ -359,6 +362,7 @@ ASFUNCTIONBODY(LoaderContext,_constructor)
+ 	return NULL;
+ }
+ 
++ASFUNCTIONBODY_GETTER_SETTER(LoaderContext, allowCodeImport);
+ ASFUNCTIONBODY_GETTER_SETTER(LoaderContext, applicationDomain);
+ ASFUNCTIONBODY_GETTER_SETTER(LoaderContext, checkPolicyFile);
+ ASFUNCTIONBODY_GETTER_SETTER(LoaderContext, securityDomain);
+@@ -368,6 +372,11 @@ bool LoaderContext::getCheckPolicyFile()
+ 	return checkPolicyFile;
+ }
+ 
++bool LoaderContext::getAllowCodeImport()
++{
++	return allowCodeImport;
++}
++
+ void SecurityDomain::sinit(Class_base* c)
+ {
+ 	CLASS_SETUP(c, ASObject, _constructor, CLASS_SEALED);
+diff --git a/src/scripting/flash/system/flashsystem.h b/src/scripting/flash/system/flashsystem.h
+index 65e2b25..39feb90 100644
+--- a/src/scripting/flash/system/flashsystem.h
++++ b/src/scripting/flash/system/flashsystem.h
+@@ -105,10 +105,12 @@ public:
+ 	LoaderContext(Class_base* c);
+ 	static void sinit(Class_base* c);
+ 	ASFUNCTION(_constructor);
++	ASPROPERTY_GETTER_SETTER(bool, allowCodeImport);
+ 	ASPROPERTY_GETTER_SETTER(_NR<ApplicationDomain>, applicationDomain);
+ 	ASPROPERTY_GETTER_SETTER(bool, checkPolicyFile);
+ 	ASPROPERTY_GETTER_SETTER(_NR<SecurityDomain>, securityDomain);
+ 	void finalize();
++	bool getAllowCodeImport();
+ 	bool getCheckPolicyFile();
+ };
+ 
+diff --git a/src/swf.cpp b/src/swf.cpp
+index 7d6e7ed..bb324de 100644
+--- a/src/swf.cpp
++++ b/src/swf.cpp
+@@ -1315,6 +1315,14 @@ void ParseThread::execute()
+ 
+ void ParseThread::parseSWF(UI8 ver)
+ {
++	if (loader && !loader->allowLoadingSWF())
++	{
++		_NR<LoaderInfo> li=loader->getContentLoaderInfo();
++		getVm()->addEvent(li,_MR(Class<SecurityErrorEvent>::getInstanceS(
++			"Cannot import a SWF file when LoaderContext.allowCodeImport is false."))); // 3226
++		return;
++	}
++
+ 	objectSpinlock.lock();
+ 	RootMovieClip* root=NULL;
+ 	if(parsedObject.isNull())
+-- 
+1.8.5.3
+

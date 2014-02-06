@@ -1,0 +1,58 @@
+From abd3dd1e2d29420b3705104bc425e1369be05a77 Mon Sep 17 00:00:00 2001
+From: Antti Ajanki <antti.ajanki@iki.fi>
+Date: Sat, 15 Jun 2013 22:03:17 +0300
+Subject: [PATCH 069/110] [Array] Array index can not be larger than UINT32_MAX
+
+---
+ src/swftypes.cpp | 16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
+
+diff --git a/src/swftypes.cpp b/src/swftypes.cpp
+index 0af2eaf..32791fb 100644
+--- a/src/swftypes.cpp
++++ b/src/swftypes.cpp
+@@ -162,6 +162,7 @@ bool multiname::toUInt(uint32_t& index, bool acceptStringFractions) const
+ 			if(str.empty())
+ 				return false;
+ 			index=0;
++			uint64_t parsed = 0;
+ 			for(auto i=str.begin(); i!=str.end(); ++i)
+ 			{
+ 				if (*i == '.' && acceptStringFractions)
+@@ -175,14 +176,21 @@ bool multiname::toUInt(uint32_t& index, bool acceptStringFractions) const
+ 					for (; i!=str.end(); ++i)
+ 						if (*i != '0')
+ 							return false;
+-					return true;
++					break;
+ 				}
+ 				else if(!i.isdigit())
+ 					return false;
+ 
+-				index*=10;
+-				index+=i.digit_value();
++				parsed*=10;
++				parsed+=i.digit_value();
++				if (parsed > UINT32_MAX)
++					break;
+ 			}
++
++			if (parsed > UINT32_MAX)
++				return false;
++
++			index = (uint32_t)parsed;
+ 			break;
+ 		}
+ 		//This is already an int, so its good enough
+@@ -192,7 +200,7 @@ bool multiname::toUInt(uint32_t& index, bool acceptStringFractions) const
+ 			index=name_i;
+ 			break;
+ 		case multiname::NAME_NUMBER:
+-			if(!Number::isInteger(name_d) || name_d < 0)
++			if(!Number::isInteger(name_d) || name_d < 0 || name_d > UINT32_MAX)
+ 				return false;
+ 			index=name_d;
+ 			break;
+-- 
+1.8.5.3
+

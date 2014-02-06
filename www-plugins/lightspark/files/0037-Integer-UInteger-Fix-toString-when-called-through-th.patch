@@ -1,0 +1,42 @@
+From 68ca268f727fdee3a5bbecf39b8076332984e158 Mon Sep 17 00:00:00 2001
+From: Antti Ajanki <antti.ajanki@iki.fi>
+Date: Thu, 9 May 2013 21:45:14 +0300
+Subject: [PATCH 037/110] [Integer, UInteger] Fix toString when called through
+ the prototype
+
+---
+ src/scripting/toplevel/Integer.cpp  | 3 +++
+ src/scripting/toplevel/UInteger.cpp | 3 +++
+ 2 files changed, 6 insertions(+)
+
+diff --git a/src/scripting/toplevel/Integer.cpp b/src/scripting/toplevel/Integer.cpp
+index 751e27a..39bd0bc 100644
+--- a/src/scripting/toplevel/Integer.cpp
++++ b/src/scripting/toplevel/Integer.cpp
+@@ -26,6 +26,9 @@ using namespace lightspark;
+ 
+ ASFUNCTIONBODY(Integer,_toString)
+ {
++	if(Class<Integer>::getClass()->prototype->getObj() == obj)
++		return Class<ASString>::getInstanceS("0");
++
+ 	Integer* th=static_cast<Integer*>(obj);
+ 	int radix=10;
+ 	if(argslen==1)
+diff --git a/src/scripting/toplevel/UInteger.cpp b/src/scripting/toplevel/UInteger.cpp
+index 508a74f..4fd37c5 100644
+--- a/src/scripting/toplevel/UInteger.cpp
++++ b/src/scripting/toplevel/UInteger.cpp
+@@ -124,6 +124,9 @@ void UInteger::sinit(Class_base* c)
+ 
+ ASFUNCTIONBODY(UInteger,_toString)
+ {
++	if(Class<UInteger>::getClass()->prototype->getObj() == obj)
++		return Class<ASString>::getInstanceS("0");
++
+ 	UInteger* th=static_cast<UInteger*>(obj);
+ 	uint32_t radix;
+ 	ARG_UNPACK (radix,10);
+-- 
+1.8.5.3
+

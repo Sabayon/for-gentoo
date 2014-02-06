@@ -1,0 +1,26 @@
+From 2185bdb185920923e385b0caae0a09e9bff1cc50 Mon Sep 17 00:00:00 2001
+From: Antti Ajanki <antti.ajanki@iki.fi>
+Date: Wed, 1 May 2013 18:26:16 +0300
+Subject: [PATCH 020/110] [DefineButtonTag] Disable names of the buttons state
+
+The state sprites are not supposed to be added as named dynamic
+properties of the button DisplayObjectContainer.
+---
+ src/parsing/tags.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/parsing/tags.cpp b/src/parsing/tags.cpp
+index ab696d4..fa6ad28 100644
+--- a/src/parsing/tags.cpp
++++ b/src/parsing/tags.cpp
+@@ -1440,6 +1440,7 @@ ASObject* DefineButtonTag::instance(Class_base* c) const
+ 			assert_and_throw(state);
+ 			//The matrix must be set before invoking the constructor
+ 			state->setLegacyMatrix(i->PlaceMatrix);
++			state->name = "";
+ 			/*
+ 			 * TODO: BlendMode, filerList, PlaceDepth, ColorTransfrom
+ 			 */
+-- 
+1.8.5.3
+

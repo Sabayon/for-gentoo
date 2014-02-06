@@ -1,0 +1,32 @@
+From 5d2b74c0f7701b42a90626e595518c1e332a3055 Mon Sep 17 00:00:00 2001
+From: Antti Ajanki <antti.ajanki@iki.fi>
+Date: Sun, 2 Jun 2013 20:03:11 +0300
+Subject: [PATCH 059/110] [Vector] Subtle refcounting error
+
+Array.at() returns an _R<ASObject> which got destructed (setting the
+refcount of the returned object to 0) before incRef() on the next
+line.
+---
+ src/scripting/toplevel/Vector.cpp | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/scripting/toplevel/Vector.cpp b/src/scripting/toplevel/Vector.cpp
+index a154a0e..b41344e 100644
+--- a/src/scripting/toplevel/Vector.cpp
++++ b/src/scripting/toplevel/Vector.cpp
+@@ -126,10 +126,10 @@ ASObject* Vector::generator(TemplatedClass<Vector>* o_class, ASObject* const* ar
+ 		Array* a = static_cast<Array*>(args[0]);
+ 		for(unsigned int i=0;i<a->size();++i)
+ 		{
+-			ASObject* obj = a->at(i).getPtr();
++			_R<ASObject> obj = a->at(i);
+ 			obj->incRef();
+ 			//Convert the elements of the array to the type of this vector
+-			ret->vec.push_back( type->coerce(obj) );
++			ret->vec.push_back( type->coerce(obj.getPtr()) );
+ 		}
+ 		return ret;
+ 	}
+-- 
+1.8.5.3
+

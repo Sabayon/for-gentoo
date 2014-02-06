@@ -1,0 +1,231 @@
+From 4679d51e57a6a0d929b0d968f2c38f1b7ba5d190 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Ludger=20Kr=C3=A4mer?= <dbluelle@blau-weissoedingen.de>
+Date: Sun, 18 Aug 2013 20:08:32 +0200
+Subject: [PATCH 087/110] fix handling of text nodes
+
+---
+ src/backends/xml_support.cpp         | 19 ++++++++++---------
+ src/backends/xml_support.h           |  3 ++-
+ src/scripting/flash/xml/flashxml.cpp |  3 ++-
+ src/scripting/toplevel/XML.cpp       | 24 +++++++++++++++---------
+ src/scripting/toplevel/XML.h         |  1 +
+ 5 files changed, 30 insertions(+), 20 deletions(-)
+
+diff --git a/src/backends/xml_support.cpp b/src/backends/xml_support.cpp
+index e0d54ba..89ffb66 100644
+--- a/src/backends/xml_support.cpp
++++ b/src/backends/xml_support.cpp
+@@ -75,7 +75,7 @@ void RecoveryDomParser::parse_memory_raw(const unsigned char* contents, size_typ
+ #endif
+ 
+ xmlpp::Node* XMLBase::buildFromString(const string& str,
+-				      bool ignoreEmptyTextNodes,
++				      bool ignoreEmptyTextNodes, bool *hasParent,
+ 				      const string& default_ns)
+ {
+ 	string buf = parserQuirks(str);
+@@ -89,6 +89,7 @@ xmlpp::Node* XMLBase::buildFromString(const string& str,
+ 	xmlpp::Document* doc=parser.get_document();
+ 	if(doc && doc->get_root_node())
+ 	{
++		*hasParent = true;
+ 		xmlpp::Element *root = doc->get_root_node();
+ 		// It would be better to remove empty nodes during
+ 		// parsing, but xmlpp doesn't offer an interface.
+@@ -98,16 +99,16 @@ xmlpp::Node* XMLBase::buildFromString(const string& str,
+ 		return root;
+ 	}
+ 
+-	LOG(LOG_ERROR, "XML parsing failed, creating text node");
+ 	//If everything fails, create a fake document and add a single text string child
++	// see 10.3.1 in ECMA 357
+ 	if (default_ns.empty())
+-		buf="<a></a>";
++		buf="<parent></parent>";
+ 	else
+-		buf="<a xmlns=\"" + default_ns + "\"></a>";
++		buf="<parent xmlns=\"" + default_ns + "\"></parent>";
+ 	parser.parse_memory_raw((const unsigned char*)buf.c_str(), buf.size());
+ 
++	*hasParent = false;
+ 	return parser.get_document()->get_root_node()->add_child_text(str);
+-	// TODO: node's parent (root) should be inaccessible from AS code
+ }
+ 
+ void XMLBase::addDefaultNamespace(xmlpp::Element *root, const string& default_ns)
+@@ -137,25 +138,25 @@ void XMLBase::addDefaultNamespaceRecursive(xmlNodePtr node, xmlNsPtr ns)
+ 	}
+ }
+ 
+-xmlpp::Node* XMLBase::buildCopy(const xmlpp::Node* src)
++xmlpp::Node* XMLBase::buildCopy(const xmlpp::Node* src, bool *hasParent)
+ {
+ 	const xmlpp::ContentNode* contentnode;
+ 	const xmlpp::TextNode* textnode=dynamic_cast<const xmlpp::TextNode*>(src);
+ 	if(textnode)
+ 	{
+-		return buildFromString(textnode->get_content(), false);
++		return buildFromString(textnode->get_content(), false,hasParent);
+ 	}
+ 	else if ((contentnode = dynamic_cast<const xmlpp::ContentNode*>(src)))
+ 	{
+ 		// ContentNode but not TextNode => comment, PI or CData
+ 		// These can't be root nodes so we add a dummy root.
+-		// TODO: The root node should not be accessible from
+-		// AS code.
++		*hasParent = false;
+ 		xmlpp::Element* root = parser.get_document()->create_root_node("dummy_root");
+ 		return root->import_node(contentnode);
+ 	}
+ 	else
+ 	{
++		*hasParent = true;
+ 		return parser.get_document()->create_root_node_by_import(src);
+ 	}
+ }
+diff --git a/src/backends/xml_support.h b/src/backends/xml_support.h
+index 5b867fb..32cf5f1 100644
+--- a/src/backends/xml_support.h
++++ b/src/backends/xml_support.h
+@@ -57,12 +57,13 @@ protected:
+ 	LSDomParser parser;
+ 	xmlpp::Node* buildFromString(const std::string& str,
+ 				     bool ignoreEmptyTextnodes,
++				     bool *hasParent,
+ 				     const std::string& default_ns=std::string());
+ 	void addDefaultNamespace(xmlpp::Element *root, const std::string& default_ns);
+ 	void addDefaultNamespaceRecursive(xmlNodePtr node, xmlNsPtr ns);
+ 	// Set the root to be a copy of src. If src is a text node,
+ 	// create a new element node with the same content.
+-	xmlpp::Node* buildCopy(const xmlpp::Node* node);
++	xmlpp::Node* buildCopy(const xmlpp::Node* node, bool *hasParent);
+ 	static std::string quirkCData(const std::string& str);
+ 	static std::string quirkXMLDeclarationInMiddle(const std::string& str);
+ 	void removeWhitespaceNodes(xmlpp::Element *node);
+diff --git a/src/scripting/flash/xml/flashxml.cpp b/src/scripting/flash/xml/flashxml.cpp
+index b36af56..c122909 100644
+--- a/src/scripting/flash/xml/flashxml.cpp
++++ b/src/scripting/flash/xml/flashxml.cpp
+@@ -296,7 +296,8 @@ void XMLDocument::serialize(ByteArray* out, std::map<tiny_string, uint32_t>& str
+ 
+ void XMLDocument::parseXMLImpl(const string& str)
+ {
+-	rootNode=buildFromString(str, ignoreWhite);
++	bool hasParent;
++	rootNode=buildFromString(str, ignoreWhite,&hasParent);
+ }
+ 
+ ASFUNCTIONBODY(XMLDocument,_toString)
+diff --git a/src/scripting/toplevel/XML.cpp b/src/scripting/toplevel/XML.cpp
+index db9e0d3..01e4612 100644
+--- a/src/scripting/toplevel/XML.cpp
++++ b/src/scripting/toplevel/XML.cpp
+@@ -47,24 +47,25 @@ void setDefaultXMLSettings()
+ 	prettyPrinting = true;
+ }
+ 
+-XML::XML(Class_base* c):ASObject(c),node(NULL),constructed(false)
++XML::XML(Class_base* c):ASObject(c),node(NULL),constructed(false), hasParentNode(false)
+ {
+ }
+ 
+ XML::XML(Class_base* c,const string& str):ASObject(c),node(NULL),constructed(true)
+ {
+-	node=buildFromString(str, false);
++	node=buildFromString(str, false,&hasParentNode);
+ }
+ 
+ XML::XML(Class_base* c,_R<XML> _r, xmlpp::Node* _n):ASObject(c),root(_r),node(_n),constructed(true)
+ {
+ 	assert(node);
++	hasParentNode = true;
+ }
+ 
+ XML::XML(Class_base* c,xmlpp::Node* _n):ASObject(c),constructed(true)
+ {
+ 	assert(_n);
+-	node=buildCopy(_n);
++	node=buildCopy(_n,&hasParentNode);
+ 	assert(node);
+ }
+ 
+@@ -176,7 +177,7 @@ ASFUNCTIONBODY(XML,_constructor)
+ 	   args[0]->is<Null>() || 
+ 	   args[0]->is<Undefined>())
+ 	{
+-		th->node=th->buildFromString("", false);
++		th->node=th->buildFromString("", false,&th->hasParentNode);
+ 	}
+ 	else if(args[0]->getClass()->isSubClass(Class<ByteArray>::getClass()))
+ 	{
+@@ -185,7 +186,7 @@ ASFUNCTIONBODY(XML,_constructor)
+ 		ByteArray* ba=Class<ByteArray>::cast(args[0]);
+ 		uint32_t len=ba->getLength();
+ 		const uint8_t* str=ba->getBuffer(len, false);
+-		th->node=th->buildFromString(std::string((const char*)str,len), false,
++		th->node=th->buildFromString(std::string((const char*)str,len), false,&th->hasParentNode,
+ 					     getVm()->getDefaultXMLNamespace());
+ 	}
+ 	else if(args[0]->is<ASString>() ||
+@@ -196,22 +197,22 @@ ASFUNCTIONBODY(XML,_constructor)
+ 	{
+ 		//By specs, XML constructor will only convert to string Numbers or Booleans
+ 		//ints are not explicitly mentioned, but they seem to work
+-		th->node=th->buildFromString(args[0]->toString(), false,
++		th->node=th->buildFromString(args[0]->toString(), false,&th->hasParentNode,
+ 					     getVm()->getDefaultXMLNamespace());
+ 	}
+ 	else if(args[0]->is<XML>())
+ 	{
+-		th->node=th->buildCopy(args[0]->as<XML>()->node);
++		th->node=th->buildCopy(args[0]->as<XML>()->node,&th->hasParentNode);
+ 	}
+ 	else if(args[0]->is<XMLList>())
+ 	{
+ 		XMLList *list=args[0]->as<XMLList>();
+ 		_R<XML> reduced=list->reduceToXML();
+-		th->node=th->buildCopy(reduced->node);
++		th->node=th->buildCopy(reduced->node,&th->hasParentNode);
+ 	}
+ 	else
+ 	{
+-		th->node=th->buildFromString(args[0]->toString(), false,
++		th->node=th->buildFromString(args[0]->toString(), false,&th->hasParentNode,
+ 					     getVm()->getDefaultXMLNamespace());
+ 	}
+ 	return NULL;
+@@ -327,6 +328,7 @@ void XML::appendChild(_R<XML> newChild)
+ 		return;
+ 
+ 	xmlAddChild(node->cobj(), imported_node);
++
+ }
+ 
+ /* returns the named attribute in an XMLList */
+@@ -701,7 +703,11 @@ ASObject *XML::getParentNode()
+ {
+ 	xmlpp::Node *parent=node->get_parent();
+ 	if (parent)
++	{
++		if (!hasParentNode)
++			return getSys()->getUndefinedRef();
+ 		return Class<XML>::getInstanceS(getRootNode(), parent);
++	}
+ 	else
+ 		return getSys()->getUndefinedRef();
+ }
+diff --git a/src/scripting/toplevel/XML.h b/src/scripting/toplevel/XML.h
+index a02de34..f00f093 100644
+--- a/src/scripting/toplevel/XML.h
++++ b/src/scripting/toplevel/XML.h
+@@ -60,6 +60,7 @@ private:
+ 	void appendChild(_R<XML> child);
+ 	static void normalizeRecursive(xmlpp::Node *node);
+ 	void addTextContent(const tiny_string& str);
++	bool hasParentNode;
+ public:
+ 	XML(Class_base* c);
+ 	XML(Class_base* c,const std::string& str);
+-- 
+1.8.5.3
+

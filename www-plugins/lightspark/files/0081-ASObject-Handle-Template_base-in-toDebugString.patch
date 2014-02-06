@@ -1,0 +1,27 @@
+From ef7a1fc55bcd833b3a29105860f02447e586e07b Mon Sep 17 00:00:00 2001
+From: Antti Ajanki <antti.ajanki@iki.fi>
+Date: Sat, 6 Jul 2013 20:06:14 +0300
+Subject: [PATCH 081/110] [ASObject] Handle Template_base in toDebugString()
+
+---
+ src/asobject.cpp | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/src/asobject.cpp b/src/asobject.cpp
+index 5e20ad2..0252e18 100644
+--- a/src/asobject.cpp
++++ b/src/asobject.cpp
+@@ -53,6 +53,10 @@ string ASObject::toDebugString()
+ 		ret+=this->as<Class_base>()->class_name.getQualifiedName().raw_buf();
+ 		ret+="]";
+ 	}
++	else if(this->is<Template_base>())
++	{
++		ret = "[templated class]";
++	}
+ 	else
+ 	{
+ 		assert(false);
+-- 
+1.8.5.3
+

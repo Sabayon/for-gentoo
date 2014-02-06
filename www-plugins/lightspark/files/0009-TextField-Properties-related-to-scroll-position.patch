@@ -1,0 +1,323 @@
+From eef26210ed2c4cf101df276945ca7bf037c0288b Mon Sep 17 00:00:00 2001
+From: Antti Ajanki <antti.ajanki@iki.fi>
+Date: Sat, 27 Apr 2013 19:36:54 +0300
+Subject: [PATCH 009/110] [TextField] Properties related to scroll position
+
+---
+ src/backends/graphics.cpp              | 69 ++++++++++++++++++++++++-
+ src/backends/graphics.h                |  6 ++-
+ src/scripting/flash/text/flashtext.cpp | 94 ++++++++++++++++++++++++++++++++++
+ src/scripting/flash/text/flashtext.h   | 10 ++++
+ 4 files changed, 177 insertions(+), 2 deletions(-)
+
+diff --git a/src/backends/graphics.cpp b/src/backends/graphics.cpp
+index 38f09e8..b4b9744 100644
+--- a/src/backends/graphics.cpp
++++ b/src/backends/graphics.cpp
+@@ -852,7 +852,8 @@ void CairoPangoRenderer::pangoLayoutFromData(PangoLayout* layout, const TextData
+ 	if(tData.autoSize == TextData::AUTO_SIZE::AS_NONE)
+ 	{
+ 		pango_layout_set_width(layout,PANGO_SCALE*tData.width);
+-		pango_layout_set_height(layout,PANGO_SCALE*tData.height);//TODO:Not sure what Pango does if the text is too long to fit
++		// Do not set height, because we want to compute the
++		// layout of every line
+ 	}
+ 
+ 	/* setup font description */
+@@ -880,9 +881,19 @@ void CairoPangoRenderer::executeDraw(cairo_t* cr)
+ 		cairo_paint(cr);
+ 	}
+ 
++	/* text scroll position */
++	int32_t translateX = textData.scrollH;
++	int32_t translateY = 0;
++	if (textData.scrollV > 1)
++	{
++		translateY = -PANGO_PIXELS(lineExtents(layout, textData.scrollV-1).y);
++	}
++
+ 	/* draw the text */
+ 	cairo_set_source_rgb (cr, textData.textColor.Red/255., textData.textColor.Green/255., textData.textColor.Blue/255.);
++	cairo_translate(cr, translateX, translateY);
+ 	pango_cairo_show_layout(cr, layout);
++	cairo_translate(cr, -translateX, -translateY);
+ 
+ 	if(textData.border)
+ 	{
+@@ -927,6 +938,62 @@ bool CairoPangoRenderer::getBounds(const TextData& _textData, uint32_t& w, uint3
+ 	return (h!=0) && (w!=0);
+ }
+ 
++PangoRectangle CairoPangoRenderer::lineExtents(PangoLayout *layout, int lineNumber)
++{
++	PangoRectangle rect;
++	memset(&rect, 0, sizeof(PangoRectangle));
++	int i = 0;
++	PangoLayoutIter* lineIter = pango_layout_get_iter(layout);
++	do
++	{
++		if (i == lineNumber)
++		{
++			pango_layout_iter_get_line_extents(lineIter, NULL, &rect);
++			break;
++		}
++
++		i++;
++	} while (pango_layout_iter_next_line(lineIter));
++	pango_layout_iter_free(lineIter);
++
++	return rect;
++}
++
++std::vector<RECT> CairoPangoRenderer::getLineData(const TextData& _textData)
++{
++	//TODO:check locking
++	Locker l(pangoMutex);
++	cairo_surface_t* cairoSurface=cairo_image_surface_create_for_data(NULL, CAIRO_FORMAT_ARGB32, 0, 0, 0);
++	cairo_t *cr=cairo_create(cairoSurface);
++
++	PangoLayout* layout;
++	layout = pango_cairo_create_layout(cr);
++	pangoLayoutFromData(layout, _textData);
++
++	int XOffset = _textData.scrollH;
++	int YOffset = PANGO_PIXELS(lineExtents(layout, _textData.scrollV-1).y);
++	std::vector<RECT> extents;
++	extents.reserve(pango_layout_get_line_count(layout));
++	PangoLayoutIter* lineIter = pango_layout_get_iter(layout);
++	do
++	{
++		PangoRectangle logical_rect;
++		pango_layout_iter_get_line_extents(lineIter, NULL, &logical_rect);
++		extents.emplace_back(
++			PANGO_PIXELS(logical_rect.x) - XOffset,
++			PANGO_PIXELS(logical_rect.x) - XOffset + PANGO_PIXELS(logical_rect.width),
++			PANGO_PIXELS(logical_rect.y) - YOffset,
++			PANGO_PIXELS(logical_rect.y) - YOffset + PANGO_PIXELS(logical_rect.height));
++	} while (pango_layout_iter_next_line(lineIter));
++	pango_layout_iter_free(lineIter);
++
++	g_object_unref(layout);
++	cairo_destroy(cr);
++	cairo_surface_destroy(cairoSurface);
++
++	return extents;
++}
++
+ void CairoPangoRenderer::applyCairoMask(cairo_t* cr, int32_t xOffset, int32_t yOffset) const
+ {
+ 	assert(false);
+diff --git a/src/backends/graphics.h b/src/backends/graphics.h
+index 63ba009..53659f5 100644
+--- a/src/backends/graphics.h
++++ b/src/backends/graphics.h
+@@ -344,7 +344,7 @@ class TextData
+ {
+ public:
+ 	/* the default values are from the spec for flash.text.TextField and flash.text.TextFormat */
+-	TextData() : width(100), height(100), textWidth(0), textHeight(0), font("Times New Roman"), background(false), backgroundColor(0xFFFFFF),
++	TextData() : width(100), height(100), textWidth(0), textHeight(0), font("Times New Roman"), scrollH(0), scrollV(1), background(false), backgroundColor(0xFFFFFF),
+ 		border(false), borderColor(0x000000), multiline(false), textColor(0x000000),
+ 		autoSize(AS_NONE), fontSize(12), wordWrap(false) {}
+ 	uint32_t width;
+@@ -353,6 +353,8 @@ public:
+ 	uint32_t textHeight;
+ 	tiny_string text;
+ 	tiny_string font;
++	int32_t scrollH; // pixels, 0-based
++	int32_t scrollV; // lines, 1-based
+ 	bool background;
+ 	RGB backgroundColor;
+ 	bool border;
+@@ -375,6 +377,7 @@ class CairoPangoRenderer : public CairoRenderer
+ 	TextData textData;
+ 	static void pangoLayoutFromData(PangoLayout* layout, const TextData& tData);
+ 	void applyCairoMask(cairo_t* cr, int32_t offsetX, int32_t offsetY) const;
++	static PangoRectangle lineExtents(PangoLayout *layout, int lineNumber);
+ public:
+ 	CairoPangoRenderer(const TextData& _textData, const MATRIX& _m,
+ 			int32_t _x, int32_t _y, int32_t _w, int32_t _h, float _s, float _a, const std::vector<MaskData>& _ms)
+@@ -385,6 +388,7 @@ public:
+ 		@param w,h,tw,th are the (text)width and (text)height of the textData.
+ 	*/
+ 	static bool getBounds(const TextData& _textData, uint32_t& w, uint32_t& h, uint32_t& tw, uint32_t& th);
++	static std::vector<RECT> getLineData(const TextData& _textData);
+ };
+ 
+ class InvalidateQueue
+diff --git a/src/scripting/flash/text/flashtext.cpp b/src/scripting/flash/text/flashtext.cpp
+index 29a8433..dcf8130 100644
+--- a/src/scripting/flash/text/flashtext.cpp
++++ b/src/scripting/flash/text/flashtext.cpp
+@@ -138,6 +138,10 @@ void TextField::sinit(Class_base* c)
+ 	c->setDeclaredMethodByQName("width","",Class<IFunction>::getFunction(TextField::_setWidth),SETTER_METHOD,true);
+ 	c->setDeclaredMethodByQName("wordWrap","",Class<IFunction>::getFunction(TextField::_setWordWrap),SETTER_METHOD,true);
+ 	c->setDeclaredMethodByQName("wordWrap","",Class<IFunction>::getFunction(TextField::_getWordWrap),GETTER_METHOD,true);
++	c->setDeclaredMethodByQName("numLines","",Class<IFunction>::getFunction(TextField::_getNumLines),GETTER_METHOD,true);
++	c->setDeclaredMethodByQName("maxScrollH","",Class<IFunction>::getFunction(TextField::_getMaxScrollH),GETTER_METHOD,true);
++	c->setDeclaredMethodByQName("maxScrollV","",Class<IFunction>::getFunction(TextField::_getMaxScrollV),GETTER_METHOD,true);
++	c->setDeclaredMethodByQName("bottomScrollV","",Class<IFunction>::getFunction(TextField::_getBottomScrollV),GETTER_METHOD,true);
+ 
+ 	REGISTER_GETTER_SETTER(c, background);
+ 	REGISTER_GETTER_SETTER(c, backgroundColor);
+@@ -146,6 +150,8 @@ void TextField::sinit(Class_base* c)
+ 	REGISTER_GETTER_SETTER(c, maxChars);
+ 	REGISTER_GETTER_SETTER(c, multiline);
+ 	REGISTER_GETTER_SETTER(c, mouseWheelEnabled);
++	REGISTER_GETTER_SETTER(c, scrollH);
++	REGISTER_GETTER_SETTER(c, scrollV);
+ 	REGISTER_GETTER_SETTER(c, selectable);
+ 	REGISTER_GETTER_SETTER(c, sharpness);
+ 	REGISTER_GETTER_SETTER(c, textColor);
+@@ -159,6 +165,8 @@ ASFUNCTIONBODY_GETTER_SETTER(TextField, borderColor);
+ ASFUNCTIONBODY_GETTER_SETTER(TextField, maxChars);
+ ASFUNCTIONBODY_GETTER_SETTER(TextField, multiline);
+ ASFUNCTIONBODY_GETTER_SETTER(TextField, mouseWheelEnabled);
++ASFUNCTIONBODY_GETTER_SETTER_CB(TextField, scrollH, validateScrollH);
++ASFUNCTIONBODY_GETTER_SETTER_CB(TextField, scrollV, validateScrollV);
+ ASFUNCTIONBODY_GETTER_SETTER(TextField, selectable);
+ ASFUNCTIONBODY_GETTER_SETTER_CB(TextField, sharpness, validateSharpness);
+ ASFUNCTIONBODY_GETTER_SETTER(TextField, textColor);
+@@ -489,11 +497,95 @@ ASFUNCTIONBODY(TextField,_getLength)
+ 	return abstract_i(th->text.numChars());
+ }
+ 
++ASFUNCTIONBODY(TextField,_getNumLines)
++{
++	TextField* th=Class<TextField>::cast(obj);
++	return abstract_i(CairoPangoRenderer::getLineData(*th).size());
++}
++
++ASFUNCTIONBODY(TextField,_getMaxScrollH)
++{
++	TextField* th=Class<TextField>::cast(obj);
++	return abstract_i(th->getMaxScrollH());
++}
++
++ASFUNCTIONBODY(TextField,_getMaxScrollV)
++{
++	TextField* th=Class<TextField>::cast(obj);
++	return abstract_i(th->getMaxScrollV());
++}
++
++ASFUNCTIONBODY(TextField,_getBottomScrollV)
++{
++	TextField* th=Class<TextField>::cast(obj);
++	std::vector<RECT> lines = CairoPangoRenderer::getLineData(*th);
++	for (unsigned int k=0; k<lines.size()-1; k++)
++	{
++		if (lines[k+1].Ymin >= (int)th->height)
++			return abstract_i(k + 1);
++	}
++
++	return abstract_i(lines.size() + 1);
++}
++
+ void TextField::validateSharpness(number_t /*oldValue*/)
+ {
+ 	sharpness = dmin(dmax(sharpness, -400.), 400.);
+ }
+ 
++void TextField::validateScrollH(int32_t oldValue)
++{
++	int32_t maxScrollH = getMaxScrollH();
++	if (scrollH > maxScrollH)
++		scrollH = maxScrollH;
++
++	if (onStage && (scrollH != oldValue))
++		requestInvalidation(getSys());
++}
++
++void TextField::validateScrollV(int32_t oldValue)
++{
++	int32_t maxScrollV = getMaxScrollV();
++	if (scrollV < 1)
++		scrollV = 1;
++	else if (scrollV > maxScrollV)
++		scrollV = maxScrollV;
++
++	if (onStage && (scrollV != oldValue))
++		requestInvalidation(getSys());
++}
++
++int32_t TextField::getMaxScrollH()
++{
++	if (wordWrap)
++		return 0;
++	else
++		return textWidth;
++}
++
++int32_t TextField::getMaxScrollV()
++{
++	std::vector<RECT> lines = CairoPangoRenderer::getLineData(*this);
++	if (lines.size() <= 1)
++		return 1;
++
++	int32_t Ymax = lines[lines.size()-1].Ymax;
++	int32_t measuredTextHeight = Ymax - lines[0].Ymin;
++	if (measuredTextHeight <= (int32_t)height)
++		return 1;
++
++	// one full page from the bottom
++	for (int k=(int)lines.size()-1; k>=0; k--)
++	{
++		if (Ymax - lines[k].Ymin > (int32_t)height)
++		{
++			return imin(k+1+1, lines.size());
++		}
++	}
++
++	return 1;
++}
++
+ void TextField::updateSizes()
+ {
+ 	uint32_t w,h,tw,th;
+@@ -549,6 +641,8 @@ void TextField::setHtmlText(const tiny_string& html)
+ void TextField::updateText(const tiny_string& new_text)
+ {
+ 	text = new_text;
++	scrollH = 0;
++	scrollV = 1;
+ 	if(onStage)
+ 		requestInvalidation(getSys());
+ 	else
+diff --git a/src/scripting/flash/text/flashtext.h b/src/scripting/flash/text/flashtext.h
+index 66d931c..38e1596 100644
+--- a/src/scripting/flash/text/flashtext.h
++++ b/src/scripting/flash/text/flashtext.h
+@@ -87,6 +87,10 @@ private:
+ 	void updateSizes();
+ 	tiny_string toHtmlText();
+ 	void validateSharpness(number_t oldValue);
++	void validateScrollH(int32_t oldValue);
++	void validateScrollV(int32_t oldValue);
++	int32_t getMaxScrollH();
++	int32_t getMaxScrollV();
+ 	EDIT_TYPE type;
+ 	ANTI_ALIAS_TYPE antiAliasType;
+ 	GRID_FIT_TYPE gridFitType;
+@@ -120,6 +124,10 @@ public:
+ 	ASFUNCTION(_getDefaultTextFormat);
+ 	ASFUNCTION(_setDefaultTextFormat);
+ 	ASFUNCTION(_getLineMetrics);
++	ASFUNCTION(_getNumLines);
++	ASFUNCTION(_getMaxScrollH);
++	ASFUNCTION(_getMaxScrollV);
++	ASFUNCTION(_getBottomScrollV);
+ 	ASFUNCTION_GETTER_SETTER(background);
+ 	ASFUNCTION_GETTER_SETTER(backgroundColor);
+ 	ASFUNCTION_GETTER_SETTER(border);
+@@ -127,6 +135,8 @@ public:
+ 	ASPROPERTY_GETTER_SETTER(int32_t, maxChars);
+ 	ASFUNCTION_GETTER_SETTER(multiline);
+ 	ASPROPERTY_GETTER_SETTER(bool, mouseWheelEnabled);
++	ASFUNCTION_GETTER_SETTER(scrollH);
++	ASFUNCTION_GETTER_SETTER(scrollV);
+ 	ASPROPERTY_GETTER_SETTER(bool, selectable);
+ 	ASPROPERTY_GETTER_SETTER(number_t, sharpness);
+ 	ASFUNCTION_GETTER_SETTER(textColor);
+-- 
+1.8.5.3
+

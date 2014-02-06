@@ -1,0 +1,56 @@
+From ae009740519d5c1d5761be80f0ee69e4c61e8136 Mon Sep 17 00:00:00 2001
+From: Antti Ajanki <antti.ajanki@iki.fi>
+Date: Sat, 9 Nov 2013 13:56:58 +0200
+Subject: [PATCH 104/110] Update README
+
+---
+ README | 21 +++++++++++++++++----
+ 1 file changed, 17 insertions(+), 4 deletions(-)
+
+diff --git a/README b/README
+index ec64d4a..957ac80 100644
+--- a/README
++++ b/README
+@@ -35,15 +35,20 @@ DEBUG MODE:
+ To enable debug mode change the cmake command like this:
+ 4b) cmake -DCMAKE_BUILD_TYPE=Debug
+ 
+-CMAKE_BUILD_TYPE available: Debug Release RelWithDebInfo Profile Sound
+-support may be disabled using the following option: -DENABLE_SOUND=0
+-The audio backend can be set using -DAUDIO_BACKEND=<pulseaudio|sdl>
+-(default is pulseaudio)
++CMAKE_BUILD_TYPE available: Debug LeanDebug Release RelWithDebInfo Profile
++
++Sound support may be disabled using the following option:
++-DENABLE_SOUND=0 The audio backend can be set using
++-DAUDIO_BACKEND=<pulseaudio|sdl> (default is pulseaudio)
+ 
+ EXECUTION
+ =========
+ 
+ Using `make install`, lightspark is installed in the system wide
++
++Browser plugin
++--------------
++
+ Firefox plugin path and Firefox should show it in the about:plugins
+ list and in the Tools->Add-ons->Plugins window.
+ 
+@@ -57,6 +62,14 @@ Firefox is not able to deal very well with multiple plugins for the
+ same MIME type. If you only see a black box where a flash app should
+ be try to remove any other flash plugin you have installed.
+ 
++Command line
++------------
++
++The command line version of Lightspark can play a local SWF file.
++Execution: lightspark file.swf
++
++Type `lightspark` to see all command line options.
++
+ Keyboard shortcuts
+ ------------------
+ 
+-- 
+1.8.5.3
+

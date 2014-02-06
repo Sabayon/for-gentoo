@@ -1,0 +1,57 @@
+From 81132929153663f1e3efddccd21efb200f12ae20 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Ludger=20Kr=C3=A4mer?= <dbluelle@blau-weissoedingen.de>
+Date: Thu, 9 May 2013 18:56:09 +0200
+Subject: [PATCH 035/110] fix filter and indexof/lastindexof methods
+
+---
+ src/scripting/toplevel/Array.cpp | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
+
+diff --git a/src/scripting/toplevel/Array.cpp b/src/scripting/toplevel/Array.cpp
+index 2dd5f36..f283b8b 100644
+--- a/src/scripting/toplevel/Array.cpp
++++ b/src/scripting/toplevel/Array.cpp
+@@ -203,6 +203,9 @@ ASFUNCTIONBODY(Array,filter)
+ 		params[2] = th;
+ 		th->incRef();
+ 
++		// ensure that return values are the original values
++		ASObject *origval = it->second.data;
++		it->second.data->incRef();
+ 		if(argslen==1)
+ 		{
+ 			funcRet=f->call(getSys()->getNullRef(), params, 3);
+@@ -215,10 +218,9 @@ ASFUNCTIONBODY(Array,filter)
+ 		if(funcRet)
+ 		{
+ 			if(Boolean_concrete(funcRet))
+-			{
+-				it->second.data->incRef();
+-				ret->push(_MR(it->second.data));
+-			}
++				ret->push(_MR(origval));
++			else
++				origval->decRef();
+ 			funcRet->decRef();
+ 		}
+ 	}
+@@ -378,7 +380,7 @@ ASFUNCTIONBODY(Array,lastIndexOf)
+ 	int ret=-1;
+ 	ASObject* arg0=args[0];
+ 
+-	if(th->data.empty())
++	if(argslen == 1 && th->data.empty())
+ 		return abstract_d(0);
+ 
+ 	size_t i = th->size()-1;
+@@ -614,6 +616,7 @@ ASFUNCTIONBODY(Array,indexOf)
+ 	ASObject* arg0 = args[0];
+ 	if (argslen > 1) 
+ 		index = args[1]->toInt();
++	if (index < 0) index = abs(index);
+ 
+ 
+ 	DATA_TYPE dtype;
+-- 
+1.8.5.3
+

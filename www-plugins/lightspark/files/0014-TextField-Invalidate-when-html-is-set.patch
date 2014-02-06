@@ -1,0 +1,49 @@
+From d874128165e39b03d62875263392e13c39136224 Mon Sep 17 00:00:00 2001
+From: Antti Ajanki <antti.ajanki@iki.fi>
+Date: Sun, 28 Apr 2013 09:58:59 +0300
+Subject: [PATCH 014/110] [TextField] Invalidate when html is set
+
+---
+ src/scripting/flash/text/flashtext.cpp | 6 ++++++
+ src/scripting/flash/text/flashtext.h   | 1 +
+ 2 files changed, 7 insertions(+)
+
+diff --git a/src/scripting/flash/text/flashtext.cpp b/src/scripting/flash/text/flashtext.cpp
+index 176fd8d..88013ac 100644
+--- a/src/scripting/flash/text/flashtext.cpp
++++ b/src/scripting/flash/text/flashtext.cpp
+@@ -754,6 +754,7 @@ void TextField::setHtmlText(const tiny_string& html)
+ 	{
+ 		parser.parseTextAndFormating(html, this);
+ 	}
++	textUpdated();
+ }
+ 
+ tiny_string TextField::compactHTMLWhiteSpace(const tiny_string& html)
+@@ -781,6 +782,11 @@ tiny_string TextField::compactHTMLWhiteSpace(const tiny_string& html)
+ void TextField::updateText(const tiny_string& new_text)
+ {
+ 	text = new_text;
++	textUpdated();
++}
++
++void TextField::textUpdated()
++{
+ 	scrollH = 0;
+ 	scrollV = 1;
+ 	if(onStage)
+diff --git a/src/scripting/flash/text/flashtext.h b/src/scripting/flash/text/flashtext.h
+index fde4a77..14f3b83 100644
+--- a/src/scripting/flash/text/flashtext.h
++++ b/src/scripting/flash/text/flashtext.h
+@@ -92,6 +92,7 @@ private:
+ 	void validateScrollV(int32_t oldValue);
+ 	int32_t getMaxScrollH();
+ 	int32_t getMaxScrollV();
++	void textUpdated();
+ 	EDIT_TYPE type;
+ 	ANTI_ALIAS_TYPE antiAliasType;
+ 	GRID_FIT_TYPE gridFitType;
+-- 
+1.8.5.3
+

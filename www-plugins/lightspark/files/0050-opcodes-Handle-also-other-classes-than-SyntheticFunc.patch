@@ -1,0 +1,64 @@
+From c511443d7e15abc504cd475ea8185bef7e8ec015 Mon Sep 17 00:00:00 2001
+From: Antti Ajanki <antti.ajanki@iki.fi>
+Date: Sat, 25 May 2013 19:01:33 +0300
+Subject: [PATCH 050/110] [opcodes] Handle also other classes than
+ SyntheticFunction in constructFunction
+
+---
+ src/scripting/abc_opcodes.cpp | 28 +++++++++++++++-------------
+ 1 file changed, 15 insertions(+), 13 deletions(-)
+
+diff --git a/src/scripting/abc_opcodes.cpp b/src/scripting/abc_opcodes.cpp
+index 1cc8c23..662cdf9 100644
+--- a/src/scripting/abc_opcodes.cpp
++++ b/src/scripting/abc_opcodes.cpp
+@@ -588,31 +588,33 @@ ASObject* ABCVm::constructFunction(call_context* th, IFunction* f, ASObject** ar
+ 	if(f->inClass)
+ 		throwError<TypeError>(kCannotCallMethodAsConstructor, "");
+ 
+-	assert(f->is<SyntheticFunction>());
+-	SyntheticFunction* sf=f->as<SyntheticFunction>();
+-	assert(sf->prototype);
+-	ASObject* ret=new_functionObject(sf->prototype);
++	assert(f->prototype);
++	ASObject* ret=new_functionObject(f->prototype);
+ #ifndef NDEBUG
+ 	ret->initialized=false;
+ #endif
+-	if (sf->mi->body)
++	if (f->is<SyntheticFunction>())
+ 	{
+-		LOG(LOG_CALLS,_("Building method traits"));
+-		for(unsigned int i=0;i<sf->mi->body->trait_count;i++)
+-			th->context->buildTrait(ret,&sf->mi->body->traits[i],false);
++		SyntheticFunction* sf=f->as<SyntheticFunction>();
++		if (sf->mi->body)
++		{
++			LOG(LOG_CALLS,_("Building method traits"));
++			for(unsigned int i=0;i<sf->mi->body->trait_count;i++)
++				th->context->buildTrait(ret,&sf->mi->body->traits[i],false);
++		}
+ 	}
+ #ifndef NDEBUG
+ 	ret->initialized=true;
+ #endif
+ 
+-	sf->incRef();
+-	ret->setVariableByQName("constructor","",sf,DYNAMIC_TRAIT);
++	f->incRef();
++	ret->setVariableByQName("constructor","",f,DYNAMIC_TRAIT);
+ 
+ 	ret->incRef();
+ 
+-	sf->incRef();
+-	ASObject* ret2=sf->call(ret,args,argslen);
+-	sf->decRef();
++	f->incRef();
++	ASObject* ret2=f->call(ret,args,argslen);
++	f->decRef();
+ 
+ 	//ECMA: "return ret2 if it is an object, else ret"
+ 	if(ret2 && !ret2->is<Undefined>())
+-- 
+1.8.5.3
+

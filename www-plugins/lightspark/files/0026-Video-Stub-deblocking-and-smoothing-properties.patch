@@ -1,0 +1,54 @@
+From 4c100e0328276394d0f41b34c2b3e9bd3db1616f Mon Sep 17 00:00:00 2001
+From: Antti Ajanki <antti.ajanki@iki.fi>
+Date: Sun, 5 May 2013 15:51:01 +0300
+Subject: [PATCH 026/110] [Video] Stub deblocking and smoothing properties
+
+---
+ src/scripting/flash/media/flashmedia.cpp | 8 +++++++-
+ src/scripting/flash/media/flashmedia.h   | 2 ++
+ 2 files changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/src/scripting/flash/media/flashmedia.cpp b/src/scripting/flash/media/flashmedia.cpp
+index ce6bbc3..baeb011 100644
+--- a/src/scripting/flash/media/flashmedia.cpp
++++ b/src/scripting/flash/media/flashmedia.cpp
+@@ -65,8 +65,13 @@ void Video::sinit(Class_base* c)
+ 	c->setDeclaredMethodByQName("height","",Class<IFunction>::getFunction(Video::_getHeight),GETTER_METHOD,true);
+ 	c->setDeclaredMethodByQName("height","",Class<IFunction>::getFunction(Video::_setHeight),SETTER_METHOD,true);
+ 	c->setDeclaredMethodByQName("attachNetStream","",Class<IFunction>::getFunction(attachNetStream),NORMAL_METHOD,true);
++	REGISTER_GETTER_SETTER(c, deblocking);
++	REGISTER_GETTER_SETTER(c, smoothing);
+ }
+ 
++ASFUNCTIONBODY_GETTER_SETTER(Video, deblocking);
++ASFUNCTIONBODY_GETTER_SETTER(Video, smoothing);
++
+ void Video::buildTraits(ASObject* o)
+ {
+ }
+@@ -78,7 +83,8 @@ void Video::finalize()
+ }
+ 
+ Video::Video(Class_base* c, uint32_t w, uint32_t h)
+-	: DisplayObject(c),width(w),height(h),videoWidth(0),videoHeight(0),initialized(false),netStream(NullRef)
++	: DisplayObject(c),width(w),height(h),videoWidth(0),videoHeight(0),
++	  initialized(false),netStream(NullRef),deblocking(0),smoothing(false)
+ {
+ }
+ 
+diff --git a/src/scripting/flash/media/flashmedia.h b/src/scripting/flash/media/flashmedia.h
+index a0f93d7..e3bef0c 100644
+--- a/src/scripting/flash/media/flashmedia.h
++++ b/src/scripting/flash/media/flashmedia.h
+@@ -119,6 +119,8 @@ private:
+ 	mutable uint32_t videoWidth, videoHeight;
+ 	bool initialized;
+ 	_NR<NetStream> netStream;
++	ASPROPERTY_GETTER_SETTER(int32_t, deblocking);
++	ASPROPERTY_GETTER_SETTER(bool, smoothing);
+ public:
+ 	Video(Class_base* c, uint32_t w=320, uint32_t h=240);
+ 	void finalize();
+-- 
+1.8.5.3
+

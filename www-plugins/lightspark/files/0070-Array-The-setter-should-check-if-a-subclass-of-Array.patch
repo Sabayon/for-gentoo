@@ -1,0 +1,29 @@
+From a0d6d9750b80718b8405ac61ace7e5bf10f52d95 Mon Sep 17 00:00:00 2001
+From: Antti Ajanki <antti.ajanki@iki.fi>
+Date: Sat, 15 Jun 2013 22:24:58 +0300
+Subject: [PATCH 070/110] [Array] The setter should check if a subclass of
+ Array is sealed
+
+---
+ src/scripting/toplevel/Array.cpp | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/src/scripting/toplevel/Array.cpp b/src/scripting/toplevel/Array.cpp
+index d6ed20c..4a32847 100644
+--- a/src/scripting/toplevel/Array.cpp
++++ b/src/scripting/toplevel/Array.cpp
+@@ -1274,6 +1274,11 @@ void Array::setVariableByMultiname(const multiname& name, ASObject* o, CONST_ALL
+ 	uint32_t index=0;
+ 	if(!isValidMultiname(name,index))
+ 		return ASObject::setVariableByMultiname(name,o,allowConst);
++	// Derived classes may be sealed!
++	if (getClass() && getClass()->isSealed)
++		throwError<ReferenceError>(kWriteSealedError,
++					   name.normalizedName(),
++					   getClass()->getQualifiedClassName());
+ 	if (index==0xFFFFFFFF)
+ 		return;
+ 	if(index>=size())
+-- 
+1.8.5.3
+

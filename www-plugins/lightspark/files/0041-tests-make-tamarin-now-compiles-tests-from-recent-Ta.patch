@@ -1,0 +1,380 @@
+From cf830c4f3c384f129861b8634f9ffbd4b7c2090b Mon Sep 17 00:00:00 2001
+From: Antti Ajanki <antti.ajanki@iki.fi>
+Date: Sat, 18 May 2013 09:31:12 +0300
+Subject: [PATCH 041/110] [tests] make-tamarin now compiles tests from recent
+ Tamarin
+
+Tamarin testing scripts changed in commit 7555 in a way that was not
+anymore compatible with make-tamarin.
+
+Also, make-tamarin now pulls in more tests, including the abcasm
+tests.
+---
+ tests/make-tamarin  |  74 ++++++++++++++++++++++++-----
+ tests/quit.as       |   2 +
+ tests/tests         |  85 +++++++++++++++++++++++++--------
+ tools/mergeABCtoSWF | 134 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 262 insertions(+), 33 deletions(-)
+ create mode 100644 tests/quit.as
+ create mode 100755 tools/mergeABCtoSWF
+
+diff --git a/tests/make-tamarin b/tests/make-tamarin
+index 3e5ff89..b4342ae 100755
+--- a/tests/make-tamarin
++++ b/tests/make-tamarin
+@@ -5,6 +5,7 @@ echo "or ./make-tamarin ecma3/Boolean"
+ 
+ TAMARIN=${TAMARIN:-tamarin}
+ ASC=${ASC:-`pwd`/asc.jar}
++AVM=${AVM:-${TAMARIN}/objdir/shell/avmshell}
+ if [[ ! -d $TAMARIN ]]; then
+   echo "Directory tamarin not found, please run"
+   echo "hg clone http://hg.mozilla.org/tamarin-redux tamarin"
+@@ -23,15 +24,64 @@ if [[ `java -jar $ASC | sed -n -e 's/version [^ ]* build \(.*\)/\1/p'` -lt 18513
+   exit 1
+ fi
+ 
+-CUR=`pwd`
+-
+-#cd $TAMARIN/test/acceptance && \
+-#rm -f ats_temp.abc ats_temp.as shell.as && \
+-#echo "override| -optimize -in $CUR/tamarin-lightspark.as -AS3 -swf 200,200 -in ./ats_temp.as" > dir.asc_args && \
+-#./runtests.py --asc $ASC --builtinabc ../../core/builtin.abc --shellabc ../../shell/shell_toplevel.abc --ats --atsdir $CUR/tamarin-SWF || exit 1
+-(cd $TAMARIN/test/acceptance && \
+-rm -f ats_temp.abc ats_temp.as shell.as && \
+-grep USES_SWFVERSION . -R --files-with-matches | xargs --no-run-if-empty rm && \
+-echo "override| -optimize -in $CUR/tamarin-lightspark.as -AS3 -swf 200,200 -in ./ats_temp.as" > dir.asc_args && \
+-./runtests.py --asc $ASC --builtinabc ../../generated/builtin.abc --shellabc ../../generated/shell_toplevel.abc --ats --atsdir $CUR/tamarin-SWF $1) \
+-|| echo "Compiling tests failed. Make sure you have the latest tamarin-redux and asc.jar from http://hg.mozilla.org/tamarin-redux and ftp://ftp.mozilla.org/pub/js/tamarin/builds/asc/latest/asc.jar, respectively."
++export CUR=`pwd`
++
++printCompileErrorAndExit()
++{
++    echo "Compiling tests failed. Make sure you have the latest tamarin-redux and asc.jar from http://hg.mozilla.org/tamarin-redux and ftp://ftp.mozilla.org/pub/js/tamarin/builds/asc/latest/asc.jar, respectively."
++    exit 1;
++}
++
++# compile tests from Tamarin before commit 7555
++makeTamarin1()
++{
++    (cd $TAMARIN/test/acceptance && \
++    rm -f ats_temp.abc ats_temp.as shell.as && \
++    grep USES_SWFVERSION . -R --files-with-matches | xargs --no-run-if-empty rm && \
++    echo "override| -optimize -in $CUR/tamarin-lightspark.as -AS3 -swf 200,200 -in ./ats_temp.as" > dir.asc_args && \
++    ./runtests.py --asc $ASC --builtinabc ../../generated/builtin.abc --shellabc ../../generated/shell_toplevel.abc --ats --atsdir $CUR/tamarin-SWF $1) \
++    || printCompileErrorAndExit;
++}
++
++# compile tests from Tamarin commit 7555 and later
++makeTamarin2()
++{
++    if [[ ! -f $AVM ]]; then
++        echo "Set shell variable AVM to point to avmshell executable"
++        exit 1
++    fi
++
++    java -jar $ASC -import $TAMARIN/generated/builtin.abc quit.as
++
++    cd $TAMARIN/test/acceptance
++    compiled=$(./runtests.py --asc $ASC --avm $AVM --builtinabc ../../generated/builtin.abc --shellabc ../../generated/shell_toplevel.abc --rebuildtests $1)
++    if [[ $? -ne 0 ]]; then
++        printCompileErrorAndExit;
++    fi
++
++    # The first sed selects lines starting with "compiling" unless the
++    # following lines starts with "Excluding".
++    #
++    # The second sed filters out some strange cases (TODO: check
++    # these!).
++    echo "$compiled" | \
++        sed -n '/^compiling/{N; /\nExcluding/ b excluded; P; D; b; :excluded d}' | \
++        sed -n '/ascompiling\|mmgc\/outofmemory\.as\|mmgc\/memlimit\.as\|abc_$/!p' | \
++        sed -e 's/compiling \(.*\)/\1/' \
++            -e 's/\(.*\.\)[a-z]\+$/\1abc/' | \
++        xargs -L 1 bash -c 'if [[ -f $0 ]]; then echo $0; mkdir -p $CUR/tamarin-SWF/$(dirname $0); $CUR/../tools/mergeABCtoSWF Assert.abc Utils.abc $(if [[ -d ${0/%.abc/} ]]; then echo $(ls ${0/%.abc/}/*.abc 2> /dev/null); fi) $(if [[ -f ${0/%abc/abs} ]]; then echo abcasm/abs_helper.abc; fi) $0 $CUR/quit.abc -o $CUR/tamarin-SWF/${0/%ab[cs]/swf}; fi'
++    cd -
++}
++
++if [[ "x$1" = "x" ]]; then
++    rm -rf tamarin-SWF/*
++fi
++
++# Tamarin testing framework changed in commit 7555 in a way that is
++# incompatible with previous version of this script. Use Assert.as, a
++# file introduced in that commit, to detect the new test setup.
++if [[ -f $TAMARIN/test/acceptance/Assert.as ]]; then
++    makeTamarin2;
++else
++    makeTamarin1;
++fi
+diff --git a/tests/quit.as b/tests/quit.as
+new file mode 100644
+index 0000000..368487a
+--- /dev/null
++++ b/tests/quit.as
+@@ -0,0 +1,2 @@
++namespace flashsystemns = "flash.system";
++flashsystemns::fscommand("quit");
+diff --git a/tests/tests b/tests/tests
+index e57dccd..ac4c13f 100755
+--- a/tests/tests
++++ b/tests/tests
+@@ -33,6 +33,56 @@ BLACKLIST=0;
+ JUNITFILE=""
+ NOXVFB=0;
+ 
++# Convert output from local and pre-7555 commit Tamarin testcases to JUnit XML
++function writeJUnit1() {
++	tcnum=0
++	#Find all lines that start with '. [' or 'F [' or 'A ..F.. ['
++	tcnum=$(echo "$1" | sed -n -e "/^\(A \)\?[F\.]\+ \[.*/p" \
++	| { while read L
++	do
++		tcnum=`expr $tcnum + 1`
++		#Escape <>& and remove non-printable characters
++		xml_l=`echo -e "$L" | sed -e 's/[^[:print:]]//g' -e 's/\&/\&amp;/g' -e 's/</\&lt;/g' -e 's/>/\&gt;/g'`
++		#Check if L starts with an 'F' or with 'A ...F'
++		if echo -e "$L" | grep -e "^\(A \.*\)\?F" > /dev/null ; then
++			echo "<testcase classname=\"$2\" name=\"${3}_tc${tcnum}\"><failure type=\"testfailure\">$xml_l</failure></testcase>" >> "$JUNITFILE"
++		else
++			echo "<testcase classname=\"$2\" name=\"${3}_tc${tcnum}\"/>" >> "$JUNITFILE"
++		fi
++	done
++	echo $tcnum
++	})
++
++	if [[ "$tcnum" != "$4" ]]; then
++		echo -e "\nError parsing test output of $test: Not enough testcases seen"
++		exit 1
++	fi
++}
++
++# Convert output from post-7555 commit Tamarin to JUnit XML
++function writeJUnit2() {
++	tcnum=0
++	tcnum=$(echo "$1" | grep 'PASSED!\|FAILED!' \
++	| { while read L
++	do
++		tcnum=`expr $tcnum + 1`
++		#Escape <>& and remove non-printable characters
++		xml_l=`echo -e "$L" | sed -e 's/[^[:print:]]//g' -e 's/\&/\&amp;/g' -e 's/</\&lt;/g' -e 's/>/\&gt;/g'`
++		if echo "$L" | grep 'FAILED!' > /dev/null ; then
++		    echo  "<testcase classname=\"$2\" name=\"${3}_tc${tcnum}\"><failure type=\"testfailure\">$xml_l</failure></testcase>" >> "$JUNITFILE"
++		else
++		    echo "<testcase classname=\"$2\" name=\"${3}_tc${tcnum}\"/>" >> "$JUNITFILE"
++		fi
++	done
++	echo $tcnum
++	})
++
++	if [[ "$tcnum" != "$4" ]]; then
++		echo -e "\nError parsing test output of $test: Not enough testcases seen"
++		exit 1
++	fi
++}
++
+ if ! `which timeout > /dev/null`; then
+ 	echo "Warning: 'timeout' command not found"
+ 	TIMEOUTCMD=""
+@@ -292,6 +342,7 @@ for test in $TESTS; do
+ 	#Remove the RANDR error when running under xvfb, convert control characters to something like \303
+ 	lines=`sed -e '/Xlib:  extension "RANDR" missing on display.*/d' -e 's/[[:cntrl:]]//' $LOGFILE`
+ 	if [ "`echo $lines | grep '==Failures'`" != "" ]; then
++		# local tests and Tamarin before commit 7555 
+ 		THISFAILEDCOUNT=`echo "$lines" | sed -n -e 's/.*=Failures (\(.*\)\/.*)=.*/\1/p'`
+ 		THISNUMTESTS=`echo "$lines" | sed -n -e 's/.*=Failures (.*\/\(.*\))=.*/\1/p'`
+ 		THISSUCCESSCOUNT=`expr $THISNUMTESTS - $THISFAILEDCOUNT`
+@@ -299,9 +350,18 @@ for test in $TESTS; do
+ 		SUCCESSCOUNT=`expr $SUCCESSCOUNT + $THISSUCCESSCOUNT`;
+ 		FAILED_TESTS="$FAILED_TESTS $test"
+ 	elif [ "`echo $lines | grep '==No failures'`" != "" ]; then
++		# local tests and Tamarin before commit 7555 
+ 		THISSUCCESSCOUNT=`echo "$lines" | sed -n -e 's/.*=No failures (\(.*\))=.*/\1/p'`
+ 		THISNUMTESTS="$THISSUCCESSCOUNT"
+ 		SUCCESSCOUNT=`expr $SUCCESSCOUNT + $THISSUCCESSCOUNT`;
++	elif [ "`echo $lines | grep 'PASSED!\|FAILED!'`" != "" ]; then
++		# Tamarin commit 7555 and later
++		THISSUCCESSCOUNT=`echo "$lines" | grep -c 'PASSED!'`
++		THISFAILEDCOUNT=`echo "$lines" | grep -c 'FAILED!'`
++		THISNUMTESTS=`expr $THISSUCCESSCOUNT + $THISFAILEDCOUNT`
++		FAILURECOUNT=`expr $FAILURECOUNT + $THISFAILEDCOUNT`;
++		SUCCESSCOUNT=`expr $SUCCESSCOUNT + $THISSUCCESSCOUNT`;
++		FAILED_TESTS="$FAILED_TESTS $test"
+ 	else
+ 		if [ $COLORS -eq 1 ]; then
+ 			echo -e "\\e[0;31m$test printed no test summary!\\e[0m"
+@@ -317,27 +377,10 @@ for test in $TESTS; do
+ 	fi
+ 
+ 	if [[ -n "$JUNITFILE" ]]; then
+-		#For xml output
+-		tcnum=0
+-		#Find all lines that start with '. [' or 'F [' or 'A ..F.. ['
+-		tcnum=$(echo "$lines" | sed -n -e "/^\(A \)\?[F\.]\+ \[.*/p" \
+-		| { while read L
+-		do
+-			tcnum=`expr $tcnum + 1`
+-			#Escape <>& and remove non-printable characters
+-			xml_l=`echo -e "$L" | sed -e 's/[^[:print:]]//g' -e 's/\&/\&amp;/g' -e 's/</\&lt;/g' -e 's/>/\&gt;/g'`
+-			#Check if L starts with an 'F' or with 'A ...F'
+-			if echo -e "$L" | grep -e "^\(A \.*\)\?F" > /dev/null ; then
+-				echo "<testcase classname=\"$testclass\" name=\"${testname}_tc${tcnum}\"><failure type=\"testfailure\">$xml_l</failure></testcase>" >> "$JUNITFILE"
+-			else
+-				echo "<testcase classname=\"$testclass\" name=\"${testname}_tc${tcnum}\"/>" >> "$JUNITFILE"
+-			fi
+-		done
+-		echo $tcnum
+-		})
+-		if [[ "$tcnum" != "$THISNUMTESTS" ]]; then
+-			echo -e "\nError parsing test output of $test: Not enough testcases seen"
+-			exit 1
++		if [[ "`echo $lines | grep '==Failures\|==No failures'`" != "" ]]; then
++			writeJUnit1 "$lines" "$testclass" "$testname" "$THISNUMTESTS"
++		else
++			writeJUnit2 "$lines" "$testclass" "$testname" "$THISNUMTESTS"
+ 		fi
+ 	fi
+ 
+diff --git a/tools/mergeABCtoSWF b/tools/mergeABCtoSWF
+new file mode 100755
+index 0000000..9e2b5be
+--- /dev/null
++++ b/tools/mergeABCtoSWF
+@@ -0,0 +1,134 @@
++#!/usr/bin/python
++
++# Copyright (C) 2013 Antti Ajanki (antti.ajanki@iki.fi)
++#
++# This program is free software: you can redistribute it and/or modify
++# it under the terms of the GNU Lesser General Public License as published by
++# the Free Software Foundation, either version 3 of the License, or
++# (at your option) any later version.
++#
++# This program is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU Lesser General Public License for more details.
++#
++# You should have received a copy of the GNU Lesser General Public License
++# along with this program.  If not, see <http://www.gnu.org/licenses/>.
++
++# This script merges one or more ABC files into a simple SWF wrapper.
++#
++# Usage: mergeABCtoSWF abcFile1 [abcFile2 ...] [-o outputSWFFile]
++#
++# The ABC files should be in dependency order, files that provide
++# functions should be listed before files that use those functions.
++
++import struct
++import sys
++import os.path
++from optparse import OptionParser
++
++class SWFFile:
++    TAG_END = 0
++    TAG_SHOW_FRAME = 1
++    TAG_FILE_ATTRIBUTES = 69
++    TAG_DOABC = 82
++
++    ATTR_HAS_AS3 = 8
++
++    # RECT 8000x6000
++    DEFAULT_RECT = '\x78\x00\x03\xe8\x00\x00\x0b\xb8\x00'
++    
++    def __init__(self, filename):
++        self.file = open(filename, 'wb')
++        self.writeSWFHeader()
++
++    def writeSWFHeader(self):
++        self.file.write('FWS')
++        # version
++        self.file.write(chr(9))
++        # length, will be set in finalize
++        self.file.write('\0'*4)
++        # rect size in twips
++        self.file.write(self.DEFAULT_RECT)
++        # framerate
++        self.writeUI16(20 << 8)
++        # frame count
++        self.writeUI16(1)
++        self.addFileAttributesTag()
++
++    def finalize(self):
++        self.addShowFrameTag()
++        self.addEndTag()
++        self.updateSize()
++        self.file.close()
++        self.file = None
++
++    def addFileAttributesTag(self):
++        body = chr(self.ATTR_HAS_AS3) + '\0'*3
++        self.writeTag(self.TAG_FILE_ATTRIBUTES, body)
++        
++    def addABCBlock(self, abc):
++        body = '\0'*4 # flags
++        body += '\0' # name
++        body += abc
++        self.writeTag(self.TAG_DOABC, body)
++
++    def addShowFrameTag(self):
++        self.writeTag(self.TAG_SHOW_FRAME, '')
++
++    def addEndTag(self):
++        self.file.write('\0\0')
++
++    def writeTag(self, tagType, body):
++        #print 'tag %d at %d length %s' % (tagType, self.file.tell(), len(body))
++        self.writeTagHeader(tagType, len(body))
++        self.file.write(body)
++        
++    def writeTagHeader(self, tagType, tagLength):
++        assert (tagType & 0x3FF) == tagType
++        if tagLength >= 0x3F:
++            self.writeUI16((tagType << 6) | 0x3F)
++            self.writeSI32(tagLength)
++        else:
++            self.writeUI16((tagType << 6) | tagLength)
++        
++    def updateSize(self):
++        size = self.file.tell()
++        self.file.seek(4, 0)
++        self.writeSI32(size)
++        self.file.seek(0, 2)
++
++    def writeUI16(self, value):
++        self.file.write(struct.pack('<H', value))
++
++    def writeSI32(self, value):
++        self.file.write(struct.pack('<i', value))
++
++
++def parseParameters():
++    usage = 'usage: %prog abcFile1 [abcFile2 ...] [-o outputSWFFile]'
++    parser = OptionParser(usage=usage)
++    parser.add_option('-o', dest='output',
++                      help='Name of the output SWF file')
++    (options, abcFiles) = parser.parse_args()
++
++    if not abcFiles:
++        print 'ABC filenames required'
++        sys.exit(1)
++    
++    if options.output:
++        SWF = options.output
++    else:
++        SWF = os.path.splitext(abcFiles[-1])[0] + '.swf'
++    
++    return (abcFiles, SWF)
++
++def main():
++    abcfiles, swfFileName = parseParameters()
++    swf = SWFFile(swfFileName)
++    for abc in abcfiles:
++        swf.addABCBlock(open(abc).read())
++    swf.finalize()
++
++if __name__ == '__main__':
++    main()
+-- 
+1.8.5.3
+

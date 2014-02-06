@@ -1,0 +1,108 @@
+From 5c693337e1348a3b090a2beeb3058011e3e9a1bf Mon Sep 17 00:00:00 2001
+From: Antti Ajanki <antti.ajanki@iki.fi>
+Date: Sun, 5 May 2013 16:25:39 +0300
+Subject: [PATCH 027/110] [LoaderContext] checkPolicyFile property
+
+---
+ src/scripting/flash/display/flashdisplay.cpp | 13 +++++++++++++
+ src/scripting/flash/system/flashsystem.cpp   | 22 +++++++++++++++-------
+ src/scripting/flash/system/flashsystem.h     |  4 +++-
+ 3 files changed, 31 insertions(+), 8 deletions(-)
+
+diff --git a/src/scripting/flash/display/flashdisplay.cpp b/src/scripting/flash/display/flashdisplay.cpp
+index d5c1b78..3316991 100644
+--- a/src/scripting/flash/display/flashdisplay.cpp
++++ b/src/scripting/flash/display/flashdisplay.cpp
+@@ -444,6 +444,19 @@ ASFUNCTIONBODY(Loader,load)
+ 	SecurityManager::checkURLStaticAndThrow(th->url, ~(SecurityManager::LOCAL_WITH_FILE),
+ 		SecurityManager::LOCAL_WITH_FILE | SecurityManager::LOCAL_TRUSTED, true);
+ 
++	if (!context.isNull() && context->getCheckPolicyFile())
++	{
++		//TODO: this should be async as it could block if invoked from ExternalInterface
++		SecurityManager::EVALUATIONRESULT evaluationResult;
++		evaluationResult = getSys()->securityManager->evaluatePoliciesURL(th->url, true);
++		if(evaluationResult == SecurityManager::NA_CROSSDOMAIN_POLICY)
++		{
++			// should this dispatch SecurityErrorEvent instead of throwing?
++			throw Class<SecurityError>::getInstanceS(
++				"SecurityError: connection to domain not allowed by securityManager");
++		}
++	}
++
+ 	th->incRef();
+ 	r->incRef();
+ 	LoaderThread *thread=new LoaderThread(_MR(r), _MR(th));
+diff --git a/src/scripting/flash/system/flashsystem.cpp b/src/scripting/flash/system/flashsystem.cpp
+index 26701f6..70185cc 100644
+--- a/src/scripting/flash/system/flashsystem.cpp
++++ b/src/scripting/flash/system/flashsystem.cpp
+@@ -329,10 +329,16 @@ ASObject* ApplicationDomain::getVariableByMultinameOpportunistic(const multiname
+ 	return NULL;
+ }
+ 
++LoaderContext::LoaderContext(Class_base* c):
++	ASObject(c),checkPolicyFile(false)
++{
++}
++
+ void LoaderContext::sinit(Class_base* c)
+ {
+ 	c->setConstructor(Class<IFunction>::getFunction(_constructor));
+ 	REGISTER_GETTER_SETTER(c, applicationDomain);
++	REGISTER_GETTER_SETTER(c, checkPolicyFile);
+ 	REGISTER_GETTER_SETTER(c, securityDomain);
+ }
+ 
+@@ -346,19 +352,21 @@ void LoaderContext::finalize()
+ ASFUNCTIONBODY(LoaderContext,_constructor)
+ {
+ 	LoaderContext* th=Class<LoaderContext>::cast(obj);
+-	bool checkPolicy;
+-	_NR<ApplicationDomain> appDomain;
+-	_NR<SecurityDomain> secDomain;
+-	ARG_UNPACK (checkPolicy, false) (appDomain, NullRef) (secDomain, NullRef);
+-	//TODO: Support checkPolicyFile
+-	th->applicationDomain=appDomain;
+-	th->securityDomain=secDomain;
++	ARG_UNPACK (th->checkPolicyFile, false)
++		(th->applicationDomain, NullRef)
++		(th->securityDomain, NullRef);
+ 	return NULL;
+ }
+ 
+ ASFUNCTIONBODY_GETTER_SETTER(LoaderContext, applicationDomain);
++ASFUNCTIONBODY_GETTER_SETTER(LoaderContext, checkPolicyFile);
+ ASFUNCTIONBODY_GETTER_SETTER(LoaderContext, securityDomain);
+ 
++bool LoaderContext::getCheckPolicyFile()
++{
++	return checkPolicyFile;
++}
++
+ void SecurityDomain::sinit(Class_base* c)
+ {
+ 	c->setConstructor(Class<IFunction>::getFunction(_constructor));
+diff --git a/src/scripting/flash/system/flashsystem.h b/src/scripting/flash/system/flashsystem.h
+index cf86063..65e2b25 100644
+--- a/src/scripting/flash/system/flashsystem.h
++++ b/src/scripting/flash/system/flashsystem.h
+@@ -102,12 +102,14 @@ public:
+ class LoaderContext: public ASObject
+ {
+ public:
+-	LoaderContext(Class_base* c):ASObject(c){};
++	LoaderContext(Class_base* c);
+ 	static void sinit(Class_base* c);
+ 	ASFUNCTION(_constructor);
+ 	ASPROPERTY_GETTER_SETTER(_NR<ApplicationDomain>, applicationDomain);
++	ASPROPERTY_GETTER_SETTER(bool, checkPolicyFile);
+ 	ASPROPERTY_GETTER_SETTER(_NR<SecurityDomain>, securityDomain);
+ 	void finalize();
++	bool getCheckPolicyFile();
+ };
+ 
+ class SecurityDomain: public ASObject
+-- 
+1.8.5.3
+

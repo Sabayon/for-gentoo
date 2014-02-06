@@ -1,0 +1,79 @@
+From 8d2d42e39515142e7a3064ef29bcaf9da00f9aeb Mon Sep 17 00:00:00 2001
+From: Antti Ajanki <antti.ajanki@iki.fi>
+Date: Thu, 9 May 2013 13:12:50 +0300
+Subject: [PATCH 033/110] [ASObject] Throw the correct error when trying to set
+ a method
+
+---
+ src/asobject.cpp                    | 15 ++++++++++++++-
+ src/scripting/toplevel/toplevel.cpp | 15 +++++++++++++++
+ src/scripting/toplevel/toplevel.h   |  1 +
+ 3 files changed, 30 insertions(+), 1 deletion(-)
+
+diff --git a/src/asobject.cpp b/src/asobject.cpp
+index 508b3e6..5e20ad2 100644
+--- a/src/asobject.cpp
++++ b/src/asobject.cpp
+@@ -537,7 +537,20 @@ void ASObject::setVariableByMultiname(const multiname& name, ASObject* o, CONST_
+ 		}
+ 	}
+ 
+-	//Do not lookup in the prototype chain. This is tested behaviour
++	//Do not set variables in prototype chain. Still have to do
++	//lookup to throw a correct error in case a named function
++	//exists in prototype chain. See Tamarin test
++	//ecma3/Boolean/ecma4_sealedtype_1_rt
++	if(!obj && cls && cls->isSealed)
++	{
++		variable *protoObj = cls->findSettableInPrototype(name);
++		if (protoObj && 
++		    ((protoObj->var && protoObj->var->is<Function>()) ||
++		     protoObj->setter))
++		{
++			throwError<ReferenceError>(kCannotAssignToMethodError, name.normalizedName(), cls ? cls->getQualifiedClassName() : "");
++		}
++	}
+ 
+ 	if(!obj)
+ 	{
+diff --git a/src/scripting/toplevel/toplevel.cpp b/src/scripting/toplevel/toplevel.cpp
+index 64fa8fd..58462c5 100644
+--- a/src/scripting/toplevel/toplevel.cpp
++++ b/src/scripting/toplevel/toplevel.cpp
+@@ -1296,6 +1296,21 @@ variable* Class_base::findBorrowedSettable(const multiname& name, bool* has_gett
+ 	return ASObject::findSettableImpl(borrowedVariables,name,has_getter);
+ }
+ 
++variable* Class_base::findSettableInPrototype(const multiname& name)
++{
++	Prototype* proto = prototype.getPtr();
++	while(proto)
++	{
++		variable *obj = proto->getObj()->findSettable(name);
++		if (obj)
++			return obj;
++
++		proto = proto->prevPrototype.getPtr();
++	}
++
++	return NULL;
++}
++
+ EARLY_BIND_STATUS Class_base::resolveMultinameStatically(const multiname& name) const
+ {
+ 	if(findBorrowedGettable(name)!=NULL)
+diff --git a/src/scripting/toplevel/toplevel.h b/src/scripting/toplevel/toplevel.h
+index 449cc76..e2c1668 100644
+--- a/src/scripting/toplevel/toplevel.h
++++ b/src/scripting/toplevel/toplevel.h
+@@ -222,6 +222,7 @@ public:
+ 	}
+ 	const variable* findBorrowedGettable(const multiname& name) const DLL_LOCAL;
+ 	variable* findBorrowedSettable(const multiname& name, bool* has_getter=NULL) DLL_LOCAL;
++	variable* findSettableInPrototype(const multiname& name) DLL_LOCAL;
+ 	EARLY_BIND_STATUS resolveMultinameStatically(const multiname& name) const;
+ 	const multiname* resolveSlotTypeName(uint32_t slotId) const { /*TODO: implement*/ return NULL; }
+ };
+-- 
+1.8.5.3
+
