@@ -19,7 +19,7 @@ HOMEPAGE="http://xcb.freedesktop.org/"
 KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~x86-freebsd ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x86-macos ~sparc-solaris ~x64-solaris"
 IUSE="test"
 
-RDEPEND=">=x11-libs/xcb-util-${PV}[${MULTILIB_USEDEP}]
+RDEPEND=">=x11-libs/xcb-util-0.3.9[${MULTILIB_USEDEP}]
 	x11-proto/xcb-proto[${MULTILIB_USEDEP}]
 	x11-proto/xproto[${MULTILIB_USEDEP}]"
 DEPEND="${RDEPEND}
