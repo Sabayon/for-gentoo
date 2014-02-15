@@ -1,8 +1,8 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: Exp $
+# $Header: /var/cvsroot/gentoo-x86/media-sound/audacious/audacious-3.4.1.ebuild,v 1.9 2014/01/28 14:09:59 ago Exp $
 
-EAPI=4
+EAPI=5
 inherit eutils
 
 MY_P="${P/_/-}"
@@ -14,7 +14,7 @@ SRC_URI="http://distfiles.audacious-media-player.org/${MY_P}.tar.bz2
 
 LICENSE="BSD-2"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~hppa ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd ~x86-freebsd ~x86-interix ~amd64-linux ~x86-linux"
+KEYWORDS="alpha amd64 ~arm hppa ppc ppc64 sparc x86 ~x86-fbsd ~x86-freebsd ~x86-interix ~amd64-linux ~x86-linux"
 
 IUSE="chardet nls"
 
@@ -30,7 +30,7 @@ DEPEND="${RDEPEND}
 	chardet? ( >=app-i18n/libguess-1.1 )
 	nls? ( dev-util/intltool )"
 
-PDEPEND="~media-plugins/audacious-plugins-3.3.4"
+PDEPEND="~media-plugins/audacious-plugins-3.4.1"
 
 src_configure() {
 	# D-Bus is a mandatory dependency, remote control,
@@ -59,5 +59,5 @@ src_install() {
 	# This has been considered nonsense by other
 	# fellow distro maintainers.
 	sed -i "s:inode/directory;::" \
-		"${ED}/usr/share/applications/audacious.desktop" || die
+		"${D}/usr/share/applications/audacious.desktop" || die
 }
