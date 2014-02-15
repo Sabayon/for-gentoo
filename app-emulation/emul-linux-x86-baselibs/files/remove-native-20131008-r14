@@ -41,9 +41,6 @@ usr/lib32/librom1394.so.0
 usr/lib32/librom1394.so.0.3.0
 usr/lib32/libjpeg.so
 usr/lib32/libturbojpeg.so
-usr/lib32/libturbojpeg.so.0*
-usr/lib32/libjpeg.so.8.0.2
-usr/lib32/libjpeg.so.8
 usr/lib32/libjpeg.so.62
 usr/lib32/libexpat.so
 usr/lib32/libexpat.so.1
@@ -249,3 +246,10 @@ usr/lib32/pkgconfig/libcrypto.pc
 usr/lib32/pkgconfig/libssl.pc
 usr/lib32/libcrypto.so
 usr/lib32/libssl.so
+usr/lib32/libmng.so
+usr/lib32/libasprintf.so
+usr/lib32/libasprintf.so.0
+usr/lib32/libasprintf.so.0.0.0
+usr/lib32/libgpg-error.so
+usr/lib32/libgpg-error.so.0
+usr/lib32/libgpg-error.so.0.8.0
