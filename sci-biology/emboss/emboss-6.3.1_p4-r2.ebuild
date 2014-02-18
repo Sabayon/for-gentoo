@@ -48,7 +48,7 @@ src_prepare() {
 }
 
 src_compile() {
-	epatch "${FILESDIR}/${PF}"_Makefile.patch
+	epatch "${FILESDIR}/${PF/r2/r1}"_Makefile.patch
 }
 
 src_install() {
