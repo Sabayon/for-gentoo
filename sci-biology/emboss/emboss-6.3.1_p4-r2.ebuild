@@ -47,10 +47,6 @@ src_prepare() {
 	epatch "${FILESDIR}/${PF}"_libtool.patch
 }
 
-src_compile() {
-	epatch "${FILESDIR}/${PF}"_Makefile.patch
-}
-
 src_install() {
 	default
 
