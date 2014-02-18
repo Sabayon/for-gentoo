@@ -1,0 +1,20 @@
+diff -up EMBOSS-6.4.0/configure.in.system-expat EMBOSS-6.4.0/configure.in
+--- EMBOSS-6.4.0/configure.in.system-expat	2011-11-23 17:06:08.000000000 +0100
++++ EMBOSS-6.4.0/configure.in	2011-11-23 17:07:00.615161077 +0100
+@@ -643,6 +643,7 @@ AC_ARG_ENABLE([systemlibs],
+ if test "${enable_systemlibs}" = "yes" ; then
+   have_systemlibs=yes
+   AC_CHECK_LIB(pcre, pcre_compile)
++  AC_CHECK_LIB(expat, XML_ParserCreate)
+ fi
+ AM_CONDITIONAL([ESYSTEMLIBS], [test "$have_systemlibs" = "yes"])
+ AC_SUBST([ESYSTEMLIBS])
+@@ -806,7 +807,6 @@ AC_CONFIG_FILES([Makefile
+                  ajax/ajaxdb/Makefile
+                  ajax/core/Makefile
+                  ajax/ensembl/Makefile
+-                 ajax/expat/Makefile
+                  ajax/graphics/Makefile
+                  ajax/zlib/Makefile
+                  doc/Makefile
+diff -up EMBOSS-6.4.0/configure.system-expat EMBOSS-6.4.0/configure
