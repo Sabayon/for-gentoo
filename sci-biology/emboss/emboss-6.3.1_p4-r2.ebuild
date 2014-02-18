@@ -12,7 +12,7 @@ EBOV=${PV/_p*}
 DESCRIPTION="The European Molecular Biology Open Software Suite - A sequence analysis package"
 SRC_URI="
 	ftp://emboss.open-bio.org/pub/EMBOSS/EMBOSS-${EBOV}.tar.gz
-	http://dev.gentoo.org/~jlec/distfiles/${PF}.patch.bz2"
+	http://dev.gentoo.org/~jlec/distfiles/${PF/r2/r1}.patch.bz2"
 ##[[ -n ${EBO_PATCH} ]] && SRC_URI+=" ftp://${PN}.open-bio.org/pub/EMBOSS/fixes/patches/patch-1-${EBO_PATCH}.gz -> ${P}-upstream.patch.gz"
 [[ -n ${EBO_PATCH} ]] && SRC_URI+=" http://pkgs.fedoraproject.org/lookaside/pkgs/EMBOSS/patch-1-4.gz/7a42594c5eda4adc6457f33e4ab0d8f2/patch-1-${EBO_PATCH}.gz -> ${P}-upstream.patch.gz"
 
@@ -38,7 +38,7 @@ DOCS+=" FAQ THANKS"
 
 src_prepare() {
 	[[ -n ${EBO_PATCH} ]] && epatch "${WORKDIR}"/${P}-upstream.patch
-	epatch "${WORKDIR}"/${PF}.patch
+	epatch "${WORKDIR}"/${PF/r2/r1}.patch
 	epatch "${FILESDIR}/${PF}"_plcol.patch
 	epatch "${FILESDIR}/${PF}"_compilations-paths.patch
 	# cp "${FILESDIR}"/ax_lib_mysql.m4 "${S}"/m4/mysql.m4
