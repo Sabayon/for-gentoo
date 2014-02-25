@@ -1,0 +1,12 @@
+# Apache2 logrotate snipet for Gentoo Linux
+# Contributes by Chuck Short
+#
+/var/log/apache2/*log {
+  missingok
+  notifempty
+  sharedscripts
+  postrotate
+  test -e /run/openrc/softlevel && /etc/init.d/apache2 reload > /dev/null 2>&1 || true
+  test -e /run/systemd/system && systemctl reload apache2 > /dev/null 2>&1 || true
+  endscript
+}
