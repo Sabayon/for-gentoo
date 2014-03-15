@@ -1,0 +1,25 @@
+From 5d87cd17ee31cf4fd0ea3a5a620960c925269992 Mon Sep 17 00:00:00 2001
+From: Ross Lagerwall <rosslagerwall@gmail.com>
+Date: Sat, 2 Nov 2013 17:08:26 +0200
+Subject: [PATCH 03/11] sftp: Free error
+
+https://bugzilla.gnome.org/show_bug.cgi?id=711292
+---
+ daemon/gvfsbackendsftp.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/daemon/gvfsbackendsftp.c b/daemon/gvfsbackendsftp.c
+index 8ffad1e..0ae2108 100644
+--- a/daemon/gvfsbackendsftp.c
++++ b/daemon/gvfsbackendsftp.c
+@@ -1231,6 +1231,7 @@ read_reply_async_got_len  (GObject *source_object,
+   /* Bail out if cancelled */
+   if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
+     {
++      g_error_free (error);
+       g_object_unref (backend);
+       return;
+     }
+-- 
+1.9.0
+

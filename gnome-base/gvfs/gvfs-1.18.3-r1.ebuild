@@ -84,7 +84,7 @@ src_prepare() {
 
 	# https://bugzilla.gnome.org/show_bug.cgi?id=532951
 	# backport performance fix patch
-	epatch "${FILESDIR}/0001-sftp-Fix-handling-of-multiple-reads-of-the-packet-le.patch"
+	epatch "${FILESDIR}/"00*.patch
 
 	if ! use udev; then
 		sed -e 's/gvfsd-burn/ /' \

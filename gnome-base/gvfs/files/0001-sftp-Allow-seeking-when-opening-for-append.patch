@@ -1,0 +1,32 @@
+From 629c5cc2425945bcd39a6ca28f77ec391bf96950 Mon Sep 17 00:00:00 2001
+From: Ross Lagerwall <rosslagerwall@gmail.com>
+Date: Tue, 1 Oct 2013 14:18:45 +0200
+Subject: [PATCH 01/11] sftp: Allow seeking when opening for append
+
+Although it has no effect, allow seeking when opening a file for append
+to allow programs to write to files opened for append through the fuse
+backend without failing with ENOTSUPP.
+This is similar to POSIX behavior which allows seeking on a file opened
+with O_APPEND.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=608910
+---
+ daemon/gvfsbackendsftp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/daemon/gvfsbackendsftp.c b/daemon/gvfsbackendsftp.c
+index d32ec69..86cbcb0 100644
+--- a/daemon/gvfsbackendsftp.c
++++ b/daemon/gvfsbackendsftp.c
+@@ -3103,7 +3103,7 @@ append_to_reply (GVfsBackendSftp *backend,
+   handle = sftp_handle_new (reply);
+   
+   g_vfs_job_open_for_write_set_handle (G_VFS_JOB_OPEN_FOR_WRITE (job), handle);
+-  g_vfs_job_open_for_write_set_can_seek (G_VFS_JOB_OPEN_FOR_WRITE (job), FALSE);
++  g_vfs_job_open_for_write_set_can_seek (G_VFS_JOB_OPEN_FOR_WRITE (job), TRUE);
+   g_vfs_job_succeeded (job);
+ }
+ 
+-- 
+1.9.0
+

@@ -1,0 +1,30 @@
+From 38a0034e98537082054a4f2a2a2c3a898744b5bf Mon Sep 17 00:00:00 2001
+From: Ross Lagerwall <rosslagerwall@gmail.com>
+Date: Sat, 26 Oct 2013 22:02:49 +0200
+Subject: [PATCH 02/11] sftp: Return the correct error code on failed symlink
+ creation
+
+If the symlink path already exists, return the correct error code of
+G_IO_ERROR_EXISTS.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=710935
+---
+ daemon/gvfsbackendsftp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/daemon/gvfsbackendsftp.c b/daemon/gvfsbackendsftp.c
+index 86cbcb0..8ffad1e 100644
+--- a/daemon/gvfsbackendsftp.c
++++ b/daemon/gvfsbackendsftp.c
+@@ -4395,7 +4395,7 @@ make_symlink_reply (GVfsBackendSftp *backend,
+                     gpointer user_data)
+ {
+   if (reply_type == SSH_FXP_STATUS)
+-    result_from_status (job, reply, -1, -1); 
++    result_from_status (job, reply, G_IO_ERROR_EXISTS, -1);
+   else
+     g_vfs_job_failed (job, G_IO_ERROR, G_IO_ERROR_FAILED,
+                       _("Invalid reply received"));
+-- 
+1.9.0
+
