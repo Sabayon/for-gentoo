@@ -127,6 +127,13 @@ src_prepare() {
 	# Make networkmanager optional, bug #398593
 	epatch "${FILESDIR}/${PN}-3.10-networkmanager-flag.patch"
 
+	# Fix silent bluetooth linking failure with ld.gold, bug #503952
+	# https://bugzilla.gnome.org/show_bug.cgi?id=726435
+	epatch "${FILESDIR}/${PN}-3.10.4-bluetooth-gold.patch"
+
+	# Fix background glitches with multiple monitors, from 3.11, bug #504530
+	epatch "${FILESDIR}/${PN}-3.10.4-fix-background-manager.patch"
+
 	# Backport some patches from 3.10.5
 	epatch "${FILESDIR}"/backports/*.patch
 
