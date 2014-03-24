@@ -76,6 +76,9 @@ src_prepare() {
 		epatch "${FILESDIR}"/${PN}-1.0.1f-perl-5.18.patch #497286
 		epatch "${FILESDIR}"/${PN}-1.0.1e-s_client-verify.patch #472584
 		epatch "${FILESDIR}"/${PN}-1.0.1f-revert-alpha-perl-generation.patch #499086
+
+		# Fix true-mutlilib building of libcrypto
+		epatch "${FILESDIR}"/${PN}-1.0.1f-quote-multilib.patch
 		epatch_user #332661
 	fi
 
