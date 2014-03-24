@@ -1,0 +1,12 @@
+diff -urpN openssl-1.0.1f.orig/Makefile.org openssl-1.0.1f/Makefile.org
+--- openssl-1.0.1f.orig/Makefile.org	2014-01-29 22:41:47.301561535 -0800
++++ openssl-1.0.1f/Makefile.org	2014-01-30 01:28:10.124709670 -0800
+@@ -305,7 +305,7 @@ libcrypto$(SHLIB_EXT): libcrypto.a fips_
+ 			FIPSLD_CC="$(CC)"; CC=$(FIPSDIR)/bin/fipsld; \
+ 			export CC FIPSLD_CC FIPSLD_LIBCRYPTO; \
+ 		fi; \
+-		$(MAKE) -e SHLIBDIRS=crypto  CC=$${CC:-$(CC)} build-shared; \
++		$(MAKE) -e SHLIBDIRS=crypto  CC="$${CC:-$(CC)}" build-shared; \
+ 		touch -c fips_premain_dso$(EXE_EXT); \
+ 	else \
+ 		echo "There's no support for shared libraries on this platform" >&2; \
