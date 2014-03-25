@@ -8,7 +8,7 @@ inherit eutils perl-module
 
 DESCRIPTION="A frontend for ClamAV using Gtk2-perl"
 HOMEPAGE="http://clamtk.sourceforge.net/"
-SRC_URI="mirror://sourceforge/${PN}/${P}.tar.gz"
+SRC_URI="https://bitbucket.org/dave_theunsub/clamtk/downloads/${P}.tar.gz"
 
 LICENSE="Artistic GPL-2"
 SLOT="0"
