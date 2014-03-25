@@ -5,10 +5,11 @@
 EAPI=5
 
 MY_PN="Caledonia"
+MY_P="$MY_PN-$PV"
 
 DESCRIPTION="Elegant and minimalistic dark theme for Plasma"
 HOMEPAGE="http://malcer.deviantart.com/art/Caledonia-Plasma-KDE-Theme-213719701"
-SRC_URI="mirror://sourceforge/caledonia/${MY_PN}%20%28Plasma-KDE%20Theme%29/${MY_PN}.tar.gz"
+SRC_URI="mirror://sourceforge/caledonia/${MY_PN}%20%28Plasma-KDE%20Theme%29/${MY_P}.tar.gz"
 
 LICENSE="CCPL-Attribution-ShareAlike-3.0"
 SLOT="0"
