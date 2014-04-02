@@ -376,7 +376,7 @@ src_install() {
 		-o -name openbios-ppc -o -name palcode-clipper \) -delete || die
 
 	# Fix collisions with qemu-1.6.x
-	rm -rf "${D}"/usr/share/man*/qemu* "${D}"/usr/share/locale/*/LC_MESSAGES/qemu.mo
+	rm -rf "${D}"/usr/share/man/man*/qemu* "${D}"/usr/share/locale/*/LC_MESSAGES/qemu.mo
 }
 
 pkg_postinst() {
