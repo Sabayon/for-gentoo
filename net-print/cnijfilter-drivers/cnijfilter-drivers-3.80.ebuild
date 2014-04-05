@@ -102,7 +102,8 @@ src_prepare() {
 		"${FILESDIR}/${MY_PN}"-3.70-ppd.patch \
 		"${FILESDIR}/${MY_PN}"-3.70-ppd2.patch \
 		"${FILESDIR}/${MY_PN}"-3.70-libexec-cups.patch \
-		"${FILESDIR}/${MY_PN}"-3.70-libexec-backend.patch
+		"${FILESDIR}/${MY_PN}"-3.70-libexec-backend.patch \
+		"${FILESDIR}/${MY_PN}"-3.80-cups.patch
 
 	_dir_build "${DIRS_PRINTER}" "eautoreconf"
 
