@@ -1,4 +1,4 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -16,6 +16,7 @@ KEYWORDS="~amd64 ~x86"
 IUSE=""
 
 # test only: dev-perl/Test-Perl-Critic
+# >=virtual/perl-version-0.990.800 due to #505524
 DEPEND="sys-devel/gettext"
 
 RDEPEND="dev-lang/perl[ithreads]
@@ -26,6 +27,7 @@ RDEPEND="dev-lang/perl[ithreads]
 	dev-perl/Gtk2-ImageView
 	>=dev-perl/gtk2-perl-1.043.1
 	dev-perl/HTML-Parser
+	dev-perl/List-MoreUtils
 	>=dev-perl/Locale-gettext-1.50
 	dev-perl/Log-Log4perl
 	dev-perl/PDF-API2
@@ -35,6 +37,7 @@ RDEPEND="dev-lang/perl[ithreads]
 	dev-perl/Set-IntSpan
 	dev-perl/Try-Tiny
 	virtual/perl-Archive-Tar
+	>=virtual/perl-version-0.990.800
 	media-gfx/imagemagick[perl]
 	media-gfx/sane-backends
 	media-libs/tiff"
