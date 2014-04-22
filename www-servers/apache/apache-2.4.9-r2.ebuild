@@ -1,13 +1,13 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-servers/apache/apache-2.4.7.ebuild,v 1.2 2013/11/26 08:27:56 polynomial-c Exp $
+# $Header: /var/cvsroot/gentoo-x86/www-servers/apache/apache-2.4.9-r2.ebuild,v 1.1 2014/04/21 09:45:27 polynomial-c Exp $
 
 EAPI=5
 
 # latest gentoo apache files
-GENTOO_PATCHSTAMP="20130801"
-GENTOO_DEVELOPER="kensington"
-GENTOO_PATCHNAME="gentoo-apache-2.4.4"
+GENTOO_PATCHSTAMP="20140421"
+GENTOO_DEVELOPER="polynomial-c"
+GENTOO_PATCHNAME="gentoo-apache-2.4.9-r2"
 
 # IUSE/USE_EXPAND magic
 IUSE_MPMS_FORK="itk peruser prefork"
@@ -66,6 +66,7 @@ MODULE_DEPENDS="
 	mime_magic:mime
 	proxy_ajp:proxy
 	proxy_balancer:proxy
+	proxy_balancer:slotmem_shm
 	proxy_connect:proxy
 	proxy_ftp:proxy
 	proxy_http:proxy
@@ -93,6 +94,7 @@ MODULE_DEFINES="
 	proxy_ftp:PROXY
 	proxy_http:PROXY
 	proxy_fcgi:PROXY
+	proxy_scgi:PROXY
 	socache_shmcb:SSL
 	ssl:SSL
 	status:STATUS
@@ -109,11 +111,7 @@ MODULE_CRITICAL="
 	mime
 	unixd
 "
-# dependend criticals
-use ssl && MODULE_CRITICAL+=" socache_shmcb"
-use doc && MODULE_CRITICAL+=" alias negotiation setenvif"
-
-inherit eutils apache-2 systemd
+inherit eutils apache-2 systemd toolchain-funcs
 
 DESCRIPTION="The Apache Web Server."
 HOMEPAGE="http://httpd.apache.org/"
@@ -121,7 +119,7 @@ HOMEPAGE="http://httpd.apache.org/"
 # some helper scripts are Apache-1.1, thus both are here
 LICENSE="Apache-2.0 Apache-1.1"
 SLOT="2"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd"
 IUSE=""
 
 DEPEND="${DEPEND}
@@ -134,19 +132,33 @@ RDEPEND="${RDEPEND}
 	>=dev-libs/openssl-0.9.8m
 	apache2_modules_mime? ( app-misc/mime-types )"
 
-# init script fixup - should be rolled into next tarball #389965
-src_prepare() {
-	# the following patch can be removed once it is included in
-	# GENTOO_PATCHNAME="gentoo-apache-2.4.1" ...
-	if [ -f "${FILESDIR}/${GENTOO_PATCHNAME}-${GENTOO_DEVELOPER}-${GENTOO_PATCHSTAMP}-${PVR}.patch" ]; then
-		cd "${GENTOO_PATCHDIR}" || die "Failed to cd to ${GENTOO_PATCHDIR}"
-		epatch "${FILESDIR}/${GENTOO_PATCHNAME}-${GENTOO_DEVELOPER}-${GENTOO_PATCHSTAMP}-${PVR}.patch"
-		cd "${S}" || die "Failed to cd to ${S}"
+pkg_setup() {
+	# dependend critical modules which are not allowed in global scope due
+	# to USE flag conditionals (bug #499260)
+	use ssl && MODULE_CRITICAL+=" socache_shmcb"
+	use doc && MODULE_CRITICAL+=" alias negotiation setenvif"
+	apache-2_pkg_setup
+}
+
+src_configure() {
+	# Brain dead check.
+	tc-is-cross-compiler && export ap_cv_void_ptr_lt_long="no"
+
+	apache-2_src_configure
+}
+
+src_compile() {
+	if tc-is-cross-compiler; then
+		# This header is the same across targets, so use the build compiler.
+		pushd server >/dev/null
+		emake gen_test_char
+		tc-export_build_env BUILD_CC
+		${BUILD_CC} ${BUILD_CFLAGS} ${BUILD_CPPFLAGS} ${BUILD_LDFLAGS} \
+			gen_test_char.c -o gen_test_char $(apr-1-config --includes) || die
+		popd >/dev/null
 	fi
-	apache-2_src_prepare
-	pushd "${GENTOO_PATCHDIR}" &>/dev/null || die
-	epatch "${FILESDIR}"/gentoo-apache-2.2.23-initd_fixups.patch
-	popd &>/dev/null || die
+
+	default
 }
 
 src_install() {
