@@ -41,6 +41,7 @@ src_configure() {
 	local myeconfargs=(
 		$(use_enable debug)
 		$(use_enable syslog logging)
+		--disable-zmq
 	)
 	autotools-utils_src_configure
 }
