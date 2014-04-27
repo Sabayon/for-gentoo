@@ -28,7 +28,7 @@ CONFIG_CHECK="~NET_TEAM ~NET_TEAM_MODE_ROUNDROBIN ~NET_TEAM_MODE_ACTIVEBACKUP"
 ERROR_NET_TEAM="NET_TEAM is not enabled in this kernel!
 Only >=3.3.0 kernel version support in team mode"
 
-DOCS=( HOWTO.BASICS README )
+DOCS=( README )
 
 src_prepare() {
 	# avoid using -Werror in CFLAGS
