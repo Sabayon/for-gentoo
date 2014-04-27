@@ -1,10 +1,10 @@
-# Copyright 1999-2010 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI="2"
+EAPI=5
 
-inherit eutils python
+inherit eutils
 
 DESCRIPTION="Command line tool for setting up authentication from network services"
 HOMEPAGE="https://fedorahosted.org/authconfig"
@@ -23,4 +23,6 @@ RDEPEND="${DEPEND} dev-libs/newt"
 
 src_install() {
 	emake DESTDIR="${D}" install || die "install failed"
+	# drop broken .desktop
+	rm "${D}/usr/share/applications/authconfig.desktop" -f
 }
