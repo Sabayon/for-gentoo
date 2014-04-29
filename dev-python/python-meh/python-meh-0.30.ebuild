@@ -30,7 +30,7 @@ RDEPEND="${COMMON_DEPEND}
 		x11-libs/gtk+:3
 		dev-python/pygobject:3
 	)
-	>=dev-python/python-report-0.18
+	>=dev-libs/libreport-2.0.18
 	net-misc/openssh"
 
 src_prepare() {
