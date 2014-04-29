@@ -55,6 +55,9 @@ src_prepare() {
 	# code that requires gentoo infra support.
 	epatch "${FILESDIR}/${PN}-2.0.20-sabayon.patch"
 
+	# json-c-0.11, https://github.com/abrt/libreport/pull/{159,174}
+	epatch "${FILESDIR}/${PN}-2.0.20-json-c.patch"
+
 	# Modify uploader_event so that the gui recognizes it
 	epatch "${FILESDIR}/${PN}-2.0.7-uploader_event-syntax.patch"
 
@@ -66,7 +69,6 @@ src_prepare() {
 
 src_configure() {
 	python_foreach_impl run_in_build_dir econf \
-		--disable-bodhi \
 		--localstatedir="${EPREFIX}/var" \
 		$(usex debug --enable-debug "")
 	# --disable-debug enables debug!
