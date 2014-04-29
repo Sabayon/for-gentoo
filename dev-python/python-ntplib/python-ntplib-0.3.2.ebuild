@@ -17,4 +17,3 @@ IUSE=""
 
 S="${WORKDIR}/${MY_PN}-${PV}"
 
-PYTHON_MODNAME="ntplib"
