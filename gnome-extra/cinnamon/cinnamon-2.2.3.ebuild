@@ -60,7 +60,6 @@ COMMON_DEPEND="
 	${PYTHON_DEPS}
 
 	>=net-misc/networkmanager-0.9
-	>=net-wireless/cinnamon-bluetooth-3.8.2
 "
 RDEPEND="${COMMON_DEPEND}
 	>=gnome-base/dconf-0.4.1
