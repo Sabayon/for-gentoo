@@ -62,6 +62,8 @@ RDEPEND="${COMMON_DEPEND}
 "
 
 src_prepare() {
+	epatch "${FILESDIR}/cogl_ABI.patch"
+
 	# Regenerate obsolete Makefile.in
 	eautoreconf
 	gnome2_src_prepare
