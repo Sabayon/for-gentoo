@@ -109,6 +109,7 @@ pkg_setup() {
 src_prepare() {
 	epatch "${FILESDIR}/upower_calendar_fix.patch"
 	epatch "${FILESDIR}/set_wheel.patch"
+	epatch "${FILESDIR}/remove_bluetooth.patch"
 
 	# Gentoo uses /usr/$(get_libdir), not /usr/lib even for python
 	sed -e "s:/usr/lib/:/usr/$(get_libdir)/:" \
