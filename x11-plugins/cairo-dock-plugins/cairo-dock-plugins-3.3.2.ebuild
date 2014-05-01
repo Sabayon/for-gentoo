@@ -16,7 +16,7 @@ SRC_URI="http://launchpad.net/${MY_PN}/${MM_PV}/${PV}/+download/${PN}-${PV}.tar.
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="alsa exif gmenu gtk3 kde terminal gnote vala webkit xfce xgamma xklavier twitter indicator3 zeitgeist mail"
+IUSE="alsa exif gmenu gtk3 kde terminal gnote vala webkit xfce xgamma xklavier twitter indicator3 zeitgeist mail upower"
 
 RDEPEND="
 	dev-libs/dbus-glib
@@ -44,6 +44,7 @@ RDEPEND="
 	indicator3? ( dev-libs/libindicator )
 	zeitgeist? ( dev-libs/libzeitgeist )
 	mail? ( net-libs/libetpan )
+	upower? ( sys-power/upower )
 "
 
 DEPEND="${RDEPEND}
@@ -54,3 +55,10 @@ DEPEND="${RDEPEND}
 "
 
 S="${WORKDIR}/${PN}-${PV}"
+
+src_configure() {
+	mycmakeargs=(
+		$(use upower && echo "-Denable-upower-support=ON" || echo "-Denable-upower-support=OFF")
+	)
+	cmake-utils_src_configure
+}
