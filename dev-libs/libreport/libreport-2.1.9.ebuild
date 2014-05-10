@@ -54,6 +54,8 @@ src_prepare() {
 	# Replace redhat- and fedora-specific defaults with gentoo ones, and disable
 	# code that requires gentoo infra support.
 	epatch "${FILESDIR}/0001-Add-Sabayon-customizations.patch"
+	epatch "${FILESDIR}/0002-Drop-Fedora-workflows-add-Sabayon-one.patch"
+	epatch "${FILESDIR}/0003-Make-report_Bugzilla-use-Sabayon-s-bugzilla-URL.patch"
 
 	# json-c support
 	epatch "${FILESDIR}/libreport-2.1.9-json-c.patch"
@@ -83,9 +85,4 @@ src_install() {
 	keepdir /var/spool/abrt
 
 	prune_libtool_files --modules
-
-	# Drop Fedora specific files
-	rm "${D}/etc/libreport/workflows.d/report_rhel.conf" || die
-	rm "${D}/etc/libreport/workflows.d/report_fedora.conf" || die
-	rm "${D}/etc/libreport/events.d/rhtsupport_event.conf" || die
 }
