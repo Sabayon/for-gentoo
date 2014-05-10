@@ -16,13 +16,11 @@ SLOT="0"
 IUSE=""
 KEYWORDS="~amd64 ~x86"
 
-RDEPEND="${PYTHON_DEPS}"
-DEPEND="${RDEPEND}
-	virtual/pkgconfig
+RDEPEND="${PYTHON_DEPS}
 	app-arch/rpm
 	>=dev-libs/elfutils-0.158
-	sys-devel/binutils
-"
+	sys-libs/libunwind"
+DEPEND="${RDEPEND} virtual/pkgconfig"
 
 src_prepare() {
 	epatch "${FILESDIR}/satyr-0.13-elfutils-0.158.patch"
