@@ -18,8 +18,8 @@ KEYWORDS="amd64 x86"
 IUSE="debug"
 
 COMMON_DEPEND="!dev-python/python-report
-	>=dev-libs/btparser-0.18:=
 	>=dev-libs/glib-2.21:2
+	dev-libs/satyr
 	dev-libs/json-c:=
 	dev-libs/libtar
 	dev-libs/libxml2:2
@@ -53,13 +53,10 @@ pkg_setup() {
 src_prepare() {
 	# Replace redhat- and fedora-specific defaults with gentoo ones, and disable
 	# code that requires gentoo infra support.
-	epatch "${FILESDIR}/${PN}-2.0.20-sabayon.patch"
+	epatch "${FILESDIR}/0001-Add-Sabayon-customizations.patch"
 
-	# json-c-0.11, https://github.com/abrt/libreport/pull/{159,174}
-	epatch "${FILESDIR}/${PN}-2.0.20-json-c.patch"
-
-	# Modify uploader_event so that the gui recognizes it
-	epatch "${FILESDIR}/${PN}-2.0.7-uploader_event-syntax.patch"
+	# json-c support
+	epatch "${FILESDIR}/libreport-2.1.9-json-c.patch"
 
 	mkdir -p m4
 	eautoreconf
@@ -88,7 +85,7 @@ src_install() {
 	prune_libtool_files --modules
 
 	# Drop Fedora specific files
-	rm "${D}/etc/libreport/workflows/workflow_Fedora.xml"
-	rm "${D}/etc/libreport/workflows/workflow_AnacondaFedora.xml"
-	rm "${D}/etc/libreport/workflows/workflow_Upload.xml"
+	rm "${D}/etc/libreport/workflows.d/report_rhel.conf" || die
+	rm "${D}/etc/libreport/workflows.d/report_fedora.conf" || die
+	rm "${D}/etc/libreport/events.d/rhtsupport_event.conf" || die
 }
