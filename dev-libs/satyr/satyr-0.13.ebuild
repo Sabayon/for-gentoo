@@ -18,8 +18,7 @@ KEYWORDS="~amd64 ~x86"
 
 RDEPEND="${PYTHON_DEPS}
 	app-arch/rpm
-	>=dev-libs/elfutils-0.158
-	sys-libs/libunwind"
+	>=dev-libs/elfutils-0.158"
 DEPEND="${RDEPEND} virtual/pkgconfig"
 
 src_prepare() {
