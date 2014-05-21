@@ -90,7 +90,7 @@ usr/lib32/pkgconfig/pangocairo.pc
 usr/lib32/pkgconfig/pangoft2.pc
 usr/lib32/pkgconfig/pangox.pc
 usr/lib32/pkgconfig/pangoxft.pc
-/usr/lib32/pkgconfig/pangox.pc
-/usr/lib32/libpangox-1.0.so.0.0.0
-/usr/lib32/libpangox-1.0.so
-/usr/lib32/libpangox-1.0.so.0
+usr/lib32/pkgconfig/pangox.pc
+usr/lib32/libpangox-1.0.so.0.0.0
+usr/lib32/libpangox-1.0.so
+usr/lib32/libpangox-1.0.so.0
