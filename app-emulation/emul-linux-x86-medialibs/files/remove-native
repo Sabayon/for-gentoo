@@ -44,8 +44,7 @@ usr/lib32/libavresample.so
 usr/lib32/libavresample.so.0
 usr/lib32/libavresample.so.0.0.3
 usr/lib32/libavutil.so
-usr/lib32/libavutil.so.51
-usr/lib32/libavutil.so.51.73.101
+usr/lib32/libavutil.so.51*
 usr/lib32/libcdio_cdda.so
 usr/lib32/libcdio_cdda.so.1
 usr/lib32/libcdio_cdda.so.1.0.0
@@ -56,6 +55,8 @@ usr/lib32/libcdio.so
 usr/lib32/libcdio++.so
 usr/lib32/libcdio++.so.0
 usr/lib32/libcdio++.so.0.0.2
+usr/lib32/libcdio.so.14
+usr/lib32/libcdio.so.14.0.0
 usr/lib32/libcuefile.so
 usr/lib32/libcuefile.so.0
 usr/lib32/libcuefile.so.0.0.0
@@ -144,8 +145,7 @@ usr/lib32/libid3tag.so
 usr/lib32/libid3tag.so.0
 usr/lib32/libid3tag.so.0.3.0
 usr/lib32/libiec61883.so
-usr/lib32/libiec61883.so.0
-usr/lib32/libiec61883.so.0.1.1
+usr/lib32/libiec61883.so.0*
 usr/lib32/libieee1284.so
 usr/lib32/libieee1284.so.3
 usr/lib32/libieee1284.so.3.2.2
@@ -231,9 +231,7 @@ usr/lib32/libvisual-0.4.so
 usr/lib32/libvisual-0.4.so.0
 usr/lib32/libvisual-0.4.so.0.0.0
 usr/lib32/libvpx.so
-usr/lib32/libvpx.so.1
-usr/lib32/libvpx.so.1.0
-usr/lib32/libvpx.so.1.1.0
+usr/lib32/libvpx.so.1*
 usr/lib32/libx264.so
 usr/lib32/libxvidcore.so
 usr/lib32/libxvidcore.so.4
