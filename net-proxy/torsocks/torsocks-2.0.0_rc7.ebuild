@@ -34,7 +34,7 @@ src_configure() {
 src_install() {
 	default
 
-	dodoc ChangeLog README TODO doc/notes/DEBUG doc/socks/{SOCKS5,socks-extensions.txt}
+	dodoc ChangeLog TODO doc/notes/DEBUG doc/socks/{SOCKS5,socks-extensions.txt}
 
 	#Remove libtool .la files
 	cd "${D}"/usr/$(get_libdir)/torsocks
