@@ -25,6 +25,7 @@ RDEPEND="${DEPEND}"
 
 src_prepare() {
 	epatch "${FILESDIR}"/fix-docdir-r2.patch
+	epatch "${FILESDIR}"/fix-find-libc.so.patch
 	eautoreconf
 }
 
