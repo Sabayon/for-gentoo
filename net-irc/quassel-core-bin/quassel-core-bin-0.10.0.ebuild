@@ -1,14 +1,14 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
 EAPI=4
 
-inherit user versionator
+inherit systemd user versionator
 
 MY_PN=${PN/-core-bin}
 
-DESCRIPTION="Qt4/KDE4 IRC client. This provides the \"core\" (server) component (static build, no Qt dependency)."
+DESCRIPTION="Qt4/KDE IRC client - the \"core\" (server) component (static build, no Qt dependency)"
 HOMEPAGE="http://quassel-irc.org/"
 
 MY_FETCH_NAME="quasselcore-static-${PV}"
@@ -43,9 +43,10 @@ src_install() {
 	keepdir "${QUASSEL_DIR}"
 	fowners "${QUASSEL_USER}":"${QUASSEL_USER}" "${QUASSEL_DIR}"
 
-	# init scripts
+	# init scripts & systemd unit
 	newinitd "${FILESDIR}"/quasselcore.init quasselcore
 	newconfd "${FILESDIR}"/quasselcore.conf quasselcore
+	systemd_dounit "${FILESDIR}"/quasselcore.service
 
 	# logrotate
 	insinto /etc/logrotate.d
