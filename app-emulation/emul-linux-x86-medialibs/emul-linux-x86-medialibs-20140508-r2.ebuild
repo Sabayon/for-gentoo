@@ -69,12 +69,12 @@ RDEPEND="${RDEPEND}
 		>=dev-libs/fribidi-0.19.5-r2[abi_x86_32(-)]
 		>=dev-libs/libcdio-0.92[abi_x86_32(-)]
 		>=dev-libs/libcdio-paranoia-0.90_p1-r1[abi_x86_32(-)]
-		>=virtual/ffmpeg-0.10.8:0.10[abi_x86_32(-)]
+		>=virtual/ffmpeg-0.10.8:0[abi_x86_32(-)]
 		>=media-libs/libdv-1.0.0-r3[abi_x86_32(-)]
-		media-libs/gstreamer:0.10[abi_x86_32(-)]
-		media-libs/gst-plugins-base:0.10[abi_x86_32(-)]
 		>=media-libs/libgphoto2-2.5.4-r1[abi_x86_32(-)]
 		>=media-gfx/sane-backends-1.0.24-r4[abi_x86_32(-)]
+		media-libs/gstreamer:0.10[abi_x86_32(-)]
+		media-libs/gst-plugins-base:0.10[abi_x86_32(-)]
 	)
 	"
 PDEPEND="!abi_x86_32? ( ~app-emulation/emul-linux-x86-soundlibs-${PV} )"
