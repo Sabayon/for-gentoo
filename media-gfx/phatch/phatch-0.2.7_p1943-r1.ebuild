@@ -1,13 +1,11 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: Exp $
 
 EAPI="4"
-PYTHON_DEPEND="2:2.5"
-SUPPORT_PYTHON_ABIS="1"
-RESTRICT_PYTHON_ABIS="3.*"
+PYTHON_COMPAT=( python2_7 )
 
-inherit eutils distutils fdo-mime
+inherit distutils-r1 fdo-mime
 
 DESCRIPTION="Simple to use cross-platform GUI Photo Batch Processor"
 HOMEPAGE="http://photobatch.stani.be/"
@@ -36,26 +34,21 @@ RDEPEND="${CDEPEND}
 	sys-apps/mlocate
 "
 
-src_prepare() {
-	epatch "${WORKDIR}/${PN}-fix-PIL-imports.patch"
-	distutils_src_prepare
-}
+PATCHES=( "${WORKDIR}/${PN}-fix-PIL-imports.patch" )
 
-src_install() {
-	distutils_src_install
+python_install_all() {
+	distutils-r1_python_install_all
 	# Hack...
 	mv "${ED}"usr/share/locale/locale/* "${ED}"usr/share/locale || die
 	rmdir "${ED}"usr/share/locale/locale || die
 }
 
 pkg_postinst() {
-	distutils_pkg_postinst
 	fdo-mime_mime_database_update
 	fdo-mime_desktop_database_update
 }
 
 pkg_postrm() {
-	distutils_pkg_postrm
 	fdo-mime_desktop_database_update
 	fdo-mime_mime_database_update
 }
