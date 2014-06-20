@@ -12,7 +12,7 @@ DESCRIPTION="Encrypted networking for regular people"
 HOMEPAGE="https://github.com/cjdelisle/cjdns"
 EGIT_REPO_URI="git://github.com/cjdelisle/cjdns.git \
                https://github.com/cjdelisle/cjdns.git"
-#EGIT_COMMIT="f11ce1fd4795b0173ac0ef18c8a6f752aa824adb"
+EGIT_COMMIT="a201307bf747785249f6b42101edca1d29b74fb0"
 LICENSE="GPL-3"
 
 SLOT="0"
