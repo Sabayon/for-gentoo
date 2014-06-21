@@ -15,7 +15,7 @@ SRC_URI="https://fedorahosted.org/released/abrt/${P}.tar.gz"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="amd64 x86"
-IUSE="debug"
+IUSE="debug +gtk"
 
 COMMON_DEPEND="!dev-python/python-report
 	>=dev-libs/glib-2.21:2
@@ -29,7 +29,7 @@ COMMON_DEPEND="!dev-python/python-report
 	net-libs/libproxy:=
 	net-misc/curl:=[ssl]
 	sys-apps/dbus
-	>=x11-libs/gtk+-3.3.12:3
+	gtk? ( >=x11-libs/gtk+-3.3.12:3 )
 	x11-misc/xdg-utils
 	${PYTHON_DEPS}
 "
