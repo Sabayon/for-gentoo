@@ -54,6 +54,7 @@ S="${WORKDIR}/${MY_P}"
 src_prepare() {
 	# Sabayon: we need this
 	epatch "${FILESDIR}/${P}-new-webob-support.patch"
+	epatch "${FILESDIR}/${P}-new-webob-support-2.patch"
 
 	distutils_src_prepare
 }
