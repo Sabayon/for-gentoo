@@ -30,7 +30,6 @@ RDEPEND="x11-libs/gtk+:3[introspection]
 	media-plugins/gst-plugins-x264:0.10
 	media-plugins/gst-plugins-ximagesrc:0.10
 	media-sound/pulseaudio
-	virtual/python-argparse
 	virtual/ffmpeg
 "
 
