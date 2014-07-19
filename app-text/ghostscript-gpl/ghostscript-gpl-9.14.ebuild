@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-text/ghostscript-gpl/ghostscript-gpl-9.07.ebuild,v 1.3 2013/08/27 14:58:36 kensington Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-text/ghostscript-gpl/ghostscript-gpl-9.14.ebuild,v 1.2 2014/06/10 01:04:39 vapier Exp $
 
 EAPI=5
 
@@ -13,35 +13,36 @@ MY_P=${P/-gpl}
 GSDJVU_PV=1.6
 PVM=$(get_version_component_range 1-2)
 SRC_URI="
-	mirror://sourceforge/ghostscript/${MY_P}.tar.bz2
-	mirror://gentoo/${P}-patchset-1.tar.bz2
+	http://downloads.ghostscript.com/public/${MY_P}.tar.bz2
+	mirror://gentoo/${PN}-9.12-patchset-1.tar.bz2
 	!bindist? ( djvu? ( mirror://sourceforge/djvu/gsdjvu-${GSDJVU_PV}.tar.gz ) )"
 
 LICENSE="AGPL-3 CPL-1.0"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd"
-IUSE="bindist cups dbus djvu gtk idn jpeg2k linguas_de static-libs X"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd"
+IUSE="bindist cups dbus djvu gtk idn linguas_de static-libs X"
 
 COMMON_DEPEND="
 	app-text/libpaper
 	media-libs/fontconfig
-	>=media-libs/freetype-2.4.2:2=
+	>=media-libs/freetype-2.4.9:2=
 	media-libs/jbig2dec
-	>=media-libs/lcms-2.4-r1:2
-	media-libs/libpng:0=
-	media-libs/tiff:0=
-	>=sys-libs/zlib-1.2.3:=
+	>=media-libs/lcms-2.5:2
+	>=media-libs/libpng-1.6.2:0=
+	>=media-libs/tiff-4.0.1:0=
+	>=sys-libs/zlib-1.2.7:=
 	virtual/jpeg:0
 	!bindist? ( djvu? ( app-text/djvu ) )
 	cups? ( >=net-print/cups-1.3.8 )
 	dbus? ( sys-apps/dbus )
 	gtk? ( || ( x11-libs/gtk+:3 x11-libs/gtk+:2 ) )
 	idn? ( net-dns/libidn )
-	jpeg2k? ( >=media-libs/openjpeg-1.5.0:0 )
-	X? ( x11-libs/libXt x11-libs/libXext )"
+	X? ( x11-libs/libXt x11-libs/libXext )
+"
 
 DEPEND="${COMMON_DEPEND}
-	virtual/pkgconfig"
+	virtual/pkgconfig
+"
 
 RDEPEND="${COMMON_DEPEND}
 	>=app-text/poppler-data-0.4.5-r1
@@ -52,6 +53,7 @@ RDEPEND="${COMMON_DEPEND}
 	linguas_zh_TW? ( media-fonts/arphicfonts )
 	!!media-fonts/gnu-gs-fonts-std
 	!!media-fonts/gnu-gs-fonts-other
+	!<net-print/cups-filters-1.0.36-r2
 "
 
 S="${WORKDIR}/${MY_P}"
@@ -70,27 +72,25 @@ pkg_setup() {
 
 src_prepare() {
 	# remove internal copies of various libraries
+	rm -rf "${S}"/cups/libs
 	rm -rf "${S}"/expat
 	rm -rf "${S}"/freetype
 	rm -rf "${S}"/jbig2dec
-	rm -rf "${S}"/jpeg
+	rm -rf "${S}"/jpeg{,xr}
 	rm -rf "${S}"/lcms{,2}
 	rm -rf "${S}"/libpng
-	rm -rf "${S}"/openjpeg
 	rm -rf "${S}"/tiff
 	rm -rf "${S}"/zlib
-
 	## Only difference between us and upstream
 	## Sabayon: this breaks pdf printing
 	## See: https://forum.sabayon.org/viewtopic.php?f=59&t=30987
 	# remove internal urw-fonts
-	# rm -rf "${S}"/Resource/Font
-
+	## rm -rf "${S}"/Resource/Font
 	# remove internal CMaps (CMaps from poppler-data are used instead)
 	rm -rf "${S}"/Resource/CMap
 
 	# apply various patches, many borrowed from Fedora
-	# http://pkgs.fedoraproject.org/gitweb/?p=ghostscript.git
+	# http://pkgs.fedoraproject.org/cgit/ghostscript.git
 	EPATCH_SUFFIX="patch" EPATCH_FORCE="yes"
 	EPATCH_SOURCE="${WORKDIR}/patches/"
 	epatch
@@ -98,33 +98,32 @@ src_prepare() {
 	if ! use bindist && use djvu ; then
 		unpack gsdjvu-${GSDJVU_PV}.tar.gz
 		cp gsdjvu-${GSDJVU_PV}/gsdjvu "${S}"
-		cp gsdjvu-${GSDJVU_PV}/gdevdjvu.c "${S}/base"
-		epatch "${WORKDIR}/patches-gsdjvu/gsdjvu-1.3-${PN}-8.64.patch"
-		cp gsdjvu-${GSDJVU_PV}/ps2utf8.ps "${S}/lib"
-		cp "${S}/base/contrib.mak" "${S}/base/contrib.mak.gsdjvu"
-		grep -q djvusep "${S}/base/contrib.mak" || \
-			cat gsdjvu-${GSDJVU_PV}/gsdjvu.mak >> "${S}/base/contrib.mak"
+		cp gsdjvu-${GSDJVU_PV}/gdevdjvu.c "${S}"/base
+		epatch "${WORKDIR}"/patches-gsdjvu/gsdjvu-1.3-${PN}-8.64.patch
+		cp "${S}"/contrib/contrib.mak "${S}"/base/contrib.mak.gsdjvu
+		grep -q djvusep "${S}"/contrib/contrib.mak || \
+			cat gsdjvu-${GSDJVU_PV}/gsdjvu.mak >> "${S}"/contrib/contrib.mak
 
 		# install ps2utf8.ps, bug #197818
-		sed -i -e '/$(EXTRA_INIT_FILES)/ a\ps2utf8.ps \\' "${S}/base/unixinst.mak" \
-			|| die "sed failed"
+		cp gsdjvu-${GSDJVU_PV}/ps2utf8.ps "${S}"/lib
+		sed -i -e '/$(EXTRA_INIT_FILES)/ a\ps2utf8.ps \\' \
+			"${S}"/base/unixinst.mak || die "sed failed"
 	fi
 
 	if ! use gtk ; then
-		sed -i "s:\$(GSSOX)::" base/*.mak || die "gsx sed failed"
-		sed -i "s:.*\$(GSSOX_XENAME)$::" base/*.mak || die "gsxso sed failed"
+		sed -i -e "s:\$(GSSOX)::" \
+			-e "s:.*\$(GSSOX_XENAME)$::" \
+			"${S}"/base/unix-dll.mak || die "sed failed"
 	fi
 
 	# search path fix
+	# put LDFLAGS after BINDIR, bug #383447
 	sed -i -e "s:\$\(gsdatadir\)/lib:/usr/share/ghostscript/${PVM}/$(get_libdir):" \
 		-e "s:exdir=.*:exdir=/usr/share/doc/${PF}/examples:" \
 		-e "s:docdir=.*:docdir=/usr/share/doc/${PF}/html:" \
 		-e "s:GS_DOCDIR=.*:GS_DOCDIR=/usr/share/doc/${PF}/html:" \
-		-e 's:-L$(BINDIR):$(LDFLAGS) &:g' \
-		base/Makefile.in base/*.mak || die "sed failed"
-
-	# bug 467100
-	sed -i -e '/AM_PROG_CC_STDC/d' ijs/configure.ac || die "sed failed"
+		-e 's:-L$(BINDIR):& $(LDFLAGS):g' \
+		"${S}"/Makefile.in "${S}"/base/*.mak || die "sed failed"
 
 	cd "${S}"
 	eautoreconf
@@ -152,6 +151,7 @@ src_configure() {
 		--enable-dynamic \
 		--enable-freetype \
 		--enable-fontconfig \
+		--enable-openjpeg \
 		--disable-compile-inits \
 		--with-drivers=ALL \
 		--with-fontpath="$FONTPATH" \
@@ -164,15 +164,13 @@ src_configure() {
 		$(use_enable cups) \
 		$(use_enable dbus) \
 		$(use_enable gtk) \
-		$(use_enable jpeg2k openjpeg ) \
-		$(use_with cups install-cups) \
 		$(use_with cups pdftoraster) \
 		$(use_with idn libidn) \
 		$(use_with X x)
 
 	if ! use bindist && use djvu ; then
-		sed -i -e 's!$(DD)bbox.dev!& $(DD)djvumask.dev $(DD)djvusep.dev!g' Makefile \
-			|| die "sed failed"
+		sed -i -e 's!$(DD)bbox.dev!& $(DD)djvumask.dev $(DD)djvusep.dev!g' \
+			"${S}"/Makefile || die "sed failed"
 	fi
 
 	cd "${S}/ijs"
@@ -193,23 +191,13 @@ src_install() {
 	# workaround: -j1 -> see bug #356303
 	emake -j1 DESTDIR="${D}" install-so install
 
-	# workaround: some printer drivers still require pstoraster, bug #383831
-	use cups && dosym /usr/libexec/cups/filter/gstoraster /usr/libexec/cups/filter/pstoraster
-	# workaround: do the same for pstopxl as of gs 9.05
-	use cups && dosym /usr/libexec/cups/filter/gstopxl /usr/libexec/cups/filter/pstopxl
-
 	if ! use bindist && use djvu ; then
 		dobin gsdjvu
 	fi
 
-	# remove gsc in favor of gambit, bug #253064
-	rm -rf "${D}/usr/bin/gsc"
-
-	# pdfopt binary has been removed, also remove the man pages
-	rm -rf "${D}"/usr/share/man/{de/,}man1/pdfopt.1.bz2
-
-	rm -rf "${D}/usr/share/doc/${PF}/html/"{README,PUBLIC}
-	dodoc doc/GS9_Color_Management.pdf
+	# move gsc to gs, bug #343447
+	# gsc collides with gambit, bug #253064
+	mv -f "${D}/usr/bin/gsc" "${D}/usr/bin/gs" || die
 
 	cd "${S}/ijs"
 	emake DESTDIR="${D}" install
@@ -227,7 +215,7 @@ src_install() {
 		fi
 	done
 
-	# install the CMaps from poppler-data properly, bug 409361
+	# install the CMaps from poppler-data properly, bug #409361
 	dosym /usr/share/poppler/cMaps /usr/share/ghostscript/${PVM}/Resource/CMap
 
 	use static-libs || find "${D}" -name '*.la' -delete
