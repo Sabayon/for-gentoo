@@ -61,7 +61,7 @@ src_install() {
 	fi
 }
 
-pkg_postinsg() {
+pkg_postinst() {
 	elog "If you had a previous version installed, you may want to"
 	elog "rename or delete ~/.winff/presets.xml for new presets to be used."
 	elog "Note: doing so will remove your custom presets."
