@@ -1,4 +1,4 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -14,9 +14,9 @@ HOMEPAGE="http://projects.gnome.org/NetworkManager/"
 
 LICENSE="GPL-2+"
 SLOT="0" # add subslot if libnm-util.so.2 or libnm-glib.so.4 bumps soname version
-IUSE="avahi bluetooth connection-sharing consolekit dhclient +dhcpcd gnutls +introspection kernel_linux +nss modemmanager +ppp resolvconf systemd test vala +wext +wifi" # wimax
+IUSE="avahi bluetooth connection-sharing consolekit dhclient +dhcpcd gnutls +introspection kernel_linux +nss +modemmanager +ppp resolvconf systemd test vala +wext +wifi" # wimax
 
-KEYWORDS="~alpha amd64 ~arm ~ia64 ~ppc ~ppc64 ~sparc x86"
+KEYWORDS="~alpha ~amd64 ~arm ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 
 REQUIRED_USE="
 	modemmanager? ( ppp )
@@ -34,14 +34,14 @@ COMMON_DEPEND="
 	>=dev-libs/libnl-3.2.7:3=
 	>=sys-auth/polkit-0.106
 	>=net-libs/libsoup-2.26:2.4=
-	>=virtual/udev-165[gudev]
+	virtual/libgudev:=
 	bluetooth? ( >=net-wireless/bluez-4.82 )
 	avahi? ( net-dns/avahi:=[autoipd] )
 	connection-sharing? (
 		net-dns/dnsmasq[dhcp]
 		net-firewall/iptables )
 	gnutls? (
-		dev-libs/libgcrypt:=
+		dev-libs/libgcrypt:0=
 		net-libs/gnutls:= )
 	modemmanager? ( >=net-misc/modemmanager-0.7.991 )
 	nss? ( >=dev-libs/nss-3.11:= )
@@ -50,10 +50,11 @@ COMMON_DEPEND="
 	introspection? ( >=dev-libs/gobject-introspection-0.10.3 )
 	ppp? ( >=net-dialup/ppp-2.4.5[ipv6] )
 	resolvconf? ( net-dns/openresolv )
-	systemd? ( >=sys-apps/systemd-183 )
-	|| ( sys-power/upower >=sys-apps/systemd-183 )
+	systemd? ( >=sys-apps/systemd-183:0= )
+	|| ( sys-power/upower sys-power/upower-pm-utils >=sys-apps/systemd-183 )
 "
 RDEPEND="${COMMON_DEPEND}
+	virtual/udev
 	consolekit? ( sys-auth/consolekit )
 	wifi? ( >=net-wireless/wpa_supplicant-0.7.3-r3[dbus] )
 "
@@ -107,6 +108,9 @@ src_prepare() {
 	# Bug #402085, https://bugzilla.gnome.org/show_bug.cgi?id=387832
 	epatch "${FILESDIR}/${PN}-0.9.8.4-pre-sleep.patch"
 
+	# https://www.mail-archive.com/networkmanager-list@gnome.org/msg24038.html
+	epatch "${FILESDIR}/${PN}-0.9.8.9-fix-crash-on-wifi-rescan.patch"
+
 	# Use python2.7 shebangs for test scripts
 	sed -e 's@\(^#!.*python\)@\12.7@' \
 		-i */tests/*.py || die
@@ -133,7 +137,7 @@ src_configure() {
 		$(usex systemd '--disable-ifnet' '--enable-ifnet') \
 		--without-netconfig \
 		--with-dbus-sys-dir=/etc/dbus-1/system.d \
-		--with-udev-dir="$(udev_get_udevdir)" \
+		--with-udev-dir="$(get_udevdir)" \
 		--with-iptables=/sbin/iptables \
 		--enable-concheck \
 		--with-crypto=$(usex nss nss gnutls) \
