@@ -1,14 +1,15 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
 EAPI=4
 EGIT_REPO_URI="git://github.com/Enlik/querypkg.git"
 EGIT_COMMIT="v${PV}"
-inherit perl-module git-2
+inherit perl-module vcs-snapshot
 
 DESCRIPTION="A simple CLI interface to packages.sabayon.org"
 HOMEPAGE="http://github.com/Enlik/querypkg/"
+SRC_URI="https://github.com/Enlik/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="MIT"
 SLOT="0"
