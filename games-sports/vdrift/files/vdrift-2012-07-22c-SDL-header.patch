@@ -1,0 +1,10 @@
+--- SConstruct.orig        2014-08-30 22:49:35.463901442 +0000
++++ SConstruct        2014-08-30 23:02:47.896994665 +0000
+@@ -137,6 +137,7 @@
+         LINKFLAGS = ['-pthread'],
+         CC = 'gcc', CXX = 'g++',
+         options = opts)
++    env.ParseConfig('pkg-config sdl --cflags-only-I')
+     # Take environment variables into account
+     if os.environ.has_key('CXX'):
+         env['CXX'] = os.environ['CXX']
