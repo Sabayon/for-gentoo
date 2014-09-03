@@ -3,8 +3,6 @@
 # $Header: $
 
 EAPI=4
-EGIT_REPO_URI="git://github.com/Enlik/querypkg.git"
-EGIT_COMMIT="v${PV}"
 inherit perl-module vcs-snapshot
 
 DESCRIPTION="A simple CLI interface to packages.sabayon.org"
