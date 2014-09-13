@@ -25,7 +25,7 @@ src_prepare() {
 	if use branding; then
 		cp "${FILESDIR}/branding.svgz" widgets/branding.svgz || die "Could not apply branding"
 	fi
-	rm INSTALL || die "Failed to remove install file"
+	rm INSTALL.txt || die "Failed to remove install file"
 }
 
 src_install() {
