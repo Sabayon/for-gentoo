@@ -1,0 +1,62 @@
+--- image/gif.c	2000-03-07 09:59:56.000000000 +0300
++++ image/gif2.c	2013-12-08 16:15:40.797133929 +0400
+@@ -87,13 +87,13 @@
+ 	/* Scan the content of the GIF file and load the image(s) in: */
+ 	do {
+ 		if (DGifGetRecordType(GifFile, &RecordType) == GIF_ERROR) {
+-			PrintGifError();
++			GifErrorString();
+ 			exit(-1);
+ 		}
+ 		switch (RecordType) {
+ 		case IMAGE_DESC_RECORD_TYPE:
+ 			if (DGifGetImageDesc(GifFile) == GIF_ERROR) {
+-				PrintGifError();
++				GifErrorString();
+ 				exit(-1);
+ 			}
+ 			Row = GifFile->Image.Top; /* Image Position relative to Screen. */
+@@ -113,7 +113,7 @@
+ 							     j += InterlacedJumps[i]) {
+ 					if (DGifGetLine(GifFile, &ScreenBuffer[j][Col],
+ 					    Width) == GIF_ERROR) {
+-					    PrintGifError();
++					    GifErrorString();
+ 					    exit(-1);
+ 					}
+ 				}
+@@ -122,7 +122,7 @@
+ 				for (i = 0; i < Height; i++) {
+ 					if (DGifGetLine(GifFile, &ScreenBuffer[Row++][Col],
+ 					    Width) == GIF_ERROR) {
+-						PrintGifError();
++						GifErrorString();
+ 						exit(-1);
+ 					}
+ 				}
+@@ -131,7 +131,7 @@
+ 		case EXTENSION_RECORD_TYPE:
+ 			/* Skip any extension blocks in file: */
+ 			if (DGifGetExtension(GifFile, &ExtCode, &Extension) == GIF_ERROR) {
+-				PrintGifError();
++				GifErrorString();
+ 				exit(-1);
+ 			}
+ 			/* very adhoc transparency support */
+@@ -141,7 +141,7 @@
+ 			}
+ 			while (Extension != NULL) {
+ 				if (DGifGetExtensionNext(GifFile, &Extension) == GIF_ERROR) {
+-					PrintGifError();
++					GifErrorString();
+ 					exit(-1);
+ 				}
+ 			}
+@@ -180,7 +180,7 @@
+ 	}
+ 
+ 	if (DGifCloseFile(GifFile) == GIF_ERROR) {
+-		PrintGifError();
++		GifErrorString();
+ 		exit(-1);
+ 	}
