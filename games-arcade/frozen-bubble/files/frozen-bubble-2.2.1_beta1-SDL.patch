@@ -1,0 +1,16 @@
+fix for:
+/usr/include/x86_64-pc-linux-gnu/SDL/SDL_config.h:30:26: fatal error: SDL_platform.h: No such file or directory
+from: Sławomir Nizio <slawomir.nizio at sabayon.org>
+--- Build.PL.orig       2014-10-03 21:42:29.064184588 +0000
++++ Build.PL    2014-10-03 21:42:38.046072299 +0000
+@@ -14,9 +14,7 @@
+ use Games::FrozenBubble;
+ 
+ my $prefix = Alien::SDL->config('prefix');
+-my $cflags = '-I'
+-  . File::Spec->catfile( $prefix, 'include' )
+-  ;
++my $cflags = Alien::SDL->config('cflags');
+ $cflags .= ' -fnested-functions' if $^O =~ /darwin/;
+ ###!!! this looks strange, you perhaps meant "$cflags .= ..."
+ ###!!! I intended Alien::SDL to add -I$prefix/include automatically, please tell me when it does not work (kmx)
