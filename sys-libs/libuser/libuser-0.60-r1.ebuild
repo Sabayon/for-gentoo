@@ -3,9 +3,9 @@
 # $
 
 EAPI=5
-inherit eutils
+inherit autotools eutils
 
-DESCRIPTION="The libuser library implements a standardized interface for manipulating and administering user and group accounts."
+DESCRIPTION="Implements a standardized interface for manipulating and administering user and group accounts"
 HOMEPAGE="https://fedorahosted.org/libuser"
 SRC_URI="https://fedorahosted.org/releases/l/i/${PN}/${P}.tar.xz"
 
@@ -24,8 +24,23 @@ DEPEND="app-text/linuxdoc-tools
 	${COMMON_DEPEND}"
 RDEPEND="${COMMON_DEPEND}"
 
+src_prepare() {
+	mv apps/{,libuser-}lid.1 || die
+	sed -i 's: apps/lid\.1 : apps/libuser-lid.1 :' \
+		Makefile.am || die
+	eautoreconf
+}
+
 src_configure() {
-	cd "${S}"
 	econf $(use_with ldap) $(use_with popt) $(use_with sasl) \
 		$(use_with selinux) --with-python
+}
+
+pkg_postinst() {
+	if [[ -z ${REPLACING_VERSIONS} ]] \
+		|| [[ ${REPLACING_VERSIONS} < 0.60-r1 ]];
+	then
+		einfo "lid.1 was renamed to libuser-lid.1 to avoid conflict"
+		einfo "with dev-util/idutils (seen in 4.6)."
+	fi
 }
