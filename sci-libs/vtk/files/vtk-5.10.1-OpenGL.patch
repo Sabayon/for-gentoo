@@ -1,0 +1,28 @@
+Fix compilation.
+this is a port of this patch:
+
+From: Marcus D. Hanwell <marcus.hanwell@kitware.com>
+Date: Tue, 9 Sep 2014 17:39:13 +0000 (-0400)
+Subject: Actually define GLX_GLXEXT_LEGACY to prevent the include
+X-Git-Url: http://www.vtk.org/gitweb?p=VTK.git;a=commitdiff_plain;h=800282f289e3ebeb2873f7914ed560282b482448
+
+Actually define GLX_GLXEXT_LEGACY to prevent the include
+
+Change-Id: I394afaf8a550f5c7b06ceca0898c316e5f2568c9
+---
+
+--- a/Rendering/vtkXOpenGLRenderWindow.cxx
++++ b/Rendering/vtkXOpenGLRenderWindow.cxx
+@@ -24,9 +24,9 @@
+ 
+ #include "vtkOpenGL.h"
+ 
+-// define GLX_GLXEXT_LEGACY to prevent glx.h to include glxext.h provided by
+-// the system
+-//#define GLX_GLXEXT_LEGACY
++// Define GLX_GLXEXT_LEGACY to prevent glx.h from including the glxext.h
++// provided by the system.
++#define GLX_GLXEXT_LEGACY
+ #include "GL/glx.h"
+ 
+ #include "vtkgl.h"

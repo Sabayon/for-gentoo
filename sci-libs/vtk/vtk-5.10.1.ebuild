@@ -80,6 +80,7 @@ PATCHES=(
 	"${FILESDIR}"/${P}-ffmpeg-1.patch
 	"${FILESDIR}"/${P}-libav-9.patch
 	"${FILESDIR}"/${P}-freetype-hack.patch
+	"${FILESDIR}"/${P}-OpenGL.patch
 	)
 
 pkg_setup() {
