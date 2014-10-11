@@ -1,0 +1,21 @@
+Fix compilation failure.
+https://bugs.gentoo.org/show_bug.cgi?id=520310
+taken from: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=732059
+Index: vtk-5.8.0/CMake/FindFREETYPE.cmake
+===================================================================
+--- vtk-5.8.0.orig/CMake/FindFREETYPE.cmake	2013-12-23 11:38:25.000000000 +0100
++++ vtk-5.8.0/CMake/FindFREETYPE.cmake	2013-12-23 12:27:47.208086774 +0100
+@@ -10,9 +10,11 @@
+ # also defined, but not for general use are
+ # FREETYPE_LIBRARY, where to find the FREETYPE library.
+ 
+-FIND_PATH(FREETYPE_INCLUDE_DIR_FT2BUILD ft2build.h)
++FIND_PATH(FREETYPE_INCLUDE_DIR_FT2BUILD ft2build.h
++  /usr/include/freetype2
++)
+ 
+-FIND_PATH(FREETYPE_INCLUDE_DIR_FTHEADER freetype/config/ftheader.h
++FIND_PATH(FREETYPE_INCLUDE_DIR_FTHEADER config/ftheader.h
+   /usr/include/freetype2
+   /usr/local/include/freetype2
+ )
