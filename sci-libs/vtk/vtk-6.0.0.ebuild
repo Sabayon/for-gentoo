@@ -19,7 +19,7 @@ SRC_URI="
 	doc? ( http://www.${PN}.org/files/release/${SPV}/${PN}DocHtml-${PV}.tar.gz )"
 
 LICENSE="BSD LGPL-2"
-KEYWORDS="~amd64 ~x86 ~amd64-linux ~x86-linux"
+KEYWORDS=""
 SLOT="0"
 IUSE="
 	aqua boost cg doc examples imaging ffmpeg java mpi mysql odbc
