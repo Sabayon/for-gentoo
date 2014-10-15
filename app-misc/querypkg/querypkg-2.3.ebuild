@@ -17,7 +17,9 @@ IUSE=""
 RDEPEND=">=dev-lang/perl-5.10
 	dev-perl/JSON-XS
 	dev-perl/URI
-	dev-perl/libwww-perl"
+	dev-perl/libwww-perl
+	>=virtual/perl-Scalar-List-Utils-1.350.0
+"
 DEPEND="${RDEPEND}"
 
 SRC_TEST=do
