@@ -8,7 +8,7 @@ inherit systemd user versionator
 
 MY_PN=${PN/-core-bin}
 
-DESCRIPTION="Qt4/KDE IRC client - the \"core\" (server) component (static build, no Qt dependency)"
+DESCRIPTION="Qt/KDE IRC client - the \"core\" (server) component (static build, no Qt dependency)"
 HOMEPAGE="http://quassel-irc.org/"
 
 MY_FETCH_NAME="quasselcore-static-${PV}"
@@ -20,7 +20,7 @@ KEYWORDS="~amd64 ~x86"
 SLOT="0"
 IUSE=""
 
-RDEPEND=""
+RDEPEND="sys-libs/zlib"
 DEPEND="!net-irc/quassel-core"
 
 S=${WORKDIR}
