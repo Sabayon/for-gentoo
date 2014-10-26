@@ -5,9 +5,9 @@
 EAPI=5
 
 # latest gentoo apache files
-GENTOO_PATCHSTAMP="20140522"
+GENTOO_PATCHSTAMP="20140731"
 GENTOO_DEVELOPER="polynomial-c"
-GENTOO_PATCHNAME="gentoo-apache-2.2.27-r3"
+GENTOO_PATCHNAME="gentoo-apache-2.2.27-r4"
 
 # IUSE/USE_EXPAND magic
 IUSE_MPMS_FORK="itk peruser prefork"
@@ -83,7 +83,7 @@ MODULE_CRITICAL="
 
 inherit apache-2 systemd toolchain-funcs
 
-DESCRIPTION="The Apache Web Server."
+DESCRIPTION="The Apache Web Server"
 HOMEPAGE="http://httpd.apache.org/"
 
 # some helper scripts are Apache-1.1, thus both are here
