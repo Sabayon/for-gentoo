@@ -6,7 +6,7 @@ EAPI=5
 
 PYTHON_COMPAT=( python2_7 )
 
-inherit python-single-r1 systemd
+inherit python-single-r1 systemd udev
 
 DESCRIPTION="Google provided startup scripts that interact with the virtual machine environment."
 HOMEPAGE="https://github.com/GoogleCloudPlatform/compute-image-packages"
@@ -43,4 +43,9 @@ src_install() {
 		einfo "Installing unit ${unit}"
 		systemd_dounit "${unit}"
 	done
+
+	udev_dorules "${S}"/lib/udev/rules.d/*
+
+	insinto /etc/sysctl.d
+	doins "${S}"/etc/sysctl.d/*
 }
