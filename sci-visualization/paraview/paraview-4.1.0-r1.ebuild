@@ -61,7 +61,7 @@ RDEPEND="
 		dev-python/numpy[${PYTHON_USEDEP}]
 		dev-python/sip[${PYTHON_USEDEP}]
 		dev-python/twisted-core
-		net-zope/zope-interface[${PYTHON_USEDEP}]
+		dev-python/zope-interface[${PYTHON_USEDEP}]
 		mpi? ( dev-python/mpi4py )
 		qt4? ( dev-python/PyQt4[opengl,webkit,${PYTHON_USEDEP}] )
 	)
