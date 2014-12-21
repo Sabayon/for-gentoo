@@ -5,7 +5,7 @@ inherit eutils multilib autotools
 
 DESCRIPTION="A program to download files from usenet"
 HOMEPAGE="http://www.nntpgrab.nl"
-SRC_URI="http://www.nntpgrab.nl/releases/${PN}-${PV}.tar.bz2"
+SRC_URI="http://www.nntpgrab.nl/releases/${P}.tar.bz2"
 
 LICENSE="GPL-2+"
 SLOT="0"
@@ -62,6 +62,6 @@ src_install() {
 		install -m 0644 server_qt/nntpgrab_server_qt.desktop "${D}"/usr/share/applications/nntpgrab_server_qt.desktop || die
 	fi
 
-	dodoc ChangeLog README COPYING NEWS
+	dodoc ChangeLog README COPYING NEWS || die
 }
 
