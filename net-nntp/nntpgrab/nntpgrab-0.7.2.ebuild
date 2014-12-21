@@ -29,7 +29,7 @@ DEPEND=">=sys-libs/zlib-1.1.4
 RDEPEND="${DEPEND}"
 
 src_unpack() {
-	unpack "${A}"
+	unpack ${A}
 	cd "$S" || die
 
 	eautomake
@@ -63,6 +63,5 @@ src_install() {
 		install -m 0644 server_qt/nntpgrab_server_qt.desktop "${D}"/usr/share/applications/nntpgrab_server_qt.desktop || die
 	fi
 
-	dodoc ChangeLog README COPYING NEWS || die
+	dodoc ChangeLog README NEWS || die
 }
-
