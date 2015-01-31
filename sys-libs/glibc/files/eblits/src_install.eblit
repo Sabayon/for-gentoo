@@ -1,28 +1,16 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-libs/glibc/files/eblits/src_install.eblit,v 1.35 2014/03/25 00:34:56 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-libs/glibc/files/eblits/src_install.eblit,v 1.38 2014/09/10 18:15:55 vapier Exp $
 
 toolchain-glibc_src_install() {
-	local GBUILDDIR
-	if want_linuxthreads ; then
-		GBUILDDIR=${WORKDIR}/build-${ABI}-${CTARGET}-linuxthreads
-	else
-		GBUILDDIR=${WORKDIR}/build-${ABI}-${CTARGET}-nptl
-	fi
+	local builddir=$(builddir $(want_linuxthreads && echo linuxthreads || echo nptl))
+	cd "${builddir}"
 
-	local install_root="${D}$(alt_prefix)"
-	if want_linuxthreads ; then
-		cd "${WORKDIR}"/build-${ABI}-${CTARGET}-linuxthreads
-		einfo "Installing GLIBC ${ABI} with linuxthreads ..."
-	else
-		cd "${WORKDIR}"/build-${ABI}-${CTARGET}-nptl
-		einfo "Installing GLIBC ${ABI} with NPTL ..."
-	fi
-	emake install_root="${install_root}" install || die
+	emake install_root="${D}$(alt_prefix)" install || die
 
 	if want_linuxthreads && want_nptl ; then
 		einfo "Installing NPTL to $(alt_libdir)/tls/..."
-		cd "${WORKDIR}"/build-${ABI}-${CTARGET}-nptl
+		cd "$(builddir nptl)"
 		dodir $(alt_libdir)/tls $(alt_usrlibdir)/nptl
 
 		local l src_lib
@@ -212,8 +200,8 @@ toolchain-glibc_src_install() {
 }
 
 toolchain-glibc_headers_install() {
-	local GBUILDDIR=${WORKDIR}/build-${ABI}-${CTARGET}-headers
-	cd "${GBUILDDIR}"
+	local builddir=$(builddir "headers")
+	cd "${builddir}"
 	emake install_root="${D}$(alt_prefix)" install-headers || die
 	if ! version_is_at_least 2.16 ; then
 		insinto $(alt_headers)/bits
@@ -251,29 +239,6 @@ eblit-glibc-src_install() {
 		return
 	fi
 
-	setup_env
-
-	if [[ -z ${OABI} ]] ; then
-		local abilist=""
-		if has_multilib_profile ; then
-			abilist=$(get_install_abis)
-			einfo "Installing multilib glibc for ABIs: ${abilist}"
-		elif is_crosscompile || tc-is-cross-compiler ; then
-			abilist=${DEFAULT_ABI}
-		fi
-		if [[ -n ${abilist} ]] ; then
-			OABI=${ABI}
-			for ABI in ${abilist} ; do
-				export ABI
-				eblit-glibc-src_install
-			done
-			ABI=${OABI}
-			unset OABI
-			src_strip
-			return 0
-		fi
-	fi
-
-	toolchain-glibc_src_install
-	[[ -z ${OABI} ]] && src_strip
+	foreach_abi toolchain-glibc_src_install
+	src_strip
 }
