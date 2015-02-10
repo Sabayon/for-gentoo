@@ -32,3 +32,7 @@ OPTS_RPC_RQUOTAD=""
 
 # Timeout (in seconds) for exportfs
 EXPORTFS_TIMEOUT=30
+
+# Options to set in the nfsd filesystem (/proc/fs/nfsd/).
+# Format is <option>=<value>.  Multiple options are allowed.
+#OPTS_NFSD="nfsv4leasetime=30 max_block_size=4096"

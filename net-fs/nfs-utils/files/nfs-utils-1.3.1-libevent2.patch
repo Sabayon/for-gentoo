@@ -1,0 +1,151 @@
+diff -Naurp nfs-utils-1.3.1.orig/utils/idmapd/idmapd.c nfs-utils-1.3.1/utils/idmapd/idmapd.c
+--- nfs-utils-1.3.1.orig/utils/idmapd/idmapd.c	2015-01-26 15:53:02.697550346 +0000
++++ nfs-utils-1.3.1/utils/idmapd/idmapd.c	2015-01-26 15:57:34.582654993 +0000
+@@ -113,7 +113,7 @@ struct idmap_client {
+ 	int                        ic_fd;
+ 	int                        ic_dirfd;
+ 	int                        ic_scanned;
+-	struct event               ic_event;
++	struct event              *ic_event;
+ 	TAILQ_ENTRY(idmap_client)  ic_next;
+ };
+ static struct idmap_client nfsd_ic[2] = {
+@@ -166,6 +166,8 @@ static uid_t nobodyuid;
+ static gid_t nobodygid;
+ static int pipefds[2] = { -1, -1 };
+ 
++static struct event_base *idmapd_event_base;
++
+ /* Used by conffile.c in libnfs.a */
+ char *conf_path;
+ 
+@@ -205,8 +207,8 @@ main(int argc, char **argv)
+ {
+ 	int fd = 0, opt, fg = 0, nfsdret = -1;
+ 	struct idmap_clientq icq;
+-	struct event rootdirev, clntdirev, svrdirev;
+-	struct event initialize;
++	struct event *rootdirev, *clntdirev, *svrdirev;
++	struct event *initialize;
+ 	struct passwd *pw;
+ 	struct group *gr;
+ 	struct stat sb;
+@@ -305,7 +307,7 @@ main(int argc, char **argv)
+ 	if (!fg)
+ 		mydaemon(0, 0, pipefds);
+ 
+-	event_init();
++	idmapd_event_base = event_base_new();
+ 
+ 	if (verbose > 0)
+ 		xlog_warn("Expiration time is %d seconds.",
+@@ -363,18 +365,18 @@ main(int argc, char **argv)
+ 		TAILQ_INIT(&icq);
+ 
+ 		/* These events are persistent */
+-		signal_set(&rootdirev, SIGUSR1, dirscancb, &icq);
+-		signal_add(&rootdirev, NULL);
+-		signal_set(&clntdirev, SIGUSR2, clntscancb, &icq);
+-		signal_add(&clntdirev, NULL);
+-		signal_set(&svrdirev, SIGHUP, svrreopen, NULL);
+-		signal_add(&svrdirev, NULL);
++		rootdirev = event_new(idmapd_event_base, SIGUSR1, EV_SIGNAL|EV_PERSIST, dirscancb, &icq);
++		event_add(rootdirev, NULL);
++		clntdirev = event_new(idmapd_event_base, SIGUSR2, EV_SIGNAL|EV_PERSIST, clntscancb, &icq);
++		event_add(clntdirev, NULL);
++		svrdirev = event_new(idmapd_event_base, SIGHUP, EV_SIGNAL|EV_PERSIST, svrreopen, NULL);
++		event_add(svrdirev, NULL);
+ 
+ 		/* Fetch current state */
+ 		/* (Delay till start of event_dispatch to avoid possibly losing
+ 		 * a SIGUSR1 between here and the call to event_dispatch().) */
+-		evtimer_set(&initialize, dirscancb, &icq);
+-		evtimer_add(&initialize, &now);
++		initialize = event_new(idmapd_event_base, -1, 0, dirscancb, &icq);
++		event_add(initialize, &now);
+ 	}
+ 
+ 	if (nfsdret != 0 && fd == 0)
+@@ -382,9 +384,12 @@ main(int argc, char **argv)
+ 
+ 	release_parent(pipefds);
+ 
+-	if (event_dispatch() < 0)
++	if (event_base_dispatch(idmapd_event_base) < 0)
+ 		xlog_err("main: event_dispatch returns errno %d (%s)",
+ 			    errno, strerror(errno));
++
++	event_base_free(idmapd_event_base);
++
+ 	/* NOTREACHED */
+ 	return 1;
+ }
+@@ -453,7 +458,7 @@ dirscancb(int UNUSED(fd), short UNUSED(w
+ 	while(ic != NULL) {
+ 		nextic=TAILQ_NEXT(ic, ic_next);
+ 		if (!ic->ic_scanned) {
+-			event_del(&ic->ic_event);
++			event_del(ic->ic_event);
+ 			close(ic->ic_fd);
+ 			close(ic->ic_dirfd);
+ 			TAILQ_REMOVE(icq, ic, ic_next);
+@@ -638,7 +643,7 @@ nfsdcb(int UNUSED(fd), short which, void
+ 			     ic->ic_path, errno, strerror(errno));
+ 
+ out:
+-	event_add(&ic->ic_event, NULL);
++	event_add(ic->ic_event, NULL);
+ }
+ 
+ static void
+@@ -704,7 +709,7 @@ nfscb(int UNUSED(fd), short which, void
+ 	if (atomicio((void*)write, ic->ic_fd, &im, sizeof(im)) != sizeof(im))
+ 		xlog_warn("nfscb: write(%s): %s", ic->ic_path, strerror(errno));
+ out:
+-	event_add(&ic->ic_event, NULL);
++	event_add(ic->ic_event, NULL);
+ }
+ 
+ static void
+@@ -716,14 +721,14 @@ nfsdreopen_one(struct idmap_client *ic)
+ 		xlog_warn("ReOpening %s", ic->ic_path);
+ 
+ 	if ((fd = open(ic->ic_path, O_RDWR, 0)) != -1) {
+-		if ((ic->ic_event.ev_flags & EVLIST_INIT))
+-			event_del(&ic->ic_event);
++		if (event_initialized(ic->ic_event))
++			event_del(ic->ic_event);
+ 		if (ic->ic_fd != -1)
+ 			close(ic->ic_fd);
+ 
+-		ic->ic_event.ev_fd = ic->ic_fd = fd;
+-		event_set(&ic->ic_event, ic->ic_fd, EV_READ, nfsdcb, ic);
+-		event_add(&ic->ic_event, NULL);
++		ic->ic_fd = fd;
++		ic->ic_event = event_new(idmapd_event_base, ic->ic_fd, EV_READ, nfsdcb, ic);
++		event_add(ic->ic_event, NULL);
+ 	} else {
+ 		xlog_warn("nfsdreopen: Opening '%s' failed: errno %d (%s)",
+ 			ic->ic_path, errno, strerror(errno));
+@@ -756,8 +761,8 @@ nfsdopenone(struct idmap_client *ic)
+ 		return (-1);
+ 	}
+ 
+-	event_set(&ic->ic_event, ic->ic_fd, EV_READ, nfsdcb, ic);
+-	event_add(&ic->ic_event, NULL);
++	ic->ic_event = event_new(idmapd_event_base, ic->ic_fd, EV_READ, nfsdcb, ic);
++	event_add(ic->ic_event, NULL);
+ 
+ 	if (verbose > 0)
+ 		xlog_warn("Opened %s", ic->ic_path);
+@@ -780,8 +785,8 @@ nfsopen(struct idmap_client *ic)
+ 			return (-1);
+ 		}
+ 	} else {
+-		event_set(&ic->ic_event, ic->ic_fd, EV_READ, nfscb, ic);
+-		event_add(&ic->ic_event, NULL);
++		ic->ic_event = event_new(idmapd_event_base, ic->ic_fd, EV_READ, nfscb, ic);
++		event_add(ic->ic_event, NULL);
+ 		fcntl(ic->ic_dirfd, F_NOTIFY, 0);
+ 		fcntl(ic->ic_dirfd, F_SETSIG, 0);
+ 		if (verbose > 0)
