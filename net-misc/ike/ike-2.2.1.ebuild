@@ -56,5 +56,5 @@ src_install(){
 
 pkg_postinst() {
         elog "a default configuration for the IKE Daemon"
-        elog "is stored in /etc/iked.conf.sample"
+        elog "is stored in /etc/ike/iked.conf.sample"
 }
