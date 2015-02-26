@@ -49,6 +49,12 @@ src_configure(){
 src_install(){
 	cmake-utils_src_install
 
+	insinto /usr/share/applications
+	doins ${FILESDIR}/ike.desktop
+
+	insinto /usr/share/pixmaps
+	doins ${S}/source/qikea/png/ikea.png
+
 	if use systemd ; then
 		systemd_dounit ${FILESDIR}/iked.service || die
 	fi
