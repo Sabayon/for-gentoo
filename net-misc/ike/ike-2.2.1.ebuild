@@ -1,12 +1,11 @@
-# Copyright 1999-2010 Gentoo Foundation
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
 EAPI=5
 
 CMAKE_IN_SOURCE_BUILD="1"
-inherit cmake-utils linux-info systemd
+inherit cmake-utils systemd
 
 DESCRIPTION="Shrew soft VPN Client"
 HOMEPAGE="http://www.shrew.net/"
@@ -30,8 +29,6 @@ DEPEND="${COMMON_DEPEND}
 RDEPEND="${COMMON_DEPEND}"
 
 #DOCS="CONTRIB.TXT README.TXT TODO.TXT"
-
-CONFIG_CHECK="NET_KEY INET_XFRM_MODE_TRANSPORT INET_XFRM_MODE_TUNNEL"
 
 S="${WORKDIR}/${PN}"
 
