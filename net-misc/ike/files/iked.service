@@ -1,12 +1,11 @@
 [Unit]
-Description=Shrew VPN client 
+Description=Shrew VPN Client Iked
+Documentation=man:iked(8) man:iked.conf(5) http://www.shrew.net/support/Main_Page
+After=local-fs.target network.target
 
 [Service]
-ExecStart=/usr/sbin/iked
-TimeoutSec=0
-StandardOutput=tty
-RemainAfterExit=yes
-SysVStartPriority=99
+Type=forking
+ExecStart=/usr/sbin/iked -f /etc/iked.conf
 
 [Install]
 WantedBy=multi-user.target
