@@ -1,15 +1,14 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI="2"
+EAPI="4"
 
 inherit autotools gnome2
 
 DESCRIPTION="GTK+-based Last.fm client"
 HOMEPAGE="http://vagalume.igalia.com/"
-#SRC_URI="http://vagalume.igalia.com/files/source/${P}.tar.gz"
-SRC_URI="mirror://sabayon/${CATEGORY}/${PN}/${P}.tar.bz2"
+SRC_URI="http://vagalume.igalia.com/files/source/${P}.tar.gz"
 
 LICENSE="GPL-3"
 SLOT="0"
