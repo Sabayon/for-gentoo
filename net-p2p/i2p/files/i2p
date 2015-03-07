@@ -10,10 +10,10 @@ depend() {
 start() {
 	ebegin "Starting I2P"
 	PIDFILE=/var/run/i2p.pid
-	I2P=/opt/i2p
+	I2P=/usr/share/i2p
 	WRAPPER_CMD="$I2P/i2psvc"
 	WRAPPER_CONF="$I2P/wrapper.config"
-	start-stop-daemon --start -b -m -c i2p --pidfile "${PIDFILE}" --quiet --exec $WRAPPER_CMD $WRAPPER_CONF wrapper.daemonize=FALSE
+	start-stop-daemon --start -b -m -u i2p --pidfile "${PIDFILE}" --quiet --exec $WRAPPER_CMD $WRAPPER_CONF wrapper.daemonize=FALSE
 	sleep 1
 	[ -e /var/run/i2p.pid -a -e /proc/$(cat /var/run/i2p.pid) ]
 	eend $?
