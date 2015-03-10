@@ -1,7 +1,8 @@
-# Copyright 1999-2004 Gentoo Technologies, Inc.
+# Copyright 1999-2015 Gentoo Technologies, Inc.
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
-# Nonofficial ebuild by Ycarus. For new version look here : http://gentoo.zugaina.org/
+
+EAPI=5
 
 inherit games eutils
 
@@ -20,13 +21,24 @@ KEYWORDS="~x86 ~amd64"
 IUSE=""
 
 RDEPEND="media-libs/libsdl
-	amd64? (
-		app-emulation/emul-linux-x86-baselibs
-		app-emulation/emul-linux-x86-xlibs
-		app-emulation/emul-linux-x86-sdl
-	)"
+	|| (
+		(
+			media-libs/libsdl[abi_x86_32(-)]
+			x11-libs/libX11[abi_x86_32(-)]
+			x11-libs/libXext[abi_x86_32(-)]
+			x11-libs/libXau[abi_x86_32(-)]
+			x11-libs/libXdmcp[abi_x86_32(-)]
+			virtual/opengl[abi_x86_32(-)]
+		)
+		amd64? (
+			app-emulation/emul-linux-x86-opengl[-abi_x86_32(-)]
+			app-emulation/emul-linux-x86-sdl[-abi_x86_32(-)]
+			app-emulation/emul-linux-x86-xlibs[-abi_x86_32(-)]
+		)
+	)
+	"
 
-src_install() { 
+src_install() {
 	dodir ${GAMES_DATADIR}/${PN} ${GAMES_BINDIR}
 	mv ${S}/game ${D}${GAMES_DATADIR}/${PN}
 	games_make_wrapper mania_drive ./mania_drive.static ${GAMES_DATADIR}/${PN}/game
