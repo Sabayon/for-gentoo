@@ -18,7 +18,7 @@ IUSE="ldap nat qt4 systemd"
 
 COMMON_DEPEND="dev-libs/libedit
 	dev-libs/openssl
-	qt4? ( dev-qt/qtcore )
+	qt4? ( dev-qt/qtgui )
 	ldap? ( net-nds/openldap )"
 
 DEPEND="${COMMON_DEPEND}
@@ -47,17 +47,17 @@ src_install(){
 	cmake-utils_src_install
 
 	insinto /usr/share/applications
-	doins ${FILESDIR}/ike.desktop
+	doins "${FILESDIR}"/ike.desktop
 
 	insinto /usr/share/pixmaps
-	doins ${S}/source/qikea/png/ikea.png
+	doins "${S}"/source/qikea/png/ikea.png
 
 	if use systemd ; then
-		systemd_dounit ${FILESDIR}/iked.service || die
+		systemd_dounit "${FILESDIR}"/iked.service || die
 	fi
 }
 
 pkg_postinst() {
-        elog "a default configuration for the IKE Daemon"
-        elog "is stored in /etc/ike/iked.conf.sample"
+	elog "a default configuration for the IKE Daemon"
+	elog "is stored in /etc/ike/iked.conf.sample"
 }
