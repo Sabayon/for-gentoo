@@ -37,7 +37,7 @@ RDEPEND="dev-lang/perl[ithreads]
 	dev-perl/Set-IntSpan
 	dev-perl/Try-Tiny
 	virtual/perl-Archive-Tar
-	>=virtual/perl-version-0.990.800
+	>=virtual/perl-version-0.990.200-r1
 	media-gfx/imagemagick[perl]
 	media-gfx/sane-backends
 	media-libs/tiff:0"
