@@ -180,7 +180,7 @@ src_configure() {
 src_compile() {
 	default
 	use python && _enter_build_dir "${S}/mapscript/python" "distutils-r1_src_compile"
-	use perl && _enter_build_dir "${S}/mapscript/perl" "perl-module_src_prep"
+	use perl && _enter_build_dir "${S}/mapscript/perl" "perl-module_src_configure"
 	use perl && _enter_build_dir "${S}/mapscript/perl" "perl-module_src_compile"
 	#use php && php-ext-source-r2_src_compile # already compiled by the emake all
 	#use ruby && _enter_build_dir "${S}/mapscript/ruby" "ruby-ng_src_compile"
