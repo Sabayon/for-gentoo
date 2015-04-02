@@ -20,7 +20,7 @@ IUSE=""
 DEPEND="sys-devel/gettext"
 
 RDEPEND="dev-lang/perl[ithreads]
-	>=dev-perl/config-general-2.40
+	>=dev-perl/Config-General-2.40
 	>=dev-perl/glib-perl-1.100-r1
 	dev-perl/Goo-Canvas
 	dev-perl/Gtk2-Ex-Simple-List
