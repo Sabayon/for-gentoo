@@ -50,7 +50,7 @@ DEPEND="${RDEPEND}
 	dev-util/intltool
 	sys-devel/gettext
 	virtual/pkgconfig
-	dev-libs/libdbusmenu:3[gtk3]
+	dev-libs/libdbusmenu[gtk3]
 "
 
 S="${WORKDIR}/${PN}-${PV}"
