@@ -8,7 +8,7 @@ inherit cmake-utils
 
 DESCRIPTION="Charm time tracking application"
 HOMEPAGE="http://github.com/KDAB/Charm"
-SRC_URI="mirror://sabayon/${CATEGORY}/${PN}/${P}.tar.gz"
+SRC_URI="https://github.com/KDAB/Charm/tarball/$PV -> $P.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -22,8 +22,6 @@ DEPEND=">=dev-qt/qtcore-4.6.0
 	idledetection? ( x11-libs/libXScrnSaver )
 	timesheettools? ( dev-db/mysql dev-db/mysql-connector-c++ )
 "
-
-PATCHES="${FILESDIR}/alternatefilename.patch"
 
 src_unpack() {
 	# Damn Github
