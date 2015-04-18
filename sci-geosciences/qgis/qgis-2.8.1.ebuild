@@ -1,10 +1,10 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: Exp $
 
 EAPI=5
 
-PYTHON_COMPAT=( python2_6 python2_7 )
+PYTHON_COMPAT=( python2_7 )
 PYTHON_REQ_USE="sqlite"
 
 inherit eutils multilib gnome2-utils cmake-utils python-single-r1
@@ -18,7 +18,7 @@ SRC_URI="
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="examples gps grass gsl mapserver postgres python spatialite test"
+IUSE="examples grass gsl mapserver postgres python test"
 
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 
@@ -36,39 +36,35 @@ RDEPEND="
 	dev-qt/qtsvg:4
 	dev-qt/qtsql:4
 	dev-qt/qtwebkit:4
+	x11-libs/qscintilla
 	|| (
-		( =x11-libs/qwt-6.0*[svg] >=x11-libs/qwtpolar-1 )
+		( || ( <x11-libs/qwt-6.1.2:6[svg] >=x11-libs/qwt-6.1.2:6[svg,qt4] ) >=x11-libs/qwtpolar-1 )
 		( x11-libs/qwt:5[svg] <x11-libs/qwtpolar-1 )
 	)
 	grass? ( >=sci-geosciences/grass-6.4.0_rc6[python?] )
 	mapserver? ( dev-libs/fcgi )
-	postgres? ( >=dev-db/postgresql-base-8.4 )
+	postgres? ( dev-db/postgresql:* )
 	python? (
-		dev-python/PyQt4[X,sql,svg,${PYTHON_USEDEP}]
-		dev-python/sip:=[${PYTHON_USEDEP}]
+		dev-python/PyQt4[X,sql,svg,webkit,${PYTHON_USEDEP}]
+		dev-python/sip[${PYTHON_USEDEP}]
 		dev-python/qscintilla-python[${PYTHON_USEDEP}]
 		postgres? ( dev-python/psycopg:2[${PYTHON_USEDEP}] )
 		${PYTHON_DEPS}
 	)
-	spatialite? (
-		dev-db/sqlite:3
-		dev-db/spatialite
-	)"
+	dev-db/sqlite:3
+	dev-db/spatialite
+"
 
 DEPEND="${RDEPEND}
 	sys-devel/bison
 	sys-devel/flex"
 
+PATCHES=(
+	"${FILESDIR}/${P}-fix-qwt-search.patch"
+)
+
 pkg_setup() {
 	python-single-r1_pkg_setup
-}
-
-src_prepare() {
-	epatch "${FILESDIR}"/${P}-no-python-pyc.patch
-	epatch "${FILESDIR}"/${P}-offline_editing_plugin_depend_on_spatialite.patch
-	epatch "${FILESDIR}"/${P}-fix-build-with-sip-4.15_part1.patch
-	epatch "${FILESDIR}"/${P}-fix-build-with-sip-4.15_part2.patch
-	epatch "${FILESDIR}"/${P}-fix-build-with-sip-4.15_part3.patch
 }
 
 src_configure() {
@@ -80,30 +76,32 @@ src_configure() {
 		"-DWITH_INTERNAL_QWTPOLAR=OFF"
 		"-DPEDANTIC=OFF"
 		"-DWITH_APIDOC=OFF"
+		"-DWITH_SPATIALITE=ON"
+		"-DWITH_INTERNAL_SPATIALITE=OFF"
 		$(cmake-utils_use_with postgres POSTGRESQL)
 		$(cmake-utils_use_with grass GRASS)
 		$(cmake-utils_use_with mapserver MAPSERVER)
 		$(cmake-utils_use_with python BINDINGS)
 		$(cmake-utils_use python BINDINGS_GLOBAL_INSTALL)
-		$(cmake-utils_use_with spatialite SPATIALITE)
-		$(cmake-utils_use_with spatialite PYSPATIALITE)
+		$(cmake-utils_use_with python PYSPATIALITE)
 		$(cmake-utils_use_with gsl GSL)
 		$(cmake-utils_use_enable test TESTS)
 		$(usex grass "-DGRASS_PREFIX=/usr/" "")
 	)
 
-	if use spatialite ; then
-		mycmakeargs+=( "-DWITH_INTERNAL_SPATIALITE=OFF" )
-	else
-		mycmakeargs+=( "-DWITH_INTERNAL_SPATIALITE=ON" )
-	fi
-
 	if has_version '>=x11-libs/qwtpolar-1' &&  has_version 'x11-libs/qwt:5' ; then
 		elog "Both >=x11-libs/qwtpolar-1 and x11-libs/qwt:5 installed. Force build with qwt6"
-		mycmakeargs+=(
-			"-DQWT_INCLUDE_DIR=/usr/include/qwt6"
-			"-DQWT_LIBRARY=/usr/$(get_libdir)/libqwt6.so"
-		)
+		if has_version '>=x11-libs/qwt-6.1.2' ; then
+			mycmakeargs+=(
+				"-DQWT_INCLUDE_DIR=/usr/include/qwt6"
+				"-DQWT_LIBRARY=/usr/$(get_libdir)/libqwt6-qt4.so"
+			)
+		else
+			mycmakeargs+=(
+				"-DQWT_INCLUDE_DIR=/usr/include/qwt6"
+				"-DQWT_LIBRARY=/usr/$(get_libdir)/libqwt6.so"
+			)
+		fi
 	fi
 
 	cmake-utils_src_configure
@@ -111,7 +109,7 @@ src_configure() {
 
 src_install() {
 	cmake-utils_src_install
-	dodoc BUGS ChangeLog CODING README
+	dodoc BUGS ChangeLog CODING
 
 	newicon -s 128 images/icons/qgis-icon.png qgis.png
 	make_desktop_entry qgis "QGIS " qgis
@@ -138,7 +136,7 @@ pkg_postinst() {
 		elog "   dev-db/postgis"
 	else
 		if use python ; then
-			elog "Support of dev-db/postgresql-base is disabled."
+			elog "Support of PostgreSQL is disabled."
 			elog "But some installed python-plugins needs import psycopg2 module."
 			elog "If you do not need this modules just disable them in main menu."
 			elog "Or you need to set USE=postgres"
