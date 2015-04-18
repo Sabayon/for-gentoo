@@ -12,7 +12,12 @@ SRC_URI="https://launchpad.net/i2p/trunk/${PV}/+download/${PN}source_${PV}.tar.b
 HOMEPAGE="http://www.i2p2.de/"
 
 SLOT="0"
-KEYWORDS="~x86 ~amd64 ~x86-fbsd ~amd64-fbsd ~ppc"
+# Several dependencies, such as dev-java/jrobin and dev-java/java-service-wrapper
+# are only KEYWORDED for x86 and amd64.  Until these arch dependecies issues
+# are clarified, the KEYWORDED arches need to be narrowed.  Since i2p is written
+# in Java, this may be fixed in the future.
+# KEYWORDS="~x86 ~amd64 ~x86-fbsd ~amd64-fbsd ~ppc"
+KEYWORDS="~x86 ~amd64 ~x86-fbsd ~amd64-fbsd"
 LICENSE="Apache-2.0 BSD GPL-2 GPL-3 IJG LGPL-2.1 LGPL-3 MIT MPL-1.1 public-domain"
 IUSE="initscript systemd"
 DEPEND=">=virtual/jdk-1.6
