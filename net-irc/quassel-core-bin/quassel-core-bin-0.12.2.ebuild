@@ -1,8 +1,8 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=4
+EAPI=5
 
 inherit systemd user versionator
 
@@ -21,7 +21,8 @@ SLOT="0"
 IUSE=""
 
 RDEPEND="sys-libs/zlib"
-DEPEND="!net-irc/quassel-core"
+DEPEND="!net-irc/quassel-core
+	app-admin/chrpath"
 
 S=${WORKDIR}
 
@@ -33,6 +34,10 @@ pkg_setup() {
 	# create quassel:quassel user
 	enewgroup "${QUASSEL_USER}"
 	enewuser "${QUASSEL_USER}" -1 -1 "${QUASSEL_DIR}" "${QUASSEL_USER}"
+}
+
+src_prepare() {
+	chrpath -d "${MY_FETCH_NAME}" || die "removing RUNPATH failed"
 }
 
 src_install() {
