@@ -24,7 +24,7 @@ HOMEPAGE="http://www.gentoo.org"
 LICENSE="GPL-2"
 SLOT="0"
 RESTRICT=""
-IUSE="cryptsetup dmraid gpg iscsi plymouth selinux"
+IUSE="cryptsetup dmraid gpg iscsi mdadm plymouth selinux"
 
 DEPEND="app-text/asciidoc
 	sys-fs/e2fsprogs
@@ -36,6 +36,7 @@ RDEPEND="${DEPEND}
 	dmraid? ( >=sys-fs/dmraid-1.0.0_rc16 )
 	gpg? ( app-crypt/gnupg )
 	iscsi? ( sys-block/open-iscsi )
+	mdadm? ( sys-fs/mdadm )
 	plymouth? ( sys-boot/plymouth )
 	app-portage/portage-utils
 	app-arch/cpio
