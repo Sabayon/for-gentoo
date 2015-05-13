@@ -1,0 +1,121 @@
+#!/bin/bash
+
+# Helper for systemd iptables.service & iptables-save.service
+
+usage () {
+    echo "Usage: $0 <start|reload|stop|restart|save>" >&2
+    exit $INVALIDARGUMENT
+}
+
+load () {
+    # Make sure the ${iptables_load} file exists for succesfull start/reload.
+    # If it doesn't exist (or is empty), initialize it with the default
+    # (flushed) state so start & reload actually do what they're supposed to.
+    [ -s "${iptables_load}" ] ||
+	flushed_state > "${iptables_load}" || return $NOPERMISSION
+    /sbin/${iptables}-restore $OPTIONS "${iptables_load}" || return $FAILURE
+}
+
+flush () {
+    flushed_state | /sbin/${iptables}-restore || return $FAILURE
+}
+
+flushed_state () {
+    # Output the flushed state to stdout, suitable for iptables-restore
+    ( /sbin/${iptables}-save || exit $FAILURE ) \
+        | sed -nr "/^[*C]/p;s/^(:[A-Z]+ )[A-Z].*/\1ACCEPT [0:0]/p"
+}
+
+save () {
+    /sbin/${iptables}-save $OPTIONS > "${iptables_save}" || return $FAILURE
+}
+
+service_started () {
+    # Check if the iptables service has been started
+    # (since saving a stopped state (at shutdown) is undesirable)
+    if [ -e /run/openrc/softlevel ]; then
+	# OpenRC init system
+	/etc/init.d/iptables status &>/dev/null
+    else
+	# Systemd init system
+	/usr/bin/systemctl --quiet is-active iptables.service
+    fi || return $NOTRUNNING
+}
+
+ipv4_support () {
+    # Check for IPv4 binaries & complain if not installed
+    if ! [ -x /sbin/iptables-restore -a -x /sbin/iptables-save ]; then
+        echo "Error: iptables binaries not found!" >&2
+        return $NOTINSTALLED
+    fi
+}
+
+ipv6_support () {
+    # Check if IPv6 kernel support has been implemented
+    [ -d /proc/sys/net/ipv6 ] || return $NOTIMPLEMENTED
+    # Warn if IPv6 binaries are not installed
+    if ! [ -x /sbin/ip6tables-restore -a -x /sbin/ip6tables-save ]; then
+        echo "Warning: IPv6 kernel without ip6tables binaries!" >&2
+        return $NOTINSTALLED
+    fi
+}
+
+init_env () {
+    # Get & set the needed environment variables
+    iptables="$1"  # iptables|ip6tables
+    # default to the same files as for OpenRC
+    IPTABLES_INIT=${IPTABLES_INIT:-/var/lib/iptables/rules-save}
+    IP6TABLES_INIT=${IP6TABLES_INIT:-/var/lib/ip6tables/rules-save}
+    local IPTABLES=$(echo "${iptables}" | tr a-z A-Z)  # IPTABLES|IP6TABLES
+    eval iptables_load=\"\${${IPTABLES}_INIT}\"
+    eval iptables_save=\"\${${IPTABLES}_SAVE_AS:-\$iptables_load}\"
+    if [ -z "${iptables_load}" ]; then
+        echo "Error: ${IPTABLES}_INIT has not been configured" >&2
+        exit $NOTCONFIGURED
+    fi
+    # Counters option for ip*tables-save & ip*tables-restore
+    [ "$COUNTERS" = yes ] && OPTIONS="--counters" || OPTIONS=
+}
+
+init_systemd_exit_codes () {
+    SUCCESS=0
+    FAILURE=1
+    INVALIDARGUMENT=2
+    NOTIMPLEMENTED=3
+    NOPERMISSION=4
+    NOTINSTALLED=5
+    NOTCONFIGURED=6
+    NOTRUNNING=7
+}
+
+do_action () {
+    init_env "$1"
+    case "$action" in
+        start)
+            load
+            ;;
+        reload)
+            load
+            ;;
+        stop)
+            save && flush
+            ;;
+        restart)
+            # Systemd hasn't implemented ExecRestart (yet), so currently
+            # this is a dummy action. Systemd actually does stop && start.
+            save && load
+            ;;
+        save)
+            service_started && save
+            ;;
+        *)
+            usage
+            ;;
+    esac
+}
+
+action="$1"
+init_systemd_exit_codes
+ipv4_support && do_action iptables || exit
+ipv6_support || exit $SUCCESS  # IPv6 support is optionally
+do_action ip6tables
