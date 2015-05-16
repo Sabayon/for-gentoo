@@ -1,0 +1,20 @@
+--- kazam-1.4.5/bin/kazam
++++ kazam-1.4.5/bin/kazam
+@@ -59,16 +59,7 @@
+ 
+     logger.debug("Logger intialized.")
+ 
+-    if os.path.exists("./kazam") and os.path.exists("../data"):
+-        logger.warning("Running from local directory, AppIndicator icons could be missing.")
+-        datadir = "../data"
+-        sys.path.insert(0, "..")
+-    else:
+-        # A bit more flexible setting of datadir, it works
+-        # when base install path is not /usr
+-        curpath = os.path.abspath(__file__)
+-        curpath = os.path.realpath(curpath)
+-        datadir = curpath.split('bin/')[0] + "share/kazam/"
++    datadir = "/usr/share/kazam/"
+ 
+     try:
+         import platform
