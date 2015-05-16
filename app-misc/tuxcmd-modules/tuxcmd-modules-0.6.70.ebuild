@@ -1,4 +1,4 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -23,6 +23,7 @@ DEPEND="${RDEPEND}"
 
 src_prepare() {
 	epatch "${FILESDIR}/${PN}-libarchive3.patch"
+	epatch "${FILESDIR}/${PN}-gcc-4.7.patch"
 }
 
 src_compile() {
