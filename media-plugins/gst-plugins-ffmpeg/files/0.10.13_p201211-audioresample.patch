@@ -1,0 +1,11 @@
+From: Ettore Di Giacinto <mudler@sabayonlinux.org>
+--- ext/ffmpeg/gstffmpegaudioresample.c~	2015-05-29 10:37:34.908126964 +0200
++++ ext/ffmpeg/gstffmpegaudioresample.c	2015-05-29 11:37:24.048183078 +0200
+@@ -26,6 +26,7 @@
+ 
+ #ifdef HAVE_FFMPEG_UNINSTALLED
+ #include <avcodec.h>
++#include <avresample.h>
+ #else
+ #include <libavcodec/avcodec.h>
+ #endif
