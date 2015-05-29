@@ -20,7 +20,7 @@ RDEPEND="sys-power/upower
 	gnome-base/gnome-settings-daemon
 	dev-util/desktop-file-utils
 	media-sound/pulseaudio
-	<=x11-libs/gtk+-3.14
+	>=x11-libs/gtk+-3.14
 	x11-libs/wxGTK:3.0"
 
 DEPEND="${RDEPEND}
