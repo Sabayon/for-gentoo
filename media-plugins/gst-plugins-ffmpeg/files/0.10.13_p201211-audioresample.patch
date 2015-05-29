@@ -63,6 +63,7 @@
 +    int final_padding_filled;
 +    int final_padding_samples;
 +};
++typedef struct ResampleContext ResampleContext;
 +
 +
  typedef struct _GstFFMpegAudioResample
