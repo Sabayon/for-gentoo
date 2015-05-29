@@ -5,7 +5,7 @@ From: Ettore Di Giacinto <mudler@sabayonlinux.org>
  
  #ifdef HAVE_FFMPEG_UNINSTALLED
  #include <avcodec.h>
-+#include <avresample.h>
++#include <resample.h>
  #else
  #include <libavcodec/avcodec.h>
  #endif
