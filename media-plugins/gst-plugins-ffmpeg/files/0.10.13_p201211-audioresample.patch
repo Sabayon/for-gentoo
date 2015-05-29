@@ -1,5 +1,5 @@
 --- ext/ffmpeg/gstffmpegaudioresample.c~	2015-05-29 11:38:03.639001637 +0200
-+++ ext/ffmpeg/gstffmpegaudioresample.c	2015-05-29 19:34:46.853894829 +0200
++++ ext/ffmpeg/gstffmpegaudioresample.c	2015-05-29 19:56:26.321282712 +0200
 @@ -24,6 +24,7 @@
  #include "config.h"
  #endif
@@ -8,7 +8,7 @@
  #ifdef HAVE_FFMPEG_UNINSTALLED
  #include <avcodec.h>
  #else
-@@ -37,6 +38,59 @@
+@@ -37,6 +38,60 @@
  #include "gstffmpeg.h"
  #include "gstffmpegcodecmap.h"
  
@@ -63,8 +63,8 @@
 +    int final_padding_filled;
 +    int final_padding_samples;
 +};
-+typedef struct ResampleContext ResampleContext;
 +
++typedef struct ResampleContext ResampleContext;
 +
  typedef struct _GstFFMpegAudioResample
  {
