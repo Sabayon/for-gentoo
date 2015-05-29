@@ -32,7 +32,6 @@ RDEPEND="
 	!libav? ( >=media-video/ffmpeg-1.2.6-r1:0=[${MULTILIB_USEDEP}] )
 	libav? (
 		>=media-video/libav-11.3:0=[${MULTILIB_USEDEP}]
-		<media-video/libav-10:0=[${MULTILIB_USEDEP}]
 		>=media-libs/libpostproc-10.20140517-r1:0=[${MULTILIB_USEDEP}] )
 	orc? ( >=dev-lang/orc-0.4.17[${MULTILIB_USEDEP}] )
 	abi_x86_32? ( !app-emulation/emul-linux-x86-gstplugins[-abi_x86_32(-)] )
