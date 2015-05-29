@@ -1,5 +1,5 @@
 --- ext/ffmpeg/gstffmpegaudioresample.c~	2015-05-29 11:38:03.639001637 +0200
-+++ ext/ffmpeg/gstffmpegaudioresample.c	2015-05-29 19:56:26.321282712 +0200
++++ ext/ffmpeg/gstffmpegaudioresample.c	2015-05-29 20:08:24.744107000 +0200
 @@ -24,6 +24,7 @@
  #include "config.h"
  #endif
@@ -35,7 +35,7 @@
 +
 +typedef struct AudioData AudioData;
 +
-+struct ResampleContext {
++struct ReSampleContext {
 +    AVAudioResampleContext *avr;
 +    AudioData *buffer;
 +    uint8_t *filter_bank;
@@ -64,7 +64,7 @@
 +    int final_padding_samples;
 +};
 +
-+typedef struct ResampleContext ResampleContext;
++typedef struct ReSampleContext ReSampleContext;
 +
  typedef struct _GstFFMpegAudioResample
  {
