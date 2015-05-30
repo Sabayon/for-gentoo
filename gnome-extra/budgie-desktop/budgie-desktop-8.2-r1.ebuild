@@ -26,9 +26,9 @@ RDEPEND="sys-power/upower
 DEPEND="${RDEPEND}
 	$(vala_depend)
 	x11-wm/mutter
-	>=x11-libs/libwnck-3.4.7
+	x11-libs/libwnck:3
 	dev-libs/libpeas
-	dev-libs/libgee
+	dev-libs/libgee:0.8
 	x11-themes/gnome-themes-standard
 "
 src_prepare() {
