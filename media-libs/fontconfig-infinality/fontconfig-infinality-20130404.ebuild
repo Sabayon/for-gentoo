@@ -1,4 +1,4 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -15,9 +15,9 @@ KEYWORDS="~amd64 ~x86"
 IUSE="+nyx"
 
 DEPEND=""
-RDEPEND="app-admin/eselect-fontconfig
-	app-admin/eselect-infinality
-	app-admin/eselect-lcdfilter
+RDEPEND="app-eselect/eselect-fontconfig
+	app-eselect/eselect-infinality
+	app-eselect/eselect-lcdfilter
 	>=x11-libs/libXft-2.3.0
 	nyx? ( media-fonts/croscorefonts )"
 PDEPEND="media-libs/freetype:2[infinality]"

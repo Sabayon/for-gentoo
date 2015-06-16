@@ -1,4 +1,4 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -7,8 +7,8 @@ inherit bash-completion-r1 gnome2
 
 DESCRIPTION="Clipboard management system"
 HOMEPAGE="http://github.com/Keruspe/GPaste"
-SRC_URI="https://github.com/downloads/Keruspe/${PN/gp/GP}/${P}.tar.xz"
-RESTRICT="nomirror"
+SRC_URI="mirror://github/Keruspe/${PN/gp/GP}/${P}.tar.xz"
+RESTRICT="mirror"
 
 LICENSE="GPL-3"
 SLOT="0"
@@ -25,7 +25,7 @@ RDEPEND="${DEPEND}
 	bash-completion? ( app-shells/bash )
 	sys-apps/dbus
 	gnome-shell? ( >=gnome-base/gnome-shell-3.1.90 )
-	zsh-completion? ( app-shells/zsh app-shells/zsh-completion )"
+	zsh-completion? ( app-shells/zsh app-shells/gentoo-zsh-completions )"
 
 G2CONF="
 	--disable-schemas-compile

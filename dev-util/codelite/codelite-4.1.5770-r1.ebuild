@@ -17,7 +17,7 @@ IUSE="debug mysql pch postgres"
 
 DEPEND="debug? ( x11-libs/wxGTK:2.8[debug] )
 	mysql? ( virtual/mysql )
-	postgres? ( dev-db/postgresql-base )"
+	postgres? ( dev-db/postgresql )"
 RDEPEND="x11-libs/wxGTK:2.8[X]"
 
 src_prepare() {
