@@ -7,7 +7,7 @@ inherit eutils toolchain-funcs multilib autotools
 
 DESCRIPTION="FITS library and utlities for astronomical images"
 HOMEPAGE="https://github.com/ericmandel/funtools"
-SRC_URI="https://github.com/ericmandel/${PN}/archive/v${PV}.tar.gz"
+SRC_URI="https://github.com/ericmandel/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="LGPL-2.1"
 SLOT="0"
@@ -53,7 +53,7 @@ src_install () {
 	use static-libs || rm "${ED}"/usr/$(get_libdir)/lib*.a
 	use doc && cd doc && dodoc *.pdf && dohtml *html *c
 	# conflicts (bug #536630), also see https://github.com/ericmandel/funtools/issues/11
-	rm "${D}"/usr/share/man/man3/funopen.3 || die
+	rm "${ED}"/usr/share/man/man3/funopen.3 || die
 }
 
 
