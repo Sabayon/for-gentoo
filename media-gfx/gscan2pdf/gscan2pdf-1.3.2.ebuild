@@ -7,7 +7,7 @@ inherit perl-app
 
 DESCRIPTION="GUI to produce PDF or DjVu files from scanned documents"
 HOMEPAGE="http://gscan2pdf.sourceforge.net/"
-SRC_URI="mirror://sourceforge/${PN}/${P}.tar.gz"
+SRC_URI="mirror://sourceforge/${PN}/${P}.tar.xz"
 # https://bugs.gentoo.org/show_bug.cgi?id=254704
 
 LICENSE="GPL-3"
@@ -19,8 +19,10 @@ IUSE=""
 # >=virtual/perl-version-0.990.800 due to #505524
 DEPEND="sys-devel/gettext"
 
+# non available Linux::Distribution removed by ...-remove-module-dep.patch
 RDEPEND="dev-lang/perl[ithreads]
 	>=dev-perl/Config-General-2.40
+	dev-perl/Filesys-Df
 	>=dev-perl/glib-perl-1.100-r1
 	dev-perl/Goo-Canvas
 	dev-perl/Gtk2-Ex-Simple-List
@@ -41,6 +43,8 @@ RDEPEND="dev-lang/perl[ithreads]
 	media-gfx/imagemagick[perl]
 	media-gfx/sane-backends
 	media-libs/tiff:0"
+
+PATCHES=( "${FILESDIR}/${P}-remove-module-dep.patch" )
 
 src_install() {
 	perl-module_src_install

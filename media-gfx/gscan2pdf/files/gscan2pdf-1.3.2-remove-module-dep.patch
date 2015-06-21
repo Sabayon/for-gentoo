@@ -1,0 +1,31 @@
+# Remove strict dependency o Linux::Distribution module by making it optional.
+diff --git a/bin/gscan2pdf b/bin/gscan2pdf
+index 39114b5..ead5066 100755
+--- a/bin/gscan2pdf
++++ b/bin/gscan2pdf
+@@ -78,7 +78,6 @@ use Fcntl qw(:flock)
+ use Log::Log4perl;
+ use Try::Tiny;
+ use Data::Dumper;
+-use Linux::Distribution qw(distribution_name distribution_version);
+ use Filesys::Df;
+ use English qw( -no_match_vars )
+   ;    # for $PERL_VERSION, $PROGRAM_NAME, $EVAL_ERROR, $ERRNO
+@@ -87,6 +86,17 @@ use English qw( -no_match_vars )
+ use POSIX qw(locale_h :signal_h :errno_h :sys_wait_h);
+ use Locale::gettext 1.05;    # For translations
+ 
++BEGIN {
++	eval {
++		require Linux::Distribution;
++		Linux::Distribution->import(qw(distribution_name distribution_version));
++	};
++	if ($@) {
++		*distribution_name = sub { "" };
++		*distribution_version = sub { "" };
++	}
++}
++
+ use Readonly;
+ Readonly my $BORDER_WIDTH            => 6;               # Window parameters
+ Readonly my $STRING_FORMAT           => 8;
