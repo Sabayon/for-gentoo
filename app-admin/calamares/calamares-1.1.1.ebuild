@@ -21,7 +21,7 @@ else
 	SRC_URI=""
 	EGIT_REPO_URI="git://github.com/${MY_AUTHOR}/${PN}.git
 		       https://github.com/${MY_AUTHOR}/${PN}.git"
-	EGIT_COMMIT=0dab164e9ca4efae6ddb944876a53383a1289bf3
+	EGIT_COMMIT="d9e80aeec623a8333d5bc9c47d9df5d214ae8545"
 	KEYWORDS="~amd64 ~x86"
 fi
 
@@ -60,7 +60,8 @@ RDEPEND="${DEPEND}
 	sys-fs/squashfs-tools
 	networkmanager? ( net-misc/networkmanager )
 	upower? ( sys-power/upower )
-	net-misc/rsync"
+	net-misc/rsync
+	app-admin/sudo"
 
 src_prepare() {
 	python_setup

@@ -60,7 +60,8 @@ RDEPEND="${DEPEND}
 	sys-fs/squashfs-tools
 	networkmanager? ( net-misc/networkmanager )
 	upower? ( sys-power/upower )
-	net-misc/rsync"
+	net-misc/rsync
+	app-admin/sudo"
 
 src_prepare() {
 	python_setup
