@@ -61,7 +61,8 @@ RDEPEND="${DEPEND}
 	networkmanager? ( net-misc/networkmanager )
 	upower? ( sys-power/upower )
 	net-misc/rsync
-	app-admin/sudo"
+	app-admin/sudo
+	sys-boot/os-prober"
 
 src_prepare() {
 	python_setup
@@ -75,4 +76,11 @@ src_prepare() {
 src_configure() {
 	local mycmakeargs=( "-DWITH_PARTITIONMANAGER=1" )
 	cmake-utils_src_configure
+	sed -i -e 's:pkexec /usr/bin/calamares:calamares-pkexec:' "${S}"/calamares.desktop
+	sed -i -e 's:Icon=calamares:Icon=drive-harddisk:' "${S}"/calamares.desktop
+}
+
+src_install() {
+	cmake-utils_src_install
+	dobin "${FILESDIR}"/calamares-pkexec
 }
