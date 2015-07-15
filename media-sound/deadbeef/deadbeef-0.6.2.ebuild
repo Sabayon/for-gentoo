@@ -1,4 +1,4 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -15,9 +15,9 @@ KEYWORDS="~x86 ~amd64"
 DESCRIPTION="foobar2k-like music player"
 HOMEPAGE="http://deadbeef.sourceforge.net/"
 
-LICENSE="GPL-2
+LICENSE="DeaDBeeF
+	GPL-2
 	LGPL-2.1
-	ZLIB
 	psf? ( BSD XMAME )
 	dumb? ( DUMB-0.9.2 )
 	shn? ( shorten )"
@@ -153,6 +153,12 @@ src_configure() {
 		$(use_enable wavpack)
 		$(use_enable zip vfs-zip)
 		$(use_enable wma)"
+
+	if use cover; then
+		my_config+=" $(use_enable curl artwork-network)"
+	else
+		my_config+=" --disable-artwork-network"
+	fi
 
 	econf ${my_config}
 }
