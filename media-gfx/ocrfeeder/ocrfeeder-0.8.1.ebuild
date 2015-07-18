@@ -22,6 +22,8 @@ DEPEND="
 	dev-python/pillow[scanner]
 	dev-python/pyenchant
 	x11-libs/goocanvas[introspection]
+	app-text/gnome-doc-utils
+	dev-python/reportlab
 
 	gocr? ( app-text/gocr )
 	unpaper? ( app-text/unpaper )
