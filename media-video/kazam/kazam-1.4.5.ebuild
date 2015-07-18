@@ -31,6 +31,7 @@ RDEPEND="
 	media-plugins/gst-plugins-x264:1.0
 	media-plugins/gst-plugins-ximagesrc:1.0
 	x11-libs/gtk+:3[introspection]
+	x11-libs/libwnck:3
 "
 
 PATCHES=( "${FILESDIR}/${P}-datadir.patch" )
