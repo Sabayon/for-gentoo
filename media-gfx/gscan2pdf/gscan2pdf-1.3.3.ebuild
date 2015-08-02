@@ -19,9 +19,9 @@ IUSE=""
 # >=virtual/perl-version-0.990.800 due to #505524
 DEPEND="sys-devel/gettext"
 
-# non available Linux::Distribution removed by ...-remove-module-dep.patch
 RDEPEND="dev-lang/perl[ithreads]
 	>=dev-perl/Config-General-2.40
+	dev-perl/Data-UUID
 	dev-perl/Filesys-Df
 	>=dev-perl/glib-perl-1.100-r1
 	dev-perl/Goo-Canvas
@@ -39,12 +39,13 @@ RDEPEND="dev-lang/perl[ithreads]
 	dev-perl/Set-IntSpan
 	dev-perl/Try-Tiny
 	virtual/perl-Archive-Tar
+	virtual/perl-JSON-PP
 	>=virtual/perl-version-0.990.200-r1
 	media-gfx/imagemagick[perl]
 	media-gfx/sane-backends
 	media-libs/tiff:0"
 
-PATCHES=( "${FILESDIR}/${P}-remove-module-dep.patch" )
+PATCHES=( "${FILESDIR}/${P}-dialog.patch" )
 
 src_install() {
 	perl-module_src_install
