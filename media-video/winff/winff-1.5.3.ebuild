@@ -1,18 +1,19 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=4
+EAPI=5
 inherit eutils
 
 DESCRIPTION="Graphical video and audio batch converter using ffmpeg or avconv"
 HOMEPAGE="http://winff.org/"
-SRC_URI="http://winff.googlecode.com/files/WinFF-${PV}-source.tar.gz
+# Can't download from the website...
+SRC_URI="mirror://debian/pool/main/w/winff/winff_${PV}.orig.tar.gz
 	http://winff.googlecode.com/files/presets-libavcodec53-v4.xml.gz"
 
 LICENSE="GPL-3 doc? ( FDL-1.3 )"
 SLOT="0"
-KEYWORDS=""
+KEYWORDS="~amd64 ~x86"
 IUSE="doc"
 
 COMMON_DEPENDS="
@@ -33,7 +34,7 @@ RDEPEND="
 	|| ( x11-terms/xterm x11-terms/gnome-terminal )
 "
 
-S="${WORKDIR}"
+S="${WORKDIR}/${PN}"
 
 src_compile() {
 	lazbuild \
@@ -45,7 +46,7 @@ src_install() {
 	dodoc README* changelog.txt
 	doman ${PN}.1
 	insinto /usr/share/${PN}
-	newins presets-libavcodec53-v4.xml presets.xml
+	newins "${WORKDIR}/presets-libavcodec53-v4.xml" presets.xml
 	doins -r languages
 	local res
 	for res in 16x16 24x24 32x32 48x48; do
@@ -65,6 +66,13 @@ pkg_postinst() {
 	elog "If you had a previous version installed, you may want to"
 	elog "rename or delete ~/.winff/presets.xml for new presets to be used."
 	elog "Note: doing so will remove your custom presets."
+	if [[ -z "${REPLACING_VERSIONS}" ]]; then
+		elog
+		elog "If the application throws an error that neiter ffmpeg nor avconv"
+		elog "cannot be installed, and you switched the implementations since"
+		elog "last use, removal of configuration in ~/.winff helps. It may be"
+		elog "also possible to update the configuration."
+	fi
 	elog
 	elog "This package comes with presets for libavcodec version 53."
 	elog "Other variants are available at project's homepage."
