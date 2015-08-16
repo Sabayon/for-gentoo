@@ -1,4 +1,4 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -8,7 +8,7 @@ inherit autotools eutils gnome2-utils versionator
 
 DESCRIPTION="GTK+ based GUI for xneur"
 HOMEPAGE="http://www.xneur.ru/"
-SRC_URI="http://dists.xneur.ru/release-${PV}/tgz/${P}.tar.bz2"
+SRC_URI="https://launchpad.net/~andrew-crew-kuznetsov/+archive/xneur-stable/+files/${PN}_${PV}.orig.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -31,6 +31,7 @@ src_prepare() {
 	rm -f m4/{lt~obsolete,ltoptions,ltsugar,ltversion,libtool}.m4 \
 		ltmain.sh aclocal.m4 || die
 	sed -i "s/-Werror -g0//" configure.in || die
+	sed -i -e '/Encoding/d' -e '/Categories/s/$/;/' ${PN}.desktop.in || die
 	eautoreconf
 }
 

@@ -1,4 +1,4 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -8,7 +8,7 @@ inherit autotools eutils
 
 DESCRIPTION="In-place conversion of text typed in with a wrong keyboard layout (Punto Switcher replacement)"
 HOMEPAGE="http://www.xneur.ru/"
-SRC_URI="http://dists.xneur.ru/release-${PV}/tgz/${P}.tar.bz2"
+SRC_URI="https://launchpad.net/~andrew-crew-kuznetsov/+archive/${PN}-stable/+files/${PN}_${PV}.orig.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -47,8 +47,7 @@ src_prepare() {
 		ltmain.sh aclocal.m4 || die
 
 	sed -i -e "s/-Werror -g0//" configure.in || die
-	# allows to select between gtk2 or gtk3, or none
-	epatch "${FILESDIR}/${PV}-select-gtk.patch"
+	sed -i -e 's/@LDFLAGS@ //' xnconfig.pc.in || die
 	eautoreconf
 }
 
