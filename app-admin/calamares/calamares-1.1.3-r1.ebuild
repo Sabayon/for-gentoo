@@ -38,6 +38,7 @@ DEPEND="${PYTHON_DEPS}
 	sys-apps/dbus
 	sys-apps/dmidecode
 	sys-auth/polkit-qt[qt5]
+	dev-qt/qtwebkit:5
 "
 
 RDEPEND="${DEPEND}
