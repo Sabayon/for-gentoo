@@ -14,10 +14,10 @@ if [[ ${PV} == "9999" ]] ; then
 	KEYWORDS=""
 else
 	SRC_URI=""
-	KEYWORDS="~amd64 ~arm ~x86"
+	KEYWORDS="~amd64 ~x86"
 fi
 
-LICENSE="GPL-3.0+"
+LICENSE="GPL-2"
 SLOT="0"
 
 DEPEND="gnome-extra/gnome-shell-extensions

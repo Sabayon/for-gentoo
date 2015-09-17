@@ -14,11 +14,11 @@ if [[ ${PV} == "9999" ]] ; then
 	KEYWORDS=""
 else
 	EGIT_REPO_URI="https://github.com/kororaproject/kp-gnome-shell-theme-korora.git"
-	EGIT_COMMIT="4e36ff76fc657d7622cff60ff416d9251149f4cd"
-	KEYWORDS="~amd64 ~arm ~x86"
+	EGIT_COMMIT="939ecff3e9e5341101b8c39895ca6c51d756f108"
+	KEYWORDS="~amd64 ~x86"
 fi
 
-LICENSE="GPL-3.0+"
+LICENSE="GPL-2"
 SLOT="0"
 
 DEPEND="gnome-extra/gnome-shell-extensions
