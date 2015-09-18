@@ -12,11 +12,11 @@ if [[ ${PV} == "9999" ]] ; then
 	EGIT_REPO_URI="https://github.com/ozonos/${PN}.git"
 	KEYWORDS=""
 else
-        SRC_URI="https://github.com/ozonos/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
+	SRC_URI="https://github.com/ozonos/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 	KEYWORDS="~amd64 ~arm ~x86"
 fi
 
-LICENSE="GPL-3.0"
+LICENSE="GPL-3"
 SLOT="0"
 
 DEPEND=""
