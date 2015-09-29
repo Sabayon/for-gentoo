@@ -19,10 +19,11 @@ KEYWORDS="~amd64 ~x86"
 IUSE="+introspection doc static-libs"
 
 RDEPEND=">=dev-libs/glib-2.32:2
-	dev-libs/libgee:0
+	dev-libs/libgee:0.8
 	x11-libs/gtk+:3
 	x11-libs/bamf
 	x11-libs/libX11
+	dev-libs/libdbusmenu
 	x11-libs/libwnck:3"
 DEPEND="${RDEPEND}
 	$(vala_depend)
