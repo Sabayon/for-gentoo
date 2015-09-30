@@ -31,7 +31,7 @@ HOMEPAGE="http://zfsonlinux.org/"
 
 LICENSE="CDDL debug? ( GPL-2+ )"
 SLOT="0"
-IUSE="custom-cflags debug debug-log +rootfs"
+IUSE="custom-cflags debug +rootfs"
 RESTRICT="debug? ( strip ) test"
 
 DEPEND="dev-lang/perl
