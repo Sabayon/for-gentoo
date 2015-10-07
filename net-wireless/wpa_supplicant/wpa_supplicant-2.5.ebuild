@@ -98,10 +98,6 @@ src_prepare() {
 	cd "${WORKDIR}/${P}"
 
 	if use wimax; then
-		# generate-libeap-peer.patch comes before
-		# fix-undefined-reference-to-random_get_bytes.patch
-		epatch "${FILESDIR}/${P}-generate-libeap-peer.patch"
-
 		# multilib-strict fix (bug #373685)
 		sed -e "s/\/usr\/lib/\/usr\/$(get_libdir)/" -i src/eap_peer/Makefile
 	fi
