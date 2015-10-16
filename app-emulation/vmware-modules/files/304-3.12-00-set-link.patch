@@ -1,0 +1,285 @@
+diff -ur a/vmblock-only/linux/inode.c b/vmblock-only/linux/inode.c
+--- a/vmblock-only/linux/inode.c	2015-05-31 16:01:25.000000000 +0300
++++ b/vmblock-only/linux/inode.c	2015-08-08 00:33:22.000000000 +0300
+@@ -35,26 +35,27 @@
+ 
+ 
+ /* Inode operations */
+-static struct dentry *InodeOpLookup(struct inode *dir,
+-                                    struct dentry *dentry, struct nameidata *nd);
++
++#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 12, 0)
++static struct dentry *InodeOpLookup(struct inode *dir, struct dentry *dentry, struct nameidata *nd);
+ static int InodeOpReadlink(struct dentry *dentry, char __user *buffer, int buflen);
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 13)
+-static void *InodeOpFollowlink(struct dentry *dentry, struct nameidata *nd);
+ #else
+-static int InodeOpFollowlink(struct dentry *dentry, struct nameidata *nd);
++static struct dentry *InodeOpLookup(struct inode *, struct dentry *, unsigned int);
++static int InodeOpReadlink(struct dentry *, char __user *, int);
+ #endif
+ 
++static const char *InodeOpFollowlink(struct dentry *dentry, void **cookie);
++
+ 
+ struct inode_operations RootInodeOps = {
+    .lookup = InodeOpLookup,
+ };
+ 
+-static struct inode_operations LinkInodeOps = {
++struct inode_operations LinkInodeOps = {
+    .readlink    = InodeOpReadlink,
+    .follow_link = InodeOpFollowlink,
+ };
+ 
+-
+ /*
+  *----------------------------------------------------------------------------
+  *
+@@ -75,7 +76,11 @@
+ static struct dentry *
+ InodeOpLookup(struct inode *dir,      // IN: parent directory's inode
+               struct dentry *dentry,  // IN: dentry to lookup
+-              struct nameidata *nd)   // IN: lookup intent and information
++#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 12, 0)
++	      struct nameidata *nd)   // IN: lookup intent and information
++#else
++              unsigned int flags)
++#endif
+ {
+    char *filename;
+    struct inode *inode;
+@@ -135,7 +140,12 @@
+    inode->i_size = INODE_TO_IINFO(inode)->nameLen;
+    inode->i_version = 1;
+    inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
++#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 12, 0)
+    inode->i_uid = inode->i_gid = 0;
++#else
++   inode->i_gid = make_kgid(current_user_ns(), 0);
++   inode->i_uid = make_kuid(current_user_ns(), 0);
++#endif
+    inode->i_op = &LinkInodeOps;
+ 
+    d_add(dentry, inode);
+@@ -177,7 +187,12 @@
+       return -EINVAL;
+    }
+ 
+-   return vfs_readlink(dentry, buffer, buflen, iinfo->name);
++#if LINUX_VERSION_CODE <= KERNEL_VERSION(3, 14, 99)
++	return vfs_readlink(dentry, buffer, buflen, iinfo->name);
++#else
++        return readlink_copy(buffer, buflen, iinfo->name);
++#endif
++
+ }
+ 
+ 
+@@ -198,13 +213,7 @@
+  *----------------------------------------------------------------------------
+  */
+ 
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 13)
+-static void *
+-#else
+-static int
+-#endif
+-InodeOpFollowlink(struct dentry *dentry,  // IN : dentry of symlink
+-                  struct nameidata *nd)   // OUT: stores result
++static const char *InodeOpFollowlink(struct dentry *dentry, void **cookie)
+ {
+    int ret;
+    VMBlockInodeInfo *iinfo;
+@@ -221,7 +230,11 @@
+       goto out;
+    }
+ 
+-   ret = vfs_follow_link(nd, iinfo->name);
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 12, 0)
++    return *cookie = (char *)(iinfo->name);
++#else
++   nd_set_link(nd, iinfo->name);
++#endif
+ 
+ out:
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 13)
+@@ -230,3 +243,4 @@
+    return ret;
+ #endif
+ }
++
+Только в a/vmblock-only/shared/autoconf: dalias.c
+Только в a/vmblock-only/shared/autoconf: truncate_pagecache.c
+diff -ur a/vmci-only/linux/driver.c b/vmci-only/linux/driver.c
+--- a/vmci-only/linux/driver.c	2015-05-31 16:01:25.000000000 +0300
++++ b/vmci-only/linux/driver.c	2015-08-08 00:42:47.000000000 +0300
+@@ -26,13 +26,16 @@
+ 
+ #include <linux/file.h>
+ #include <linux/fs.h>
++#include <linux/vmalloc.h>
+ #include <linux/init.h>
++
+ #if defined(__x86_64__) && LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 12)
+ #   include <linux/ioctl32.h>
+ /* Use weak: not all kernels export sys_ioctl for use by modules */
+ asmlinkage __attribute__((weak)) long
+ sys_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg);
+ #endif
++
+ #include <linux/miscdevice.h>
+ #include <linux/moduleparam.h>
+ #include <linux/poll.h>
+@@ -713,7 +716,7 @@
+ 
+    case IOCTL_VMCI_INIT_CONTEXT: {
+       VMCIInitBlock initBlock;
+-      VMCIHostUser user;
++      uid_t user;
+ 
+       retval = copy_from_user(&initBlock, (void *)ioarg, sizeof initBlock);
+       if (retval != 0) {
+@@ -735,7 +738,11 @@
+          goto init_release;
+       }
+ 
++#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 12, 0)
+       user = current_uid();
++#else
++      user = from_kuid(&init_user_ns, current_uid());
++#endif
+       retval = VMCIContext_InitContext(initBlock.cid, initBlock.flags,
+                                        0 /* Unused */, vmciLinux->userVersion,
+                                        &user, &vmciLinux->context);
+@@ -1683,7 +1690,7 @@
+    /* This should be last to make sure we are done initializing. */
+    retval = pci_register_driver(&vmci_driver);
+    if (retval < 0) {
+-      vfree(data_buffer);
++      kvfree(data_buffer);
+       data_buffer = NULL;
+       return retval;
+    }
+@@ -2470,7 +2477,7 @@
+ 
+    if (guestDeviceInit) {
+       pci_unregister_driver(&vmci_driver);
+-      vfree(data_buffer);
++      kvfree(data_buffer);
+       guestDeviceInit = FALSE;
+    }
+ 
+diff -ur a/vmmon-only/linux/vmmonInt.h b/vmmon-only/linux/vmmonInt.h
+--- a/vmmon-only/linux/vmmonInt.h	2015-05-31 16:40:39.000000000 +0300
++++ b/vmmon-only/linux/vmmonInt.h	2015-08-07 05:29:20.000000000 +0300
+@@ -31,7 +31,7 @@
+ #ifdef VMW_HAVE_SMP_CALL_3ARG
+ #define compat_smp_call_function(fn, info, wait) smp_call_function(fn, info, wait)
+ #else
+-#define compat_smp_call_function(fn, info, wait) smp_call_function(fn, info, 1, wait)
++#define compat_smp_call_function(fn, info, wait) smp_call_function(fn, info, wait)
+ #endif
+ 
+ /*
+diff -ur a/vmnet-only/vmnetInt.h b/vmnet-only/vmnetInt.h
+--- a/vmnet-only/vmnetInt.h	2015-05-31 16:40:39.000000000 +0300
++++ b/vmnet-only/vmnetInt.h	2015-08-07 05:19:49.000000000 +0300
+@@ -77,13 +77,18 @@
+ 
+ 
+ extern struct proto vmnet_proto;
++
+ #ifdef VMW_NETDEV_HAS_NET
+-#   define compat_sk_alloc(_bri, _pri) sk_alloc(&init_net, \
+-                                                PF_NETLINK, _pri, &vmnet_proto)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 2, 0)
++# define compat_sk_alloc(_bri, _pri) sk_alloc(&init_net, \
++                        PF_NETLINK, _pri, &vmnet_proto, 1)
+ #else
+-#   define compat_sk_alloc(_bri, _pri) sk_alloc(PF_NETLINK, _pri, &vmnet_proto, 1)
++# define compat_sk_alloc(_bri, _pri) sk_alloc(&init_net, \
++                        PF_NETLINK, _pri, &vmnet_proto)
++#endif
++#else
++# define compat_sk_alloc(_bri, _pri) sk_alloc(PF_NETLINK, _pri, &vmnet_proto, 1)
+ #endif
+-
+ 
+ #ifdef NF_IP_LOCAL_IN
+ #define VMW_NF_INET_LOCAL_IN     NF_IP_LOCAL_IN
+diff -ur a/vsock-only/linux/af_vsock.c b/vsock-only/linux/af_vsock.c
+--- a/vsock-only/linux/af_vsock.c	2015-05-31 16:01:26.000000000 +0300
++++ b/vsock-only/linux/af_vsock.c	2015-08-07 05:26:39.000000000 +0300
+@@ -2826,7 +2826,9 @@
+     * network namespace, and the option to zero the sock was dropped.
+     *
+     */
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 12)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 2, 0)
++     sk = sk_alloc(net, vsockVmciFamilyOps.family, priority, &vsockVmciProto, 1);
++#elif LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 12)
+    sk = sk_alloc(vsockVmciFamilyOps.family, priority,
+                  vsockVmciProto.slab_obj_size, vsockVmciProto.slab);
+ #elif LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 24)
+@@ -4302,7 +4304,7 @@
+       goto out;
+    }
+ 
+-   memcpy_fromiovec(VMCI_DG_PAYLOAD(dg), msg->msg_iov, len);
++   memcpy_from_msg(VMCI_DG_PAYLOAD(dg), msg, len);
+ 
+    dg->dst = VMCI_MAKE_HANDLE(remoteAddr->svm_cid, remoteAddr->svm_port);
+    dg->src = VMCI_MAKE_HANDLE(vsk->localAddr.svm_cid, vsk->localAddr.svm_port);
+@@ -4662,7 +4664,7 @@
+        * able to send.
+        */
+ 
+-      written = vmci_qpair_enquev(vsk->qpair, msg->msg_iov,
++      written = vmci_qpair_enquev(vsk->qpair, &msg->msg_iter.iov,
+                                   len - totalWritten, 0);
+       if (written < 0) {
+          err = -ENOMEM;
+@@ -4721,6 +4723,7 @@
+    VMCIDatagram *dg;
+    size_t payloadLen;
+    struct sk_buff *skb;
++   struct iov_iter to;
+ 
+    sk = sock->sk;
+    noblock = flags & MSG_DONTWAIT;
+@@ -4759,7 +4762,9 @@
+    }
+ 
+    /* Place the datagram payload in the user's iovec. */
+-   err = skb_copy_datagram_iovec(skb, sizeof *dg, msg->msg_iov, payloadLen);
++   // err = skb_copy_datagram_iovec(skb, sizeof *dg, msg->msg_iter, payloadLen);
++   iov_iter_init(&to, READ, (struct iovec *)&msg->msg_iter.iov, 1, payloadLen);
++   err = skb_copy_datagram_iter(skb, 0, &to, payloadLen);
+    if (err) {
+       goto out;
+    }
+@@ -4905,9 +4910,9 @@
+          }
+ 
+          if (flags & MSG_PEEK) {
+-            read = vmci_qpair_peekv(vsk->qpair, msg->msg_iov, len - copied, 0);
++            read = vmci_qpair_peekv(vsk->qpair, &msg->msg_iter.iov, len - copied, 0);
+          } else {
+-            read = vmci_qpair_dequev(vsk->qpair, msg->msg_iov, len - copied, 0);
++            read = vmci_qpair_dequev(vsk->qpair, &msg->msg_iter.iov, len - copied, 0);
+          }
+ 
+          if (read < 0) {
+diff -ur a/vsock-only/shared/vmci_kernel_if.h b/vsock-only/shared/vmci_kernel_if.h
+--- a/vsock-only/shared/vmci_kernel_if.h	2015-05-31 16:01:26.000000000 +0300
++++ b/vsock-only/shared/vmci_kernel_if.h	2015-02-24 02:51:12.000000000 +0300
+@@ -102,7 +102,7 @@
+   typedef struct semaphore VMCIMutex;
+   typedef PPN *VMCIPpnList; /* List of PPNs in produce/consume queue. */
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 5, 0)
+-  typedef kuid_t VMCIHostUser;
++  typedef uid_t  VMCIHostUser;
+ #else
+   typedef uid_t VMCIHostUser;
+ #endif
