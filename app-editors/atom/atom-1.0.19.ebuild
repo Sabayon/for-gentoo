@@ -83,7 +83,6 @@ src_install(){
 	fperms +x ${EPREFIX}/usr/share/${PN}/${PN}
 	fperms +x ${EPREFIX}/usr/share/${PN}/libffmpegsumo.so
 	fperms +x ${EPREFIX}/usr/share/${PN}/libgcrypt.so.11
-	fperms +x ${EPREFIX}/usr/share/${PN}/libchromiumcontent.so
 	fperms +x ${EPREFIX}/usr/share/${PN}/libnotify.so.4
 	fperms +x ${EPREFIX}/usr/share/${PN}/resources/app/atom.sh
 	fperms +x ${EPREFIX}/usr/share/${PN}/resources/app/apm/bin/apm
