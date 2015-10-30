@@ -50,6 +50,7 @@ src_prepare(){
 	sed -e "s/<%= description %>/$pkgdesc/" \
 		-e "s|<%= executable %>|/usr/bin/atom|"\
 		-e "s|<%= iconName %>|atom|"\
+		-e "s|<%= appName %>|Atom|" \
 		resources/linux/atom.desktop.in > resources/linux/Atom.desktop
 
     	# Fix atom location guessing
