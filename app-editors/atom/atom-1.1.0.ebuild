@@ -45,7 +45,6 @@ src_unpack() {
 
 src_prepare(){
 	epatch "${FILESDIR}/${PN}-python.patch"
-	epatch "${FILESDIR}/${PN}-package.patch"
 	sed -i  -e "/exception-reporting/d" \
 		-e "/metrics/d" package.json
 	sed -e "s/<%= description %>/$pkgdesc/" \
@@ -76,7 +75,7 @@ src_install(){
 	insinto ${EPREFIX}/usr/share/applications
 	newins resources/linux/Atom.desktop atom.desktop
 	insinto ${EPREFIX}/usr/share/pixmaps
-	doins resources/atom.png
+	newins resources/app-icons/stable/png/128.png atom.png
 	insinto ${EPREFIX}/usr/share/licenses/${PN}
 	doins LICENSE.md
 	# Fixes permissions
