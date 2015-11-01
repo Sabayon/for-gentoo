@@ -48,8 +48,8 @@ src_prepare(){
 	sed -i  -e "/exception-reporting/d" \
 		-e "/metrics/d" package.json
 	sed -e "s/<%= description %>/$pkgdesc/" \
-		-e "s|<%= executable %>|/usr/bin/atom|"\
-		-e "s|<%= iconName %>|atom|"\
+		-e "s|<%= installDir %>/share/<%= appFileName %>/atom|/usr/bin/atom|"\
+		-e "s|<%= iconPath %>|atom|"\
 		-e "s|<%= appName %>|Atom|" \
 		resources/linux/atom.desktop.in > resources/linux/Atom.desktop
 
