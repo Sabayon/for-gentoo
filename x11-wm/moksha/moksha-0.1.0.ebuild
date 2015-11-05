@@ -41,6 +41,7 @@ IUSE_E_MODULES="
 IUSE="doc pam spell static-libs systemd +udev ukit wayland nls ${IUSE_E_MODULES}"
 
 RDEPEND="
+	!!x11-wm/enlightenment
 	pam? ( sys-libs/pam )
 	systemd? ( sys-apps/systemd )
 	wayland? (
