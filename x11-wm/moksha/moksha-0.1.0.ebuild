@@ -7,7 +7,7 @@ EAPI="5"
 
 inherit eutils libtool
 
-DESCRIPTION="Moksha window manager"
+DESCRIPTION="Moksha wsindow manager"
 
 LICENSE="BSD-2"
 if [[ ${PV} = 9999 ]]; then
@@ -23,20 +23,20 @@ SLOT="0"
 # The @ is just an anchor to expand from
 __EVRY_MODS=""
 __CONF_MODS="
-	+@applications +@comp +@dialogs +@display
+	+@applications +@dialogs +@display
 	+@interaction +@intl +@menus
 	+@paths +@performance +@randr +@shelves +@theme +@wallpaper2
 	+@window-manipulation +@window-remembers"
 __NORM_MODS="
-	@access +@appmenu +@backlight +@bluez4 +@battery +@clock
-	+@connman +@contact +@cpufreq +@everything +@fileman
-	+@fileman-opinfo +@gadman +@ibar +@ibox +@illume2 +@mixer +@msgbus
-	+@music-control +@notification +@pager +@quickaccess +@shot
-	+@start +@syscon +@systray +@tasks +@teamwork +@temperature +@tiling
-	+@winlist +@wizard @wl-desktop-shell @wl-screenshot +@xkbswitch"
+	@access +@backlight +@battery +@clock
+	+@connman +@cpufreq +@everything +@fileman
+	+@fileman-opinfo +@gadman +@ibar +@ibox +@mixer +@msgbus
+	+@notification +@pager +@quickaccess +@shot
+	+@start +@syscon +@systray +@tasks +@temperature +@tiling
+	+@winlist +@wizard +@xkbswitch"
 IUSE_E_MODULES="
-	${__CONF_MODS//@/moksha_modules_conf-}
-	${__NORM_MODS//@/moksha_modules_}"
+	${__CONF_MODS//@/enlightenment_modules_conf-}
+	${__NORM_MODS//@/enlightenment_modules_}"
 
 IUSE="doc pam spell static-libs systemd +udev ukit wayland nls ${IUSE_E_MODULES}"
 
@@ -96,7 +96,6 @@ src_configure() {
 		--disable-device-hal
 		$(use_enable nls)
 		$(use_enable pam)
-		$(use_enable systemd)
 		--enable-device-udev
 		$(use_enable udev mount-eeze)
 		$(use_enable ukit mount-udisks)
@@ -105,7 +104,7 @@ src_configure() {
 	local u c
 	for u in ${IUSE_E_MODULES} ; do
 		u=${u#+}
-		c=${u#moksha_modules_}
+		c=${u#enlightenment_modules_}
 		E_ECONF+=( $(use_enable ${u} ${c}) )
 	done
 	# gstreamer sucks, work around it doing stupid stuff
@@ -125,6 +124,6 @@ src_install() {
 	if has static-libs ${IUSE} ; then
 		use static-libs || find "${D}" -name '*.la' -exec rm -f {} +
 	fi
-	insinto /etc/moksha
+	insinto /etc/enlightenment
 	newins "${FILESDIR}"/gentoo-sysactions.conf sysactions.conf
 }
