@@ -7,7 +7,7 @@ EAPI="5"
 
 inherit eutils libtool
 
-DESCRIPTION="Moksha wsindow manager"
+DESCRIPTION="Moksha window manager"
 
 LICENSE="BSD-2"
 if [[ ${PV} = 9999 ]]; then
