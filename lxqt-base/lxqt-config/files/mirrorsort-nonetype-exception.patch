@@ -8,10 +8,3 @@
  #include <QStringList>
  #include <QHash>
  #include <QList>
-@@ -79,4 +80,4 @@
- /**Gets size from string rate. String rate format is "widthxheight". Example: 800x600*/
- QSize sizeFromString(QString str);
- 
--#endif // _MONITOR_H_
-\ Manca newline alla fine del file
-+#endif // _MONITOR_H_
