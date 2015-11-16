@@ -1,10 +1,10 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
 EAPI=5
 
-inherit go-mono mono autotools flag-o-matic eutils
+inherit go-mono mono-env autotools flag-o-matic eutils
 
 DESCRIPTION="Debugger for .NET managed and unmanaged applications"
 HOMEPAGE="http://www.mono-project.com/"
@@ -19,7 +19,7 @@ RESTRICT="test"
 #Bundles jay
 # Binutils is needed for libbfd
 RDEPEND="!!=dev-lang/mono-2.2
-	sys-devel/binutils
+	sys-devel/binutils:0
 	dev-libs/glib:2"
 DEPEND="${RDEPEND}
 	!dev-lang/mercury"
@@ -35,8 +35,8 @@ src_prepare() {
 }
 
 src_configure() {
-        #fixes for gmcs missing on mono >2.10
-        export MCS="/usr/bin/mcs"
+	# fixes for gmcs missing on mono >2.10
+	export MCS="/usr/bin/mcs"
 	# Let's go for extra safety to avoid runtime errors, until
 	# upstream applies it.
 	append-ldflags -Wl,--no-undefined
@@ -44,8 +44,6 @@ src_configure() {
 	go-mono_src_configure \
 		--with-system-libbfd \
 		--disable-static
-	# patch for fixing missing GMCS issue
-	export MCS="/usr/bin/mcs"
 }
 
 src_compile() {
