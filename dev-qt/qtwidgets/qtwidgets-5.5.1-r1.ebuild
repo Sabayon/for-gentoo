@@ -30,10 +30,9 @@ QT5_GENTOO_CONFIG=(
 	!:no-widgets:
 )
 
-src_prepare(){
-	default
-	epatch "${FILESDIR}"/qwidget-windowhandle.patch
-}
+PATCHES=(
+	"${FILESDIR}"/qwidget-windowhandle.patch
+)
 
 src_configure() {
 	local myconf=(
