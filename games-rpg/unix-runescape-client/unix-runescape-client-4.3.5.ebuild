@@ -25,6 +25,7 @@ DEPEND="virtual/jre
 		dev-perl/IO-stringy
 		dev-perl/wxperl
 		net-misc/wget
+		media-libs/libpng:1.2
 		alsa-oss? ( media-libs/alsa-oss )
 		cario-nogl? ( x11-libs/cairo[-opengl] )
 		p7zip? ( app-arch/p7zip )
