@@ -1,4 +1,0 @@
-#!/bin/sh
-
-cd /usr/lib/beef
-ruby21 beef $@
