@@ -9,7 +9,7 @@ inherit distutils-r1
 
 DESCRIPTION="[ab]using Unicode to create tragedy"
 HOMEPAGE="https://github.com/reinderien/mimic"
-SRC_URI="https://github.com/reinderien/mimic/tarball/f2f0441 -> ${P}.tar.gz"
+SRC_URI="https://github.com/reinderien/mimic/tarball/${BUILD} -> ${P}.tar.gz"
 RESTRICT="mirror"
 LICENSE=""
 SLOT="0"
@@ -24,6 +24,5 @@ DEPEND="${RDEPEND}
 DOCS=(README.md)
 S="${WORKDIR}/reinderien-${PN}-${BUILD}"
 python_compile() {
-	#python_is_python3 || local -x CFLAGS="${CFLAGS} -fno-strict-aliasing"
 	distutils-r1_python_compile
 }
