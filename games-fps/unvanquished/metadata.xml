@@ -24,9 +24,6 @@
 	<use>
 		<flag name="optimization">Use upstream recommended
 			CFLAGS optimizations</flag>
-		<flag name="sdl2">Use <pkg>media-libs/libsdl2</pkg>
-			instead of <pkg>media-libs/libsdl</pkg></flag>
 		<flag name="server">Build Daemonded server</flag>
-		<flag name="voip">Compile with VOIP support</flag>
 	</use>
 </pkgmetadata>

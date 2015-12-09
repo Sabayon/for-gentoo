@@ -1,4 +1,4 @@
-# Copyright 2014 Julian Ospald <hasufell@posteo.de>
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
@@ -28,6 +28,7 @@ RDEPEND="
 	~games-fps/${PN}-data-${PV}
 	net-misc/curl
 	sys-libs/zlib
+	sys-libs/ncurses:=
 	!dedicated? (
 		media-libs/freetype:2
 		media-libs/glew
@@ -39,16 +40,14 @@ RDEPEND="
 		media-libs/libwebp
 		media-libs/openal
 		media-libs/opusfile
-		sys-libs/ncurses
 		virtual/glu
-		virtual/jpeg
+		virtual/jpeg:=
 		virtual/opengl
 		x11-libs/libX11
 		server? ( app-misc/screen )
 	)
 	dedicated? (
 		app-misc/screen
-		sys-libs/ncurses
 	)
 	geoip? ( dev-libs/geoip )"
 DEPEND="${RDEPEND}
@@ -159,4 +158,3 @@ pkg_postinst() {
 pkg_postrm() {
 	gnome2_icon_cache_update
 }
-
