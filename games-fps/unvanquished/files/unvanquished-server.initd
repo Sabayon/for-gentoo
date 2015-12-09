@@ -1,0 +1,50 @@
+#!/sbin/runscript
+# Copyright 1999-2012 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: $
+
+PIDFILE="/var/run/$NAME.pid"
+DAEMON="/usr/bin/unvanquished-server"
+HOMEDIR="/var/lib/unvanquished-server"
+
+description="Unvanquished dedicated server"
+
+depend() {
+	need net
+}
+
+start() {
+	if [ "$START_DAEMON" != 1 ]; then
+		eerror "(not starting - disabled in /etc/default/unvanquished-server)"
+		return 1
+	fi
+
+	ebegin "Starting Unvanquished dedicated server"
+	env TERM="xterm" \
+	start-stop-daemon \
+		--start \
+		--quiet \
+		--make-pidfile \
+		--pidfile $PIDFILE \
+		--background \
+		--user unvanquished-server \
+		--env HOME="${HOMEDIR}" \
+		--group unvanquished-server \
+		--name unvanquished-server \
+		--exec /usr/bin/screen -- -D -m -S unvanquished-server $DAEMON $DAEMON_OPTS
+
+	eend $?
+}
+
+stop() {
+	ebegin "Stopping Unvanquished dedicated server"
+	start-stop-daemon \
+	--stop \
+	--signal 15 \
+	--quiet \
+	--pidfile $PIDFILE
+
+	eend $?
+}
+
+# todo: reload config on-the-fly
