@@ -12,8 +12,8 @@ if [[ ${PV} == 9999 ]]; then
 	EGIT_REPO_URI="https://github.com/evilsocket/bettercap/"
 fi
 
-DESCRIPTION=""
-HOMEPAGE=""
+DESCRIPTION="A complete, modular, portable and easily extensible MITM framework"
+HOMEPAGE="http://www.bettercap.org/"
 SRC_URI="https://github.com/evilsocket/bettercap/archive/v${PV}.tar.gz -> bettercap-${PV}.tar.gz"
 RESTRICT="mirror"
 if [[ ${PV} == 9999 ]]; then
