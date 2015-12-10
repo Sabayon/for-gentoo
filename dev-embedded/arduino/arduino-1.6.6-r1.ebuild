@@ -64,7 +64,7 @@ src_install() {
 	fi
 
 	insinto "/usr/share/${PN}/"
-	doins -r hardware libraries tools tools-builder
+	doins -r hardware libraries tools tools-builder dist
 	fowners -R root:uucp "/usr/share/${PN}/hardware"
 
 	insinto "/usr/share/${PN}/lib"
