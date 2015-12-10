@@ -50,7 +50,7 @@ src_compile() {
 
 src_install() {
 	cd "${S}"/build/linux/work || die
-	java-pkg_dojar lib/pde.jar
+	java-pkg_dojar lib/*.jar
 	java-pkg_dolauncher ${PN} --pwd /usr/share/${PN} --main processing.app.Base
 
 	if use examples; then
@@ -64,7 +64,7 @@ src_install() {
 	fi
 
 	insinto "/usr/share/${PN}/"
-	doins -r hardware libraries
+	doins -r hardware libraries tools tools-builder
 	fowners -R root:uucp "/usr/share/${PN}/hardware"
 
 	insinto "/usr/share/${PN}/lib"
@@ -76,7 +76,10 @@ src_install() {
 	dosym /etc/avrdude.conf "/usr/share/${PN}/hardware/tools/avrdude.conf"
 
 	# install menu and icons
-	domenu "${FILESDIR}/${PN}.desktop"
+	sed -e 's/Exec=FULL_PATH\/arduino/Exec=arduino/g' -i arduino.desktop
+	sed -e 's/Icon=FULL_PATH\/lib\/arduino.png/Icon=arduino/g' -i arduino.desktop
+	sed -e 's/x-arduino/x-arduino;/g' -i arduino.desktop
+	domenu "${PN}.desktop"
 	for sz in 16 24 32 48 128 256; do
 		newicon -s $sz \
 			"${WORKDIR}/${PN}-icons/debian_icons_${sz}x${sz}_apps_${PN}.png" \
