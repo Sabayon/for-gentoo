@@ -68,7 +68,7 @@ src_install() {
 	fowners -R root:uucp "/usr/share/${PN}/hardware"
 
 	insinto "/usr/share/${PN}/lib"
-	doins -r lib/*.txt lib/theme lib/*.png lib/*.bmp
+	doins -r lib/*.txt lib/theme lib/*.png lib/*.bmp lib/*.key lib/*.so lib/*.ico lib/*.conf
 
 	# use system avrdude
 	# patching class files is too hard
