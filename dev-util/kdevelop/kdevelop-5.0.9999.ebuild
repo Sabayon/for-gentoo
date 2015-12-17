@@ -12,7 +12,7 @@ inherit kde5
 DESCRIPTION="Integrated Development Environment, supporting KDE/Qt, C/C++ and much more"
 LICENSE="GPL-2 LGPL-2"
 IUSE="+clang +cmake +cxx debug +ninja +plasma +qmake qthelp"
-KEYWORDS=""
+KEYWORDS="~amd64 ~ppc ~x86"
 
 # TODO: disabled upstream
 # okteta? ( $(add_kdeapps_dep okteta) )
