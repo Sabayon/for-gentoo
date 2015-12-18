@@ -19,8 +19,13 @@ SLOT="0"
 
 S="${WORKDIR}/raspberrypi-userland-${BUILD}"
 
+pkg_setup() {
+	append-ldflags $(no-as-needed)
+}
+
 src_prepare() {
 	epatch "${FILESDIR}"/${PN}-9999-gentoo.patch
+	epatch "${FILESDIR}"/${PN}-pid.patch
 }
 
 src_install() {
