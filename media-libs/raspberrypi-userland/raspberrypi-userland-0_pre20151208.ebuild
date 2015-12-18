@@ -24,7 +24,7 @@ pkg_setup() {
 }
 
 src_prepare() {
-	epatch "${FILESDIR}"/${PN}-9999-gentoo.patch
+	#epatch "${FILESDIR}"/${PN}-9999-gentoo.patch
 	epatch "${FILESDIR}"/${PN}-pid.patch
 }
 
