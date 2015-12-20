@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer>
+		<email>skullbocks@dark-lab.net</email>
+		<name>Francesco Ferro</name>
+	</maintainer>
+	<use>
+		<flag name="egl">Enable EGL support</flag>		
+		<flag name="enet">Enable build with enet shared library</flag>
+		<flag name="gui">Enable the graphical user interface</flag>
+		<flag name="llvm">Enable build with llvm library integration.</flag>
+	</use>	
+</pkgmetadata>
