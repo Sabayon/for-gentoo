@@ -24,7 +24,6 @@ fi
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="amd64"
 
 # NOTES:
 # - wxWidgets support relies on 2.9 branch, which is currently masked in main tree
@@ -43,7 +42,7 @@ RDEPEND=">=media-libs/glew-1.5
 	sys-libs/readline:=
 	virtual/libusb:1
 	>media-libs/libsfml-2.1
-	>=dev-libs/libiconv-1.14
+	virtual/libiconv
 	media-libs/libpng:=
 	media-libs/libsoundtouch
 	sys-libs/zlib
