@@ -18,7 +18,9 @@ SLOT="0"
 KEYWORDS="-* ~amd64 ~x86"
 IUSE=""
 
-DEPEND=""
+DEPEND="x11-libs/libxcb:=
+	dev-libs/glib:2
+	x11-libs/libX11"
 RDEPEND="${DEPEND}"
 S="${WORKDIR}/${MY_PN}"
 
