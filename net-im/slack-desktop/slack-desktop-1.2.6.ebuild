@@ -34,7 +34,8 @@ DEPEND="gnome-base/gconf:2
 	>=dev-libs/nss-3.0
 	gnome-base/gvfs
 	x11-misc/xdg-utils
-	gnome-base/libgnome-keyring"
+	gnome-base/libgnome-keyring
+	x11-libs/libXScrnSaver"
 RDEPEND=${DEPEND}
 
 S=${WORKDIR}
