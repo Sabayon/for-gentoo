@@ -11,6 +11,7 @@ inherit golang-single
 
 DESCRIPTION="Git extension for versioning large files"
 HOMEPAGE="https://${GOLANG_PKG_IMPORTPATH}/${PN}"
+SRC_URI="https://${GOLANG_PKG_IMPORTPATH}/${PN}/archive/v${PV}.tar.gz -> ${PV}.tar.gz"
 
 LICENSE="MIT"
 SLOT="0"
@@ -25,7 +26,3 @@ src_prepare() {
 src_install() {
         golang-single_src_install
 }
-
-
-
-
