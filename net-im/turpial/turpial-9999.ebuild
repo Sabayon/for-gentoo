@@ -41,7 +41,3 @@ RDEPEND="
 	qt4? ( >=dev-python/PyQt4-2.12[${PYTHON_USEDEP},webkit]  )
 "
 DEPEND="${RDEPEND}"
-
-src_prepare() {
-	epatch "${FILESDIR}/${PV}-desktop-file.patch"
-}
