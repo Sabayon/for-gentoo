@@ -35,7 +35,6 @@ DEPEND="${RDEPEND}"
 
 src_prepare() {
 	epatch "${FILESDIR}/docs.patch"
-	epatch "${FILESDIR}/${PV}-test.patch"
 }
 
 python_test() {
