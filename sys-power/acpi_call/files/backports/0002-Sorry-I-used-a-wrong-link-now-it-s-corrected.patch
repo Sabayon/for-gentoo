@@ -1,0 +1,28 @@
+From 451353d3e19a13cb2fcf840427963eb28615a13c Mon Sep 17 00:00:00 2001
+From: Marco Dalla Libera <marco.dallas95@gmail.com>
+Date: Fri, 31 May 2013 19:04:05 +0300
+Subject: [PATCH 2/6] Sorry I used a wrong link, now it's corrected
+
+Thank you, regards from
+
+Marco
+---
+ README.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/README.md b/README.md
+index 86037ef..3090843 100644
+--- a/README.md
++++ b/README.md
+@@ -5,7 +5,7 @@ This module is to be considered a proof-of-concept and has been superseeded by
+ projects like [bbswitch](https://github.com/Bumblebee-Project/bbswitch). It
+ allows you to tamper with your system and should be used with caution.
+ 
+-Want to use acpi_call via graphic interface? [Click here](https://github.com/mkottman/acpi_call/edit/master/README.md#graphic-interface)
++Want to use acpi_call via graphic interface? [Click here](https://github.com/mkottman/acpi_call/#graphic-interface)
+ 
+ Usage:
+ 
+-- 
+1.8.2.1
+

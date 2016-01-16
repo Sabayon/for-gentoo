@@ -1,0 +1,186 @@
+From 6ee9d2ef904ff8b50a3def8ebf817e62e4fa0ee7 Mon Sep 17 00:00:00 2001
+From: Antti Ajanki <antti.ajanki@iki.fi>
+Date: Sat, 4 May 2013 10:51:33 +0300
+Subject: [PATCH 023/110] [XMLList] setVariableByMultiname: handle non-XML
+ nodes and indexes
+
+---
+ src/scripting/toplevel/XML.cpp     | 13 ++++++
+ src/scripting/toplevel/XML.h       |  1 +
+ src/scripting/toplevel/XMLList.cpp | 96 ++++++++++++++++++++++++++++++++++----
+ src/scripting/toplevel/XMLList.h   |  2 +
+ 4 files changed, 103 insertions(+), 9 deletions(-)
+
+diff --git a/src/scripting/toplevel/XML.cpp b/src/scripting/toplevel/XML.cpp
+index 16f0325..63acd6c 100644
+--- a/src/scripting/toplevel/XML.cpp
++++ b/src/scripting/toplevel/XML.cpp
+@@ -947,6 +947,19 @@ void XML::addTextContent(const tiny_string& str)
+ 	xmlNodeAddContentLen(node->cobj(), BAD_CAST str.raw_buf(), str.numBytes());
+ }
+ 
++void XML::setTextContent(const tiny_string& content)
++{
++	if (getNodeKind() == XML_TEXT_NODE ||
++	    getNodeKind() == XML_ATTRIBUTE_NODE ||
++	    getNodeKind() == XML_COMMENT_NODE ||
++	    getNodeKind() == XML_PI_NODE)
++	{
++		xmlChar *encoded = xmlEncodeSpecialChars(node->cobj()->doc, BAD_CAST content.raw_buf());
++		xmlNodeSetContent(node->cobj(), encoded);
++		xmlFree(encoded);
++	}
++}
++
+ void XML::removeAllChildren()
+ {
+ 	xmlpp::Node::NodeList children=node->get_children();
+diff --git a/src/scripting/toplevel/XML.h b/src/scripting/toplevel/XML.h
+index 5ff172a..73cf101 100644
+--- a/src/scripting/toplevel/XML.h
++++ b/src/scripting/toplevel/XML.h
+@@ -106,6 +106,7 @@ public:
+ 	_NR<ASObject> getVariableByMultiname(const multiname& name, GET_VARIABLE_OPTION opt);
+ 	bool hasPropertyByMultiname(const multiname& name, bool considerDynamic, bool considerPrototype);
+ 	void setVariableByMultiname(const multiname& name, ASObject* o, CONST_ALLOWED_FLAG allowConst);
++	void setTextContent(const tiny_string& content);
+ 	tiny_string toString();
+ 	int32_t toInt();
+ 	void toXMLString_priv(xmlBufferPtr buf);
+diff --git a/src/scripting/toplevel/XMLList.cpp b/src/scripting/toplevel/XMLList.cpp
+index 0d594c1..6c2ab02 100644
+--- a/src/scripting/toplevel/XMLList.cpp
++++ b/src/scripting/toplevel/XMLList.cpp
+@@ -554,15 +554,30 @@ void XMLList::setVariableByMultiname(const multiname& name, ASObject* o, CONST_A
+ {
+ 	assert_and_throw(implEnable);
+ 	unsigned int index=0;
+-	if(!Array::isValidMultiname(name,index))
+-		return ASObject::setVariableByMultiname(name,o,allowConst);
+-
+-	XML* newNode=dynamic_cast<XML*>(o);
+-	if(newNode==NULL)
+-		return ASObject::setVariableByMultiname(name,o,allowConst);
+-
+-	//Nodes are always added at the end. The requested index are ignored. This is a tested behaviour.
+-	nodes.push_back(_MR(newNode));
++	if(Array::isValidMultiname(name,index))
++	{
++		if (index >= nodes.size())
++		{
++			appendSingleNode(o);
++		}
++		else
++		{
++			replace(index, o);
++		}
++	}
++	else if (nodes.size() == 0)
++	{
++		appendSingleNode(o);
++	}
++	else if (nodes.size() == 1)
++	{
++		nodes.pop_back();
++		appendSingleNode(o);
++	}
++	else
++	{
++		// do nothing, see ECMA-357, Section 9.2.1.2
++	}
+ }
+ 
+ void XMLList::getDescendantsByQName(const tiny_string& name, const tiny_string& ns, XML::XMLVector& ret)
+@@ -620,6 +635,32 @@ bool XMLList::hasComplexContent() const
+ 	return false;
+ }
+ 
++void XMLList::appendSingleNode(ASObject *x)
++{
++	LOG(LOG_NOT_IMPLEMENTED, "XMLList::appendSingleNode should set the parent property of the added node");
++
++	if (x->is<XML>())
++	{
++		x->incRef();
++		append(_MR(x->as<XML>()));
++	}
++	else if (x->is<XMLList>())
++	{
++		XMLList *list = x->as<XMLList>();
++		if (list->nodes.size() == 1)
++		{
++			append(list->nodes[0]);
++		}
++		// do nothing, if length != 1. See ECMA-357, Section
++		// 9.2.1.2
++	}
++	else
++	{
++		tiny_string str = x->toString();
++		append(_MR(Class<XML>::getInstanceS(str)));
++	}
++}
++
+ void XMLList::append(_R<XML> x)
+ {
+ 	nodes.push_back(x);
+@@ -630,6 +671,43 @@ void XMLList::append(_R<XMLList> x)
+ 	nodes.insert(nodes.end(),x->nodes.begin(),x->nodes.end());
+ }
+ 
++void XMLList::replace(unsigned int idx, ASObject *o)
++{
++	if (idx >= nodes.size())
++		return;
++
++	LOG(LOG_NOT_IMPLEMENTED, "XMLList::replace should set the parent property of the added nodes");
++
++	if (nodes[idx]->getNodeKind() == XML_ATTRIBUTE_NODE)
++	{
++		nodes[idx]->setTextContent(o->toString());
++	}
++	else if (o->is<XMLList>())
++	{
++		unsigned int k = 0;
++		vector<_R<XML>, reporter_allocator<_R<XML>>>::iterator it = nodes.begin();
++		while (k < idx && it!=nodes.end())
++		{
++			++k;
++			++it;
++		}
++
++		it = nodes.erase(it);
++
++		XMLList *toAdd = o->as<XMLList>();
++		nodes.insert(it, toAdd->nodes.begin(), toAdd->nodes.end());
++	}
++	else if (o->is<XML>())
++	{
++		o->incRef();
++		nodes[idx] = _MR(o->as<XML>());
++	}
++	else
++	{
++		nodes[idx] = _MR(Class<XML>::getInstanceS(o->toString()));
++	}
++}
++
+ tiny_string XMLList::toString_priv() const
+ {
+ 	if(hasSimpleContent())
+diff --git a/src/scripting/toplevel/XMLList.h b/src/scripting/toplevel/XMLList.h
+index e336061..f964b25 100644
+--- a/src/scripting/toplevel/XMLList.h
++++ b/src/scripting/toplevel/XMLList.h
+@@ -34,6 +34,8 @@ private:
+ 	tiny_string toString_priv() const;
+ 	void buildFromString(const std::string& str);
+ 	void toXMLString_priv(xmlBufferPtr buf) const;
++	void appendSingleNode(ASObject *x);
++	void replace(unsigned int i, ASObject *x);
+ public:
+ 	XMLList(Class_base* c);
+ 	/*
+-- 
+1.8.5.3
+

@@ -1,0 +1,254 @@
+From a13b3e6dedd54ae96b0ec7fcd021f40f8b7077e5 Mon Sep 17 00:00:00 2001
+From: Antti Ajanki <antti.ajanki@iki.fi>
+Date: Wed, 8 May 2013 19:10:29 +0300
+Subject: [PATCH 028/110] [GlowFilter, DropShadowFilter] Add property stubs
+
+---
+ src/allclasses.h                             |   1 +
+ src/scripting/abc.cpp                        |   1 +
+ src/scripting/flash/filters/flashfilters.cpp | 127 +++++++++++++++++++++++++--
+ src/scripting/flash/filters/flashfilters.h   |  36 +++++++-
+ 4 files changed, 155 insertions(+), 10 deletions(-)
+
+diff --git a/src/allclasses.h b/src/allclasses.h
+index becc70e..25e8fbc 100644
+--- a/src/allclasses.h
++++ b/src/allclasses.h
+@@ -134,6 +134,7 @@ REGISTER_CLASS_NAME(ExternalInterface,"flash.external")
+ 
+ //Filters
+ REGISTER_CLASS_NAME(BitmapFilter,"flash.filters")
++REGISTER_CLASS_NAME(BitmapFilterQuality,"flash.filters")
+ REGISTER_CLASS_NAME(DropShadowFilter,"flash.filters")
+ REGISTER_CLASS_NAME(GlowFilter,"flash.filters")
+ 
+diff --git a/src/scripting/abc.cpp b/src/scripting/abc.cpp
+index f05ad1a..f3ce601 100644
+--- a/src/scripting/abc.cpp
++++ b/src/scripting/abc.cpp
+@@ -294,6 +294,7 @@ void ABCVm::registerClasses()
+ 	builtin->registerBuiltin("BitmapDataChannel","flash.display",Class<BitmapDataChannel>::getRef());
+ 
+ 	builtin->registerBuiltin("BitmapFilter","flash.filters",Class<BitmapFilter>::getRef());
++	builtin->registerBuiltin("BitmapFilterQuality","flash.filters",Class<BitmapFilterQuality>::getRef());
+ 	builtin->registerBuiltin("DropShadowFilter","flash.filters",Class<DropShadowFilter>::getRef());
+ 	builtin->registerBuiltin("GlowFilter","flash.filters",Class<GlowFilter>::getRef());
+ 	builtin->registerBuiltin("GradientGlowFilter","flash.filters",
+diff --git a/src/scripting/flash/filters/flashfilters.cpp b/src/scripting/flash/filters/flashfilters.cpp
+index 9d70fc1..8059c4e 100644
+--- a/src/scripting/flash/filters/flashfilters.cpp
++++ b/src/scripting/flash/filters/flashfilters.cpp
+@@ -19,6 +19,7 @@
+ 
+ #include "scripting/flash/filters/flashfilters.h"
+ #include "scripting/class.h"
++#include "scripting/argconv.h"
+ 
+ using namespace std;
+ using namespace lightspark;
+@@ -41,24 +42,138 @@ ASFUNCTIONBODY(BitmapFilter,clone)
+ 	return th->cloneImpl();
+ }
+ 
++GlowFilter::GlowFilter(Class_base* c):
++	BitmapFilter(c), alpha(1.0), blurX(6.0), blurY(6.0), color(0xFF0000),
++	inner(false), knockout(false), quality(1), strength(2.0)
++{
++}
++
+ void GlowFilter::sinit(Class_base* c)
+ {
+-	c->setConstructor(NULL);
++	c->setConstructor(Class<IFunction>::getFunction(_constructor));
+ 	c->setSuper(Class<BitmapFilter>::getRef());
++	REGISTER_GETTER_SETTER(c, alpha);
++	REGISTER_GETTER_SETTER(c, blurX);
++	REGISTER_GETTER_SETTER(c, blurY);
++	REGISTER_GETTER_SETTER(c, color);
++	REGISTER_GETTER_SETTER(c, inner);
++	REGISTER_GETTER_SETTER(c, knockout);
++	REGISTER_GETTER_SETTER(c, quality);
++	REGISTER_GETTER_SETTER(c, strength);
++}
++
++ASFUNCTIONBODY_GETTER_SETTER(GlowFilter, alpha);
++ASFUNCTIONBODY_GETTER_SETTER(GlowFilter, blurX);
++ASFUNCTIONBODY_GETTER_SETTER(GlowFilter, blurY);
++ASFUNCTIONBODY_GETTER_SETTER(GlowFilter, color);
++ASFUNCTIONBODY_GETTER_SETTER(GlowFilter, inner);
++ASFUNCTIONBODY_GETTER_SETTER(GlowFilter, knockout);
++ASFUNCTIONBODY_GETTER_SETTER(GlowFilter, quality);
++ASFUNCTIONBODY_GETTER_SETTER(GlowFilter, strength);
++
++ASFUNCTIONBODY(GlowFilter, _constructor)
++{
++	GlowFilter *th = obj->as<GlowFilter>();
++	ARG_UNPACK (th->color, 0xFF0000)
++		(th->alpha, 1.0)
++		(th->blurX, 6.0)
++		(th->blurY, 6.0)
++		(th->strength, 2.0)
++		(th->quality, 1)
++		(th->inner, false)
++		(th->knockout, false);
++	return NULL;
++}
++
++BitmapFilter* GlowFilter::cloneImpl() const
++{
++	GlowFilter *cloned = Class<GlowFilter>::getInstanceS();
++	cloned->alpha = alpha;
++	cloned->blurX = blurX;
++	cloned->blurY = blurY;
++	cloned->color = color;
++	cloned->inner = inner;
++	cloned->knockout = knockout;
++	cloned->quality = quality;
++	cloned->strength = strength;
++	return cloned;
+ }
+ 
+-GlowFilter* GlowFilter::cloneImpl() const
++DropShadowFilter::DropShadowFilter(Class_base* c):
++	BitmapFilter(c), alpha(1.0), angle(45), blurX(4.0), blurY(4.0),
++	color(0), distance(4.0), hideObject(false), inner(false),
++	knockout(false), quality(1), strength(1.0)
+ {
+-	return Class<GlowFilter>::getInstanceS();
+ }
+ 
+ void DropShadowFilter::sinit(Class_base* c)
+ {
+-	c->setConstructor(NULL);
++	c->setConstructor(Class<IFunction>::getFunction(_constructor));
+ 	c->setSuper(Class<BitmapFilter>::getRef());
++	REGISTER_GETTER_SETTER(c, alpha);
++	REGISTER_GETTER_SETTER(c, angle);
++	REGISTER_GETTER_SETTER(c, blurX);
++	REGISTER_GETTER_SETTER(c, blurY);
++	REGISTER_GETTER_SETTER(c, color);
++	REGISTER_GETTER_SETTER(c, distance);
++	REGISTER_GETTER_SETTER(c, hideObject);
++	REGISTER_GETTER_SETTER(c, inner);
++	REGISTER_GETTER_SETTER(c, knockout);
++	REGISTER_GETTER_SETTER(c, quality);
++	REGISTER_GETTER_SETTER(c, strength);
++}
++
++ASFUNCTIONBODY_GETTER_SETTER(DropShadowFilter, alpha);
++ASFUNCTIONBODY_GETTER_SETTER(DropShadowFilter, angle);
++ASFUNCTIONBODY_GETTER_SETTER(DropShadowFilter, blurX);
++ASFUNCTIONBODY_GETTER_SETTER(DropShadowFilter, blurY);
++ASFUNCTIONBODY_GETTER_SETTER(DropShadowFilter, color);
++ASFUNCTIONBODY_GETTER_SETTER(DropShadowFilter, distance);
++ASFUNCTIONBODY_GETTER_SETTER(DropShadowFilter, hideObject);
++ASFUNCTIONBODY_GETTER_SETTER(DropShadowFilter, inner);
++ASFUNCTIONBODY_GETTER_SETTER(DropShadowFilter, knockout);
++ASFUNCTIONBODY_GETTER_SETTER(DropShadowFilter, quality);
++ASFUNCTIONBODY_GETTER_SETTER(DropShadowFilter, strength);
++
++ASFUNCTIONBODY(DropShadowFilter, _constructor)
++{
++	DropShadowFilter *th = obj->as<DropShadowFilter>();
++	ARG_UNPACK (th->distance, 4.0)
++		(th->angle, 45)
++		(th->color, 0)
++		(th->alpha, 1.0)
++		(th->blurX, 4.0)
++		(th->blurY, 4.0)
++		(th->strength, 1.0)
++		(th->quality, 1)
++		(th->inner, false)
++		(th->knockout, false)
++		(th->hideObject, false);
++	return NULL;
+ }
+ 
+-DropShadowFilter* DropShadowFilter::cloneImpl() const
++BitmapFilter* DropShadowFilter::cloneImpl() const
+ {
+-	return Class<DropShadowFilter>::getInstanceS();
++	DropShadowFilter *cloned = Class<DropShadowFilter>::getInstanceS();
++	cloned->alpha = alpha;
++	cloned->angle = angle;
++	cloned->blurX = blurX;
++	cloned->blurY = blurY;
++	cloned->color = color;
++	cloned->distance = distance;
++	cloned->hideObject = hideObject;
++	cloned->inner = inner;
++	cloned->knockout = knockout;
++	cloned->quality = quality;
++	cloned->strength = strength;
++	return cloned;
++}
++
++void BitmapFilterQuality::sinit(Class_base* c)
++{
++	c->setConstructor(NULL);
++	c->setSuper(Class<ASObject>::getRef());
++	c->setVariableByQName("HIGH","",abstract_i(3),DECLARED_TRAIT);
++	c->setVariableByQName("LOW","",abstract_i(1),DECLARED_TRAIT);
++	c->setVariableByQName("MEDIUM","",abstract_i(3),DECLARED_TRAIT);
+ }
+diff --git a/src/scripting/flash/filters/flashfilters.h b/src/scripting/flash/filters/flashfilters.h
+index 2004b94..847c59a 100644
+--- a/src/scripting/flash/filters/flashfilters.h
++++ b/src/scripting/flash/filters/flashfilters.h
+@@ -40,21 +40,49 @@ public:
+ class GlowFilter: public BitmapFilter
+ {
+ private:
+-	virtual GlowFilter* cloneImpl() const;
++	ASPROPERTY_GETTER_SETTER(number_t, alpha);
++	ASPROPERTY_GETTER_SETTER(number_t, blurX);
++	ASPROPERTY_GETTER_SETTER(number_t, blurY);
++	ASPROPERTY_GETTER_SETTER(uint32_t, color);
++	ASPROPERTY_GETTER_SETTER(bool, inner);
++	ASPROPERTY_GETTER_SETTER(bool, knockout);
++	ASPROPERTY_GETTER_SETTER(int32_t, quality);
++	ASPROPERTY_GETTER_SETTER(number_t, strength);
++	virtual BitmapFilter* cloneImpl() const;
+ public:
+-	GlowFilter(Class_base* c):BitmapFilter(c){}
++	GlowFilter(Class_base* c);
+ 	static void sinit(Class_base* c);
+ //	static void buildTraits(ASObject* o);
++	ASFUNCTION(_constructor);
+ };
+ 
+ class DropShadowFilter: public BitmapFilter
+ {
+ private:
+-	virtual DropShadowFilter* cloneImpl() const;
++	ASPROPERTY_GETTER_SETTER(number_t, alpha);
++	ASPROPERTY_GETTER_SETTER(number_t, angle);
++	ASPROPERTY_GETTER_SETTER(number_t, blurX);
++	ASPROPERTY_GETTER_SETTER(number_t, blurY);
++	ASPROPERTY_GETTER_SETTER(uint32_t, color);
++	ASPROPERTY_GETTER_SETTER(number_t, distance);
++	ASPROPERTY_GETTER_SETTER(bool, hideObject);
++	ASPROPERTY_GETTER_SETTER(bool, inner);
++	ASPROPERTY_GETTER_SETTER(bool, knockout);
++	ASPROPERTY_GETTER_SETTER(int32_t, quality);
++	ASPROPERTY_GETTER_SETTER(number_t, strength);
++	virtual BitmapFilter* cloneImpl() const;
+ public:
+-	DropShadowFilter(Class_base* c):BitmapFilter(c){}
++	DropShadowFilter(Class_base* c);
+ 	static void sinit(Class_base* c);
+ //	static void buildTraits(ASObject* o);
++	ASFUNCTION(_constructor);
++};
++
++class BitmapFilterQuality: public ASObject
++{
++public:
++	BitmapFilterQuality(Class_base* c):ASObject(c) {}
++	static void sinit(Class_base* c);
+ };
+ 
+ };
+-- 
+1.8.5.3
+

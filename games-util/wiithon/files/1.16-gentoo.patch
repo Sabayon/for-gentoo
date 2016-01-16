@@ -1,0 +1,107 @@
+diff -Naur trunk.orig/config.py trunk/config.py
+--- trunk.orig/config.py	2010-02-08 09:52:11.204705587 +0100
++++ trunk/config.py	2010-02-08 10:42:08.017779475 +0100
+@@ -40,7 +40,7 @@
+ LOCALE = "/usr/share/locale/"
+ ICONO = "/usr/share/pixmaps/wiithon.xpm"
+ WBFS_APP = os.path.join(WIITHON_FILES , "wiithon_wrapper")
+-UNRAR_APP = os.path.join(WIITHON_FILES , "wiithon_unrar")
++UNRAR_APP = "/usr/bin/unrar"
+ 
+ APP = "wiithon"
+ VER, REV = getVersionRevision()
+diff -Naur trunk.orig/libwbfs_binding/wiithon_wrapper.c trunk/libwbfs_binding/wiithon_wrapper.c
+--- trunk.orig/libwbfs_binding/wiithon_wrapper.c	2010-02-08 09:52:11.204705587 +0100
++++ trunk/libwbfs_binding/wiithon_wrapper.c	2010-02-08 10:28:01.801156043 +0100
+@@ -434,7 +434,7 @@
+         strcat (comando1, partition);
+         int ret = system(comando1);
+ 
+-        char comando2[100] = "mkdosfs -n WiithonDEV -v -s 8 -F 32 "; // 100: se reserva espacio extra
++        char comando2[100] = "/usr/sbin/mkdosfs -n WiithonDEV -v -s 8 -F 32 "; // 100: se reserva espacio extra
+         strcat (comando2, partition);
+         ret = system(comando2);
+         if(ret == 0)
+diff -Naur trunk.orig/Makefile trunk/Makefile
+--- trunk.orig/Makefile	2010-02-08 09:52:11.214714565 +0100
++++ trunk/Makefile	2010-02-08 09:58:31.731364081 +0100
+@@ -61,7 +61,7 @@
+ lang_enable: it es en fr de pt_BR es_CA
+ lang_disable: da_DK fi_FI tr_TR ru_RU ko_KR sv_SE pt_PT da_DK nb_NO ja_JP
+ 
+-compile: lang unrar-nonfree/wiithon_unrar libwbfs_binding/wiithon_wrapper gen_rev_now
++compile: lang libwbfs_binding/wiithon_wrapper gen_rev_now
+ 	@echo "=================================================================="
+ 	@echo "Compile OK"
+ 	@echo "=================================================================="
+@@ -86,7 +86,6 @@
+ copy_archives: making_directories
+ 
+ 	cp libwbfs_binding/wiithon_wrapper $(DESTDIR)$(PREFIX)/games/
+-	cp unrar-nonfree/wiithon_unrar $(DESTDIR)$(PREFIX)/games/
+ 	
+ 	cp *.py $(DESTDIR)$(PREFIX)/share/wiithon
+ 
+@@ -121,7 +120,6 @@
+ set_permisses:
+ 	chmod 755 $(DESTDIR)$(PREFIX)/share/wiithon/wiithon.py
+ 	chmod 755 $(DESTDIR)$(PREFIX)/games/wiithon_wrapper
+-	chmod 755 $(DESTDIR)$(PREFIX)/games/wiithon_unrar
+ 	chmod 755 $(DESTDIR)$(PREFIX)/share/wiithon/wiithon_autodetectar*.sh
+ 
+ 	chmod 644 $(DESTDIR)$(PREFIX)/share/wiithon/recursos/glade/*.ui
+@@ -135,19 +133,17 @@
+ 	@echo "Permisses OK"
+ 	@echo "=================================================================="
+ 
+-postinst: set_permisses
++postinst:
+ 	-ln -sf $(DESTDIR)$(PREFIX)/share/wiithon/wiithon.py $(DESTDIR)$(PREFIX)/games/wiithon
+ 	-ln -sf $(DESTDIR)$(PREFIX)/games/wiithon_wrapper $(DESTDIR)$(PREFIX)/share/wiithon/wiithon_wrapper
+-	-ln -sf $(DESTDIR)$(PREFIX)/games/wiithon_unrar $(DESTDIR)$(PREFIX)/share/wiithon/wiithon_unrar
+ 	
+-	if [ -x /usr/bin/update-menus ] ; then update-menus ; fi
+ 	
+ 	@echo "=================================================================="
+ 	@echo "If you want run witthon as normal user you must add it to 'disk' group."
+ 	@echo "Type: \"sudo gpasswd -a <user> disk\" and restart your GNOME/KDE session."
+ 	@echo "=================================================================="
+ 
+-install: recicled_old_wiithon clean_old_wiithon copy_archives postinst
++install: copy_archives postinst
+ 	@echo "=================================================================="
+ 	@echo "Wiithon Install OK"
+ 	@echo "=================================================================="
+@@ -234,7 +230,6 @@
+ 	
+ 	-@$(RM) /usr/local/share/wiithon/*.py
+ 	-@$(RM) /usr/local/share/wiithon/wiithon_wrapper
+-	-@$(RM) /usr/local/share/wiithon/unrar
+ 	-@$(RM) /usr/local/share/wiithon/*.sh
+ 	-@$(RM) /usr/local/share/wiithon/recursos/glade/*.ui
+ 	-@$(RM) /usr/local/share/wiithon/recursos/imagenes/*.png
+@@ -258,7 +253,6 @@
+ 
+ delete_archives_installation:
+ 	-$(RM) $(PREFIX)/games/wiithon_wrapper
+-	-$(RM) $(PREFIX)/games/wiithon_unrar
+ 	-$(RM) $(PREFIX)/share/wiithon/*.py
+ 	-$(RM) $(PREFIX)/share/wiithon/*.pyc
+ 	-$(RM) $(PREFIX)/share/wiithon/*.sh
+@@ -301,7 +295,6 @@
+ 
+ 	-$(RM) $(PREFIX)/games/wiithon
+ 	-$(RM) $(PREFIX)/share/wiithon/wiithon_wrapper
+-	-$(RM) $(PREFIX)/share/wiithon/wiithon_unrar
+ 	
+ uninstall: clean_old_wiithon delete_archives_installation postrm
+ 	@echo "=================================================================="
+@@ -321,7 +314,7 @@
+ 	@echo "Uninstall OK & all clean (purge covers & disc-art ...)"
+ 	@echo "=================================================================="
+ 
+-clean: clean_libwbfs_binding clean_gettext clean_unrar
++clean: clean_libwbfs_binding clean_gettext
+ 	$(RM) *.pyc
+ 	$(RM) *~
+ 	$(RM) po/*~

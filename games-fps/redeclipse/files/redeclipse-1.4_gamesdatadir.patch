@@ -1,0 +1,20 @@
+diff -Nuar redeclipse-1.4.orig/src/engine/server.cpp redeclipse-1.4/src/engine/server.cpp
+--- redeclipse-1.4.orig/src/engine/server.cpp	2013-04-18 23:14:32.899377004 +0600
++++ redeclipse-1.4/src/engine/server.cpp	2013-04-18 23:18:12.528384587 +0600
+@@ -1407,13 +1407,13 @@
+         chdir(dir);
+     }
+ #endif
+-    loopi(3) if(!fileexists(findfile("data/config/keymap.cfg", "r"), "r"))
++    loopi(3) if(!fileexists(findfile("/usr/share/games/redeclipse/data/config/keymap.cfg", "r"), "r"))
+     {
+         if(i != 2) chdir("..");
+         else fatal("could not find data directory");
+     }
+-    addpackagedir("data");
+-    defformatstring(gamedata)("game/%s", server::gameid());
++    addpackagedir("/usr/share/games/redeclipse/data");
++    defformatstring(gamedata)("/usr/share/games/redeclipse/game/%s", server::gameid());
+     addpackagedir(gamedata);
+     execfile("version.cfg", false, EXEC_VERSION);
+     if(wanthome)

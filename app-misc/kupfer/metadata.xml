@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer>
+		<email>slawomir.nizio@sabayon.org</email>
+	</maintainer>
+	<use>
+		<flag name='doc'>Generate and install documentation files for Gnome.</flag>
+		<flag name='nautilus'>Install Nautilus extension.</flag>
+		<flag name='keybinder'>Include keybinder for global key bindings.</flag>
+	</use>
+</pkgmetadata>

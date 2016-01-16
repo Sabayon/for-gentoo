@@ -1,0 +1,18 @@
+[Unit]
+Description=iptables firewall
+DefaultDependencies=false
+After=local-fs.target
+Before=basic.target
+# Note: shutdown is handled by iptables-save (if enabled)
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/lib/iptables-helper start
+ExecReload=/usr/local/lib/iptables-helper reload
+ExecStop=/usr/local/lib/iptables-helper stop
+# Note: ExecRestart hasn't been implemented by systemd (yet)
+
+[Install]
+WantedBy=sysinit.target multi-user.target
+Also=iptables-save.service

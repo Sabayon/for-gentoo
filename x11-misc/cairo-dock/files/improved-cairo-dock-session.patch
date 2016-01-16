@@ -1,0 +1,106 @@
+## From: Matthieu Baerts (matttbe) <matttbe@gmail.com>
+## Description: Improved the launch of our Cairo-Dock session (by removing Unity
+##               Compiz plugin and by launching the dock with a short delay)
+## Origin: upstream, http://bazaar.launchpad.net/~cairo-dock-team/cairo-dock-core/cairo-dock/revision/885
+## Forwarded: yes
+Index: cairo-dock/data/desktop-manager/CMakeLists.txt
+===================================================================
+--- cairo-dock.orig/data/desktop-manager/CMakeLists.txt	2011-10-06 12:02:24.494184799 +0200
++++ cairo-dock/data/desktop-manager/CMakeLists.txt	2011-10-06 12:02:17.554184897 +0200
+@@ -7,3 +7,7 @@
+ 	cairo-dock.session
+ 	cairo-dock-fallback.session
+ 	DESTINATION /usr/share/gnome-session/sessions)
++
++install (FILES cairo-dock-session
++	DESTINATION ${bindir}
++	PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+Index: cairo-dock/data/desktop-manager/cairo-dock-fallback.desktop
+===================================================================
+--- cairo-dock.orig/data/desktop-manager/cairo-dock-fallback.desktop	2011-10-06 12:02:24.578184798 +0200
++++ cairo-dock/data/desktop-manager/cairo-dock-fallback.desktop	2011-10-06 12:02:17.554184897 +0200
+@@ -2,6 +2,6 @@
+ Name=Cairo-Dock (with Gnome and without effect)
+ Comment=This session logs you into GNOME with Cairo-Dock and without any graphical effect.
+ Exec=gnome-session --session=cairo-dock-fallback
+-TryExec=gnome-session
++TryExec=cairo-dock-session
+ Icon=
+ Type=Application
+Index: cairo-dock/data/desktop-manager/cairo-dock-session
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ cairo-dock/data/desktop-manager/cairo-dock-session	2011-10-06 12:02:17.554184897 +0200
+@@ -0,0 +1,47 @@
++#!/bin/bash
++
++# Script for the 'desktop-manager' subproject of Cairo-Dock
++#
++# Copyright : (C) see the 'copyright' file.
++# E-mail    : see the 'copyright' file.
++#
++#
++# This program is free software; you can redistribute it and/or
++# modify it under the terms of the GNU General Public License
++# as published by the Free Software Foundation; either version 3
++# of the License, or (at your option) any later version.
++#
++# This program is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++# http://www.gnu.org/licenses/licenses.html#GPL
++
++# This script removes Unity Compiz plugin and launches Cairo-Dock with a short delay
++
++UNITY_NAME="unityshell"
++COMPIZ_FLAT_FILE="$HOME/.config/compiz-1/compizconfig/Default.ini"
++COMPIZ_GCONF="/apps/compiz-1/general/screen0/options/active_plugins"
++
++if test -d "$HOME/.config/compiz-1"; then # compiz >= 0.9
++	# plug-ins in double are NO LONGER filtered by Compiz in this version... (and if plugins are in double or wrong, compiz crashes :) )
++	# flat file
++	if test -f "$COMPIZ_FLAT_FILE"; then
++		pluginsFlat=`grep "s0_active_plugins" $COMPIZ_FLAT_FILE`
++		if test `echo $pluginsFlat | grep -c $UNITY_NAME` -gt 0; then
++			pluginsFlatWithoutUnity=`echo $pluginsFlat | sed -e "s/$UNITY_NAME;//g"`
++			sed -i "/s0_active_plugins/ s/$pluginsFlat/$pluginsFlatWithoutUnity/g" $COMPIZ_FLAT_FILE
++		fi
++	fi
++	# gconf
++	plugins=`gconftool-2 -g $COMPIZ_GCONF`
++	if test `echo $plugins | grep -c $UNITY_NAME` -gt 0; then
++		pluginsWithoutUnity=`echo $plugins | sed -e "s/$UNITY_NAME,//g"`
++		gconftool-2 -s $COMPIZ_GCONF --type=list --list-type=string "$pluginsWithoutUnity"
++		killall unity-panel-service
++	fi
++fi
++
++if test `ps aux | grep -c " [c]airo-dock"` -eq 0; then # cairo-dock not launched
++	cairo-dock -w 3
++fi
+Index: cairo-dock/data/desktop-manager/cairo-dock.desktop
+===================================================================
+--- cairo-dock.orig/data/desktop-manager/cairo-dock.desktop	2011-10-06 12:02:24.450184800 +0200
++++ cairo-dock/data/desktop-manager/cairo-dock.desktop	2011-10-06 12:02:17.554184897 +0200
+@@ -2,6 +2,6 @@
+ Name=Cairo-Dock (with Gnome and effects)
+ Comment=This session logs you into GNOME with Cairo-Dock and with graphical effects.
+ Exec=gnome-session --session=cairo-dock
+-TryExec=gnome-session
++TryExec=cairo-dock-session
+ Icon=
+ Type=Application
+Index: cairo-dock/data/scripts/help_scripts.sh
+===================================================================
+--- cairo-dock.orig/data/scripts/help_scripts.sh	2011-10-06 12:02:24.294184802 +0200
++++ cairo-dock/data/scripts/help_scripts.sh	2011-10-06 12:02:17.554184897 +0200
+@@ -115,7 +115,7 @@
+ 		# flat file
+ 		if test -f "$HOME/.config/compiz-1/compizconfig/Default.ini"; then
+ 			pluginsList="s0_active_plugins = "`echo $ARG2 |sed -e 's/,/;/g'`";" # , => ;
+-			sed -i "/s0_active_plugins/ s/.*/$ARG2/g" $HOME/.config/compiz-1/compizconfig/Default.ini
++			sed -i "/s0_active_plugins/ s/.*/$pluginsList/g" $HOME/.config/compiz-1/compizconfig/Default.ini
+ 		fi
+ 		# gconf
+ 		gconftool-2 -s /apps/compiz-1/general/screen0/options/active_plugins --type=list --list-type=string "[$ARG2]"

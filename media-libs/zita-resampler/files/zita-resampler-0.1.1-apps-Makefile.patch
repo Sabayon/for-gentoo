@@ -1,0 +1,28 @@
+--- apps/Makefile.orig	2012-01-06 06:00:00.000000000 +0000
++++ apps/Makefile	2012-01-06 06:01:00.000000000 +0000
+@@ -18,14 +18,14 @@
+ #
+ # --------------------------------------------------------------------------
+ 
+-
++CXX ?= g++
+ PREFIX = /usr/local
+ SUFFIX := $(shell uname -m | sed -e 's/^unknown/$//' -e 's/^i.86/$//' -e 's/^x86_64/$/64/')
+ LIBDIR = lib$(SUFFIX)
+ DISTDIR = resample-$(VERSION)
+ VERSION = 0.4.0
+ LDFLAGS += -L$(PREFIX)/$(LIBDIR)
+-CPPFLAGS += -O3 -ffast-math -Wall -MMD -MP -DVERSION=\"$(VERSION)\"
++CPPFLAGS += -Wall -MMD -MP -DVERSION=\"$(VERSION)\"
+ #CPPFLAGS += -march=native
+ 
+ 
+@@ -35,7 +35,7 @@
+ RESAMPLE_O = resample.o audiofile.o dither.o
+ resample:	LDLIBS += -lzita-resampler -lsndfile -lpthread -lrt
+ resample:	$(RESAMPLE_O)
+-	g++ $(LDFLAGS) -o $@ $(RESAMPLE_O) $(LDLIBS)
++	$(CXX) $(LDFLAGS) -o $@ $(RESAMPLE_O) $(LDLIBS)
+ $(RESAMPLE_O):
+ -include $(RESAMPLE_O:%.o=%.d)
+ 

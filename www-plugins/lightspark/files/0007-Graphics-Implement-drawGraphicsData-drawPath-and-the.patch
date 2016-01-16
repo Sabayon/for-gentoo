@@ -1,0 +1,2124 @@
+From 4d780c7b986f170464e028c1afb7bd23ad1192f2 Mon Sep 17 00:00:00 2001
+From: Antti Ajanki <antti.ajanki@iki.fi>
+Date: Sun, 21 Apr 2013 18:12:57 +0300
+Subject: [PATCH 007/110] [Graphics] Implement drawGraphicsData, drawPath and
+ the related classes
+
+---
+ src/CMakeLists.txt                                 |   8 +
+ src/allclasses.cpp                                 |  12 ++
+ src/allclasses.h                                   |  14 ++
+ src/scripting/abc.cpp                              |  30 ++-
+ src/scripting/flash/display/GraphicsBitmapFill.cpp |  71 +++++++
+ src/scripting/flash/display/GraphicsBitmapFill.h   |  49 +++++
+ src/scripting/flash/display/GraphicsEndFill.cpp    |  49 +++++
+ src/scripting/flash/display/GraphicsEndFill.h      |  41 ++++
+ .../flash/display/GraphicsGradientFill.cpp         |  97 ++++++++++
+ src/scripting/flash/display/GraphicsGradientFill.h |  55 ++++++
+ src/scripting/flash/display/GraphicsPath.cpp       | 175 +++++++++++++++++
+ src/scripting/flash/display/GraphicsPath.h         |  55 ++++++
+ src/scripting/flash/display/GraphicsShaderFill.cpp |  75 ++++++++
+ src/scripting/flash/display/GraphicsShaderFill.h   |  48 +++++
+ src/scripting/flash/display/GraphicsSolidFill.cpp  |  64 +++++++
+ src/scripting/flash/display/GraphicsSolidFill.h    |  44 +++++
+ src/scripting/flash/display/GraphicsStroke.cpp     | 111 +++++++++++
+ src/scripting/flash/display/GraphicsStroke.h       |  51 +++++
+ .../flash/display/GraphicsTrianglePath.cpp         |  75 ++++++++
+ src/scripting/flash/display/GraphicsTrianglePath.h |  48 +++++
+ src/scripting/flash/display/IGraphicsData.h        |  42 ++++
+ src/scripting/flash/display/IGraphicsFill.h        |  40 ++++
+ src/scripting/flash/display/IGraphicsPath.h        |  35 ++++
+ src/scripting/flash/display/IGraphicsStroke.h      |  35 ++++
+ src/scripting/flash/display/TokenContainer.cpp     |   2 +-
+ src/scripting/flash/display/TokenContainer.h       |   2 +-
+ src/scripting/flash/display/flashdisplay.cpp       | 213 ++++++++++++++++++---
+ src/scripting/flash/display/flashdisplay.h         |  50 +++--
+ src/scripting/flash/geom/flashgeom.h               |   1 +
+ src/scripting/toplevel/Vector.cpp                  |   8 +
+ src/scripting/toplevel/Vector.h                    |   3 +
+ src/swftypes.cpp                                   |  12 ++
+ src/swftypes.h                                     |   1 +
+ 33 files changed, 1573 insertions(+), 43 deletions(-)
+ create mode 100644 src/scripting/flash/display/GraphicsBitmapFill.cpp
+ create mode 100644 src/scripting/flash/display/GraphicsBitmapFill.h
+ create mode 100644 src/scripting/flash/display/GraphicsEndFill.cpp
+ create mode 100644 src/scripting/flash/display/GraphicsEndFill.h
+ create mode 100644 src/scripting/flash/display/GraphicsGradientFill.cpp
+ create mode 100644 src/scripting/flash/display/GraphicsGradientFill.h
+ create mode 100644 src/scripting/flash/display/GraphicsPath.cpp
+ create mode 100644 src/scripting/flash/display/GraphicsPath.h
+ create mode 100644 src/scripting/flash/display/GraphicsShaderFill.cpp
+ create mode 100644 src/scripting/flash/display/GraphicsShaderFill.h
+ create mode 100644 src/scripting/flash/display/GraphicsSolidFill.cpp
+ create mode 100644 src/scripting/flash/display/GraphicsSolidFill.h
+ create mode 100644 src/scripting/flash/display/GraphicsStroke.cpp
+ create mode 100644 src/scripting/flash/display/GraphicsStroke.h
+ create mode 100644 src/scripting/flash/display/GraphicsTrianglePath.cpp
+ create mode 100644 src/scripting/flash/display/GraphicsTrianglePath.h
+ create mode 100644 src/scripting/flash/display/IGraphicsData.h
+ create mode 100644 src/scripting/flash/display/IGraphicsFill.h
+ create mode 100644 src/scripting/flash/display/IGraphicsPath.h
+ create mode 100644 src/scripting/flash/display/IGraphicsStroke.h
+
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index 79a2213..cb8aaf8 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -73,6 +73,14 @@ SET(LIBSPARK_SOURCES
+   scripting/flash/display/IBitmapDrawable.cpp
+   scripting/flash/display/flashdisplay.cpp
+   scripting/flash/display/TokenContainer.cpp
++  scripting/flash/display/GraphicsBitmapFill.cpp
++  scripting/flash/display/GraphicsEndFill.cpp
++  scripting/flash/display/GraphicsGradientFill.cpp
++  scripting/flash/display/GraphicsPath.cpp
++  scripting/flash/display/GraphicsShaderFill.cpp
++  scripting/flash/display/GraphicsSolidFill.cpp
++  scripting/flash/display/GraphicsStroke.cpp
++  scripting/flash/display/GraphicsTrianglePath.cpp
+   scripting/flash/events/flashevents.cpp
+   scripting/flash/external/ExternalInterface.cpp
+   scripting/flash/filters/flashfilters.cpp
+diff --git a/src/allclasses.cpp b/src/allclasses.cpp
+index 8b9a47c..5a372dd 100644
+--- a/src/allclasses.cpp
++++ b/src/allclasses.cpp
+@@ -28,6 +28,18 @@
+ #include "scripting/flash/desktop/flashdesktop.h"
+ #include "scripting/flash/display/flashdisplay.h"
+ #include "scripting/flash/display/BitmapData.h"
++#include "scripting/flash/display/GraphicsBitmapFill.h"
++#include "scripting/flash/display/GraphicsEndFill.h"
++#include "scripting/flash/display/GraphicsGradientFill.h"
++#include "scripting/flash/display/GraphicsPath.h"
++#include "scripting/flash/display/GraphicsShaderFill.h"
++#include "scripting/flash/display/GraphicsSolidFill.h"
++#include "scripting/flash/display/GraphicsStroke.h"
++#include "scripting/flash/display/GraphicsTrianglePath.h"
++#include "scripting/flash/display/IGraphicsData.h"
++#include "scripting/flash/display/IGraphicsFill.h"
++#include "scripting/flash/display/IGraphicsPath.h"
++#include "scripting/flash/display/IGraphicsStroke.h"
+ #include "scripting/flash/events/flashevents.h"
+ #include "scripting/flash/filters/flashfilters.h"
+ #include "scripting/flash/net/flashnet.h"
+diff --git a/src/allclasses.h b/src/allclasses.h
+index dbb3a2c..8236fb1 100644
+--- a/src/allclasses.h
++++ b/src/allclasses.h
+@@ -69,6 +69,20 @@ REGISTER_CLASS_NAME(DisplayObjectContainer,"flash.display")
+ REGISTER_CLASS_NAME(FrameLabel,"flash.display")
+ REGISTER_CLASS_NAME(GradientType,"flash.display")
+ REGISTER_CLASS_NAME(Graphics,"flash.display")
++REGISTER_CLASS_NAME(GraphicsBitmapFill,"flash.display")
++REGISTER_CLASS_NAME(GraphicsEndFill,"flash.display")
++REGISTER_CLASS_NAME(GraphicsGradientFill,"flash.display")
++REGISTER_CLASS_NAME(GraphicsPath,"flash.display")
++REGISTER_CLASS_NAME(GraphicsPathCommand,"flash.display")
++REGISTER_CLASS_NAME(GraphicsPathWinding,"flash.display")
++REGISTER_CLASS_NAME(GraphicsShaderFill,"flash.display")
++REGISTER_CLASS_NAME(GraphicsSolidFill,"flash.display")
++REGISTER_CLASS_NAME(GraphicsStroke,"flash.display")
++REGISTER_CLASS_NAME(GraphicsTrianglePath,"flash.display")
++REGISTER_CLASS_NAME(IGraphicsData,"flash.display")
++REGISTER_CLASS_NAME(IGraphicsFill,"flash.display")
++REGISTER_CLASS_NAME(IGraphicsPath,"flash.display")
++REGISTER_CLASS_NAME(IGraphicsStroke,"flash.display")
+ REGISTER_CLASS_NAME(IBitmapDrawable,"flash.display")
+ REGISTER_CLASS_NAME(InteractiveObject,"flash.display")
+ REGISTER_CLASS_NAME(InterpolationMethod,"flash.display")
+diff --git a/src/scripting/abc.cpp b/src/scripting/abc.cpp
+index ef1cf30..7d7da16 100644
+--- a/src/scripting/abc.cpp
++++ b/src/scripting/abc.cpp
+@@ -58,6 +58,18 @@
+ #include "scripting/flash/desktop/flashdesktop.h"
+ #include "scripting/flash/display/flashdisplay.h"
+ #include "scripting/flash/display/BitmapData.h"
++#include "scripting/flash/display/GraphicsBitmapFill.h"
++#include "scripting/flash/display/GraphicsEndFill.h"
++#include "scripting/flash/display/GraphicsGradientFill.h"
++#include "scripting/flash/display/GraphicsPath.h"
++#include "scripting/flash/display/GraphicsShaderFill.h"
++#include "scripting/flash/display/GraphicsSolidFill.h"
++#include "scripting/flash/display/GraphicsStroke.h"
++#include "scripting/flash/display/GraphicsTrianglePath.h"
++#include "scripting/flash/display/IGraphicsData.h"
++#include "scripting/flash/display/IGraphicsFill.h"
++#include "scripting/flash/display/IGraphicsPath.h"
++#include "scripting/flash/display/IGraphicsStroke.h"
+ #include "scripting/flash/events/flashevents.h"
+ #include "scripting/flash/filters/flashfilters.h"
+ #include "scripting/flash/net/flashnet.h"
+@@ -246,6 +258,20 @@ void ABCVm::registerClasses()
+ 	builtin->registerBuiltin("Shape","flash.display",Class<Shape>::getRef());
+ 	builtin->registerBuiltin("Stage","flash.display",Class<Stage>::getRef());
+ 	builtin->registerBuiltin("Graphics","flash.display",Class<Graphics>::getRef());
++	builtin->registerBuiltin("GraphicsBitmapFill","flash.display",Class<GraphicsBitmapFill>::getRef());
++	builtin->registerBuiltin("GraphicsEndFill","flash.display",Class<GraphicsEndFill>::getRef());
++	builtin->registerBuiltin("GraphicsGradientFill","flash.display",Class<GraphicsGradientFill>::getRef());
++	builtin->registerBuiltin("GraphicsPath","flash.display",Class<GraphicsPath>::getRef());
++	builtin->registerBuiltin("GraphicsPathCommand","flash.display",Class<GraphicsPathCommand>::getRef());
++	builtin->registerBuiltin("GraphicsPathWinding","flash.display",Class<GraphicsPathWinding>::getRef());
++	builtin->registerBuiltin("GraphicsShaderFill","flash.display",Class<GraphicsShaderFill>::getRef());
++	builtin->registerBuiltin("GraphicsSolidFill","flash.display",Class<GraphicsSolidFill>::getRef());
++	builtin->registerBuiltin("GraphicsStroke","flash.display",Class<GraphicsStroke>::getRef());
++	builtin->registerBuiltin("GraphicsTrianglePath","flash.display",Class<GraphicsTrianglePath>::getRef());
++	builtin->registerBuiltin("IGraphicsData","flash.display",InterfaceClass<IGraphicsData>::getRef());
++	builtin->registerBuiltin("IGraphicsFill","flash.display",InterfaceClass<IGraphicsFill>::getRef());
++	builtin->registerBuiltin("IGraphicsPath","flash.display",InterfaceClass<IGraphicsPath>::getRef());
++	builtin->registerBuiltin("IGraphicsStroke","flash.display",InterfaceClass<IGraphicsStroke>::getRef());
+ 	builtin->registerBuiltin("GradientType","flash.display",Class<GradientType>::getRef());
+ 	builtin->registerBuiltin("BlendMode","flash.display",Class<BlendMode>::getRef());
+ 	builtin->registerBuiltin("LineScaleMode","flash.display",Class<LineScaleMode>::getRef());
+@@ -256,10 +282,6 @@ void ABCVm::registerClasses()
+ 	builtin->registerBuiltin("BitmapData","flash.display",Class<BitmapData>::getRef());
+ 	builtin->registerBuiltin("Bitmap","flash.display",Class<Bitmap>::getRef());
+ 	builtin->registerBuiltin("IBitmapDrawable","flash.display",InterfaceClass<IBitmapDrawable>::getRef());
+-	builtin->registerBuiltin("GraphicsGradientFill","flash.display",
+-			Class<ASObject>::getStubClass(QName("GraphicsGradientFill","flash.display")));
+-	builtin->registerBuiltin("GraphicsPath","flash.display",
+-			Class<ASObject>::getStubClass(QName("GraphicsPath","flash.display")));
+ 	builtin->registerBuiltin("MorphShape","flash.display",Class<MorphShape>::getRef());
+ 	builtin->registerBuiltin("SpreadMethod","flash.display",Class<SpreadMethod>::getRef());
+ 	builtin->registerBuiltin("InterpolationMethod","flash.display",Class<InterpolationMethod>::getRef());
+diff --git a/src/scripting/flash/display/GraphicsBitmapFill.cpp b/src/scripting/flash/display/GraphicsBitmapFill.cpp
+new file mode 100644
+index 0000000..ace9ee1
+--- /dev/null
++++ b/src/scripting/flash/display/GraphicsBitmapFill.cpp
+@@ -0,0 +1,71 @@
++/**************************************************************************
++    Lightspark, a free flash player implementation
++
++    Copyright (C) 2013  Antti Ajanki (antti.ajanki@iki.fi)
++
++    This program is free software: you can redistribute it and/or modify
++    it under the terms of the GNU Lesser General Public License as published by
++    the Free Software Foundation, either version 3 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU Lesser General Public License for more details.
++
++    You should have received a copy of the GNU Lesser General Public License
++    along with this program.  If not, see <http://www.gnu.org/licenses/>.
++**************************************************************************/
++
++#include "scripting/flash/display/GraphicsBitmapFill.h"
++#include "scripting/flash/display/BitmapData.h"
++#include "scripting/flash/geom/flashgeom.h"
++#include "scripting/class.h"
++#include "scripting/argconv.h"
++
++using namespace lightspark;
++
++GraphicsBitmapFill::GraphicsBitmapFill(Class_base* c):
++	ASObject(c), repeat(true), smooth(false)
++{
++}
++
++void GraphicsBitmapFill::sinit(Class_base* c)
++{
++	c->setConstructor(Class<IFunction>::getFunction(_constructor));
++	c->setSuper(Class<ASObject>::getRef());
++
++	REGISTER_GETTER_SETTER(c, bitmapData);
++	REGISTER_GETTER_SETTER(c, matrix);
++	REGISTER_GETTER_SETTER(c, repeat);
++	REGISTER_GETTER_SETTER(c, smooth);
++
++	c->addImplementedInterface(InterfaceClass<IGraphicsFill>::getClass());
++	IGraphicsFill::linkTraits(c);
++	c->addImplementedInterface(InterfaceClass<IGraphicsData>::getClass());
++	IGraphicsData::linkTraits(c);
++}
++
++ASFUNCTIONBODY(GraphicsBitmapFill, _constructor)
++{
++	GraphicsBitmapFill* th = obj->as<GraphicsBitmapFill>();
++	ASObject::_constructor(obj,NULL,0);
++	ARG_UNPACK (th->bitmapData, NullRef) (th->matrix, NullRef) (th->repeat, true) (th->smooth, false);
++	return NULL;
++}
++
++ASFUNCTIONBODY_GETTER_SETTER(GraphicsBitmapFill, bitmapData);
++ASFUNCTIONBODY_GETTER_SETTER(GraphicsBitmapFill, matrix);
++ASFUNCTIONBODY_GETTER_SETTER(GraphicsBitmapFill, repeat);
++ASFUNCTIONBODY_GETTER_SETTER(GraphicsBitmapFill, smooth);
++
++FILLSTYLE GraphicsBitmapFill::toFillStyle()
++{
++	return Graphics::createBitmapFill(bitmapData, matrix, repeat, smooth);
++}
++
++void GraphicsBitmapFill::appendToTokens(std::vector<GeomToken>& tokens)
++{
++
++	tokens.emplace_back(GeomToken(SET_FILL, toFillStyle()));
++}
+diff --git a/src/scripting/flash/display/GraphicsBitmapFill.h b/src/scripting/flash/display/GraphicsBitmapFill.h
+new file mode 100644
+index 0000000..effa7f2
+--- /dev/null
++++ b/src/scripting/flash/display/GraphicsBitmapFill.h
+@@ -0,0 +1,49 @@
++/**************************************************************************
++    Lightspark, a free flash player implementation
++
++    Copyright (C) 2013  Antti Ajanki (antti.ajanki@iki.fi)
++
++    This program is free software: you can redistribute it and/or modify
++    it under the terms of the GNU Lesser General Public License as published by
++    the Free Software Foundation, either version 3 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU Lesser General Public License for more details.
++
++    You should have received a copy of the GNU Lesser General Public License
++    along with this program.  If not, see <http://www.gnu.org/licenses/>.
++**************************************************************************/
++
++#ifndef SCRIPTING_FLASH_DISPLAY_GRAPHICSBITMAPFILL_H
++#define SCRIPTING_FLASH_DISPLAY_GRAPHICSBITMAPFILL_H 1
++
++#include "asobject.h"
++#include "scripting/flash/display/IGraphicsFill.h"
++#include "scripting/flash/display/IGraphicsData.h"
++
++namespace lightspark
++{
++
++class BitmapData;
++class Matrix;
++
++class GraphicsBitmapFill: public ASObject, public IGraphicsFill, public IGraphicsData
++{
++public:
++	GraphicsBitmapFill(Class_base* c);
++	static void sinit(Class_base* c);
++	ASFUNCTION(_constructor);
++	ASPROPERTY_GETTER_SETTER(_NR<BitmapData>, bitmapData);
++	ASPROPERTY_GETTER_SETTER(_NR<Matrix>, matrix);
++	ASPROPERTY_GETTER_SETTER(bool, repeat);
++	ASPROPERTY_GETTER_SETTER(bool, smooth);
++	FILLSTYLE toFillStyle();
++	void appendToTokens(std::vector<GeomToken>& tokens);
++};
++
++};
++
++#endif /* SCRIPTING_FLASH_DISPLAY_GRAPHICSBITMAPFILL_H */
+diff --git a/src/scripting/flash/display/GraphicsEndFill.cpp b/src/scripting/flash/display/GraphicsEndFill.cpp
+new file mode 100644
+index 0000000..dc7bb8c
+--- /dev/null
++++ b/src/scripting/flash/display/GraphicsEndFill.cpp
+@@ -0,0 +1,49 @@
++/**************************************************************************
++    Lightspark, a free flash player implementation
++
++    Copyright (C) 2013  Antti Ajanki (antti.ajanki@iki.fi)
++
++    This program is free software: you can redistribute it and/or modify
++    it under the terms of the GNU Lesser General Public License as published by
++    the Free Software Foundation, either version 3 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU Lesser General Public License for more details.
++
++    You should have received a copy of the GNU Lesser General Public License
++    along with this program.  If not, see <http://www.gnu.org/licenses/>.
++**************************************************************************/
++
++#include "scripting/flash/display/GraphicsEndFill.h"
++#include "scripting/class.h"
++
++using namespace lightspark;
++
++GraphicsEndFill::GraphicsEndFill(Class_base* c):
++	ASObject(c)
++{
++}
++
++void GraphicsEndFill::sinit(Class_base* c)
++{
++	c->setConstructor(Class<IFunction>::getFunction(_constructor));
++	c->setSuper(Class<ASObject>::getRef());
++
++	c->addImplementedInterface(InterfaceClass<IGraphicsFill>::getClass());
++	IGraphicsFill::linkTraits(c);
++	c->addImplementedInterface(InterfaceClass<IGraphicsData>::getClass());
++	IGraphicsData::linkTraits(c);
++}
++
++FILLSTYLE GraphicsEndFill::toFillStyle()
++{
++	return FILLSTYLE(0xff);
++}
++
++void GraphicsEndFill::appendToTokens(std::vector<GeomToken>& tokens)
++{
++	tokens.emplace_back(CLEAR_FILL);
++}
+diff --git a/src/scripting/flash/display/GraphicsEndFill.h b/src/scripting/flash/display/GraphicsEndFill.h
+new file mode 100644
+index 0000000..b65bf54
+--- /dev/null
++++ b/src/scripting/flash/display/GraphicsEndFill.h
+@@ -0,0 +1,41 @@
++/**************************************************************************
++    Lightspark, a free flash player implementation
++
++    Copyright (C) 2013  Antti Ajanki (antti.ajanki@iki.fi)
++
++    This program is free software: you can redistribute it and/or modify
++    it under the terms of the GNU Lesser General Public License as published by
++    the Free Software Foundation, either version 3 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU Lesser General Public License for more details.
++
++    You should have received a copy of the GNU Lesser General Public License
++    along with this program.  If not, see <http://www.gnu.org/licenses/>.
++**************************************************************************/
++
++#ifndef SCRIPTING_FLASH_DISPLAY_GRAPHICSENDFILL_H
++#define SCRIPTING_FLASH_DISPLAY_GRAPHICSENDFILL_H 1
++
++#include "asobject.h"
++#include "scripting/flash/display/IGraphicsFill.h"
++#include "scripting/flash/display/IGraphicsData.h"
++
++namespace lightspark
++{
++
++class GraphicsEndFill: public ASObject, public IGraphicsFill, public IGraphicsData
++{
++public:
++	GraphicsEndFill(Class_base* c);
++	static void sinit(Class_base* c);
++        FILLSTYLE toFillStyle();
++        void appendToTokens(std::vector<GeomToken>& tokens);
++};
++
++};
++
++#endif /* SCRIPTING_FLASH_DISPLAY_GRAPHICSENDFILL_H */
+diff --git a/src/scripting/flash/display/GraphicsGradientFill.cpp b/src/scripting/flash/display/GraphicsGradientFill.cpp
+new file mode 100644
+index 0000000..9e62ba9
+--- /dev/null
++++ b/src/scripting/flash/display/GraphicsGradientFill.cpp
+@@ -0,0 +1,97 @@
++/**************************************************************************
++    Lightspark, a free flash player implementation
++
++    Copyright (C) 2013  Antti Ajanki (antti.ajanki@iki.fi)
++
++    This program is free software: you can redistribute it and/or modify
++    it under the terms of the GNU Lesser General Public License as published by
++    the Free Software Foundation, either version 3 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU Lesser General Public License for more details.
++
++    You should have received a copy of the GNU Lesser General Public License
++    along with this program.  If not, see <http://www.gnu.org/licenses/>.
++**************************************************************************/
++
++#include "scripting/flash/display/GraphicsGradientFill.h"
++#include "scripting/flash/geom/flashgeom.h"
++#include "scripting/toplevel/toplevel.h"
++#include "scripting/toplevel/Array.h"
++#include "scripting/class.h"
++#include "scripting/argconv.h"
++
++using namespace lightspark;
++
++GraphicsGradientFill::GraphicsGradientFill(Class_base* c):
++	ASObject(c), focalPointRatio(0), interpolationMethod("rgb"),
++	spreadMethod("pad"), type("linear")
++{
++}
++
++void GraphicsGradientFill::sinit(Class_base* c)
++{
++	c->setConstructor(Class<IFunction>::getFunction(_constructor));
++	c->setSuper(Class<ASObject>::getRef());
++
++	REGISTER_GETTER_SETTER(c, alphas);
++	REGISTER_GETTER_SETTER(c, colors);
++	REGISTER_GETTER_SETTER(c, focalPointRatio);
++	REGISTER_GETTER_SETTER(c, interpolationMethod);
++	REGISTER_GETTER_SETTER(c, matrix);
++	REGISTER_GETTER_SETTER(c, ratios);
++	REGISTER_GETTER_SETTER(c, spreadMethod);
++	REGISTER_GETTER_SETTER(c, type);
++
++	c->addImplementedInterface(InterfaceClass<IGraphicsFill>::getClass());
++	IGraphicsFill::linkTraits(c);
++	c->addImplementedInterface(InterfaceClass<IGraphicsData>::getClass());
++	IGraphicsData::linkTraits(c);
++}
++
++void GraphicsGradientFill::finalize()
++{
++	ASObject::finalize();
++	alphas.reset();
++	colors.reset();
++	matrix.reset();
++	ratios.reset();
++}
++
++ASFUNCTIONBODY(GraphicsGradientFill, _constructor)
++{
++	GraphicsGradientFill* th = obj->as<GraphicsGradientFill>();
++	ASObject::_constructor(obj,NULL,0);
++	ARG_UNPACK (th->type, "linear")
++		(th->colors, NullRef)
++		(th->alphas, NullRef)
++		(th->ratios, NullRef)
++		(th->matrix, NullRef)
++		(th->spreadMethod, "pad")
++		(th->interpolationMethod, "rgb")
++		(th->focalPointRatio, 0);
++	return NULL;
++}
++
++ASFUNCTIONBODY_GETTER_SETTER(GraphicsGradientFill, alphas);
++ASFUNCTIONBODY_GETTER_SETTER(GraphicsGradientFill, colors);
++ASFUNCTIONBODY_GETTER_SETTER(GraphicsGradientFill, focalPointRatio);
++ASFUNCTIONBODY_GETTER_SETTER(GraphicsGradientFill, interpolationMethod);
++ASFUNCTIONBODY_GETTER_SETTER(GraphicsGradientFill, matrix);
++ASFUNCTIONBODY_GETTER_SETTER(GraphicsGradientFill, ratios);
++ASFUNCTIONBODY_GETTER_SETTER(GraphicsGradientFill, spreadMethod);
++ASFUNCTIONBODY_GETTER_SETTER(GraphicsGradientFill, type);
++
++FILLSTYLE GraphicsGradientFill::toFillStyle()
++{
++	return Graphics::createGradientFill(type, colors, alphas, ratios,
++		matrix, spreadMethod, interpolationMethod, focalPointRatio);
++}
++
++void GraphicsGradientFill::appendToTokens(std::vector<GeomToken>& tokens)
++{
++	tokens.emplace_back(GeomToken(SET_FILL, toFillStyle()));
++}
+diff --git a/src/scripting/flash/display/GraphicsGradientFill.h b/src/scripting/flash/display/GraphicsGradientFill.h
+new file mode 100644
+index 0000000..3cf422c
+--- /dev/null
++++ b/src/scripting/flash/display/GraphicsGradientFill.h
+@@ -0,0 +1,55 @@
++/**************************************************************************
++    Lightspark, a free flash player implementation
++
++    Copyright (C) 2013  Antti Ajanki (antti.ajanki@iki.fi)
++
++    This program is free software: you can redistribute it and/or modify
++    it under the terms of the GNU Lesser General Public License as published by
++    the Free Software Foundation, either version 3 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU Lesser General Public License for more details.
++
++    You should have received a copy of the GNU Lesser General Public License
++    along with this program.  If not, see <http://www.gnu.org/licenses/>.
++**************************************************************************/
++
++#ifndef SCRIPTING_FLASH_DISPLAY_GRAPHICSGRADIENTFILL_H
++#define SCRIPTING_FLASH_DISPLAY_GRAPHICSGRADIENTFILL_H 1
++
++#include "asobject.h"
++#include "tiny_string.h"
++#include "scripting/flash/display/IGraphicsFill.h"
++#include "scripting/flash/display/IGraphicsData.h"
++
++namespace lightspark
++{
++
++class Array;
++class Matrix;
++
++class GraphicsGradientFill: public ASObject, public IGraphicsFill, public IGraphicsData
++{
++public:
++	GraphicsGradientFill(Class_base* c);
++	static void sinit(Class_base* c);
++	void finalize();
++	ASFUNCTION(_constructor);
++	ASPROPERTY_GETTER_SETTER(_NR<Array>, alphas);
++	ASPROPERTY_GETTER_SETTER(_NR<Array>, colors);
++	ASPROPERTY_GETTER_SETTER(number_t, focalPointRatio);
++	ASPROPERTY_GETTER_SETTER(tiny_string, interpolationMethod);
++	ASPROPERTY_GETTER_SETTER(_NR<Matrix>, matrix);
++	ASPROPERTY_GETTER_SETTER(_NR<Array>, ratios);
++	ASPROPERTY_GETTER_SETTER(tiny_string, spreadMethod);
++	ASPROPERTY_GETTER_SETTER(tiny_string, type);
++	FILLSTYLE toFillStyle();
++	void appendToTokens(std::vector<GeomToken>& tokens);
++};
++
++};
++
++#endif /* SCRIPTING_FLASH_DISPLAY_GRAPHICSGRADIENTFILL_H */
+diff --git a/src/scripting/flash/display/GraphicsPath.cpp b/src/scripting/flash/display/GraphicsPath.cpp
+new file mode 100644
+index 0000000..d9690d8
+--- /dev/null
++++ b/src/scripting/flash/display/GraphicsPath.cpp
+@@ -0,0 +1,175 @@
++/**************************************************************************
++    Lightspark, a free flash player implementation
++
++    Copyright (C) 2013  Antti Ajanki (antti.ajanki@iki.fi)
++
++    This program is free software: you can redistribute it and/or modify
++    it under the terms of the GNU Lesser General Public License as published by
++    the Free Software Foundation, either version 3 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU Lesser General Public License for more details.
++
++    You should have received a copy of the GNU Lesser General Public License
++    along with this program.  If not, see <http://www.gnu.org/licenses/>.
++**************************************************************************/
++
++#include "scripting/toplevel/Vector.h"
++#include "scripting/flash/display/GraphicsPath.h"
++#include "scripting/flash/display/flashdisplay.h"
++#include "scripting/argconv.h"
++#include "scripting/class.h"
++
++using namespace lightspark;
++
++GraphicsPath::GraphicsPath(Class_base* c):
++	ASObject(c), winding("evenOdd")
++{
++}
++
++void GraphicsPath::sinit(Class_base* c)
++{
++	c->setConstructor(Class<IFunction>::getFunction(_constructor));
++	c->setSuper(Class<ASObject>::getRef());
++
++	REGISTER_GETTER_SETTER(c, commands);
++	REGISTER_GETTER_SETTER(c, data);
++	REGISTER_GETTER_SETTER(c, winding);
++	c->setDeclaredMethodByQName("curveTo","",Class<IFunction>::getFunction(curveTo),NORMAL_METHOD,true);
++	c->setDeclaredMethodByQName("lineTo","",Class<IFunction>::getFunction(lineTo),NORMAL_METHOD,true);
++	c->setDeclaredMethodByQName("moveTo","",Class<IFunction>::getFunction(moveTo),NORMAL_METHOD,true);
++	c->setDeclaredMethodByQName("wideLineTo","",Class<IFunction>::getFunction(wideLineTo),NORMAL_METHOD,true);
++	c->setDeclaredMethodByQName("wideMoveTo","",Class<IFunction>::getFunction(wideMoveTo),NORMAL_METHOD,true);
++
++	c->addImplementedInterface(InterfaceClass<IGraphicsPath>::getClass());
++	IGraphicsPath::linkTraits(c);
++	c->addImplementedInterface(InterfaceClass<IGraphicsData>::getClass());
++	IGraphicsData::linkTraits(c);
++}
++
++ASFUNCTIONBODY_GETTER_SETTER(GraphicsPath, commands);
++ASFUNCTIONBODY_GETTER_SETTER(GraphicsPath, data);
++ASFUNCTIONBODY_GETTER_SETTER(GraphicsPath, winding);
++
++ASFUNCTIONBODY(GraphicsPath, _constructor)
++{
++	_NR<Vector> commands;
++	_NR<Vector> data;
++	GraphicsPath* th = obj->as<GraphicsPath>();
++	ARG_UNPACK(commands, NullRef)(data, NullRef)(th->winding, "evenOdd");
++
++	ASObject::_constructor(obj,NULL,0);
++
++	if (!commands.isNull())
++		th->commands = commands;
++	if (!data.isNull())
++		th->data = data;
++
++	return NULL;
++}
++
++void GraphicsPath::finalize()
++{
++	ASObject::finalize();
++	commands.reset();
++	data.reset();
++}
++
++void GraphicsPath::ensureValid()
++{
++	if (commands.isNull())
++		commands = _MNR(Class<Vector>::getInstanceS(Class<Integer>::getClass()));
++	if (data.isNull())
++		data = _MNR(Class<Vector>::getInstanceS(Class<Number>::getClass()));
++}
++
++ASFUNCTIONBODY(GraphicsPath, curveTo)
++{
++	GraphicsPath* th=obj->as<GraphicsPath>();
++	number_t cx;
++	number_t cy;
++	number_t ax;
++	number_t ay;
++	ARG_UNPACK (cx) (cy) (ax) (ay);
++
++	th->ensureValid();
++	th->commands->append(abstract_i(GraphicsPathCommand::CURVE_TO));
++	th->data->append(abstract_d(ax));
++	th->data->append(abstract_d(ay));
++	th->data->append(abstract_d(cx));
++	th->data->append(abstract_d(cy));
++
++	return NULL;
++}
++
++ASFUNCTIONBODY(GraphicsPath, lineTo)
++{
++	GraphicsPath* th=obj->as<GraphicsPath>();
++	number_t x;
++	number_t y;
++	ARG_UNPACK (x) (y);
++
++	th->ensureValid();
++	th->commands->append(abstract_i(GraphicsPathCommand::LINE_TO));
++	th->data->append(abstract_d(x));
++	th->data->append(abstract_d(y));
++
++	return NULL;
++}
++
++ASFUNCTIONBODY(GraphicsPath, moveTo)
++{
++	GraphicsPath* th=obj->as<GraphicsPath>();
++	number_t x;
++	number_t y;
++	ARG_UNPACK (x) (y);
++
++	th->ensureValid();
++	th->commands->append(abstract_i(GraphicsPathCommand::MOVE_TO));
++	th->data->append(abstract_d(x));
++	th->data->append(abstract_d(y));
++
++	return NULL;
++}
++
++ASFUNCTIONBODY(GraphicsPath, wideLineTo)
++{
++	GraphicsPath* th=obj->as<GraphicsPath>();
++	number_t x;
++	number_t y;
++	ARG_UNPACK (x) (y);
++
++	th->ensureValid();
++	th->commands->append(abstract_i(GraphicsPathCommand::LINE_TO));
++	th->data->append(abstract_d(0));
++	th->data->append(abstract_d(0));
++	th->data->append(abstract_d(x));
++	th->data->append(abstract_d(y));
++
++	return NULL;
++}
++
++ASFUNCTIONBODY(GraphicsPath, wideMoveTo)
++{
++	GraphicsPath* th=obj->as<GraphicsPath>();
++	number_t x;
++	number_t y;
++	ARG_UNPACK (x) (y);
++
++	th->ensureValid();
++	th->commands->append(abstract_i(GraphicsPathCommand::MOVE_TO));
++	th->data->append(abstract_d(0));
++	th->data->append(abstract_d(0));
++	th->data->append(abstract_d(x));
++	th->data->append(abstract_d(y));
++
++	return NULL;
++}
++
++void GraphicsPath::appendToTokens(std::vector<GeomToken>& tokens)
++{
++	Graphics::pathToTokens(commands, data, winding, tokens);
++}
+diff --git a/src/scripting/flash/display/GraphicsPath.h b/src/scripting/flash/display/GraphicsPath.h
+new file mode 100644
+index 0000000..74bf931
+--- /dev/null
++++ b/src/scripting/flash/display/GraphicsPath.h
+@@ -0,0 +1,55 @@
++/**************************************************************************
++    Lightspark, a free flash player implementation
++
++    Copyright (C) 2013  Antti Ajanki (antti.ajanki@iki.fi)
++
++    This program is free software: you can redistribute it and/or modify
++    it under the terms of the GNU Lesser General Public License as published by
++    the Free Software Foundation, either version 3 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU Lesser General Public License for more details.
++
++    You should have received a copy of the GNU Lesser General Public License
++    along with this program.  If not, see <http://www.gnu.org/licenses/>.
++**************************************************************************/
++
++#ifndef SCRIPTING_FLASH_DISPLAY_GRAPHICSPATH_H
++#define SCRIPTING_FLASH_DISPLAY_GRAPHICSPATH_H 1
++
++#include "asobject.h"
++#include "tiny_string.h"
++#include "scripting/flash/display/IGraphicsPath.h"
++#include "scripting/flash/display/IGraphicsData.h"
++
++namespace lightspark
++{
++
++class Vector;
++
++class GraphicsPath: public ASObject, public IGraphicsPath, public IGraphicsData
++{
++private:
++	void ensureValid();
++public:
++	GraphicsPath(Class_base* c);
++	static void sinit(Class_base* c);
++	void finalize();
++	ASFUNCTION(_constructor);
++	ASPROPERTY_GETTER_SETTER(_NR<Vector>, commands);
++	ASPROPERTY_GETTER_SETTER(_NR<Vector>, data);
++	ASPROPERTY_GETTER_SETTER(tiny_string, winding);
++	ASFUNCTION(curveTo);
++	ASFUNCTION(lineTo);
++	ASFUNCTION(moveTo);
++	ASFUNCTION(wideLineTo);
++	ASFUNCTION(wideMoveTo);
++	void appendToTokens(std::vector<GeomToken>& tokens);
++};
++
++};
++
++#endif /* SCRIPTING_FLASH_DISPLAY_GRAPHICSPATH_H */
+diff --git a/src/scripting/flash/display/GraphicsShaderFill.cpp b/src/scripting/flash/display/GraphicsShaderFill.cpp
+new file mode 100644
+index 0000000..f876318
+--- /dev/null
++++ b/src/scripting/flash/display/GraphicsShaderFill.cpp
+@@ -0,0 +1,75 @@
++/**************************************************************************
++    Lightspark, a free flash player implementation
++
++    Copyright (C) 2013  Antti Ajanki (antti.ajanki@iki.fi)
++
++    This program is free software: you can redistribute it and/or modify
++    it under the terms of the GNU Lesser General Public License as published by
++    the Free Software Foundation, either version 3 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU Lesser General Public License for more details.
++
++    You should have received a copy of the GNU Lesser General Public License
++    along with this program.  If not, see <http://www.gnu.org/licenses/>.
++**************************************************************************/
++
++#include "scripting/flash/display/GraphicsShaderFill.h"
++#include "scripting/flash/display/flashdisplay.h"
++#include "scripting/flash/geom/flashgeom.h"
++#include "scripting/class.h"
++#include "scripting/argconv.h"
++
++using namespace lightspark;
++
++GraphicsShaderFill::GraphicsShaderFill(Class_base* c):
++	ASObject(c)
++{
++}
++
++void GraphicsShaderFill::sinit(Class_base* c)
++{
++	c->setConstructor(Class<IFunction>::getFunction(_constructor));
++	c->setSuper(Class<ASObject>::getRef());
++
++	REGISTER_GETTER_SETTER(c, matrix);
++	REGISTER_GETTER_SETTER(c, shader);
++
++	c->addImplementedInterface(InterfaceClass<IGraphicsFill>::getClass());
++	IGraphicsFill::linkTraits(c);
++	c->addImplementedInterface(InterfaceClass<IGraphicsData>::getClass());
++	IGraphicsData::linkTraits(c);
++}
++
++void GraphicsShaderFill::finalize()
++{
++	ASObject::finalize();
++	matrix.reset();
++	shader.reset();
++}
++
++ASFUNCTIONBODY(GraphicsShaderFill, _constructor)
++{
++	GraphicsShaderFill* th = obj->as<GraphicsShaderFill>();
++	ASObject::_constructor(obj,NULL,0);
++	ARG_UNPACK (th->shader, NullRef) (th->matrix, NullRef);
++	return NULL;
++}
++
++ASFUNCTIONBODY_GETTER_SETTER(GraphicsShaderFill, matrix);
++ASFUNCTIONBODY_GETTER_SETTER(GraphicsShaderFill, shader);
++
++FILLSTYLE GraphicsShaderFill::toFillStyle()
++{
++	LOG(LOG_NOT_IMPLEMENTED, "GraphicsShaderFill::toFillStyle()");
++	return FILLSTYLE(0xff);
++}
++
++void GraphicsShaderFill::appendToTokens(std::vector<GeomToken>& tokens)
++{
++	LOG(LOG_NOT_IMPLEMENTED, "GraphicsShaderFill::appendToTokens()");
++	return;
++}
+diff --git a/src/scripting/flash/display/GraphicsShaderFill.h b/src/scripting/flash/display/GraphicsShaderFill.h
+new file mode 100644
+index 0000000..28ed4a6
+--- /dev/null
++++ b/src/scripting/flash/display/GraphicsShaderFill.h
+@@ -0,0 +1,48 @@
++/**************************************************************************
++    Lightspark, a free flash player implementation
++
++    Copyright (C) 2013  Antti Ajanki (antti.ajanki@iki.fi)
++
++    This program is free software: you can redistribute it and/or modify
++    it under the terms of the GNU Lesser General Public License as published by
++    the Free Software Foundation, either version 3 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU Lesser General Public License for more details.
++
++    You should have received a copy of the GNU Lesser General Public License
++    along with this program.  If not, see <http://www.gnu.org/licenses/>.
++**************************************************************************/
++
++#ifndef SCRIPTING_FLASH_DISPLAY_GRAPHICSSHADERFILL_H
++#define SCRIPTING_FLASH_DISPLAY_GRAPHICSSHADERFILL_H 1
++
++#include "asobject.h"
++#include "scripting/flash/display/IGraphicsFill.h"
++#include "scripting/flash/display/IGraphicsData.h"
++
++namespace lightspark
++{
++
++class Matrix;
++class Shader;
++
++class GraphicsShaderFill: public ASObject, public IGraphicsFill, public IGraphicsData
++{
++public:
++	GraphicsShaderFill(Class_base* c);
++	static void sinit(Class_base* c);
++	void finalize();
++	ASFUNCTION(_constructor);
++	ASPROPERTY_GETTER_SETTER(_NR<Matrix>, matrix);
++	ASPROPERTY_GETTER_SETTER(_NR<Shader>, shader);
++	FILLSTYLE toFillStyle();
++	void appendToTokens(std::vector<GeomToken>& tokens);
++};
++
++};
++
++#endif /* SCRIPTING_FLASH_DISPLAY_GRAPHICSSHADERFILL_H */
+diff --git a/src/scripting/flash/display/GraphicsSolidFill.cpp b/src/scripting/flash/display/GraphicsSolidFill.cpp
+new file mode 100644
+index 0000000..e1f1b84
+--- /dev/null
++++ b/src/scripting/flash/display/GraphicsSolidFill.cpp
+@@ -0,0 +1,64 @@
++/**************************************************************************
++    Lightspark, a free flash player implementation
++
++    Copyright (C) 2013  Antti Ajanki (antti.ajanki@iki.fi)
++
++    This program is free software: you can redistribute it and/or modify
++    it under the terms of the GNU Lesser General Public License as published by
++    the Free Software Foundation, either version 3 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU Lesser General Public License for more details.
++
++    You should have received a copy of the GNU Lesser General Public License
++    along with this program.  If not, see <http://www.gnu.org/licenses/>.
++**************************************************************************/
++
++#include "scripting/flash/display/GraphicsSolidFill.h"
++#include "scripting/class.h"
++#include "scripting/argconv.h"
++
++using namespace lightspark;
++
++GraphicsSolidFill::GraphicsSolidFill(Class_base* c):
++	ASObject(c), alpha(1.0), color(0)
++{
++}
++
++void GraphicsSolidFill::sinit(Class_base* c)
++{
++	c->setConstructor(Class<IFunction>::getFunction(_constructor));
++	c->setSuper(Class<ASObject>::getRef());
++
++	REGISTER_GETTER_SETTER(c, alpha);
++	REGISTER_GETTER_SETTER(c, color);
++
++	c->addImplementedInterface(InterfaceClass<IGraphicsFill>::getClass());
++	IGraphicsFill::linkTraits(c);
++	c->addImplementedInterface(InterfaceClass<IGraphicsData>::getClass());
++	IGraphicsData::linkTraits(c);
++}
++
++ASFUNCTIONBODY(GraphicsSolidFill, _constructor)
++{
++	GraphicsSolidFill* th = obj->as<GraphicsSolidFill>();
++	ASObject::_constructor(obj,NULL,0);
++	ARG_UNPACK (th->color, 0) (th->alpha, 1.0);
++	return NULL;
++}
++
++ASFUNCTIONBODY_GETTER_SETTER(GraphicsSolidFill, alpha);
++ASFUNCTIONBODY_GETTER_SETTER(GraphicsSolidFill, color);
++
++FILLSTYLE GraphicsSolidFill::toFillStyle()
++{
++	return Graphics::createSolidFill(color, static_cast<uint8_t>(255*alpha));
++}
++
++void GraphicsSolidFill::appendToTokens(std::vector<GeomToken>& tokens)
++{
++	tokens.emplace_back(GeomToken(SET_FILL, toFillStyle()));
++}
+diff --git a/src/scripting/flash/display/GraphicsSolidFill.h b/src/scripting/flash/display/GraphicsSolidFill.h
+new file mode 100644
+index 0000000..a283dec
+--- /dev/null
++++ b/src/scripting/flash/display/GraphicsSolidFill.h
+@@ -0,0 +1,44 @@
++/**************************************************************************
++    Lightspark, a free flash player implementation
++
++    Copyright (C) 2013  Antti Ajanki (antti.ajanki@iki.fi)
++
++    This program is free software: you can redistribute it and/or modify
++    it under the terms of the GNU Lesser General Public License as published by
++    the Free Software Foundation, either version 3 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU Lesser General Public License for more details.
++
++    You should have received a copy of the GNU Lesser General Public License
++    along with this program.  If not, see <http://www.gnu.org/licenses/>.
++**************************************************************************/
++
++#ifndef SCRIPTING_FLASH_DISPLAY_GRAPHICSSOLIDFILL_H
++#define SCRIPTING_FLASH_DISPLAY_GRAPHICSSOLIDFILL_H 1
++
++#include "asobject.h"
++#include "scripting/flash/display/IGraphicsFill.h"
++#include "scripting/flash/display/IGraphicsData.h"
++
++namespace lightspark
++{
++
++class GraphicsSolidFill: public ASObject, public IGraphicsFill, public IGraphicsData
++{
++public:
++	GraphicsSolidFill(Class_base* c);
++	static void sinit(Class_base* c);
++	ASFUNCTION(_constructor);
++	ASPROPERTY_GETTER_SETTER(number_t, alpha);
++	ASPROPERTY_GETTER_SETTER(uint32_t, color);
++	FILLSTYLE toFillStyle();
++	void appendToTokens(std::vector<GeomToken>& tokens);
++};
++
++};
++
++#endif /* SCRIPTING_FLASH_DISPLAY_GRAPHICSSOLIDFILL_H */
+diff --git a/src/scripting/flash/display/GraphicsStroke.cpp b/src/scripting/flash/display/GraphicsStroke.cpp
+new file mode 100644
+index 0000000..0287ad1
+--- /dev/null
++++ b/src/scripting/flash/display/GraphicsStroke.cpp
+@@ -0,0 +1,111 @@
++/**************************************************************************
++    Lightspark, a free flash player implementation
++
++    Copyright (C) 2013  Antti Ajanki (antti.ajanki@iki.fi)
++
++    This program is free software: you can redistribute it and/or modify
++    it under the terms of the GNU Lesser General Public License as published by
++    the Free Software Foundation, either version 3 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU Lesser General Public License for more details.
++
++    You should have received a copy of the GNU Lesser General Public License
++    along with this program.  If not, see <http://www.gnu.org/licenses/>.
++**************************************************************************/
++
++#include <limits>
++#include "scripting/flash/display/GraphicsStroke.h"
++#include "scripting/flash/display/IGraphicsFill.h"
++#include "scripting/class.h"
++#include "scripting/argconv.h"
++#include "swftypes.h"
++
++using namespace lightspark;
++
++GraphicsStroke::GraphicsStroke(Class_base* c):
++	ASObject(c), caps("none"), joints("round"), miterLimit(3.0),
++	pixelHinting(false), scaleMode("normal"),
++	thickness(std::numeric_limits<double>::quiet_NaN())
++{
++}
++
++void GraphicsStroke::sinit(Class_base* c)
++{
++	c->setConstructor(Class<IFunction>::getFunction(_constructor));
++	c->setSuper(Class<ASObject>::getRef());
++
++	REGISTER_GETTER_SETTER(c, caps);
++	REGISTER_GETTER_SETTER(c, fill);
++	REGISTER_GETTER_SETTER(c, joints);
++	REGISTER_GETTER_SETTER(c, miterLimit);
++	REGISTER_GETTER_SETTER(c, pixelHinting);
++	REGISTER_GETTER_SETTER(c, scaleMode);
++	REGISTER_GETTER_SETTER(c, thickness);
++
++	c->addImplementedInterface(InterfaceClass<IGraphicsStroke>::getClass());
++	IGraphicsStroke::linkTraits(c);
++	c->addImplementedInterface(InterfaceClass<IGraphicsData>::getClass());
++	IGraphicsData::linkTraits(c);
++}
++
++void GraphicsStroke::finalize()
++{
++	ASObject::finalize();
++	fill.reset();
++}
++
++ASFUNCTIONBODY(GraphicsStroke, _constructor)
++{
++	GraphicsStroke* th = obj->as<GraphicsStroke>();
++	_NR<ASObject> fill;
++	ASObject::_constructor(obj,NULL,0);
++	ARG_UNPACK (th->thickness, std::numeric_limits<double>::quiet_NaN())
++		(th->pixelHinting, false)
++		(th->scaleMode, "normal")
++		(th->caps, "none")
++		(th->joints, "rounds")
++		(th->miterLimit, 3.0)
++		(th->fill, NullRef);
++	th->validateFill(NullRef);
++	return NULL;
++}
++
++ASFUNCTIONBODY_GETTER_SETTER(GraphicsStroke, caps);
++ASFUNCTIONBODY_GETTER_SETTER_CB(GraphicsStroke, fill, validateFill);
++ASFUNCTIONBODY_GETTER_SETTER(GraphicsStroke, joints);
++ASFUNCTIONBODY_GETTER_SETTER(GraphicsStroke, miterLimit);
++ASFUNCTIONBODY_GETTER_SETTER(GraphicsStroke, pixelHinting);
++ASFUNCTIONBODY_GETTER_SETTER(GraphicsStroke, scaleMode);
++ASFUNCTIONBODY_GETTER_SETTER(GraphicsStroke, thickness);
++
++void GraphicsStroke::validateFill(_NR<ASObject> oldValue)
++{
++	if (!fill.isNull() && !fill->is<IGraphicsFill>())
++	{
++		tiny_string wrongClass = fill->getClassName();
++		fill = oldValue;
++		throwError<TypeError>(kCheckTypeFailedError, wrongClass, "IGraphicsFill");
++	}
++}
++
++void GraphicsStroke::appendToTokens(std::vector<GeomToken>& tokens)
++{
++	LINESTYLE2 style(0xff);
++	style.Width = thickness;
++
++	// TODO: pixel hinting, scaling, caps, miter, joints
++
++	if (!fill.isNull())
++	{
++		IGraphicsFill *gfill = dynamic_cast<IGraphicsFill*>(fill.getPtr());
++		assert(gfill);
++		style.HasFillFlag = true;
++		style.FillType = gfill->toFillStyle();
++	}
++
++	tokens.emplace_back(GeomToken(SET_STROKE, style));
++}
+diff --git a/src/scripting/flash/display/GraphicsStroke.h b/src/scripting/flash/display/GraphicsStroke.h
+new file mode 100644
+index 0000000..54eb6fc
+--- /dev/null
++++ b/src/scripting/flash/display/GraphicsStroke.h
+@@ -0,0 +1,51 @@
++/**************************************************************************
++    Lightspark, a free flash player implementation
++
++    Copyright (C) 2013  Antti Ajanki (antti.ajanki@iki.fi)
++
++    This program is free software: you can redistribute it and/or modify
++    it under the terms of the GNU Lesser General Public License as published by
++    the Free Software Foundation, either version 3 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU Lesser General Public License for more details.
++
++    You should have received a copy of the GNU Lesser General Public License
++    along with this program.  If not, see <http://www.gnu.org/licenses/>.
++**************************************************************************/
++
++#ifndef SCRIPTING_FLASH_DISPLAY_GRAPHICSSTROKE_H
++#define SCRIPTING_FLASH_DISPLAY_GRAPHICSSTROKE_H 1
++
++#include "asobject.h"
++#include "scripting/flash/display/IGraphicsStroke.h"
++#include "scripting/flash/display/IGraphicsData.h"
++
++namespace lightspark
++{
++
++class GraphicsStroke: public ASObject, public IGraphicsStroke, public IGraphicsData
++{
++protected:
++	void validateFill(_NR<ASObject> oldValue);
++public:
++	GraphicsStroke(Class_base* c);
++	static void sinit(Class_base* c);
++	void finalize();
++	ASFUNCTION(_constructor);
++	ASPROPERTY_GETTER_SETTER(tiny_string, caps);
++	ASPROPERTY_GETTER_SETTER(_NR<ASObject>, fill); // really IGraphicsFill
++	ASPROPERTY_GETTER_SETTER(tiny_string, joints);
++	ASPROPERTY_GETTER_SETTER(number_t, miterLimit);
++	ASPROPERTY_GETTER_SETTER(bool, pixelHinting);
++	ASPROPERTY_GETTER_SETTER(tiny_string, scaleMode);
++	ASPROPERTY_GETTER_SETTER(number_t, thickness);
++	void appendToTokens(std::vector<GeomToken>& tokens);
++};
++
++};
++
++#endif /* SCRIPTING_FLASH_DISPLAY_GRAPHICSSTROKE_H */
+diff --git a/src/scripting/flash/display/GraphicsTrianglePath.cpp b/src/scripting/flash/display/GraphicsTrianglePath.cpp
+new file mode 100644
+index 0000000..67f64b5
+--- /dev/null
++++ b/src/scripting/flash/display/GraphicsTrianglePath.cpp
+@@ -0,0 +1,75 @@
++/**************************************************************************
++    Lightspark, a free flash player implementation
++
++    Copyright (C) 2013  Antti Ajanki (antti.ajanki@iki.fi)
++
++    This program is free software: you can redistribute it and/or modify
++    it under the terms of the GNU Lesser General Public License as published by
++    the Free Software Foundation, either version 3 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU Lesser General Public License for more details.
++
++    You should have received a copy of the GNU Lesser General Public License
++    along with this program.  If not, see <http://www.gnu.org/licenses/>.
++**************************************************************************/
++
++#include "scripting/flash/display/GraphicsTrianglePath.h"
++#include "scripting/toplevel/Vector.h"
++#include "scripting/class.h"
++#include "scripting/argconv.h"
++
++using namespace lightspark;
++
++GraphicsTrianglePath::GraphicsTrianglePath(Class_base* c):
++	ASObject(c), culling("none")
++{
++}
++
++void GraphicsTrianglePath::sinit(Class_base* c)
++{
++	c->setConstructor(Class<IFunction>::getFunction(_constructor));
++	c->setSuper(Class<ASObject>::getRef());
++
++	REGISTER_GETTER_SETTER(c, culling);
++	REGISTER_GETTER_SETTER(c, indices);
++	REGISTER_GETTER_SETTER(c, uvtData);
++	REGISTER_GETTER_SETTER(c, vertices);
++
++	c->addImplementedInterface(InterfaceClass<IGraphicsPath>::getClass());
++	IGraphicsPath::linkTraits(c);
++	c->addImplementedInterface(InterfaceClass<IGraphicsData>::getClass());
++	IGraphicsData::linkTraits(c);
++}
++
++void GraphicsTrianglePath::finalize()
++{
++	ASObject::finalize();
++	indices.reset();
++	uvtData.reset();
++	vertices.reset();
++}
++
++ASFUNCTIONBODY(GraphicsTrianglePath, _constructor)
++{
++	GraphicsTrianglePath* th = obj->as<GraphicsTrianglePath>();
++	ASObject::_constructor(obj,NULL,0);
++	ARG_UNPACK (th->vertices, NullRef)
++		(th->indices, NullRef)
++		(th->uvtData, NullRef)
++		(th->culling, "none");
++	return NULL;
++}
++
++ASFUNCTIONBODY_GETTER_SETTER(GraphicsTrianglePath, culling);
++ASFUNCTIONBODY_GETTER_SETTER(GraphicsTrianglePath, indices);
++ASFUNCTIONBODY_GETTER_SETTER(GraphicsTrianglePath, uvtData);
++ASFUNCTIONBODY_GETTER_SETTER(GraphicsTrianglePath, vertices);
++
++void GraphicsTrianglePath::appendToTokens(std::vector<GeomToken>& tokens)
++{
++	Graphics::drawTrianglesToTokens(vertices, indices, uvtData, culling, tokens);
++}
+diff --git a/src/scripting/flash/display/GraphicsTrianglePath.h b/src/scripting/flash/display/GraphicsTrianglePath.h
+new file mode 100644
+index 0000000..5e30e9e
+--- /dev/null
++++ b/src/scripting/flash/display/GraphicsTrianglePath.h
+@@ -0,0 +1,48 @@
++/**************************************************************************
++    Lightspark, a free flash player implementation
++
++    Copyright (C) 2013  Antti Ajanki (antti.ajanki@iki.fi)
++
++    This program is free software: you can redistribute it and/or modify
++    it under the terms of the GNU Lesser General Public License as published by
++    the Free Software Foundation, either version 3 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU Lesser General Public License for more details.
++
++    You should have received a copy of the GNU Lesser General Public License
++    along with this program.  If not, see <http://www.gnu.org/licenses/>.
++**************************************************************************/
++
++#ifndef SCRIPTING_FLASH_DISPLAY_GRAPHICSTRIANGLEPATH_H
++#define SCRIPTING_FLASH_DISPLAY_GRAPHICSTRIANGLEPATH_H 1
++
++#include "asobject.h"
++#include "scripting/flash/display/IGraphicsPath.h"
++#include "scripting/flash/display/IGraphicsData.h"
++
++namespace lightspark
++{
++
++class Vector;
++
++class GraphicsTrianglePath: public ASObject, public IGraphicsPath, public IGraphicsData
++{
++public:
++	GraphicsTrianglePath(Class_base* c);
++	static void sinit(Class_base* c);
++	void finalize();
++	ASFUNCTION(_constructor);
++	ASPROPERTY_GETTER_SETTER(tiny_string, culling);
++	ASPROPERTY_GETTER_SETTER(_NR<Vector>, indices);
++	ASPROPERTY_GETTER_SETTER(_NR<Vector>, uvtData);
++	ASPROPERTY_GETTER_SETTER(_NR<Vector>, vertices);
++	void appendToTokens(std::vector<GeomToken>& tokens);
++};
++
++};
++
++#endif /* SCRIPTING_FLASH_DISPLAY_GRAPHICSTRIANGLEPATH_H */
+diff --git a/src/scripting/flash/display/IGraphicsData.h b/src/scripting/flash/display/IGraphicsData.h
+new file mode 100644
+index 0000000..480527b
+--- /dev/null
++++ b/src/scripting/flash/display/IGraphicsData.h
+@@ -0,0 +1,42 @@
++/**************************************************************************
++    Lightspark, a free flash player implementation
++
++    Copyright (C) 2013  Antti Ajanki (antti.ajanki@iki.fi)
++
++    This program is free software: you can redistribute it and/or modify
++    it under the terms of the GNU Lesser General Public License as published by
++    the Free Software Foundation, either version 3 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU Lesser General Public License for more details.
++
++    You should have received a copy of the GNU Lesser General Public License
++    along with this program.  If not, see <http://www.gnu.org/licenses/>.
++**************************************************************************/
++
++#ifndef SCRIPTING_FLASH_DISPLAY_IGRAPHICSDATA_H
++#define SCRIPTING_FLASH_DISPLAY_IGRAPHICSDATA_H 1
++
++#include <vector>
++#include "backends/geometry.h"
++
++namespace lightspark
++{
++
++class Class_base;
++
++class IGraphicsData
++{
++protected:
++	virtual ~IGraphicsData() {}
++public:
++	static void linkTraits(Class_base* c) {};
++	// Appends GeomTokens for drawing this object into tokens
++	virtual void appendToTokens(std::vector<GeomToken>& tokens) = 0;
++};
++
++};
++#endif /* SCRIPTING_FLASH_DISPLAY_IGRAPHICSDATA_H */
+diff --git a/src/scripting/flash/display/IGraphicsFill.h b/src/scripting/flash/display/IGraphicsFill.h
+new file mode 100644
+index 0000000..b3d4d18
+--- /dev/null
++++ b/src/scripting/flash/display/IGraphicsFill.h
+@@ -0,0 +1,40 @@
++/**************************************************************************
++    Lightspark, a free flash player implementation
++
++    Copyright (C) 2013  Antti Ajanki (antti.ajanki@iki.fi)
++
++    This program is free software: you can redistribute it and/or modify
++    it under the terms of the GNU Lesser General Public License as published by
++    the Free Software Foundation, either version 3 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU Lesser General Public License for more details.
++
++    You should have received a copy of the GNU Lesser General Public License
++    along with this program.  If not, see <http://www.gnu.org/licenses/>.
++**************************************************************************/
++
++#ifndef SCRIPTING_FLASH_DISPLAY_IGRAPHICSFILL_H
++#define SCRIPTING_FLASH_DISPLAY_IGRAPHICSFILL_H 1
++
++#include "swftypes.h"
++
++namespace lightspark
++{
++
++class Class_base;
++
++class IGraphicsFill
++{
++protected:
++	virtual ~IGraphicsFill() {}
++public:
++	static void linkTraits(Class_base* c) {};
++	virtual FILLSTYLE toFillStyle() = 0;
++};
++
++};
++#endif /* SCRIPTING_FLASH_DISPLAY_IGRAPHICSFILL_H */
+diff --git a/src/scripting/flash/display/IGraphicsPath.h b/src/scripting/flash/display/IGraphicsPath.h
+new file mode 100644
+index 0000000..93da267
+--- /dev/null
++++ b/src/scripting/flash/display/IGraphicsPath.h
+@@ -0,0 +1,35 @@
++/**************************************************************************
++    Lightspark, a free flash player implementation
++
++    Copyright (C) 2013  Antti Ajanki (antti.ajanki@iki.fi)
++
++    This program is free software: you can redistribute it and/or modify
++    it under the terms of the GNU Lesser General Public License as published by
++    the Free Software Foundation, either version 3 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU Lesser General Public License for more details.
++
++    You should have received a copy of the GNU Lesser General Public License
++    along with this program.  If not, see <http://www.gnu.org/licenses/>.
++**************************************************************************/
++
++#ifndef SCRIPTING_FLASH_DISPLAY_IGRAPHICSPATH_H
++#define SCRIPTING_FLASH_DISPLAY_IGRAPHICSPATH_H 1
++
++namespace lightspark
++{
++
++class Class_base;
++
++class IGraphicsPath
++{
++public:
++	static void linkTraits(Class_base* c) {};
++};
++
++};
++#endif /* SCRIPTING_FLASH_DISPLAY_IGRAPHICSPATH_H */
+diff --git a/src/scripting/flash/display/IGraphicsStroke.h b/src/scripting/flash/display/IGraphicsStroke.h
+new file mode 100644
+index 0000000..f11c2ba
+--- /dev/null
++++ b/src/scripting/flash/display/IGraphicsStroke.h
+@@ -0,0 +1,35 @@
++/**************************************************************************
++    Lightspark, a free flash player implementation
++
++    Copyright (C) 2013  Antti Ajanki (antti.ajanki@iki.fi)
++
++    This program is free software: you can redistribute it and/or modify
++    it under the terms of the GNU Lesser General Public License as published by
++    the Free Software Foundation, either version 3 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU Lesser General Public License for more details.
++
++    You should have received a copy of the GNU Lesser General Public License
++    along with this program.  If not, see <http://www.gnu.org/licenses/>.
++**************************************************************************/
++
++#ifndef SCRIPTING_FLASH_DISPLAY_IGRAPHICSSTROKE_H
++#define SCRIPTING_FLASH_DISPLAY_IGRAPHICSSTROKE_H 1
++
++namespace lightspark
++{
++
++class Class_base;
++
++class IGraphicsStroke
++{
++public:
++	static void linkTraits(Class_base* c) {};
++};
++
++};
++#endif /* SCRIPTING_FLASH_DISPLAY_IGRAPHICSSTROKE_H */
+diff --git a/src/scripting/flash/display/TokenContainer.cpp b/src/scripting/flash/display/TokenContainer.cpp
+index ddc6481..e20c286 100644
+--- a/src/scripting/flash/display/TokenContainer.cpp
++++ b/src/scripting/flash/display/TokenContainer.cpp
+@@ -230,7 +230,7 @@ bool TokenContainer::boundsRect(number_t& xmin, number_t& xmax, number_t& ymin,
+ }
+ 
+ /* Find the size of the active texture (bitmap set by the latest SET_FILL). */
+-void TokenContainer::getTextureSize(int *width, int *height) const
++void TokenContainer::getTextureSize(std::vector<GeomToken>& tokens, int *width, int *height)
+ {
+ 	*width=0;
+ 	*height=0;
+diff --git a/src/scripting/flash/display/TokenContainer.h b/src/scripting/flash/display/TokenContainer.h
+index 8d752c1..1249770 100644
+--- a/src/scripting/flash/display/TokenContainer.h
++++ b/src/scripting/flash/display/TokenContainer.h
+@@ -49,7 +49,7 @@ public:
+ 	static void FromShaperecordListToShapeVector(const std::vector<SHAPERECORD>& shapeRecords,
+ 					 tokensVector& tokens, const std::list<FILLSTYLE>& fillStyles,
+ 					 const MATRIX& matrix = MATRIX());
+-	void getTextureSize(int *width, int *height) const;
++	static void getTextureSize(std::vector<GeomToken>& tokens, int *width, int *height);
+ 	uint16_t getCurrentLineWidth() const;
+ 	float scaling;
+ protected:
+diff --git a/src/scripting/flash/display/flashdisplay.cpp b/src/scripting/flash/display/flashdisplay.cpp
+index 70b1122..2a868b0 100644
+--- a/src/scripting/flash/display/flashdisplay.cpp
++++ b/src/scripting/flash/display/flashdisplay.cpp
+@@ -36,6 +36,7 @@
+ #include "scripting/flash/display/BitmapData.h"
+ #include "scripting/argconv.h"
+ #include "scripting/toplevel/Vector.h"
++#include "scripting/flash/display/IGraphicsData.h"
+ 
+ #define FRAME_NOT_FOUND 0xffffffff //Used by getFrameIdBy*
+ 
+@@ -2216,7 +2217,9 @@ void Graphics::sinit(Class_base* c)
+ 	c->setDeclaredMethodByQName("drawRoundRect","",Class<IFunction>::getFunction(drawRoundRect),NORMAL_METHOD,true);
+ 	c->setDeclaredMethodByQName("drawCircle","",Class<IFunction>::getFunction(drawCircle),NORMAL_METHOD,true);
+ 	c->setDeclaredMethodByQName("drawEllipse","",Class<IFunction>::getFunction(drawEllipse),NORMAL_METHOD,true);
++	c->setDeclaredMethodByQName("drawPath","",Class<IFunction>::getFunction(drawPath),NORMAL_METHOD,true);
+ 	c->setDeclaredMethodByQName("drawTriangles","",Class<IFunction>::getFunction(drawTriangles),NORMAL_METHOD,true);
++	c->setDeclaredMethodByQName("drawGraphicsData","",Class<IFunction>::getFunction(drawGraphicsData),NORMAL_METHOD,true);
+ 	c->setDeclaredMethodByQName("moveTo","",Class<IFunction>::getFunction(moveTo),NORMAL_METHOD,true);
+ 	c->setDeclaredMethodByQName("curveTo","",Class<IFunction>::getFunction(curveTo),NORMAL_METHOD,true);
+ 	c->setDeclaredMethodByQName("cubicCurveTo","",Class<IFunction>::getFunction(cubicCurveTo),NORMAL_METHOD,true);
+@@ -2254,10 +2257,10 @@ ASFUNCTIONBODY(Graphics,moveTo)
+ 	th->checkAndSetScaling();
+ 	assert_and_throw(argslen==2);
+ 
+-	th->curX=args[0]->toInt();
+-	th->curY=args[1]->toInt();
++	int32_t x=args[0]->toInt();
++	int32_t y=args[1]->toInt();
+ 
+-	th->owner->tokens.emplace_back(GeomToken(MOVE, Vector2(th->curX, th->curY)));
++	th->owner->tokens.emplace_back(GeomToken(MOVE, Vector2(x, y)));
+ 	return NULL;
+ }
+ 
+@@ -2273,8 +2276,6 @@ ASFUNCTIONBODY(Graphics,lineTo)
+ 	th->owner->tokens.emplace_back(GeomToken(STRAIGHT, Vector2(x, y)));
+ 	th->owner->owner->requestInvalidation(getSys());
+ 
+-	th->curX=x;
+-	th->curY=y;
+ 	return NULL;
+ }
+ 
+@@ -2295,8 +2296,6 @@ ASFUNCTIONBODY(Graphics,curveTo)
+ 	                        Vector2(anchorX, anchorY)));
+ 	th->owner->owner->requestInvalidation(getSys());
+ 
+-	th->curX=anchorX;
+-	th->curY=anchorY;
+ 	return NULL;
+ }
+ 
+@@ -2321,8 +2320,6 @@ ASFUNCTIONBODY(Graphics,cubicCurveTo)
+ 	                        Vector2(anchorX, anchorY)));
+ 	th->owner->owner->requestInvalidation(getSys());
+ 
+-	th->curX=anchorX;
+-	th->curY=anchorY;
+ 	return NULL;
+ }
+ 
+@@ -2500,6 +2497,8 @@ ASFUNCTIONBODY(Graphics,drawEllipse)
+ 	                        Vector2(left+width, top+height/2-ykappa),
+ 	                        Vector2(left+width, top+height/2)));
+ 
++	th->owner->owner->requestInvalidation(getSys());
++
+ 	return NULL;
+ }
+ 
+@@ -2529,6 +2528,111 @@ ASFUNCTIONBODY(Graphics,drawRect)
+ 	return NULL;
+ }
+ 
++ASFUNCTIONBODY(Graphics,drawPath)
++{
++	Graphics* th=static_cast<Graphics*>(obj);
++	th->checkAndSetScaling();
++
++	_NR<Vector> commands;
++	_NR<Vector> data;
++	tiny_string winding;
++	ARG_UNPACK (commands) (data) (winding, "evenOdd");
++
++	if (commands.isNull() || data.isNull())
++		throwError<ArgumentError>(kInvalidParamError);
++
++	pathToTokens(commands, data, winding, th->owner->tokens);
++
++	th->owner->owner->requestInvalidation(getSys());
++
++	return NULL;
++}
++
++void Graphics::pathToTokens(_NR<Vector> commands, _NR<Vector> data,
++			    tiny_string winding, std::vector<GeomToken>& tokens)
++{
++	if (commands.isNull() || data.isNull())
++		return;
++
++	if (winding != "evenOdd")
++		LOG(LOG_NOT_IMPLEMENTED, "Only event-odd winding implemented in Graphics.drawPath");
++
++	_R<Number> zeroRef = _MR(Class<Number>::getInstanceS(0));
++	Number *zero = zeroRef.getPtr();
++
++	int k = 0;
++	for (unsigned int i=0; i<commands->size(); i++)
++	{
++		switch (commands->at(i)->toInt())
++		{
++			case GraphicsPathCommand::MOVE_TO:
++			{
++				number_t x = data->at(k++, zero)->toNumber();
++				number_t y = data->at(k++, zero)->toNumber();
++				tokens.emplace_back(GeomToken(MOVE, Vector2(x, y)));
++				break;
++			}
++
++			case GraphicsPathCommand::LINE_TO:
++			{
++				number_t x = data->at(k++, zero)->toNumber();
++				number_t y = data->at(k++, zero)->toNumber();
++				tokens.emplace_back(GeomToken(STRAIGHT, Vector2(x, y)));
++				break;
++			}
++
++			case GraphicsPathCommand::CURVE_TO:
++			{
++				number_t cx = data->at(k++, zero)->toNumber();
++				number_t cy = data->at(k++, zero)->toNumber();
++				number_t x = data->at(k++, zero)->toNumber();
++				number_t y = data->at(k++, zero)->toNumber();
++				tokens.emplace_back(GeomToken(CURVE_QUADRATIC,
++							      Vector2(cx, cy),
++							      Vector2(x, y)));
++				break;
++			}
++
++			case GraphicsPathCommand::WIDE_MOVE_TO:
++			{
++				k+=2;
++				number_t x = data->at(k++, zero)->toNumber();
++				number_t y = data->at(k++, zero)->toNumber();
++				tokens.emplace_back(GeomToken(MOVE, Vector2(x, y)));
++				break;
++			}
++
++			case GraphicsPathCommand::WIDE_LINE_TO:
++			{
++				k+=2;
++				number_t x = data->at(k++, zero)->toNumber();
++				number_t y = data->at(k++, zero)->toNumber();
++				tokens.emplace_back(GeomToken(STRAIGHT, Vector2(x, y)));
++				break;
++			}
++
++			case GraphicsPathCommand::CUBIC_CURVE_TO:
++			{
++				number_t c1x = data->at(k++, zero)->toNumber();
++				number_t c1y = data->at(k++, zero)->toNumber();
++				number_t c2x = data->at(k++, zero)->toNumber();
++				number_t c2y = data->at(k++, zero)->toNumber();
++				number_t x = data->at(k++, zero)->toNumber();
++				number_t y = data->at(k++, zero)->toNumber();
++				tokens.emplace_back(GeomToken(CURVE_CUBIC,
++							      Vector2(c1x, c1y),
++							      Vector2(c2x, c2y),
++							      Vector2(x, y)));
++				break;
++			}
++
++			case GraphicsPathCommand::NO_OP:
++			default:
++				break;
++		}
++	}
++}
++
+ /* Solve for c in the matrix equation
+  *
+  * [ 1 x1 y1 ] [ c[0] ]   [ u1 ]
+@@ -2571,16 +2675,29 @@ void Graphics::solveVertexMapping(double x1, double y1,
+ ASFUNCTIONBODY(Graphics,drawTriangles)
+ {
+ 	Graphics* th=static_cast<Graphics*>(obj);
++	th->checkAndSetScaling();
++
+ 	_NR<Vector> vertices;
+ 	_NR<Vector> indices;
+ 	_NR<Vector> uvtData;
+ 	tiny_string culling;
+ 	ARG_UNPACK (vertices) (indices, NullRef) (uvtData, NullRef) (culling, "none");
+ 
++	drawTrianglesToTokens(vertices, indices, uvtData, culling, th->owner->tokens);
++	th->owner->owner->requestInvalidation(getSys());
++
++	return NULL;
++}
++
++void Graphics::drawTrianglesToTokens(_NR<Vector> vertices, _NR<Vector> indices, _NR<Vector> uvtData, tiny_string culling, std::vector<GeomToken>& tokens)
++{
+ 	if (culling != "none")
+ 		LOG(LOG_NOT_IMPLEMENTED, "Graphics.drawTriangles doesn't support culling");
+ 
+ 	// Validate the parameters
++	if (vertices.isNull())
++		return;
++
+ 	if ((indices.isNull() && (vertices->size() % 6 != 0)) || 
+ 	    (!indices.isNull() && (indices->size() % 3 != 0)))
+ 	{
+@@ -2617,15 +2734,15 @@ ASFUNCTIONBODY(Graphics,drawTriangles)
+ 			throwError<ArgumentError>(kInvalidParamError);
+ 		}
+ 
+-		th->owner->getTextureSize(&texturewidth, &textureheight);
++		TokenContainer::getTextureSize(tokens, &texturewidth, &textureheight);
+ 	}
+ 
+ 	// According to testing, drawTriangles first fills the current
+ 	// path and creates a new path, but keeps the source.
+-	th->owner->tokens.emplace_back(FILL_KEEP_SOURCE);
++	tokens.emplace_back(FILL_KEEP_SOURCE);
+ 
+ 	if (has_uvt && (texturewidth==0 || textureheight==0))
+-		return NULL;
++		return;
+ 
+ 	// Construct the triangles
+ 	for (unsigned int i=0; i<numtriangles; i++)
+@@ -2653,10 +2770,10 @@ ASFUNCTIONBODY(Graphics,drawTriangles)
+ 		Vector2 b(x[1], y[1]);
+ 		Vector2 c(x[2], y[2]);
+ 
+-		th->owner->tokens.emplace_back(GeomToken(MOVE, a));
+-		th->owner->tokens.emplace_back(GeomToken(STRAIGHT, b));
+-		th->owner->tokens.emplace_back(GeomToken(STRAIGHT, c));
+-		th->owner->tokens.emplace_back(GeomToken(STRAIGHT, a));
++		tokens.emplace_back(GeomToken(MOVE, a));
++		tokens.emplace_back(GeomToken(STRAIGHT, b));
++		tokens.emplace_back(GeomToken(STRAIGHT, c));
++		tokens.emplace_back(GeomToken(STRAIGHT, a));
+ 
+ 		if (has_uvt)
+ 		{
+@@ -2672,16 +2789,37 @@ ASFUNCTIONBODY(Graphics,drawTriangles)
+ 			// v = t[3] + t[4]*x + t[5]*y
+ 			//
+ 			// u and v parts can be solved separately.
+-			th->solveVertexMapping(x[0], y[0], x[1], y[1], x[2], y[2],
+-					       u[0], u[1], u[2], t);
+-			th->solveVertexMapping(x[0], y[0], x[1], y[1], x[2], y[2],
+-					       v[0], v[1], v[2], &t[3]);
++			solveVertexMapping(x[0], y[0], x[1], y[1], x[2], y[2],
++					   u[0], u[1], u[2], t);
++			solveVertexMapping(x[0], y[0], x[1], y[1], x[2], y[2],
++					   v[0], v[1], v[2], &t[3]);
+ 
+ 			MATRIX m(t[1], t[5], t[4], t[2], t[0], t[3]);
+-			th->owner->tokens.emplace_back(GeomToken(FILL_TRANSFORM_TEXTURE, m));
++			tokens.emplace_back(GeomToken(FILL_TRANSFORM_TEXTURE, m));
+ 		}
+ 	}
+-	
++}
++
++ASFUNCTIONBODY(Graphics,drawGraphicsData)
++{
++	Graphics* th=static_cast<Graphics*>(obj);
++	th->checkAndSetScaling();
++
++	_NR<Vector> graphicsData;
++	ARG_UNPACK(graphicsData);
++
++	for (unsigned int i=0; i<graphicsData->size(); i++)
++	{
++		IGraphicsData *graphElement = dynamic_cast<IGraphicsData *>(graphicsData->at(i));
++		if (!graphElement)
++		{
++			LOG(LOG_ERROR, "Invalid type in Graphics::drawGraphicsData()");
++			continue;
++		}
++
++		graphElement->appendToTokens(th->owner->tokens);
++	}
++
+ 	th->owner->owner->requestInvalidation(getSys());
+ 
+ 	return NULL;
+@@ -2887,6 +3025,14 @@ FILLSTYLE Graphics::createBitmapFill(_R<BitmapData> bitmap, _NR<Matrix> matrix,
+ 	return style;
+ }
+ 
++FILLSTYLE Graphics::createSolidFill(uint32_t color, uint8_t alpha)
++{
++	FILLSTYLE style(0xff);
++	style.FillStyleType = SOLID_FILL;
++	style.Color = RGBA(color, alpha);
++	return style;
++}
++
+ ASFUNCTIONBODY(Graphics,beginBitmapFill)
+ {
+ 	Graphics* th = obj->as<Graphics>();
+@@ -2915,9 +3061,7 @@ ASFUNCTIONBODY(Graphics,beginFill)
+ 		color=args[0]->toUInt();
+ 	if(argslen>=2)
+ 		alpha=(uint8_t(args[1]->toNumber()*0xff));
+-	FILLSTYLE style(0xff);
+-	style.FillStyleType = SOLID_FILL;
+-	style.Color         = RGBA(color, alpha);
++	FILLSTYLE style = Graphics::createSolidFill(color, alpha);
+ 	th->owner->tokens.emplace_back(GeomToken(SET_FILL, style));
+ 	return NULL;
+ }
+@@ -3429,6 +3573,25 @@ void InterpolationMethod::sinit(Class_base* c)
+ 	c->setVariableByQName("LINEAR_RGB","",Class<ASString>::getInstanceS("linearRGB"),DECLARED_TRAIT);
+ }
+ 
++void GraphicsPathCommand::sinit(Class_base* c)
++{
++	c->setConstructor(NULL);
++	c->setVariableByQName("CUBIC_CURVE_TO","",abstract_i(6),DECLARED_TRAIT);
++	c->setVariableByQName("CURVE_TO","",abstract_i(3),DECLARED_TRAIT);
++	c->setVariableByQName("LINE_TO","",abstract_i(2),DECLARED_TRAIT);
++	c->setVariableByQName("MOVE_TO","",abstract_i(1),DECLARED_TRAIT);
++	c->setVariableByQName("NO_OP","",abstract_i(0),DECLARED_TRAIT);
++	c->setVariableByQName("WIDE_LINE_TO","",abstract_i(5),DECLARED_TRAIT);
++	c->setVariableByQName("WIDE_MOVE_TO","",abstract_i(4),DECLARED_TRAIT);
++}
++
++void GraphicsPathWinding::sinit(Class_base* c)
++{
++	c->setConstructor(NULL);
++	c->setVariableByQName("EVEN_ODD","",Class<ASString>::getInstanceS("evenOdd"),DECLARED_TRAIT);
++	c->setVariableByQName("NON_ZERO","",Class<ASString>::getInstanceS("nonZero"),DECLARED_TRAIT);
++}
++
+ /* Go through the hierarchy and add all
+  * legacy objects which are new in the current
+  * frame top-down. At the same time, call their
+diff --git a/src/scripting/flash/display/flashdisplay.h b/src/scripting/flash/display/flashdisplay.h
+index d70c248..e661888 100644
+--- a/src/scripting/flash/display/flashdisplay.h
++++ b/src/scripting/flash/display/flashdisplay.h
+@@ -44,6 +44,7 @@ class ApplicationDomain;
+ class SecurityDomain;
+ class BitmapData;
+ class Matrix;
++class Vector;
+ 
+ class InteractiveObject: public DisplayObject
+ {
+@@ -176,7 +177,6 @@ public:
+ class Graphics: public ASObject
+ {
+ private:
+-	int curX, curY;
+ 	TokenContainer *const owner;
+ 	//TODO: Add spinlock
+ 	void checkAndSetScaling()
+@@ -185,7 +185,6 @@ private:
+ 		{
+ 			owner->scaling = 1.0f;
+ 			owner->tokens.clear();
+-			assert(curX == 0 && curY == 0);
+ 		}
+ 	}
+ 	static void solveVertexMapping(double x1, double y1,
+@@ -193,6 +192,15 @@ private:
+ 				       double x3, double y3,
+ 				       double u1, double u2, double u3,
+ 				       double c[3]);
++public:
++	Graphics(Class_base* c):ASObject(c),owner(NULL)
++	{
++		throw RunTimeException("Cannot instantiate a Graphics object");
++	}
++	Graphics(Class_base* c, TokenContainer* _o)
++		: ASObject(c),owner(_o) {}
++	static void sinit(Class_base* c);
++	static void buildTraits(ASObject* o);
+ 	static FILLSTYLE createGradientFill(const tiny_string& type,
+ 					    _NR<Array> colors,
+ 					    _NR<Array> alphas,
+@@ -205,15 +213,16 @@ private:
+ 					  _NR<Matrix> matrix,
+ 					  bool repeat,
+ 					  bool smooth);
+-public:
+-	Graphics(Class_base* c):ASObject(c),curX(0),curY(0),owner(NULL)
+-	{
+-		throw RunTimeException("Cannot instantiate a Graphics object");
+-	}
+-	Graphics(Class_base* c, TokenContainer* _o)
+-		: ASObject(c),curX(0),curY(0),owner(_o) {}
+-	static void sinit(Class_base* c);
+-	static void buildTraits(ASObject* o);
++	static FILLSTYLE createSolidFill(uint32_t color, uint8_t alpha);
++	static void pathToTokens(_NR<Vector> commands,
++				 _NR<Vector> data,
++				 tiny_string windings,
++				 std::vector<GeomToken>& tokens);
++	static void drawTrianglesToTokens(_NR<Vector> vertices,
++					  _NR<Vector> indices,
++					  _NR<Vector> uvtData,
++					  tiny_string culling,
++					  std::vector<GeomToken>& tokens);
+ 	ASFUNCTION(_constructor);
+ 	ASFUNCTION(lineBitmapStyle);
+ 	ASFUNCTION(lineGradientStyle);
+@@ -226,6 +235,8 @@ public:
+ 	ASFUNCTION(drawRoundRect);
+ 	ASFUNCTION(drawCircle);
+ 	ASFUNCTION(drawEllipse);
++	ASFUNCTION(drawGraphicsData);
++	ASFUNCTION(drawPath);
+ 	ASFUNCTION(drawTriangles);
+ 	ASFUNCTION(moveTo);
+ 	ASFUNCTION(lineTo);
+@@ -235,7 +246,6 @@ public:
+ 	ASFUNCTION(copyFrom);
+ };
+ 
+-
+ class Shape: public DisplayObject, public TokenContainer
+ {
+ protected:
+@@ -661,6 +671,22 @@ public:
+ 	static void sinit(Class_base* c);
+ };
+ 
++class GraphicsPathCommand: public ASObject
++{
++public:
++	enum {NO_OP=0, MOVE_TO, LINE_TO, CURVE_TO, WIDE_MOVE_TO, WIDE_LINE_TO, CUBIC_CURVE_TO};
++	GraphicsPathCommand(Class_base* c):ASObject(c){}
++	static void sinit(Class_base* c);
++};
++
++class GraphicsPathWinding: public ASObject
++{
++public:
++	GraphicsPathWinding(Class_base* c):ASObject(c){}
++	static void sinit(Class_base* c);
++
++};
++
+ class IntSize
+ {
+ public:
+diff --git a/src/scripting/flash/geom/flashgeom.h b/src/scripting/flash/geom/flashgeom.h
+index 1ca359a..1f4f49d 100644
+--- a/src/scripting/flash/geom/flashgeom.h
++++ b/src/scripting/flash/geom/flashgeom.h
+@@ -184,6 +184,7 @@ public:
+ 	ASFUNCTION(_set_ty);
+ };
+ 
++class DisplayObject;
+ class Transform: public ASObject
+ {
+ private:
+diff --git a/src/scripting/toplevel/Vector.cpp b/src/scripting/toplevel/Vector.cpp
+index 383982d..97ea8d4 100644
+--- a/src/scripting/toplevel/Vector.cpp
++++ b/src/scripting/toplevel/Vector.cpp
+@@ -975,3 +975,11 @@ bool Vector::isValidMultiname(const multiname& name, uint32_t& index)
+ 
+ 	return validIndex;
+ }
++
++ASObject* Vector::at(unsigned int index, ASObject *defaultValue) const
++{
++	if (index < vec.size())
++		return vec.at(index);
++	else
++		return defaultValue;
++}
+diff --git a/src/scripting/toplevel/Vector.h b/src/scripting/toplevel/Vector.h
+index 4cfd87a..c774e09 100644
+--- a/src/scripting/toplevel/Vector.h
++++ b/src/scripting/toplevel/Vector.h
+@@ -71,6 +71,9 @@ public:
+         {
+                 return vec.at(index);
+         }
++	//Get value at index, or return defaultValue (a borrowed
++	//reference) if index is out-of-range
++	ASObject* at(unsigned int index, ASObject *defaultValue) const;
+ 
+ 	//Appends an object to the Vector. o is coerced to vec_type.
+ 	//Takes ownership of o.
+diff --git a/src/swftypes.cpp b/src/swftypes.cpp
+index f47d2ec..0af2eaf 100644
+--- a/src/swftypes.cpp
++++ b/src/swftypes.cpp
+@@ -1398,6 +1398,18 @@ FILLSTYLE::~FILLSTYLE()
+ {
+ }
+ 
++FILLSTYLE& FILLSTYLE::operator=(FILLSTYLE r)
++{
++	std::swap(Matrix, r.Matrix);
++	std::swap(Gradient, r.Gradient);
++	std::swap(FocalGradient, r.FocalGradient);
++	std::swap(bitmap, r.bitmap);
++	std::swap(Color, r.Color);
++	std::swap(FillStyleType, r.FillStyleType);
++	std::swap(version, r.version);
++	return *this;
++}
++
+ nsNameAndKind::nsNameAndKind(const tiny_string& _name, NS_KIND _kind)
+ {
+ 	nsNameAndKindImpl tmp(_name, _kind);
+diff --git a/src/swftypes.h b/src/swftypes.h
+index 70f0e72..c435130 100644
+--- a/src/swftypes.h
++++ b/src/swftypes.h
+@@ -885,6 +885,7 @@ class FILLSTYLE
+ public:
+ 	FILLSTYLE(uint8_t v);
+ 	FILLSTYLE(const FILLSTYLE& r);
++	FILLSTYLE& operator=(FILLSTYLE r);
+ 	virtual ~FILLSTYLE();
+ 	MATRIX Matrix;
+ 	GRADIENT Gradient;
+-- 
+1.8.5.3
+

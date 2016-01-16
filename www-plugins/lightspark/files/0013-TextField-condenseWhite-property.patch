@@ -1,0 +1,104 @@
+From efe3498fa8844d064779b3156e655a52a254631b Mon Sep 17 00:00:00 2001
+From: Antti Ajanki <antti.ajanki@iki.fi>
+Date: Sun, 28 Apr 2013 09:56:33 +0300
+Subject: [PATCH 013/110] [TextField] condenseWhite property
+
+---
+ src/scripting/flash/text/flashtext.cpp | 39 +++++++++++++++++++++++++++++++---
+ src/scripting/flash/text/flashtext.h   |  2 ++
+ 2 files changed, 38 insertions(+), 3 deletions(-)
+
+diff --git a/src/scripting/flash/text/flashtext.cpp b/src/scripting/flash/text/flashtext.cpp
+index 820c883..176fd8d 100644
+--- a/src/scripting/flash/text/flashtext.cpp
++++ b/src/scripting/flash/text/flashtext.cpp
+@@ -95,8 +95,9 @@ ASFUNCTIONBODY(ASFont,registerFont)
+ TextField::TextField(Class_base* c, const TextData& textData, bool _selectable, bool readOnly)
+ 	: InteractiveObject(c), TextData(textData), type(ET_READ_ONLY), 
+ 	  antiAliasType(AA_NORMAL), gridFitType(GF_PIXEL),
+-	  alwaysShowSelection(false), maxChars(0), mouseWheelEnabled(true),
+-	  selectable(_selectable), sharpness(0), useRichTextClipboard(false)
++	  alwaysShowSelection(false), condenseWhite(false), maxChars(0),
++	  mouseWheelEnabled(true), selectable(_selectable), sharpness(0),
++	  useRichTextClipboard(false)
+ {
+ 	if (!readOnly)
+ 	{
+@@ -153,6 +154,7 @@ void TextField::sinit(Class_base* c)
+ 	REGISTER_GETTER_SETTER(c, backgroundColor);
+ 	REGISTER_GETTER_SETTER(c, border);
+ 	REGISTER_GETTER_SETTER(c, borderColor);
++	REGISTER_GETTER_SETTER(c, condenseWhite);
+ 	REGISTER_GETTER_SETTER(c, maxChars);
+ 	REGISTER_GETTER_SETTER(c, multiline);
+ 	REGISTER_GETTER_SETTER(c, mouseWheelEnabled);
+@@ -170,6 +172,7 @@ ASFUNCTIONBODY_GETTER_SETTER(TextField, background);
+ ASFUNCTIONBODY_GETTER_SETTER(TextField, backgroundColor);
+ ASFUNCTIONBODY_GETTER_SETTER(TextField, border);
+ ASFUNCTIONBODY_GETTER_SETTER(TextField, borderColor);
++ASFUNCTIONBODY_GETTER_SETTER(TextField, condenseWhite);
+ ASFUNCTIONBODY_GETTER_SETTER(TextField, maxChars);
+ ASFUNCTIONBODY_GETTER_SETTER(TextField, multiline);
+ ASFUNCTIONBODY_GETTER_SETTER(TextField, mouseWheelEnabled);
+@@ -742,7 +745,37 @@ tiny_string TextField::toHtmlText()
+ void TextField::setHtmlText(const tiny_string& html)
+ {
+ 	HtmlTextParser parser;
+-	parser.parseTextAndFormating(html, this);
++	if (condenseWhite)
++	{
++		tiny_string processedHtml = compactHTMLWhiteSpace(html);
++		parser.parseTextAndFormating(processedHtml, this);
++	}
++	else
++	{
++		parser.parseTextAndFormating(html, this);
++	}
++}
++
++tiny_string TextField::compactHTMLWhiteSpace(const tiny_string& html)
++{
++	tiny_string compacted;
++	bool previousWasSpace = false;
++	for (CharIterator ch=html.begin(); ch!=html.end(); ++ch)
++	{
++		if (g_unichar_isspace(*ch))
++		{
++			if (!previousWasSpace)
++				compacted += ' ';
++			previousWasSpace = true;
++		}
++		else
++		{
++			compacted += *ch;
++			previousWasSpace = false;
++		}
++	}
++
++	return compacted;
+ }
+ 
+ void TextField::updateText(const tiny_string& new_text)
+diff --git a/src/scripting/flash/text/flashtext.h b/src/scripting/flash/text/flashtext.h
+index 83fd743..fde4a77 100644
+--- a/src/scripting/flash/text/flashtext.h
++++ b/src/scripting/flash/text/flashtext.h
+@@ -86,6 +86,7 @@ private:
+ 	//Computes and changes (text)width and (text)height using Pango
+ 	void updateSizes();
+ 	tiny_string toHtmlText();
++	tiny_string compactHTMLWhiteSpace(const tiny_string&);
+ 	void validateSharpness(number_t oldValue);
+ 	void validateScrollH(int32_t oldValue);
+ 	void validateScrollV(int32_t oldValue);
+@@ -138,6 +139,7 @@ public:
+ 	ASFUNCTION_GETTER_SETTER(backgroundColor);
+ 	ASFUNCTION_GETTER_SETTER(border);
+ 	ASFUNCTION_GETTER_SETTER(borderColor);
++	ASPROPERTY_GETTER_SETTER(bool, condenseWhite);
+ 	ASPROPERTY_GETTER_SETTER(int32_t, maxChars);
+ 	ASFUNCTION_GETTER_SETTER(multiline);
+ 	ASPROPERTY_GETTER_SETTER(bool, mouseWheelEnabled);
+-- 
+1.8.5.3
+

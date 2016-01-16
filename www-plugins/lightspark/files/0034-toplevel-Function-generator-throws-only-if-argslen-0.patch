@@ -1,0 +1,29 @@
+From 6264b5b6b7cd4e52912d18e54ee79469bd1af0f1 Mon Sep 17 00:00:00 2001
+From: Antti Ajanki <antti.ajanki@iki.fi>
+Date: Thu, 9 May 2013 13:13:40 +0300
+Subject: [PATCH 034/110] [toplevel] Function generator throws only if argslen
+ > 0
+
+---
+ src/scripting/toplevel/toplevel.cpp | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/src/scripting/toplevel/toplevel.cpp b/src/scripting/toplevel/toplevel.cpp
+index 58462c5..7e17408 100644
+--- a/src/scripting/toplevel/toplevel.cpp
++++ b/src/scripting/toplevel/toplevel.cpp
+@@ -210,8 +210,9 @@ ASObject* Class<IFunction>::generator(ASObject* const* args, const unsigned int
+ {
+ 	for(unsigned int i=0;i<argslen;i++)
+ 		args[i]->decRef();
+-	throwError<EvalError>(kFunctionConstructorError);
+-	return NULL;
++	if (argslen > 0)
++		throwError<EvalError>(kFunctionConstructorError);
++	return getNopFunction();
+ }
+ 
+ ASObject *IFunction::describeType() const
+-- 
+1.8.5.3
+

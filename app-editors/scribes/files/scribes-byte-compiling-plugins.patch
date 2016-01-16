@@ -1,0 +1,37 @@
+--- Makefile.am~	2011-10-09 20:52:41.677430454 +0200
++++ Makefile.am	2011-10-09 20:57:26.398870947 +0200
+@@ -47,29 +47,6 @@
+ 	gnome-doc-utils.make
+ 
+ install-data-hook:
+-	echo "Start byte compiling plugins..."
+-	python -OO compile.py
+-	echo "Finished byte compiling plugins"
+-	if [ -d $(DESTDIR)$(datadir)/scribes/plugins ]; then \
+-		echo "removing " $(DESTDIR)$(datadir)/scribes/plugins ;\
+-		rm -rf $(DESTDIR)$(datadir)/scribes/plugins ;\
+-		echo "removed " $(DESTDIR)$(datadir)/scribes/plugins ;\
+-	fi
+-	if [ -d $(DESTDIR)$(datadir)/scribes/GenericPlugins ]; then \
+-		echo "removing " $(DESTDIR)$(datadir)/scribes/GenericPlugins ;\
+-		rm -rf $(DESTDIR)$(datadir)/scribes/GenericPlugins ;\
+-		echo "removed " $(DESTDIR)$(datadir)/scribes/GenericPlugins ;\
+-	fi
+-	if [ -d $(DESTDIR)$(datadir)/scribes/LanguagePlugins ]; then \
+-		echo "removing " $(DESTDIR)$(datadir)/scribes/LanguagePlugins ;\
+-		rm -rf $(DESTDIR)$(datadir)/scribes/LanguagePlugins ;\
+-		echo "removed " $(DESTDIR)$(datadir)/scribes/LanguagePlugins ;\
+-	fi
+-	if [ -d $(DESTDIR)$(libdir)/scribes ]; then \
+-		echo "removing " $(DESTDIR)$(libdir)/scribes ;\
+-		rm -rf $(DESTDIR)$(libdir)/scribes ;\
+-		echo "removed " $(DESTDIR)$(libdir)/scribes ;\
+-	fi
+ 	mkdir -p $(DESTDIR)$(libdir)/scribes
+ 	cp -R GenericPlugins $(DESTDIR)$(libdir)/scribes
+ 	cp -R LanguagePlugins $(DESTDIR)$(libdir)/scribes
+@@ -79,4 +56,3 @@
+ 	chmod 755 $(DESTDIR)$(startupdir)/scribesmodule
+ 	chmod 755 $(DESTDIR)$(startupdir)/scribesplugin
+ 	rm -rf $(startup_script)
+-	python removepyc.py

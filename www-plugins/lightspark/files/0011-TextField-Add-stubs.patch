@@ -1,0 +1,75 @@
+From 8239bd09d07fdaa30d6cdca7e7c764107d6150f5 Mon Sep 17 00:00:00 2001
+From: Antti Ajanki <antti.ajanki@iki.fi>
+Date: Sat, 27 Apr 2013 21:11:23 +0300
+Subject: [PATCH 011/110] [TextField] Add stubs
+
+---
+ src/scripting/flash/text/flashtext.cpp | 8 ++++++--
+ src/scripting/flash/text/flashtext.h   | 2 ++
+ 2 files changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/src/scripting/flash/text/flashtext.cpp b/src/scripting/flash/text/flashtext.cpp
+index c85620c..820c883 100644
+--- a/src/scripting/flash/text/flashtext.cpp
++++ b/src/scripting/flash/text/flashtext.cpp
+@@ -95,8 +95,8 @@ ASFUNCTIONBODY(ASFont,registerFont)
+ TextField::TextField(Class_base* c, const TextData& textData, bool _selectable, bool readOnly)
+ 	: InteractiveObject(c), TextData(textData), type(ET_READ_ONLY), 
+ 	  antiAliasType(AA_NORMAL), gridFitType(GF_PIXEL),
+-	  maxChars(0), mouseWheelEnabled(true), selectable(_selectable),
+-	  sharpness(0)
++	  alwaysShowSelection(false), maxChars(0), mouseWheelEnabled(true),
++	  selectable(_selectable), sharpness(0), useRichTextClipboard(false)
+ {
+ 	if (!readOnly)
+ 	{
+@@ -148,6 +148,7 @@ void TextField::sinit(Class_base* c)
+ 	c->setDeclaredMethodByQName("maxScrollV","",Class<IFunction>::getFunction(TextField::_getMaxScrollV),GETTER_METHOD,true);
+ 	c->setDeclaredMethodByQName("bottomScrollV","",Class<IFunction>::getFunction(TextField::_getBottomScrollV),GETTER_METHOD,true);
+ 
++	REGISTER_GETTER_SETTER(c, alwaysShowSelection);
+ 	REGISTER_GETTER_SETTER(c, background);
+ 	REGISTER_GETTER_SETTER(c, backgroundColor);
+ 	REGISTER_GETTER_SETTER(c, border);
+@@ -161,8 +162,10 @@ void TextField::sinit(Class_base* c)
+ 	REGISTER_GETTER_SETTER(c, sharpness);
+ 	REGISTER_GETTER_SETTER(c, textColor);
+ 	REGISTER_GETTER_SETTER(c, type);
++	REGISTER_GETTER_SETTER(c, useRichTextClipboard);
+ }
+ 
++ASFUNCTIONBODY_GETTER_SETTER(TextField, alwaysShowSelection);
+ ASFUNCTIONBODY_GETTER_SETTER(TextField, background);
+ ASFUNCTIONBODY_GETTER_SETTER(TextField, backgroundColor);
+ ASFUNCTIONBODY_GETTER_SETTER(TextField, border);
+@@ -175,6 +178,7 @@ ASFUNCTIONBODY_GETTER_SETTER_CB(TextField, scrollV, validateScrollV);
+ ASFUNCTIONBODY_GETTER_SETTER(TextField, selectable);
+ ASFUNCTIONBODY_GETTER_SETTER_CB(TextField, sharpness, validateSharpness);
+ ASFUNCTIONBODY_GETTER_SETTER(TextField, textColor);
++ASFUNCTIONBODY_GETTER_SETTER(TextField, useRichTextClipboard);
+ 
+ void TextField::buildTraits(ASObject* o)
+ {
+diff --git a/src/scripting/flash/text/flashtext.h b/src/scripting/flash/text/flashtext.h
+index 1574a25..83fd743 100644
+--- a/src/scripting/flash/text/flashtext.h
++++ b/src/scripting/flash/text/flashtext.h
+@@ -133,6 +133,7 @@ public:
+ 	ASFUNCTION(_getMaxScrollH);
+ 	ASFUNCTION(_getMaxScrollV);
+ 	ASFUNCTION(_getBottomScrollV);
++	ASPROPERTY_GETTER_SETTER(bool, alwaysShowSelection);
+ 	ASFUNCTION_GETTER_SETTER(background);
+ 	ASFUNCTION_GETTER_SETTER(backgroundColor);
+ 	ASFUNCTION_GETTER_SETTER(border);
+@@ -146,6 +147,7 @@ public:
+ 	ASPROPERTY_GETTER_SETTER(number_t, sharpness);
+ 	ASFUNCTION_GETTER_SETTER(textColor);
+ 	ASFUNCTION_GETTER_SETTER(type);
++	ASPROPERTY_GETTER_SETTER(bool, useRichTextClipboard);
+ };
+ 
+ class TextFormat: public ASObject
+-- 
+1.8.5.3
+

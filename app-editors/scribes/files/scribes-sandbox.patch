@@ -1,0 +1,16 @@
+http://bugs.gentoo.org/296891
+
+--- SCRIBES/Makefile.am
++++ SCRIBES/Makefile.am
+@@ -15,11 +15,6 @@
+ 	rm -f $(python_files) $(python_files).tmp
+ 	$(edit) $(python_in_files) > $(python_files).tmp
+ 	mv $(python_files).tmp $(python_files)
+-	if [ -d $(scribesdir) ]; then \
+-		echo "removing " $(scribesdir) ;\
+-		rm -rf $(scribesdir) ;\
+-		echo "removed " $(scribesdir) ;\
+-	fi
+ 
+ scribes_PYTHON = \
+ 	info.py \

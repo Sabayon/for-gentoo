@@ -1,0 +1,15 @@
+fixes:
+FATAL: invalid enum GtkMessageType value modal, expecting: info / GTK_MESSAGE_INFO, warning / GTK_MESSAGE_WARNING, question / GTK_MESSAGE_QUESTION, error / GTK_MESSAGE_ERROR, other / GTK_MESSAGE_OTHER at /usr/bin/gscan2pdf line 7179.
+--- a/bin/gscan2pdf
++++ b/bin/gscan2pdf
+@@ -1250,8 +1250,8 @@ EOS
+         $msg = $d->get('Warning: missing packages') . "\n$msg";
+         show_message_dialog(
+             parent           => $window,
+-            type             => 'modal',
+-            buttons          => 'gtk-ok',
++            type             => 'warning',
++            buttons          => 'ok',
+             text             => $msg,
+             'store-response' => TRUE
+         );

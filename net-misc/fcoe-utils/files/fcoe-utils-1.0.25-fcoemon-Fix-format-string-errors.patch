@@ -1,0 +1,114 @@
+From 966595269eee103be34d01149493e2a78a402514 Mon Sep 17 00:00:00 2001
+From: Mark Rustad <mark.d.rustad@intel.com>
+Date: Thu, 25 Oct 2012 04:49:59 +0000
+Subject: [PATCH 6/7] fcoemon: Fix format string errors
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Mark Rustad <mark.d.rustad@intel.com>
+Tested-by: Ross Brattain <ross.b.brattain@intel.com>
+Signed-off-by: Robert Love <robert.w.love@intel.com>
+Signed-off-by: Petr Šabata <contyk@redhat.com>
+---
+ fcoemon.c | 22 ++++++++++++----------
+ 1 file changed, 12 insertions(+), 10 deletions(-)
+
+diff --git a/fcoemon.c b/fcoemon.c
+index 13977eb..a4d1169 100644
+--- a/fcoemon.c
++++ b/fcoemon.c
+@@ -17,8 +17,10 @@
+  * Maintained at www.Open-FCoE.org
+  */
+ 
++#define __STDC_FORMAT_MACROS 1
+ #include <ctype.h>
+ #include <getopt.h>
++#include <inttypes.h>
+ #include <malloc.h>
+ #include <signal.h>
+ #include <stddef.h>
+@@ -604,7 +606,7 @@ static void fcm_fc_event_log(struct fc_nl_event *fe)
+ 	for (i = 0; i < ARRAY_SIZE(fc_host_event_code_names); i++) {
+ 		if (fe->event_code == fc_host_event_code_names[i].value) {
+ 			/* only do u32 data even len is not, e.g. vendor */
+-			FCM_LOG("FC_HOST_EVENT %d at %lld secs on host%d:"
++			FCM_LOG("FC_HOST_EVENT %d at %" PRIu64 " secs on host%d:"
+ 				"code %d=%s datalen %d data=%d\n",
+ 				fe->event_num, fe->seconds,
+ 				fe->host_no, fe->event_code,
+@@ -1856,12 +1858,12 @@ static void fcm_dcbd_rx(void *arg)
+ 					 &ep);
+ 			if (ep != NULL)
+ 				FCM_LOG("unexpected response code from lldpad: "
+-					"len %d buf %s rc %d", len, buf, rc);
++					"len %zd buf %s rc %d", len, buf, rc);
+ 			else if (st != cmd_success &&
+ 				 st != cmd_not_applicable &&
+ 				 st != cmd_device_not_found) {
+ 				FCM_LOG("error response from lldpad: "
+-					"error %d len %d %s",
++					"error %d len %zd %s",
+ 					st, len, buf);
+ 			}
+ 			fcm_clif->cl_busy = 0;
+@@ -1882,7 +1884,7 @@ static void fcm_dcbd_rx(void *arg)
+ 				break;
+ 			default:
+ 				FCM_LOG("Unexpected cmd in response "
+-					"from lldpad: len %d %s",
++					"from lldpad: len %zd %s",
+ 					len, buf);
+ 				break;
+ 			}
+@@ -1892,7 +1894,7 @@ static void fcm_dcbd_rx(void *arg)
+ 			fcm_dcbd_event(buf, len);
+ 			break;
+ 		default:
+-			FCM_LOG("Unexpected message from lldpad: len %d buf %s",
++			FCM_LOG("Unexpected message from lldpad: len %zd buf %s",
+ 				len, buf);
+ 			break;
+ 		}
+@@ -1916,7 +1918,7 @@ static int fcm_dcbd_request(char *req)
+ 	fcm_clif->cl_busy = 1;
+ 	rc = write(fcm_clif->cl_fd, req, len);
+ 	if (rc < 0) {
+-		FCM_LOG_ERR(errno, "Failed write req %s len %d", req, len);
++		FCM_LOG_ERR(errno, "Failed write req %s len %zd", req, len);
+ 		fcm_clif->cl_busy = 0;
+ 		fcm_dcbd_disconnect();
+ 		sa_timer_set(&fcm_dcbd_timer, DCBD_CONNECT_RETRY_TIMEOUT);
+@@ -2276,7 +2278,7 @@ static void fcm_dcbd_get_oper(struct fcm_netif *ff, char *resp, char *cp)
+ 
+ 	if (ep) {
+ 		FCM_LOG_DEV(ff, "Invalid get oper response "
+-			    "parse error byte %d, resp %s", ep - cp, cp);
++			    "parse error byte %ld, resp %s", ep - cp, cp);
+ 		fcm_dcbd_state_set(ff, FCD_ERROR);
+ 	} else {
+ 		if (val && fcoe_config.debug)
+@@ -2871,8 +2873,8 @@ static void fcm_dump(void)
+ 		FCM_LOG("ieee_resp_pending: %d\n", head->ieee_resp_pending);
+ 		FCM_LOG("ieee_pfc_info: %d\n", head->ieee_pfc_info);
+ 		FCM_LOG("ieee_app_info: %d\n", head->ieee_app_info);
+-		FCM_LOG("ff_pfc_info: %d\n", head->ff_pfc_info);
+-		FCM_LOG("ff_app_info: %d\n", head->ff_app_info);
++		FCM_LOG("ff_pfc_info: %d\n", head->ff_pfc_info.op_mode);
++		FCM_LOG("ff_app_info: %d\n", head->ff_app_info.op_mode);
+ 		FCM_LOG("ff_operstate: %d\n", head->ff_operstate);
+ 		FCM_LOG("ff_dcb_state: %d\n", head->ff_dcb_state);
+ 		FCM_LOG("response_pending: %d\n", head->response_pending);
+@@ -2911,7 +2913,7 @@ static void fcm_pidfile_create(void)
+ 			exit(1);
+ 		}
+ 		if (!sscanf(sp, "%d", &pid)) {
+-			FCM_LOG("Error reading pid ('%s') - exiting\n",
++			FCM_LOG("Error reading pid ('%d') - exiting\n",
+ 				pid);
+ 			exit(1);
+ 		}
+-- 
+1.7.11.7
+

@@ -1,0 +1,68 @@
+# ChangeLog for mail-mta/citadel
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: $
+
+*citadel-8.04 (20 Feb 2012)
+
+  20 Feb 2012; the_mgt themgt@uncensored.citadel.org +citadel-8.04.ebuild,
+  +files/README.gentoo, -C, files/citadel.init:
+  Version bump to 8.04 and EAPI=4 cleanups. Initscript improved and gentoo
+  helpfile added. Thanks to floppym, hasufell and everyone else who was most
+  helpful.
+
+  07 Oct 2011; Markos Chandras <hwoarang@gentoo.org> citadel-7.86.ebuild:
+  Drop non-existing dependency to net-mail/mainwrapper
+
+  21 Apr 2011; the_mgt themgt@mail.ru -citadel-7.85.ebuild,
+  +citadel-7.86.ebuild:
+  Version bump, moved postfix to RDEPEND and removed leftover from binkis
+  PROVIDE cleanup. Need to contact virtual/mta maintainer to get things
+  straight.
+
+  26 Mar 2011; Nathan Phillip Brink (binki) <ohnobinki@ohnopublishing.net>
+  citadel-7.85.ebuild:
+  Remove old-style virtual virtual/imapd. See bug 350792 comment 14.
+
+  17 Mar 2011; Nathan Phillip Brink (binki) <ohnobinki@ohnopublishing.net>
+  citadel-7.85.ebuild:
+  Remove PROVIDE="virtual/mda" as virtual/mda is a new-style virtual and
+  gentoo-x86's virtual now lists mail-mta/citadel.
+
+  29 Jan 2011; the_mgt the_mgt themgt@mail.ru -files/mailer.conf:
+  Removed mailer.conf. No longer needed since mailwrapper was removed.
+
+  29 Jan 2011; the_mgt the_mgt themgt@mail.ru -citadel-7.84.ebuild,
+  +citadel-7.85.ebuild, metadata.xml:
+  Version Bump. Also removed mailwrapper support and added postfix useflag,
+  since that combination is supported by upstream.
+
+  20 Dec 2010; the_mgt themgt@mail.ru -citadel-7.83.ebuild,
+  +citadel-7.84.ebuild:
+  Late version bump to most recent version of Citadel suite packages
+
+  03 Aug 2010; the_mgt (the_mgt) <themgt@mail.ru> citadel-7.83.ebuild:
+  Since all three Citadel packages are now having the same version number
+  again, switching back to PV for dependency in citadel-7.83 ebuild
+
+  02 Aug 2010; the_mgt (the_mgt) <themgt@mail.ru> -citadel-7.82.ebuild,
+  +citadel-7.83.ebuild:
+  Yet another version bump, upstream maintanance and bug fix release
+
+  22 Jul 2010; the_mgt (the_mgt) <themgt@mail.ru> -citadel-7.72.ebuild,
+  +citadel-7.82.ebuild:
+  Version bump to 7.82
+
+  21 Feb 2010; the_mgt themgt@mail.ru -citadel-7.71.ebuild,
+  +citadel-7.72.ebuild:
+  Version bump for citadel, enewuser line fixed. Bugfix/maintenance update
+  http://easyinstall.citadel.org/releasenotes-7.72.txt
+
+  08 Feb 2010; the_mgt themgt@mail.ru -citadel-7.66.ebuild,
+  +citadel-7.71.ebuild, ,files/citadel.init:
+  Version bump to current 7.71 version. Corrected and improved init script
+
+  04 Oct 2009; the_mgt themgt@mail.ru +citadel-7.66.ebuild,
+  +files/citadel.confd, +files/citadel.init, +files/mailer.conf,
+  +metadata.xml:
+  New Ebuild for bug 62119 Thanks for the reviews and help to the people of
+  #gentoo-sunrise

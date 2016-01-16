@@ -1,0 +1,168 @@
+From 512ef08c18e470fb50028523e5396dd18961e1fc Mon Sep 17 00:00:00 2001
+From: Antti Ajanki <antti.ajanki@iki.fi>
+Date: Sat, 15 Jun 2013 17:06:24 +0300
+Subject: [PATCH 067/110] g_static_private API is deprecated since glib 2.31
+
+---
+ src/backends/rendering.cpp |  6 +++---
+ src/scripting/abc.cpp      |  6 +++---
+ src/swf.cpp                | 12 ++++++------
+ src/threading.cpp          | 27 +++++++++++++++++++++++++++
+ src/threading.h            | 10 ++++++++++
+ 5 files changed, 49 insertions(+), 12 deletions(-)
+
+diff --git a/src/backends/rendering.cpp b/src/backends/rendering.cpp
+index 08228db..b80a320 100644
+--- a/src/backends/rendering.cpp
++++ b/src/backends/rendering.cpp
+@@ -46,10 +46,10 @@ using namespace std;
+ /* calculate FPS every second */
+ const Glib::TimeVal RenderThread::FPS_time(/*seconds*/1,/*microseconds*/0);
+ 
+-static GStaticPrivate renderThread = G_STATIC_PRIVATE_INIT; /* TLS */
++DEFINE_AND_INITIALIZE_TLS(renderThread);
+ RenderThread* lightspark::getRenderThread()
+ {
+-	RenderThread* ret = (RenderThread*)g_static_private_get(&renderThread);
++	RenderThread* ret = (RenderThread*)tls_get(&renderThread);
+ 	/* If this is NULL, then you are not calling from the render thread,
+ 	 * which is disallowed! (OpenGL is not threadsafe)
+ 	 */
+@@ -326,7 +326,7 @@ void RenderThread::worker()
+ {
+ 	setTLSSys(m_sys);
+ 	/* set TLS variable for getRenderThread() */
+-	g_static_private_set(&renderThread, this, NULL);
++	tls_set(&renderThread, this);
+ 
+ 	ThreadProfile* profile=m_sys->allocateProfiler(RGB(200,0,0));
+ 	profile->setTag("Render");
+diff --git a/src/scripting/abc.cpp b/src/scripting/abc.cpp
+index 49f2e06..0b44209 100644
+--- a/src/scripting/abc.cpp
++++ b/src/scripting/abc.cpp
+@@ -103,10 +103,10 @@
+ using namespace std;
+ using namespace lightspark;
+ 
+-static GStaticPrivate is_vm_thread = G_STATIC_PRIVATE_INIT; /* TLS */
++DEFINE_AND_INITIALIZE_TLS(is_vm_thread);
+ bool lightspark::isVmThread()
+ {
+-	return g_static_private_get(&is_vm_thread);
++	return GPOINTER_TO_INT(tls_get(&is_vm_thread));
+ }
+ 
+ DoABCTag::DoABCTag(RECORDHEADER h, std::istream& in):ControlTag(h)
+@@ -1494,7 +1494,7 @@ void ABCVm::Run(ABCVm* th)
+ 	while(getVm()!=th);
+ 
+ 	/* set TLS variable for isVmThread() */
+-        g_static_private_set(&is_vm_thread,(void*)1,NULL);
++        tls_set(&is_vm_thread, GINT_TO_POINTER(1));
+ 
+ 	if(th->m_sys->useJit)
+ 	{
+diff --git a/src/swf.cpp b/src/swf.cpp
+index bb324de..a59f786 100644
+--- a/src/swf.cpp
++++ b/src/swf.cpp
+@@ -52,22 +52,22 @@ extern "C" {
+ using namespace std;
+ using namespace lightspark;
+ 
+-static GStaticPrivate tls_system = G_STATIC_PRIVATE_INIT;
++DEFINE_AND_INITIALIZE_TLS(tls_system);
+ SystemState* lightspark::getSys()
+ {
+-	SystemState* ret = (SystemState*)g_static_private_get(&tls_system);
++	SystemState* ret = (SystemState*)tls_get(&tls_system);
+ 	return ret;
+ }
+ 
+ void lightspark::setTLSSys(SystemState* sys)
+ {
+-        g_static_private_set(&tls_system,sys,NULL);
++        tls_set(&tls_system,sys);
+ }
+ 
+-static GStaticPrivate parse_thread_tls = G_STATIC_PRIVATE_INIT; /* TLS */
++DEFINE_AND_INITIALIZE_TLS(parse_thread_tls);
+ ParseThread* lightspark::getParseThread()
+ {
+-	ParseThread* pt = (ParseThread*)g_static_private_get(&parse_thread_tls);
++	ParseThread* pt = (ParseThread*)tls_get(&parse_thread_tls);
+ 	assert(pt);
+ 	return pt;
+ }
+@@ -1271,7 +1271,7 @@ void ParseThread::parseSWFHeader(RootMovieClip *root, UI8 ver)
+ 
+ void ParseThread::execute()
+ {
+-	g_static_private_set(&parse_thread_tls,this,NULL);
++	tls_set(&parse_thread_tls,this);
+ 	try
+ 	{
+ 		UI8 Signature[4];
+diff --git a/src/threading.cpp b/src/threading.cpp
+index 26666a8..3e6c31a 100644
+--- a/src/threading.cpp
++++ b/src/threading.cpp
+@@ -26,6 +26,33 @@
+ 
+ using namespace lightspark;
+ 
++#if GLIB_CHECK_VERSION(2, 31, 0)
++
++void lightspark::tls_set(GPrivate *key, gpointer value)
++{
++	g_private_set(key, value);
++}
++
++gpointer lightspark::tls_get(GPrivate *key)
++{
++	return g_private_get(key);
++}
++
++#else
++
++void lightspark::tls_set(GStaticPrivate *key, gpointer value)
++{
++	g_static_private_set(key, value, NULL);
++}
++
++gpointer lightspark::tls_get(GStaticPrivate *key)
++{
++	return g_static_private_get(key);
++}
++
++#endif
++
++
+ Semaphore::Semaphore(uint32_t init):value(init)
+ {
+ }
+diff --git a/src/threading.h b/src/threading.h
+index eef5a2e..e6604cf 100644
+--- a/src/threading.h
++++ b/src/threading.h
+@@ -55,6 +55,16 @@ typedef Mutex::Lock Locker;
+ typedef Mutex Spinlock;
+ typedef Mutex::Lock SpinlockLocker;
+ 
++#if GLIB_CHECK_VERSION(2, 31, 0)
++#define DEFINE_AND_INITIALIZE_TLS(name) static GPrivate (name)
++void tls_set(GPrivate *key, gpointer value);
++gpointer tls_get(GPrivate *key);
++#else
++#define DEFINE_AND_INITIALIZE_TLS(name) static GStaticPrivate (name) = G_STATIC_PRIVATE_INIT
++void tls_set(GStaticPrivate *key, gpointer value);
++gpointer tls_get(GStaticPrivate *key);
++#endif
++
+ class DLL_PUBLIC Semaphore
+ {
+ private:
+-- 
+1.8.5.3
+

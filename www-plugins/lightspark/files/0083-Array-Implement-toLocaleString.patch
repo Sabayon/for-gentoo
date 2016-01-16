@@ -1,0 +1,133 @@
+From 62f7ebd6365e2edef200d8e12eb1e6e92bd39772 Mon Sep 17 00:00:00 2001
+From: Antti Ajanki <antti.ajanki@iki.fi>
+Date: Sun, 7 Jul 2013 11:52:38 +0300
+Subject: [PATCH 083/110] [Array] Implement toLocaleString
+
+---
+ src/asobject.cpp                 |  8 ++++++++
+ src/asobject.h                   |  1 +
+ src/scripting/toplevel/Array.cpp | 27 +++++++++++++++++++++++----
+ src/scripting/toplevel/Array.h   |  3 ++-
+ 4 files changed, 34 insertions(+), 5 deletions(-)
+
+diff --git a/src/asobject.cpp b/src/asobject.cpp
+index c53b799..2c3383c 100644
+--- a/src/asobject.cpp
++++ b/src/asobject.cpp
+@@ -89,6 +89,14 @@ tiny_string ASObject::toString()
+ 	}
+ }
+ 
++tiny_string ASObject::toLocaleString()
++{
++	_NR<ASObject> str = executeASMethod("toLocaleString", {""}, NULL, 0);
++	if (str.isNull())
++		return "";
++	return str->toString();
++}
++
+ TRISTATE ASObject::isLess(ASObject* r)
+ {
+ 	check();
+diff --git a/src/asobject.h b/src/asobject.h
+index 93a0b44..756af41 100644
+--- a/src/asobject.h
++++ b/src/asobject.h
+@@ -410,6 +410,7 @@ public:
+ 	}
+ 	/* Implements ECMA's 9.8 ToString operation, but returns the concrete value */
+ 	tiny_string toString();
++	tiny_string toLocaleString();
+ 	virtual int32_t toInt();
+ 	virtual uint32_t toUInt();
+ 	uint16_t toUInt16();
+diff --git a/src/scripting/toplevel/Array.cpp b/src/scripting/toplevel/Array.cpp
+index 8dddc5e..a2a0352 100644
+--- a/src/scripting/toplevel/Array.cpp
++++ b/src/scripting/toplevel/Array.cpp
+@@ -66,7 +66,7 @@ void Array::sinit(Class_base* c)
+ 	c->setDeclaredMethodByQName("sort",AS3,Class<IFunction>::getFunction(_sort),NORMAL_METHOD,true);
+ 	c->setDeclaredMethodByQName("sortOn",AS3,Class<IFunction>::getFunction(sortOn),NORMAL_METHOD,true);
+ 	c->setDeclaredMethodByQName("splice",AS3,Class<IFunction>::getFunction(splice,2),NORMAL_METHOD,true);
+-	c->setDeclaredMethodByQName("toLocaleString",AS3,Class<IFunction>::getFunction(_toString),NORMAL_METHOD,true);
++	c->setDeclaredMethodByQName("toLocaleString",AS3,Class<IFunction>::getFunction(_toLocaleString),NORMAL_METHOD,true);
+ 	c->setDeclaredMethodByQName("unshift",AS3,Class<IFunction>::getFunction(unshift),NORMAL_METHOD,true);
+ 
+ 	c->prototype->setVariableByQName("concat","",Class<IFunction>::getFunction(_concat,1),DYNAMIC_TRAIT);
+@@ -88,7 +88,7 @@ void Array::sinit(Class_base* c)
+ 	c->prototype->setVariableByQName("sort","",Class<IFunction>::getFunction(_sort),DYNAMIC_TRAIT);
+ 	c->prototype->setVariableByQName("sortOn","",Class<IFunction>::getFunction(sortOn),DYNAMIC_TRAIT);
+ 	c->prototype->setVariableByQName("splice","",Class<IFunction>::getFunction(splice,2),DYNAMIC_TRAIT);
+-	c->prototype->setVariableByQName("toLocaleString","",Class<IFunction>::getFunction(_toString),DYNAMIC_TRAIT);
++	c->prototype->setVariableByQName("toLocaleString","",Class<IFunction>::getFunction(_toLocaleString),DYNAMIC_TRAIT);
+ 	c->prototype->setVariableByQName("toString","",Class<IFunction>::getFunction(_toString),DYNAMIC_TRAIT);
+ 	c->prototype->setVariableByQName("unshift","",Class<IFunction>::getFunction(unshift),DYNAMIC_TRAIT);
+ }
+@@ -1133,6 +1133,20 @@ ASFUNCTIONBODY(Array,_toString)
+ 	return Class<ASString>::getInstanceS(th->toString_priv());
+ }
+ 
++ASFUNCTIONBODY(Array,_toLocaleString)
++{
++	if(Class<Number>::getClass()->prototype->getObj() == obj)
++		return Class<ASString>::getInstanceS("");
++	if(!obj->is<Array>())
++	{
++		LOG(LOG_NOT_IMPLEMENTED, "generic Array::toLocaleString");
++		return Class<ASString>::getInstanceS("");
++	}
++	
++	Array* th=obj->as<Array>();
++	return Class<ASString>::getInstanceS(th->toString_priv(true));
++}
++
+ int32_t Array::getVariableByMultiname_i(const multiname& name)
+ {
+ 	assert_and_throw(implEnable);
+@@ -1359,7 +1373,7 @@ tiny_string Array::toString()
+ 	return toString_priv();
+ }
+ 
+-tiny_string Array::toString_priv() const
++tiny_string Array::toString_priv(bool localized) const
+ {
+ 	string ret;
+ 	for(uint32_t i=0;i<size();i++)
+@@ -1370,7 +1384,12 @@ tiny_string Array::toString_priv() const
+ 			if(sl.type==DATA_OBJECT)
+ 			{
+ 				if(sl.data && !sl.data->is<Undefined>() && !sl.data->is<Null>())
+-					ret+=sl.data->toString().raw_buf();
++				{
++					if (localized)
++						ret += sl.data->toLocaleString().raw_buf();
++					else
++						ret += sl.data->toString().raw_buf();
++				}
+ 			}
+ 			else if(sl.type==DATA_INT)
+ 			{
+diff --git a/src/scripting/toplevel/Array.h b/src/scripting/toplevel/Array.h
+index 4ae7e5a..f80ccfa 100644
+--- a/src/scripting/toplevel/Array.h
++++ b/src/scripting/toplevel/Array.h
+@@ -88,7 +88,7 @@ private:
+ 		bool operator()(const data_slot& d1, const data_slot& d2);
+ 	};
+ 	void constructorImpl(ASObject* const* args, const unsigned int argslen);
+-	tiny_string toString_priv() const;
++	tiny_string toString_priv(bool localized=false) const;
+ 	int capIndex(int i) const;
+ 	static bool isIntegerWithoutLeadingZeros(const tiny_string& value);
+ public:
+@@ -122,6 +122,7 @@ public:
+ 	ASFUNCTION(lastIndexOf);
+ 	ASFUNCTION(_map);
+ 	ASFUNCTION(_toString);
++	ASFUNCTION(_toLocaleString);
+ 	ASFUNCTION(slice);
+ 	ASFUNCTION(every);
+ 	ASFUNCTION(some);
+-- 
+1.8.5.3
+

@@ -1,0 +1,13 @@
+diff --git a/configure.ac b/configure.ac
+index c25993e..f48fef4 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -1,6 +1,8 @@
+ AC_INIT([libhbalinux], [1.0.14], [devel@open-fcoe.org])
+ AM_INIT_AUTOMAKE([-Wall -Werror foreign])
+ 
++m4_pattern_allow([AM_PROG_AR])
++AM_PROG_AR
+ AC_PROG_LIBTOOL
+ AC_PROG_CC
+ 

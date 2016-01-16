@@ -1,0 +1,26 @@
+From fd1fa6d6ad2397ac36b41a2372794b2f3f1162df Mon Sep 17 00:00:00 2001
+From: Antti Ajanki <antti.ajanki@iki.fi>
+Date: Sat, 23 Mar 2013 20:54:39 +0200
+Subject: [PATCH 003/110] [SimpleButton] Register useHandCursor getter and
+ setter
+
+---
+ src/scripting/flash/display/flashdisplay.cpp | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/scripting/flash/display/flashdisplay.cpp b/src/scripting/flash/display/flashdisplay.cpp
+index db77643..483d2fd 100644
+--- a/src/scripting/flash/display/flashdisplay.cpp
++++ b/src/scripting/flash/display/flashdisplay.cpp
+@@ -3039,6 +3039,8 @@ void SimpleButton::sinit(Class_base* c)
+ 	c->setDeclaredMethodByQName("hitTestState","",Class<IFunction>::getFunction(_setHitTestState),SETTER_METHOD,true);
+ 	c->setDeclaredMethodByQName("enabled","",Class<IFunction>::getFunction(_getEnabled),GETTER_METHOD,true);
+ 	c->setDeclaredMethodByQName("enabled","",Class<IFunction>::getFunction(_setEnabled),SETTER_METHOD,true);
++	c->setDeclaredMethodByQName("useHandCursor","",Class<IFunction>::getFunction(_getUseHandCursor),GETTER_METHOD,true);
++	c->setDeclaredMethodByQName("useHandCursor","",Class<IFunction>::getFunction(_setUseHandCursor),SETTER_METHOD,true);
+ }
+ 
+ void SimpleButton::buildTraits(ASObject* o)
+-- 
+1.8.5.3
+

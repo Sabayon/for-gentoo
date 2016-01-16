@@ -1,0 +1,27 @@
+From af93a79ebe914934552c4343e928c4cfc7a70184 Mon Sep 17 00:00:00 2001
+From: Fabio Erculiani <lxnay@sabayon.org>
+Date: Sat, 10 May 2014 18:09:05 +0100
+Subject: [PATCH 3/3] Make report_Bugzilla use Sabayon's bugzilla URL
+
+---
+ src/plugins/report_Bugzilla.xml.in | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/plugins/report_Bugzilla.xml.in b/src/plugins/report_Bugzilla.xml.in
+index 9ffe90f..368573a 100644
+--- a/src/plugins/report_Bugzilla.xml.in
++++ b/src/plugins/report_Bugzilla.xml.in
+@@ -16,8 +16,8 @@
+             <_label>Bugzilla URL</_label>
+             <allow-empty>no</allow-empty>
+             <_description>Address of Bugzilla server</_description>
+-            <default-value>https://bugzilla.redhat.com</default-value>
+-            <_note-html>You can create bugzilla.redhat.com account &lt;a href="https://bugzilla.redhat.com/createaccount.cgi"&gt;here&lt;/a&gt;</_note-html>
++            <default-value>https://bugs.sabayon.org</default-value>
++            <_note-html>You can create bugs.sabayon.org account &lt;a href="https://bugs.sabayon.org/createaccount.cgi"&gt;here&lt;/a&gt;</_note-html>
+         </option>
+         <option type="text" name="Bugzilla_Login">
+             <_label>User name</_label>
+-- 
+1.9.2
+

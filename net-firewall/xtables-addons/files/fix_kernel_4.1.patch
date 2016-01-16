@@ -1,0 +1,40 @@
+--- a/extensions/xt_TARPIT.c~	2015-06-30 11:04:43.909836884 +0200
++++ b/extensions/xt_TARPIT.c	2015-06-30 11:07:08.691100494 +0200
+@@ -250,7 +250,7 @@
+ 
+ #ifdef CONFIG_BRIDGE_NETFILTER
+ 	if (hook != NF_INET_FORWARD || (nskb->nf_bridge != NULL &&
+-	    nskb->nf_bridge->mask & BRNF_BRIDGED))
++	    nskb->nf_bridge->physoutdev))
+ #else
+ 	if (hook != NF_INET_FORWARD)
+ #endif
+@@ -279,7 +279,7 @@
+ 
+ 	nf_ct_attach(nskb, oldskb);
+ 
+-	NF_HOOK(NFPROTO_IPV4, NF_INET_LOCAL_OUT, nskb, NULL,
++	NF_HOOK(NFPROTO_IPV4, NF_INET_LOCAL_OUT, NULL, nskb, NULL,
+ 		skb_dst(nskb)->dev, dst_output);
+ 	return;
+ 
+@@ -394,7 +394,7 @@
+ 
+ 	nf_ct_attach(nskb, oldskb);
+ 
+-	NF_HOOK(NFPROTO_IPV6, NF_INET_LOCAL_OUT, nskb, NULL,
++	NF_HOOK(NFPROTO_IPV6, NF_INET_LOCAL_OUT, NULL, nskb, NULL,
+ 	        skb_dst(nskb)->dev, dst_output);
+ 	return;
+ 
+--- a/extensions/xt_DELUDE.c~	2015-06-30 11:04:43.908836914 +0200
++++ b/extensions/xt_DELUDE.c	2015-06-30 11:07:52.602247585 +0200
+@@ -107,7 +107,7 @@
+ 	addr_type = RTN_UNSPEC;
+ #ifdef CONFIG_BRIDGE_NETFILTER
+ 	if (hook != NF_INET_FORWARD || (nskb->nf_bridge != NULL &&
+-	    nskb->nf_bridge->mask & BRNF_BRIDGED))
++	    nskb->nf_bridge->physoutdev))
+ #else
+ 	if (hook != NF_INET_FORWARD)
+ #endif

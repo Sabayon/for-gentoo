@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+    <herd>perl</herd>
+    <maintainer>
+        <email>kentfredric@gmail.com</email>
+        <name>Kent Fredric</name>
+    </maintainer>
+    <upstream>
+        <remote-id type="cpan">Search-Sitemap</remote-id>
+        <remote-id type="cpan-module">Search::Sitemap</remote-id>
+        <remote-id type="cpan-module">Search::Sitemap::Index</remote-id>
+        <remote-id type="cpan-module">Search::Sitemap::Ping</remote-id>
+        <remote-id type="cpan-module">Search::Sitemap::Pinger</remote-id>
+        <remote-id type="cpan-module">Search::Sitemap::Pinger::Ask</remote-id>
+        <remote-id type="cpan-module">Search::Sitemap::Pinger::Google</remote-id>
+        <remote-id type="cpan-module">Search::Sitemap::Pinger::Live</remote-id>
+        <remote-id type="cpan-module">Search::Sitemap::Pinger::Yahoo</remote-id>
+        <remote-id type="cpan-module">Search::Sitemap::Types</remote-id>
+        <remote-id type="cpan-module">Search::Sitemap::URL</remote-id>
+        <remote-id type="cpan-module">Search::Sitemap::URLStore</remote-id>
+        <remote-id type="cpan-module">Search::Sitemap::URLStore::Memory</remote-id>
+    </upstream>
+</pkgmetadata>

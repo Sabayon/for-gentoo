@@ -1,0 +1,30 @@
+http://www.e-tobi.net/cgi-bin/viewcvs.cgi/vdr-addon-noad/trunk/debian/patches/10_fix-osd.dpatch?rev=1946&root=vdr+subversion+repository&view=auto
+
+Fixes problems with "noad --OSD" if vdr is not running.
+
+Joerg Bornkessel <hd_brummy@gentoo.org> 16 Oct 2006
+
+--- old/svdrpc.cpp	Tue Jun 22 00:41:57 2004
++++ new/svdrpc.cpp	Sat Dec 18 19:54:44 2004
+@@ -189,6 +189,10 @@
+     {
+       select(1, &set, NULL, NULL, &timeout);
+       n = read(filedes, buf + rbytes, 1);
++      if(n<0) {
++        filedes=-1;
++        break;
++      }
+       rbytes += n;
+       if (rbytes == size)
+          break;
+@@ -214,7 +218,8 @@
+   while( i < 100 && outstandingReply > 0 )
+   {
+     usleep(10000);
+-    ReadReply();
++    if( !ReadReply() )
++      break;
+     i++;
+   }
+   return( outstandingReply <= 0 );
+

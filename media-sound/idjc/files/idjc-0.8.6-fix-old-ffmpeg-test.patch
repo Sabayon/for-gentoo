@@ -1,0 +1,10 @@
+--- idjc-0.8.6.orig/ffmpeg_avcodec.c
++++ idjc-0.8.6/ffmpeg_avcodec.c
+@@ -1,6 +1,7 @@
+ /* test avcodec.h for legacy location */
+ 
+ #include <libavcodec/avcodec.h>
++#include <ffmpeg/avformat.h>
+ 
+ int main(void)
+     {

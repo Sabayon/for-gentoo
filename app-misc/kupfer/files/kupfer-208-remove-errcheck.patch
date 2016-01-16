@@ -1,0 +1,14 @@
+Remove 'errcheck' usage because as it cannot be found and thus causes
+a failure.
+--- kupfer-v208/waflib/Options.py
+--- kupfer-v208/waflib/Options.py
+@@ -240,9 +240,6 @@
+ 		if options.destdir:
+ 			options.destdir = os.path.abspath(os.path.expanduser(options.destdir))
+ 
+-		if options.verbose >= 1:
+-			self.load('errcheck')
+-
+ 	def execute(self):
+ 		"""
+ 		See :py:func:`waflib.Context.Context.execute`

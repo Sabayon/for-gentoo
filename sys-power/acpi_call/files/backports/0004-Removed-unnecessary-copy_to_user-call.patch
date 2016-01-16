@@ -1,0 +1,26 @@
+From 040181d9e09e3ab51da6fb9b41ac4c2a71654108 Mon Sep 17 00:00:00 2001
+From: nowrep <nowrep@gmail.com>
+Date: Sun, 2 Jun 2013 12:45:17 +0200
+Subject: [PATCH 4/6] Removed unnecessary copy_to_user call.
+
+---
+ acpi_call.c | 3 ---
+ 1 file changed, 3 deletions(-)
+
+diff --git a/acpi_call.c b/acpi_call.c
+index 4afd9db..3025d97 100644
+--- a/acpi_call.c
++++ b/acpi_call.c
+@@ -309,9 +309,6 @@ static ssize_t acpi_proc_read( struct file *filp, char __user *buff,
+     int len = strlen(result_buffer);
+ 
+     // output the current result buffer
+-    if (copy_to_user(buff, result_buffer, len + 1))
+-        return -EFAULT;
+-
+     ret = simple_read_from_buffer(buff, count, off, result_buffer, len + 1);
+ 
+     // initialize the result buffer for later
+-- 
+1.8.2.1
+

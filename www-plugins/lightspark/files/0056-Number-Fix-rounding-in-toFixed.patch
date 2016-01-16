@@ -1,0 +1,27 @@
+From 51f65f396f0d4a9ced474c1c2d7306a04415b93f Mon Sep 17 00:00:00 2001
+From: Antti Ajanki <antti.ajanki@iki.fi>
+Date: Mon, 27 May 2013 19:38:03 +0300
+Subject: [PATCH 056/110] [Number] Fix rounding in toFixed
+
+Was broken since a4eae370
+---
+ src/scripting/toplevel/Number.cpp | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/scripting/toplevel/Number.cpp b/src/scripting/toplevel/Number.cpp
+index 7dfe291..931181e 100644
+--- a/src/scripting/toplevel/Number.cpp
++++ b/src/scripting/toplevel/Number.cpp
+@@ -307,7 +307,8 @@ tiny_string Number::toFixedString(double v, int32_t fractiondigits)
+ 	if (v >= pow(10., 21))
+ 		return toString(v);
+ 	number_t fractpart, intpart;
+-	fractpart = modf (v , &intpart);
++	double rounded = v + 0.5*pow(10., -fractiondigits);
++	fractpart = modf(rounded , &intpart);
+ 
+ 	tiny_string res("");
+ 	char buf[40];
+-- 
+1.8.5.3
+

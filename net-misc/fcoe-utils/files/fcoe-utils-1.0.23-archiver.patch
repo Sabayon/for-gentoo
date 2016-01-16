@@ -1,0 +1,13 @@
+diff --git a/configure.ac b/configure.ac
+index c412de5..149df47 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -4,6 +4,8 @@ AM_INIT_AUTOMAKE([-Wall -Werror foreign])
+ AC_PROG_CC
+ AM_PROG_CC_C_O
+ AC_PROG_RANLIB
++m4_pattern_allow([AM_PROG_AR])
++AM_PROG_AR
+ 
+ PKG_CHECK_MODULES([HBAAPI], [HBAAPI])
+ AC_SUBST([HBAAPI_CFLAGS])

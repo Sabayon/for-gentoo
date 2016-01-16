@@ -1,0 +1,26 @@
+From f91ecd0fcf4666b81bfd7742a3209a8c7c8ad0f3 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Ludger=20Kr=C3=A4mer?= <dbluelle@blau-weissoedingen.de>
+Date: Fri, 10 May 2013 18:22:57 +0200
+Subject: [PATCH 039/110] don't crash on not parseable xml
+
+---
+ src/backends/xml_support.cpp | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/backends/xml_support.cpp b/src/backends/xml_support.cpp
+index 2aefaee..a55e858 100644
+--- a/src/backends/xml_support.cpp
++++ b/src/backends/xml_support.cpp
+@@ -60,7 +60,8 @@ void RecoveryDomParser::parse_memory_raw(const unsigned char* contents, size_typ
+ 	if(!context_->wellFormed)
+ 		LOG(LOG_ERROR, "XML data not well formed!");
+ 
+-	doc_ = new RecoveryDocument(context_->myDoc);
++	if (context_->myDoc)
++		doc_ = new RecoveryDocument(context_->myDoc);
+ 	// This is to indicate to release_underlying that we took the
+ 	// ownership on the doc.
+ 	context_->myDoc = 0;
+-- 
+1.8.5.3
+

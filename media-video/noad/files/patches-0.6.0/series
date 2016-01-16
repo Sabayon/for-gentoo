@@ -1,0 +1,7 @@
+directoryfix.diff
+as-needed.diff
+cflags.diff
+framesize.diff
+delete-while-scanning.diff
+fix-osd.patch
+new-ffmpeg-extern-c.diff

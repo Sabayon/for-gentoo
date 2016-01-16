@@ -1,0 +1,22 @@
+From c91a78896526640a301f5a9eeab8b698923e285c Mon Sep 17 00:00:00 2001
+From: ygrek <ygrek@autistici.org>
+Date: Wed, 17 Sep 2014 09:56:48 +0300
+Subject: [PATCH] fix build with OCaml 4.02 (closes #6)
+
+---
+ src/utils/net/terminal.ml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/utils/net/terminal.ml b/src/utils/net/terminal.ml
+index 44a96f4..223e4d0 100644
+--- a/src/utils/net/terminal.ml
++++ b/src/utils/net/terminal.ml
+@@ -185,7 +185,7 @@ module Output = struct
+   let canal = List.assoc chan !chanmap in
+   etat.chan <- Some (chan, canal);
+   info (sprintf "connecte au canal '%s'" chan);
+-  (* {| canal ALL } *)
++  (* { | canal ALL } *)
+        with Not_found -> (* pas encore de recepteur pour ce canal *)
+   try (* on en cree un *)
+     let serveur = nsrecord.get_loc chan in

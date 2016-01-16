@@ -1,0 +1,63 @@
+#!/sbin/runscript
+# Copyright 1999-2013 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: $
+
+. /sbin/sshd-functions.sh
+
+extra_commands="checkconfig gen_keys"
+extra_started_commands="reload"
+
+depend() {
+	use logger dns
+	if [ "${rc_need+set}" = "set" ]; then
+		: # Do nothing, the user has explicitly set rc_need
+	else
+		warn_addr=''
+		for x in $(awk '/^ListenAddress/{ print $2 }' "$SSHD_CONFIG" 2>/dev/null) ; do
+			case "$x" in
+				0.0.0.0|0.0.0.0:*) ;;
+				::|\[::\]*) ;;
+				*) warn_addr="${warn_addr} $x" ;;
+			esac
+		done
+		unset x
+		if [ "${warn_addr:+set}" = "set" ]; then
+			need net 
+			ewarn "You are binding an interface in ListenAddress statement in your sshd_config!"
+			ewarn "You must add rc_need=\"net.FOO\" to your /etc/conf.d/sshd"
+			ewarn "where FOO is the interface(s) providing the following address(es):"
+			ewarn "${warn_addr}"
+		fi
+		unset warn_addr
+	fi
+}
+
+start() {
+	checkconfig || return 1
+
+	ebegin "Starting ${SVCNAME}"
+	start-stop-daemon --start --exec "${SSHD_BINARY}" \
+	    --pidfile "${SSHD_PIDFILE}" \
+	    -- ${SSHD_OPTS}
+	eend $?
+}
+
+stop() {
+	if [ "${RC_CMD}" = "restart" ] ; then
+		checkconfig || return 1
+	fi
+
+	ebegin "Stopping ${SVCNAME}"
+	start-stop-daemon --stop --exec "${SSHD_BINARY}" \
+	    --pidfile "${SSHD_PIDFILE}" --quiet
+	eend $?
+}
+
+reload() {
+	checkconfig || return 1
+	ebegin "Reloading ${SVCNAME}"
+	start-stop-daemon --signal HUP \
+	    --exec "${SSHD_BINARY}" --pidfile "${SSHD_PIDFILE}"
+	eend $?
+}

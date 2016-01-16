@@ -1,0 +1,26 @@
+Use system alure.
+Sławomir Nizio <slawomir.nizio at sabayon.org>
+--- CMakeLists.txt	2012-03-12 17:37:46.000000000 +0000
++++ CMakeLists.txt	2012-05-10 00:58:03.324560610 +0000
+@@ -124,9 +124,10 @@
+ 	FIND_PACKAGE(OpenAL REQUIRED)
+ 	INCLUDE_DIRECTORIES(${OPENAL_INCLUDE_DIR})
+ 
+-	Add_Subdirectory( ${springlobby_SOURCE_DIR}/src/sound/alure )
+-	INCLUDE_DIRECTORIES( ${springlobby_SOURCE_DIR}/src/sound/alure/include )
+-	LINK_LIBRARIES( ${OPENAL_LIBRARY} ${springlobby_BINARY_DIR}/src/sound/alure/libalure.a )
++	PKG_CHECK_MODULES(ALURE REQUIRED alure)
++	INCLUDE_DIRECTORIES( ${ALURE_INCLUDE_DIRS} )
++	LINK_LIBRARIES( ${ALURE_LIBRARIES} )
++	ADD_DEFINITIONS( ${ALURE_CFLAGS} )
+ ELSE ( OPTION_SOUND )
+     # Disable sound.
+     ADD_DEFINITIONS( -DDISABLE_SOUND )
+@@ -310,7 +311,6 @@
+ 				${springlobby_SOURCE_DIR}/tools/regen_config_header.sh ${springlobby_SOURCE_DIR}/cmake/config.h ${springlobby_BINARY_DIR}/springlobby_config.h
+ 				)
+ add_dependencies( distcheck dist )
+-add_dependencies( springlobby alure )
+ add_dependencies( springlobby version )
+ #add_dependencies( versiontest version )
+ 

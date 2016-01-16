@@ -1,0 +1,40 @@
+#!/sbin/runscript
+# Copyright 1999-2010 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: 
+
+OSSPD="/usr/sbin/osspd"
+
+check_prerequisites() {
+	if [ ! -c /dev/cuse ] ; then
+		eerror "Cannot find /dev/cuse character device!"
+		return 1
+	fi
+
+	if [ -x "/usr/sbin/${OSSPD_BACKEND}" ] ; then
+		CHOSEN_BACKEND="/usr/sbin/${OSSPD_BACKEND}"
+	else
+		eerror "Cannot find backend!"
+		return 1
+	fi
+	return 0
+}
+
+depend() {
+	need fuse
+	after alsasound pulseaudio
+}
+
+start() {
+	check_prerequisites || return 1
+	ebegin "Starting osspd with ${OSSPD_BACKEND} backend"
+	start-stop-daemon --start --quiet --exec ${OSSPD} \
+		-- --dsp-slave=${CHOSEN_BACKEND}
+	eend $?
+}
+
+stop() {
+	ebegin "Shutting down osspd"
+	start-stop-daemon --stop --quiet --exec ${OSSPD}
+	eend $?
+}

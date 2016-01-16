@@ -1,0 +1,56 @@
+From ea6e8fd675fb4ba2348d218d5fed666d9804d0d6 Mon Sep 17 00:00:00 2001
+From: Antti Ajanki <antti.ajanki@iki.fi>
+Date: Sun, 7 Jul 2013 11:16:11 +0300
+Subject: [PATCH 082/110] [ASObject] Implement toLocaleString according to EMCA
+ 262
+
+---
+ src/asobject.cpp | 12 +++++++++++-
+ src/asobject.h   |  1 +
+ 2 files changed, 12 insertions(+), 1 deletion(-)
+
+diff --git a/src/asobject.cpp b/src/asobject.cpp
+index 0252e18..c53b799 100644
+--- a/src/asobject.cpp
++++ b/src/asobject.cpp
+@@ -147,7 +147,7 @@ void ASObject::sinit(Class_base* c)
+ 	c->setDeclaredMethodByQName("hasOwnProperty",AS3,Class<IFunction>::getFunction(hasOwnProperty),NORMAL_METHOD,true);
+ 
+ 	c->prototype->setVariableByQName("toString","",Class<IFunction>::getFunction(_toString),DYNAMIC_TRAIT);
+-	c->prototype->setVariableByQName("toLocaleString","",Class<IFunction>::getFunction(_toString),DYNAMIC_TRAIT);
++	c->prototype->setVariableByQName("toLocaleString","",Class<IFunction>::getFunction(_toLocaleString),DYNAMIC_TRAIT);
+ 	c->prototype->setVariableByQName("valueOf","",Class<IFunction>::getFunction(valueOf),DYNAMIC_TRAIT);
+ 	c->prototype->setVariableByQName("hasOwnProperty","",Class<IFunction>::getFunction(hasOwnProperty),DYNAMIC_TRAIT);
+ 	c->prototype->setVariableByQName("isPrototypeOf","",Class<IFunction>::getFunction(isPrototypeOf),DYNAMIC_TRAIT);
+@@ -843,6 +843,16 @@ ASFUNCTIONBODY(ASObject,_toString)
+ 	return Class<ASString>::getInstanceS(ret);
+ }
+ 
++ASFUNCTIONBODY(ASObject,_toLocaleString)
++{
++	if (!obj->has_toString())
++		throwError<TypeError>(kCallNotFoundError, "toString", obj->getClassName());
++
++	_R<ASObject> res = obj->call_toString();
++	res->incRef();
++	return res.getPtr();
++}
++
+ ASFUNCTIONBODY(ASObject,hasOwnProperty)
+ {
+ 	assert_and_throw(argslen==1);
+diff --git a/src/asobject.h b/src/asobject.h
+index 009e1da..93a0b44 100644
+--- a/src/asobject.h
++++ b/src/asobject.h
+@@ -297,6 +297,7 @@ public:
+ 	// Throws ArgumentError.
+ 	ASFUNCTION(_constructorNotInstantiatable);
+ 	ASFUNCTION(_toString);
++	ASFUNCTION(_toLocaleString);
+ 	ASFUNCTION(hasOwnProperty);
+ 	ASFUNCTION(valueOf);
+ 	ASFUNCTION(isPrototypeOf);
+-- 
+1.8.5.3
+

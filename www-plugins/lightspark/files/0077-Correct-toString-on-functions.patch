@@ -1,0 +1,75 @@
+From 709156456cac42a1a52dc44c61c25998ca79157b Mon Sep 17 00:00:00 2001
+From: Antti Ajanki <antti.ajanki@iki.fi>
+Date: Sat, 6 Jul 2013 11:22:29 +0300
+Subject: [PATCH 077/110] Correct toString on functions
+
+---
+ src/scripting/toplevel/toplevel.cpp | 22 ++++++++++++++--------
+ src/scripting/toplevel/toplevel.h   |  2 ++
+ 2 files changed, 16 insertions(+), 8 deletions(-)
+
+diff --git a/src/scripting/toplevel/toplevel.cpp b/src/scripting/toplevel/toplevel.cpp
+index 72b38f3..07850f1 100644
+--- a/src/scripting/toplevel/toplevel.cpp
++++ b/src/scripting/toplevel/toplevel.cpp
+@@ -128,6 +128,18 @@ void IFunction::finalize()
+ 	closure_this.reset();
+ }
+ 
++void IFunction::sinit(Class_base* c)
++{
++	c->prototype->setVariableByQName("toString","",Class<IFunction>::getFunction(IFunction::_toString),DYNAMIC_TRAIT);
++
++	c->setDeclaredMethodByQName("call","",Class<IFunction>::getFunction(IFunction::_call),NORMAL_METHOD,true);
++	c->setDeclaredMethodByQName("call",AS3,Class<IFunction>::getFunction(IFunction::_call),NORMAL_METHOD,true);
++	c->setDeclaredMethodByQName("apply","",Class<IFunction>::getFunction(IFunction::apply),NORMAL_METHOD,true);
++	c->setDeclaredMethodByQName("apply",AS3,Class<IFunction>::getFunction(IFunction::apply),NORMAL_METHOD,true);
++	c->setDeclaredMethodByQName("length","",Class<IFunction>::getFunction(IFunction::_getter_length),GETTER_METHOD,true);
++	c->setDeclaredMethodByQName("toString","",Class<IFunction>::getFunction(IFunction::_toString),NORMAL_METHOD,false);
++}
++
+ ASFUNCTIONBODY_GETTER_SETTER(IFunction,prototype);
+ ASFUNCTIONBODY_GETTER(IFunction,length);
+ 
+@@ -841,7 +853,7 @@ void Class_base::addImplementedInterface(Class_base* i)
+ 
+ tiny_string Class_base::toString()
+ {
+-	tiny_string ret="[Class ";
++	tiny_string ret="[class ";
+ 	ret+=class_name.name;
+ 	ret+="]";
+ 	return ret;
+@@ -1875,15 +1887,9 @@ Class<IFunction>* Class<IFunction>::getClass()
+ 		//addPrototypeGetter and setDeclaredMethodByQName.
+ 		//Thus we make sure that everything is in order when getFunction() below is called
+ 		ret->addPrototypeGetter();
+-		//copy borrowed traits from ASObject by ourself
+-		ASObject::sinit(ret);
+-		ret->setDeclaredMethodByQName("call",AS3,Class<IFunction>::getFunction(IFunction::_call),NORMAL_METHOD,true);
+-		ret->setDeclaredMethodByQName("apply",AS3,Class<IFunction>::getFunction(IFunction::apply),NORMAL_METHOD,true);
++		IFunction::sinit(ret);
+ 		ret->setDeclaredMethodByQName("prototype","",Class<IFunction>::getFunction(IFunction::_getter_prototype),GETTER_METHOD,true);
+ 		ret->setDeclaredMethodByQName("prototype","",Class<IFunction>::getFunction(IFunction::_setter_prototype),SETTER_METHOD,true);
+-		ret->setDeclaredMethodByQName("length","",Class<IFunction>::getFunction(IFunction::_getter_length),GETTER_METHOD,true);
+-		ret->prototype->setVariableByQName("toString",AS3,Class<IFunction>::getFunction(IFunction::_toString),DYNAMIC_TRAIT);
+-		ret->setDeclaredMethodByQName("toString",AS3,Class<IFunction>::getFunction(Class_base::_toString),NORMAL_METHOD,false);
+ 	}
+ 	else
+ 		ret=static_cast<Class<IFunction>*>(*retAddr);
+diff --git a/src/scripting/toplevel/toplevel.h b/src/scripting/toplevel/toplevel.h
+index dc84bbc..c70d407 100644
+--- a/src/scripting/toplevel/toplevel.h
++++ b/src/scripting/toplevel/toplevel.h
+@@ -312,6 +312,8 @@ protected:
+ 	IFunction(Class_base *c);
+ 	virtual IFunction* clone()=0;
+ 	_NR<ASObject> closure_this;
++
++	static void sinit(Class_base* c);
+ public:
+ 	/* If this is a method, inClass is the class this is defined in.
+ 	 * If this is a function, inClass == NULL
+-- 
+1.8.5.3
+

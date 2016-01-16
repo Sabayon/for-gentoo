@@ -1,0 +1,33 @@
+From 4830f33510f181f8876e55be4ee9e99f6b3d8924 Mon Sep 17 00:00:00 2001
+From: Antti Ajanki <antti.ajanki@iki.fi>
+Date: Sat, 6 Jul 2013 20:04:58 +0300
+Subject: [PATCH 080/110] [RegExp] prototype toString
+
+---
+ src/scripting/toplevel/RegExp.cpp | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/src/scripting/toplevel/RegExp.cpp b/src/scripting/toplevel/RegExp.cpp
+index 9231d06..0d029a2 100644
+--- a/src/scripting/toplevel/RegExp.cpp
++++ b/src/scripting/toplevel/RegExp.cpp
+@@ -41,6 +41,7 @@ void RegExp::sinit(Class_base* c)
+ 	c->setDeclaredMethodByQName("test","",Class<IFunction>::getFunction(test),NORMAL_METHOD,true);
+ 	c->setDeclaredMethodByQName("test",AS3,Class<IFunction>::getFunction(test),NORMAL_METHOD,true);
+ 	c->setDeclaredMethodByQName("toString","",Class<IFunction>::getFunction(_toString),NORMAL_METHOD,true);
++	c->prototype->setVariableByQName("toString","",Class<IFunction>::getFunction(_toString),DYNAMIC_TRAIT);
+ 	c->prototype->setVariableByQName("exec","",Class<IFunction>::getFunction(exec),DYNAMIC_TRAIT);
+ 	c->prototype->setVariableByQName("exec",AS3,Class<IFunction>::getFunction(exec),DYNAMIC_TRAIT);
+ 	c->prototype->setVariableByQName("test","",Class<IFunction>::getFunction(test),DYNAMIC_TRAIT);
+@@ -260,6 +261,8 @@ ASFUNCTIONBODY(RegExp,test)
+ 
+ ASFUNCTIONBODY(RegExp,_toString)
+ {
++	if(Class<RegExp>::getClass()->prototype->getObj() == obj)
++		return Class<ASString>::getInstanceS("/(?:)/");
+ 	if(!obj->is<RegExp>())
+ 		throw Class<TypeError>::getInstanceS("RegExp.toString is not generic");
+ 
+-- 
+1.8.5.3
+

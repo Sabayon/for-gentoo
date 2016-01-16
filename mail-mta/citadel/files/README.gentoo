@@ -1,0 +1,21 @@
+The administration tools have been placed in /usr/lib(64)/citadel
+
+There are two possible options to get Citadel running, if this is
+a new install:
+
+1. The no-nonse fullspeed approach with most stuff done for you:
+# emerge --config mail-mta/citadel
+
+2. Manually configuring it with its setup routine:
+You should make yourself familiar with Citadels setup:
+http://www.citadel.org/doku.php/documentation:cmdman:setup
+You probalby do not want to let setup chose the mode of starting
+
+The second approach is only recommended to experienced users!!!
+
+The service will automatically start after you configured it.
+Initscript is /etc/init.d/citadel. Also look into /etc/conf.d
+
+The following clients are available:
+a) the citadel console client was installed with this ebuild
+b) www-servers/webcit provides a web-based gui

@@ -1,0 +1,11 @@
+# Copyright 1999-2012 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2 or later
+# $Id: $
+
+# Module variables
+# BOOT_DIR="${EROOT}/boot"
+# KERNEL_PREFIX="kernel-"
+# INITRAMFS_PREFIX="initramfs-"
+# UIMAGE_SYM="${BOOT_DIR}/uImage"
+# UINITRD_SYM="${BOOT_DIR}/uInitrd"
+

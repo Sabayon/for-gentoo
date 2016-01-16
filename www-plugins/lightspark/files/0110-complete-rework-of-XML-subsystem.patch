@@ -1,0 +1,4019 @@
+From af9d8984c392af87236dd8a6b6414026b1a99fbb Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Ludger=20Kr=C3=A4mer?= <dbluelle@blau-weissoedingen.de>
+Date: Wed, 25 Dec 2013 16:56:00 +0100
+Subject: [PATCH 110/110] complete rework of XML subsystem libxml++ is only
+ used for parsing. The structure is kept and handled as a combination of
+ XML/XMLList objects
+
+---
+ src/backends/xml_support.cpp           |   57 +-
+ src/backends/xml_support.h             |    2 +
+ src/scripting/abc.h                    |    1 +
+ src/scripting/abc_fast_interpreter.cpp |    6 +-
+ src/scripting/abc_interpreter.cpp      |    6 +-
+ src/scripting/abc_opcodes.cpp          |   57 +-
+ src/scripting/toplevel/XML.cpp         | 1948 ++++++++++++++++++++++----------
+ src/scripting/toplevel/XML.h           |   67 +-
+ src/scripting/toplevel/XMLList.cpp     |  529 +++++++--
+ src/scripting/toplevel/XMLList.h       |   33 +-
+ src/scripting/toplevel/toplevel.cpp    |   29 +-
+ src/scripting/toplevel/toplevel.h      |    8 +-
+ src/swftypes.h                         |    1 +
+ 13 files changed, 1934 insertions(+), 810 deletions(-)
+
+diff --git a/src/backends/xml_support.cpp b/src/backends/xml_support.cpp
+index 89ffb66..8d1af9d 100644
+--- a/src/backends/xml_support.cpp
++++ b/src/backends/xml_support.cpp
+@@ -40,6 +40,7 @@ void RecoveryDomParser::parse_memory_raw(const unsigned char* contents, size_typ
+ 
+ 	xmlSAXHandlerV1* handler=(xmlSAXHandlerV1*)calloc(1,sizeof(xmlSAXHandlerV1));
+ 	initxmlDefaultSAXHandler(handler, 0);
++	handler->comment = comment;
+ 	context_->recovery=1;
+ 	free(context_->sax);
+ 	context_->sax=(xmlSAXHandler*)handler;
+@@ -87,18 +88,32 @@ xmlpp::Node* XMLBase::buildFromString(const string& str,
+ 	{
+ 	}
+ 	xmlpp::Document* doc=parser.get_document();
+-	if(doc && doc->get_root_node())
++	if(doc)
+ 	{
+-		*hasParent = true;
+-		xmlpp::Element *root = doc->get_root_node();
+-		// It would be better to remove empty nodes during
+-		// parsing, but xmlpp doesn't offer an interface.
+-		if (ignoreEmptyTextNodes)
+-			removeWhitespaceNodes(root);
+-		addDefaultNamespace(root, default_ns);
+-		return root;
++		if (!doc->get_root_node())
++		{
++			buf = removeWhitespace(str)+"<parent></parent>";
++			try
++			{
++				parser.parse_memory_raw((const unsigned char*)buf.c_str(), buf.size());
++			}
++			catch(const exception& e)
++			{
++			}
++			doc=parser.get_document();
++		}
++		if (doc && doc->get_root_node())
++		{
++			*hasParent = true;
++			xmlpp::Element *root = doc->get_root_node();
++			// It would be better to remove empty nodes during
++			// parsing, but xmlpp doesn't offer an interface.
++			if (ignoreEmptyTextNodes)
++				removeWhitespaceNodes(root);
++			addDefaultNamespace(root, default_ns);
++			return root;
++		}
+ 	}
+-
+ 	//If everything fails, create a fake document and add a single text string child
+ 	// see 10.3.1 in ECMA 357
+ 	if (default_ns.empty())
+@@ -222,3 +237,25 @@ void XMLBase::removeWhitespaceNodes(xmlpp::Element *node)
+ 		}
+ 	}
+ }
++tiny_string XMLBase::removeWhitespace(tiny_string val)
++{
++	bool bwhite = true;
++	uint32_t start = 0;
++	CharIterator it = val.begin();
++	CharIterator itend = val.begin();
++	while (it != val.end())
++	{
++		if (!g_unichar_isspace(*it))
++		{
++			itend=it;
++			itend++;
++			bwhite = false;
++		}
++		else if (bwhite)
++			start++;
++		it++;
++	}
++	if (bwhite)
++		return "";
++	return val.substr(start,itend);
++}
+diff --git a/src/backends/xml_support.h b/src/backends/xml_support.h
+index 32cf5f1..a8a6a5b 100644
+--- a/src/backends/xml_support.h
++++ b/src/backends/xml_support.h
+@@ -25,6 +25,7 @@
+ #include <libxml++/exceptions/internal_error.h>
+ //For xmlCreateFileParserCtxt().
+ #include <libxml/parserInternals.h>
++#include "tiny_string.h"
+ 
+ namespace lightspark
+ {
+@@ -67,6 +68,7 @@ protected:
+ 	static std::string quirkCData(const std::string& str);
+ 	static std::string quirkXMLDeclarationInMiddle(const std::string& str);
+ 	void removeWhitespaceNodes(xmlpp::Element *node);
++	tiny_string removeWhitespace(tiny_string val);
+ public:
+ 	static std::string parserQuirks(const std::string& str);
+ };
+diff --git a/src/scripting/abc.h b/src/scripting/abc.h
+index c4e5339..7eda244 100644
+--- a/src/scripting/abc.h
++++ b/src/scripting/abc.h
+@@ -380,6 +380,7 @@ private:
+ 	static uint32_t decrement_i(ASObject*);
+ 	static bool strictEquals(ASObject*,ASObject*);
+ 	static ASObject* esc_xattr(ASObject* o);
++	static ASObject* esc_xelem(ASObject* o);
+ 	static bool instanceOf(ASObject* value, ASObject* type);
+ 	static Namespace* pushNamespace(call_context* th, int n);
+ 	static void dxns(call_context* th, int n);
+diff --git a/src/scripting/abc_fast_interpreter.cpp b/src/scripting/abc_fast_interpreter.cpp
+index e49334e..36ee748 100644
+--- a/src/scripting/abc_fast_interpreter.cpp
++++ b/src/scripting/abc_fast_interpreter.cpp
+@@ -905,16 +905,12 @@ ASObject* ABCVm::executeFunctionFast(const SyntheticFunction* function, call_con
+ 			}
+ 			case 0x71:
+ 			{
+-				//FIXME: Properly escape as described in ECMA-357 section 10.2
+-				//esc_xelem
+ 				ASObject* val=context->runtime_stack_pop();
+-				context->runtime_stack_push(convert_s(val));
++				context->runtime_stack_push(esc_xelem(val));
+ 				break;
+ 			}
+ 			case 0x72:
+ 			{
+-				//FIXME: Properly escape as described in ECMA-357 section 10.2
+-				//esc_xattr
+ 				ASObject* val=context->runtime_stack_pop();
+ 				context->runtime_stack_push(esc_xattr(val));
+ 				break;
+diff --git a/src/scripting/abc_interpreter.cpp b/src/scripting/abc_interpreter.cpp
+index e7072fd..f8e7e01 100644
+--- a/src/scripting/abc_interpreter.cpp
++++ b/src/scripting/abc_interpreter.cpp
+@@ -1012,16 +1012,12 @@ ASObject* ABCVm::executeFunction(const SyntheticFunction* function, call_context
+ 			}
+ 			case 0x71:
+ 			{
+-				//FIXME: Properly escape as described in ECMA-357 section 10.2
+-				//esc_xelem
+ 				ASObject* val=context->runtime_stack_pop();
+-				context->runtime_stack_push(convert_s(val));
++				context->runtime_stack_push(esc_xelem(val));
+ 				break;
+ 			}
+ 			case 0x72:
+ 			{
+-				//FIXME: Properly escape as described in ECMA-357 section 10.2
+-				//esc_xattr
+ 				ASObject* val=context->runtime_stack_pop();
+ 				context->runtime_stack_push(esc_xattr(val));
+ 				break;
+diff --git a/src/scripting/abc_opcodes.cpp b/src/scripting/abc_opcodes.cpp
+index 0ac97ee..134c883 100644
+--- a/src/scripting/abc_opcodes.cpp
++++ b/src/scripting/abc_opcodes.cpp
+@@ -1807,15 +1807,32 @@ void ABCVm::getDescendants(call_context* th, int n)
+ 	assert_and_throw(name->name_type==multiname::NAME_STRING);
+ 	XML::XMLVector ret;
+ 	//TODO: support multiname and namespaces
++	XMLList* targetobject = NULL;
+ 	if(obj->getClass()==Class<XML>::getClass())
+ 	{
+ 		XML* xmlObj=Class<XML>::cast(obj);
+-		xmlObj->getDescendantsByQName(getSys()->getStringFromUniqueId(name->name_s_id), "", ret);
++		targetobject = xmlObj->getChildrenlist();
++		tiny_string ns_uri = "";
++		if (name->ns.size() > 0)
++		{
++			ns_uri = name->ns[0].getImpl().name;
++			if (ns_uri.empty() && name->ns.size() == 1)
++				ns_uri="*";
++		}
++		xmlObj->getDescendantsByQName(getSys()->getStringFromUniqueId(name->name_s_id), ns_uri,name->isAttribute, ret);
+ 	}
+ 	else if(obj->getClass()==Class<XMLList>::getClass())
+ 	{
+ 		XMLList* xmlObj=Class<XMLList>::cast(obj);
+-		xmlObj->getDescendantsByQName(getSys()->getStringFromUniqueId(name->name_s_id), "", ret);
++		tiny_string ns_uri = "";
++		if (name->ns.size() > 0)
++		{
++			ns_uri = name->ns[0].getImpl().name;
++			if (ns_uri.empty() && name->ns.size() == 1)
++				ns_uri="*";
++		}
++		targetobject = xmlObj;
++		xmlObj->getDescendantsByQName(getSys()->getStringFromUniqueId(name->name_s_id), ns_uri,name->isAttribute, ret);
+ 	}
+ 	else if(obj->getClass()->isSubClass(Class<Proxy>::getClass()))
+ 	{
+@@ -1865,7 +1882,7 @@ void ABCVm::getDescendants(call_context* th, int n)
+ 		obj->decRef();
+ 		throwError<TypeError>(kDescendentsError, objName);
+ 	}
+-	XMLList* retObj=Class<XMLList>::getInstanceS(ret);
++	XMLList* retObj=Class<XMLList>::getInstanceS(ret,targetobject,*name);
+ 	th->runtime_stack_push(retObj);
+ 	obj->decRef();
+ }
+@@ -2289,22 +2306,28 @@ void ABCVm::newArray(call_context* th, int n)
+ 
+ ASObject* ABCVm::esc_xattr(ASObject* o)
+ {
+-	/* TODO: implement correct escaping according to E4X
+-	 * For now we just cut the string at the first \0 byte, which is wrong
+-	 * but suppresses more errors */
+-	tiny_string t = o->toString();
+-	LOG(LOG_NOT_IMPLEMENTED,"esc_xattr on " << t);
++	tiny_string t;
++	if (o->is<XML>())
++		t = o->as<XML>()->toXMLString_internal();
++	else if (o->is<XMLList>())
++		t = o->as<XMLList>()->toXMLString_internal();
++	else
++		t = XML::encodeToXML(o->toString(),true);
+ 	o->decRef();
+-	auto i=t.begin();
+-	for(;i!=t.end();++i)
+-	{
+-		if(*i == '\0')
+-			break;
+-	}
+-	if(i == t.end())
+-		return Class<ASString>::getInstanceS(t);
++	return Class<ASString>::getInstanceS(t);
++}
++
++ASObject* ABCVm::esc_xelem(ASObject* o)
++{
++	tiny_string t;
++	if (o->is<XML>())
++		t = o->as<XML>()->toXMLString_internal();
++	else if (o->is<XMLList>())
++		t = o->as<XMLList>()->toXMLString_internal();
+ 	else
+-		return Class<ASString>::getInstanceS(t.substr(0,i));
++		t = XML::encodeToXML(o->toString(),false);
++	o->decRef();
++	return Class<ASString>::getInstanceS(t);
+ }
+ 
+ /* This should walk prototype chain of value, trying to find type. See ECMA.
+diff --git a/src/scripting/toplevel/XML.cpp b/src/scripting/toplevel/XML.cpp
+index a3c51ae..c241bbb 100644
+--- a/src/scripting/toplevel/XML.cpp
++++ b/src/scripting/toplevel/XML.cpp
+@@ -28,6 +28,7 @@
+ #include <libxml/tree.h>
+ #include <libxml++/parsers/domparser.h>
+ #include <libxml++/nodes/textnode.h>
++#include <libxml++/nodes/entityreference.h>
+ 
+ using namespace std;
+ using namespace lightspark;
+@@ -35,7 +36,7 @@ using namespace lightspark;
+ static bool ignoreComments;
+ static bool ignoreProcessingInstructions;
+ static bool ignoreWhitespace;
+-static uint32_t prettyIndent;
++static int32_t prettyIndent;
+ static bool prettyPrinting;
+ 
+ void setDefaultXMLSettings()
+@@ -47,32 +48,23 @@ void setDefaultXMLSettings()
+ 	prettyPrinting = true;
+ }
+ 
+-XML::XML(Class_base* c):ASObject(c),node(NULL),constructed(false), hasParentNode(false)
++XML::XML(Class_base* c):ASObject(c),parentNode(0),nodetype((xmlElementType)0),constructed(false), hasParentNode(false)
+ {
+ }
+ 
+-XML::XML(Class_base* c,const string& str):ASObject(c),node(NULL),constructed(true)
++XML::XML(Class_base* c, const std::string &str):ASObject(c),parentNode(0),nodetype((xmlElementType)0),constructed(false)
+ {
+-	node=buildFromString(str, false,&hasParentNode);
++	createTree(buildFromString(str, false,&hasParentNode));
+ }
+ 
+-XML::XML(Class_base* c,_R<XML> _r, xmlpp::Node* _n):ASObject(c),root(_r),node(_n),constructed(true)
++XML::XML(Class_base* c,xmlpp::Node* _n):ASObject(c),parentNode(0),nodetype((xmlElementType)0),constructed(false)
+ {
+-	assert(node);
+-	hasParentNode = true;
+-}
+-
+-XML::XML(Class_base* c,xmlpp::Node* _n):ASObject(c),constructed(true)
+-{
+-	assert(_n);
+-	node=buildCopy(_n,&hasParentNode);
+-	assert(node);
++	createTree(_n);
+ }
+ 
+ void XML::finalize()
+ {
+ 	ASObject::finalize();
+-	root.reset();
+ }
+ 
+ void XML::sinit(Class_base* c)
+@@ -116,16 +108,24 @@ void XML::sinit(Class_base* c)
+ 	c->setDeclaredMethodByQName("parent",AS3,Class<IFunction>::getFunction(parent),NORMAL_METHOD,true);
+ 	c->setDeclaredMethodByQName("inScopeNamespaces",AS3,Class<IFunction>::getFunction(inScopeNamespaces),NORMAL_METHOD,true);
+ 	c->setDeclaredMethodByQName("addNamespace",AS3,Class<IFunction>::getFunction(addNamespace),NORMAL_METHOD,true);
+-	c->setDeclaredMethodByQName("hasSimpleContent",AS3,Class<IFunction>::getFunction(_hasSimpleContent),NORMAL_METHOD,true);
+-	c->setDeclaredMethodByQName("hasComplexContent",AS3,Class<IFunction>::getFunction(_hasComplexContent),NORMAL_METHOD,true);
++	c->prototype->setVariableByQName("hasSimpleContent",AS3,Class<IFunction>::getFunction(_hasSimpleContent),DYNAMIC_TRAIT);
++	c->prototype->setVariableByQName("hasComplexContent",AS3,Class<IFunction>::getFunction(_hasComplexContent),DYNAMIC_TRAIT);
+ 	c->setDeclaredMethodByQName("text",AS3,Class<IFunction>::getFunction(text),NORMAL_METHOD,true);
+ 	c->setDeclaredMethodByQName("elements",AS3,Class<IFunction>::getFunction(elements),NORMAL_METHOD,true);
+ 	c->setDeclaredMethodByQName("setLocalName",AS3,Class<IFunction>::getFunction(_setLocalName),NORMAL_METHOD,true);
+ 	c->setDeclaredMethodByQName("setName",AS3,Class<IFunction>::getFunction(_setName),NORMAL_METHOD,true);
+ 	c->setDeclaredMethodByQName("setNamespace",AS3,Class<IFunction>::getFunction(_setNamespace),NORMAL_METHOD,true);
+-	c->setDeclaredMethodByQName("copy",AS3,Class<IFunction>::getFunction(_copy),NORMAL_METHOD,true);
++	c->prototype->setVariableByQName("copy",AS3,Class<IFunction>::getFunction(_copy),DYNAMIC_TRAIT);
+ 	c->setDeclaredMethodByQName("setChildren",AS3,Class<IFunction>::getFunction(_setChildren),NORMAL_METHOD,true);
+ 	c->setDeclaredMethodByQName("toJSON",AS3,Class<IFunction>::getFunction(_toJSON),NORMAL_METHOD,true);
++	c->setDeclaredMethodByQName("insertChildAfter",AS3,Class<IFunction>::getFunction(insertChildAfter),NORMAL_METHOD,true);
++	c->setDeclaredMethodByQName("insertChildBefore",AS3,Class<IFunction>::getFunction(insertChildBefore),NORMAL_METHOD,true);
++	c->setDeclaredMethodByQName("namespaceDeclarations",AS3,Class<IFunction>::getFunction(namespaceDeclarations),NORMAL_METHOD,true);
++	c->setDeclaredMethodByQName("removeNamespace",AS3,Class<IFunction>::getFunction(removeNamespace),NORMAL_METHOD,true);
++	c->setDeclaredMethodByQName("comments",AS3,Class<IFunction>::getFunction(comments),NORMAL_METHOD,true);
++	c->setDeclaredMethodByQName("processingInstructions",AS3,Class<IFunction>::getFunction(processingInstructions),NORMAL_METHOD,true);
++	c->setDeclaredMethodByQName("propertyIsEnumerable",AS3,Class<IFunction>::getFunction(_propertyIsEnumerable),NORMAL_METHOD,true);
++	c->prototype->setVariableByQName("hasOwnProperty",AS3,Class<IFunction>::getFunction(_hasOwnProperty),DYNAMIC_TRAIT);
+ }
+ 
+ ASFUNCTIONBODY(XML,generator)
+@@ -178,7 +178,7 @@ ASFUNCTIONBODY(XML,_constructor)
+ 	   args[0]->is<Null>() || 
+ 	   args[0]->is<Undefined>())
+ 	{
+-		th->node=th->buildFromString("", false,&th->hasParentNode);
++		th->createTree(th->buildFromString("", false,&th->hasParentNode));
+ 	}
+ 	else if(args[0]->getClass()->isSubClass(Class<ByteArray>::getClass()))
+ 	{
+@@ -187,8 +187,8 @@ ASFUNCTIONBODY(XML,_constructor)
+ 		ByteArray* ba=Class<ByteArray>::cast(args[0]);
+ 		uint32_t len=ba->getLength();
+ 		const uint8_t* str=ba->getBuffer(len, false);
+-		th->node=th->buildFromString(std::string((const char*)str,len), false,&th->hasParentNode,
+-					     getVm()->getDefaultXMLNamespace());
++		th->createTree(th->buildFromString(std::string((const char*)str,len), false,&th->hasParentNode,
++					     getVm()->getDefaultXMLNamespace()));
+ 	}
+ 	else if(args[0]->is<ASString>() ||
+ 		args[0]->is<Number>() ||
+@@ -198,23 +198,24 @@ ASFUNCTIONBODY(XML,_constructor)
+ 	{
+ 		//By specs, XML constructor will only convert to string Numbers or Booleans
+ 		//ints are not explicitly mentioned, but they seem to work
+-		th->node=th->buildFromString(args[0]->toString(), false,&th->hasParentNode,
+-					     getVm()->getDefaultXMLNamespace());
++		th->createTree(th->buildFromString(args[0]->toString(), false,&th->hasParentNode,
++					     getVm()->getDefaultXMLNamespace()));
+ 	}
+ 	else if(args[0]->is<XML>())
+ 	{
+-		th->node=th->buildCopy(args[0]->as<XML>()->node,&th->hasParentNode);
++		th->createTree(th->buildFromString(args[0]->as<XML>()->toXMLString_internal(), false,&th->hasParentNode,
++					     getVm()->getDefaultXMLNamespace()));
+ 	}
+ 	else if(args[0]->is<XMLList>())
+ 	{
+ 		XMLList *list=args[0]->as<XMLList>();
+ 		_R<XML> reduced=list->reduceToXML();
+-		th->node=th->buildCopy(reduced->node,&th->hasParentNode);
++		th->createTree(th->buildFromString(reduced->toXMLString_internal(), false,&th->hasParentNode));
+ 	}
+ 	else
+ 	{
+-		th->node=th->buildFromString(args[0]->toString(), false,&th->hasParentNode,
+-					     getVm()->getDefaultXMLNamespace());
++		th->createTree(th->buildFromString(args[0]->toString(), false,&th->hasParentNode,
++					     getVm()->getDefaultXMLNamespace()));
+ 	}
+ 	return NULL;
+ }
+@@ -223,23 +224,26 @@ ASFUNCTIONBODY(XML,nodeKind)
+ {
+ 	XML* th=Class<XML>::cast(obj);
+ 	assert_and_throw(argslen==0);
+-	assert(th->node);
+-	xmlNodePtr libXml2Node=th->node->cobj();
+-	switch(libXml2Node->type)
++	return Class<ASString>::getInstanceS(th->nodekindString());
++}
++const char *XML::nodekindString()
++{
++	switch(nodetype)
+ 	{
+ 		case XML_ATTRIBUTE_NODE:
+-			return Class<ASString>::getInstanceS("attribute");
++			return "attribute";
+ 		case XML_ELEMENT_NODE:
+-			return Class<ASString>::getInstanceS("element");
++			return "element";
++		case XML_CDATA_SECTION_NODE:
+ 		case XML_TEXT_NODE:
+-			return Class<ASString>::getInstanceS("text");
++			return "text";
+ 		case XML_COMMENT_NODE:
+-			return Class<ASString>::getInstanceS("comment");
++			return "comment";
+ 		case XML_PI_NODE:
+-			return Class<ASString>::getInstanceS("processing-instruction");
++			return "processing-instruction";
+ 		default:
+ 		{
+-			LOG(LOG_ERROR,"Unsupported XML type " << libXml2Node->type);
++			LOG(LOG_ERROR,"Unsupported XML type " << nodetype);
+ 			throw UnsupportedException("Unsupported XML node type");
+ 		}
+ 	}
+@@ -254,27 +258,23 @@ ASFUNCTIONBODY(XML,localName)
+ {
+ 	XML* th=Class<XML>::cast(obj);
+ 	assert_and_throw(argslen==0);
+-	assert(th->node);
+-	xmlElementType nodetype=th->node->cobj()->type;
+-	if(nodetype==XML_TEXT_NODE || nodetype==XML_COMMENT_NODE)
++	if(th->nodetype==XML_TEXT_NODE || th->nodetype==XML_COMMENT_NODE)
+ 		return getSys()->getNullRef();
+ 	else
+-		return Class<ASString>::getInstanceS(th->node->get_name());
++		return Class<ASString>::getInstanceS(th->nodename);
+ }
+ 
+ ASFUNCTIONBODY(XML,name)
+ {
+ 	XML* th=Class<XML>::cast(obj);
+ 	assert_and_throw(argslen==0);
+-	assert(th->node);
+-	xmlElementType nodetype=th->node->cobj()->type;
+ 	//TODO: add namespace
+-	if(nodetype==XML_TEXT_NODE || nodetype==XML_COMMENT_NODE)
++	if(th->nodetype==XML_TEXT_NODE || th->nodetype==XML_COMMENT_NODE)
+ 		return getSys()->getNullRef();
+ 	else
+ 	{
+ 		ASQName* ret = Class<ASQName>::getInstanceS();
+-		ret->setByNode(th->node);
++		ret->setByXML(th);
+ 		return ret;
+ 	}
+ }
+@@ -284,9 +284,9 @@ ASFUNCTIONBODY(XML,descendants)
+ 	XML* th=Class<XML>::cast(obj);
+ 	tiny_string name;
+ 	ARG_UNPACK(name,"*");
+- 	XMLVector ret;
+-	th->getDescendantsByQName(name,"",ret);
+- 	return Class<XMLList>::getInstanceS(ret);
++	XMLVector ret;
++	th->getDescendantsByQName(name,"",false,ret);
++	return Class<XMLList>::getInstanceS(ret,th->getChildrenlist(),multiname(NULL));
+ }
+ 
+ ASFUNCTIONBODY(XML,_appendChild)
+@@ -321,15 +321,14 @@ ASFUNCTIONBODY(XML,_appendChild)
+ 
+ void XML::appendChild(_R<XML> newChild)
+ {
+-	// Work around a text node concatenation bug in libxml++ older
+-	// than 2.35.3 by importing manually instead of calling
+-	// import_node().
+-	xmlNode* imported_node = xmlDocCopyNode(newChild->node->cobj(), node->cobj()->doc, 1);
+-	if (!imported_node)
+-		return;
+-
+-	xmlAddChild(node->cobj(), imported_node);
+-
++	if (newChild->constructed)
++	{
++		this->incRef();
++		newChild->parentNode = _NR<XML>(this);
++		childrenlist->append(newChild);
++	}
++	else
++		newChild->decRef();
+ }
+ 
+ /* returns the named attribute in an XMLList */
+@@ -338,23 +337,27 @@ ASFUNCTIONBODY(XML,attribute)
+ 	XML* th = obj->as<XML>();
+ 	tiny_string attrname;
+ 	//see spec for QName handling
+-	if(argslen > 0 && args[0]->is<QName>())
+-		LOG(LOG_NOT_IMPLEMENTED,"XML.attribute called with QName");
+ 	ARG_UNPACK (attrname);
+-
+-	xmlpp::Element* elem=dynamic_cast<xmlpp::Element*>(th->node);
+-        if(elem==NULL)
+-		return Class<XMLList>::getInstanceS();
+-	xmlpp::Attribute* attribute = elem->get_attribute(attrname);
+-	if(!attribute)
++	tiny_string tmpns;
++	if(argslen > 0 && args[0]->is<ASQName>())
+ 	{
+-		LOG(LOG_ERROR,"attribute " << attrname << " not found");
+-		return Class<XMLList>::getInstanceS();
++		tmpns= args[0]->as<ASQName>()->getURI();
++		attrname = args[0]->as<ASQName>()->getLocalName();
++			
+ 	}
+ 
+-	XMLVector ret;
+-	ret.push_back(_MR(Class<XML>::getInstanceS(th->getRootNode(), attribute)));
+-	return Class<XMLList>::getInstanceS(ret);
++	XMLVector tmp;
++	XMLList* res = Class<XMLList>::getInstanceS(tmp,th->getChildrenlist(),multiname(NULL));
++	for (XMLList::XMLListVector::const_iterator it = th->attributelist->nodes.begin(); it != th->attributelist->nodes.end(); it++)
++	{
++		_R<XML> attr = *it;
++		if (attr->nodenamespace_uri == tmpns && (attrname== "*" || attr->nodename == attrname))
++		{
++			attr->incRef();
++			res->append(attr);
++		}
++	}
++	return res;
+ }
+ 
+ ASFUNCTIONBODY(XML,attributes)
+@@ -365,144 +368,278 @@ ASFUNCTIONBODY(XML,attributes)
+ 
+ XMLList* XML::getAllAttributes()
+ {
+-	XML::XMLVector attributes=getAttributes();
+-	return Class<XMLList>::getInstanceS(attributes);
++	attributelist->incRef();
++	return attributelist.getPtr();
+ }
+ 
+-XML::XMLVector XML::getAttributes(const tiny_string& name,
+-				  const tiny_string& namespace_uri)
++const tiny_string XML::toXMLString_internal(bool pretty, tiny_string defaultnsprefix, const char *indent,bool bfirst)
+ {
+-	assert(node);
+-	//Use low level libxml2 access for speed
+-	const xmlNode* xmlN = node->cobj();
+-	XMLVector ret;
+-	//Only elements can have attributes
+-	if(xmlN->type!=XML_ELEMENT_NODE)
+-		return ret;
++	tiny_string res;
++	set<tiny_string> seen_prefix;
+ 
+-	_NR<XML> rootXML=getRootNode();
+-	for(xmlAttr* attr=xmlN->properties; attr!=NULL; attr=attr->next)
++	if (bfirst)
+ 	{
+-		if((name=="*" || name==attr->name) &&
+-		   (namespace_uri=="*" || (namespace_uri=="" && attr->ns==NULL) || (attr->ns && namespace_uri==attr->ns->href)))
++		tiny_string defns = getVm()->getDefaultXMLNamespace();
++		XML* tmp = this;
++		bool bfound = false;
++		while(tmp)
+ 		{
+-			//NOTE: libxmlpp headers says that Node::create_wrapper
+-			//is supposed to be internal API. Still it's very useful and
+-			//we use it.
+-			xmlpp::Node::create_wrapper(reinterpret_cast<xmlNode*>(attr));
+-			xmlpp::Node* attrX=static_cast<xmlpp::Node*>(attr->_private);
+-			ret.push_back(_MR(Class<XML>::getInstanceS(rootXML, attrX)));
++			for (uint32_t j = 0; j < tmp->namespacedefs.size(); j++)
++			{
++				bool b;
++				_R<Namespace> tmpns = tmp->namespacedefs[j];
++				if (tmpns->getURI() == defns)
++				{
++					defaultnsprefix = tmpns->getPrefix(b);
++					bfound = true;
++					break;
++				}
++			}
++			if (!bfound && tmp->parentNode)
++				tmp = tmp->parentNode.getPtr();
++			else
++				break;
+ 		}
+ 	}
+-	return ret;
+-}
+-
+-void XML::toXMLString_priv(xmlBufferPtr buf)
+-{
+-	//NOTE: this function is not thread-safe, as it can modify the xmlNode
+-	xmlDocPtr xmlDoc=getRootNode()->parser.get_document()->cobj();
+-	assert(xmlDoc);
+-	xmlNodePtr cNode=node->cobj();
+-	int retVal;
+-	if(cNode->type == XML_ATTRIBUTE_NODE)
++	switch (nodetype)
+ 	{
+-		//cobj() return a xmlNodePtr for XML_ATTRIBUTE_NODE
+-		//even though its actually a different structure
+-		//containing only the first few member. Especially,
+-		//there is no nsDef member in that struct.
+-		retVal=xmlNodeBufGetContent(buf, cNode);
+-	}
+-	else
+-	{
+-		//As libxml2 does not automatically add the needed namespaces to the dump
+-		//we have to workaround the issue
+-
+-		//Get the needed namespaces
+-		xmlNsPtr* neededNamespaces=xmlGetNsList(xmlDoc,cNode);
+-		//Save a copy of the namespaces actually defined in the node
+-		xmlNsPtr oldNsDef=cNode->nsDef;
+-
+-		//Copy the namespaces (we need to modify them to create a customized list)
+-		vector<xmlNs> localNamespaces;
+-		if(neededNamespaces)
++		case XML_TEXT_NODE:
++			res = indent;
++			res += encodeToXML(nodevalue,false);
++			break;
++		case XML_ATTRIBUTE_NODE:
++			res += nodevalue;
++			break;
++		case XML_COMMENT_NODE:
++			res = indent;
++			res += "<!--";
++			res += nodevalue;
++			res += "-->";
++			break;
++		case XML_PI_NODE:
++			if (ignoreProcessingInstructions)
++				break;
++			res = indent;
++			res += "<?";
++			res +=this->nodename;
++			res += " ";
++			res += nodevalue;
++			res += "?>";
++			break;
++		case XML_ELEMENT_NODE:
+ 		{
+-			xmlNsPtr* cur=neededNamespaces;
+-			while(*cur)
++			tiny_string curprefix = this->nodenamespace_prefix;
++			res = indent;
++			res += "<";
++			if (this->nodenamespace_prefix.empty())
++			{
++				if (defaultnsprefix != "")
++				{
++					res += defaultnsprefix;
++					res += ":";
++					curprefix = defaultnsprefix;
++				}
++			}
++			else
++			{
++				res += this->nodenamespace_prefix;
++				res += ":";
++			}
++			res +=this->nodename;
++			for (uint32_t i = 0; i < this->namespacedefs.size(); i++)
++			{
++				bool b;
++				_R<Namespace> tmpns = this->namespacedefs[i];
++				tiny_string tmpprefix = tmpns->getPrefix(b);
++				if(tmpprefix == "" || tmpprefix==this->nodenamespace_prefix || seen_prefix.find(tmpprefix)!=seen_prefix.end())
++					continue;
++				seen_prefix.insert(tmpprefix);
++				res += " xmlns:";
++				res += tmpprefix;
++				res += "=\"";
++				res += tmpns->getURI();
++				res += "\"";
++			}
++			if (this->parentNode)
++			{
++				if (bfirst)
++				{
++					XML* tmp = this->parentNode.getPtr();
++					while(tmp)
++					{
++						for (uint32_t i = 0; i < tmp->namespacedefs.size(); i++)
++						{
++							bool b;
++							_R<Namespace> tmpns = tmp->namespacedefs[i];
++							tiny_string tmpprefix = tmpns->getPrefix(b);
++							if(tmpprefix != "" && seen_prefix.find(tmpprefix)==seen_prefix.end())
++							{
++								seen_prefix.insert(tmpprefix);
++								res += " xmlns:";
++								res += tmpprefix;
++								res += "=\"";
++								res += tmpns->getURI();
++								res += "\"";
++							}
++						}
++						if (tmp->parentNode)
++							tmp = tmp->parentNode.getPtr();
++						else
++							break;
++					}
++				}
++				else if (!curprefix.empty())
++				{
++					XML* tmp = this->parentNode.getPtr();
++					bool bfound = false;
++					while(tmp)
++					{
++						for (uint32_t i = 0; i < tmp->namespacedefs.size(); i++)
++						{
++							bool b;
++							_R<Namespace> tmpns = tmp->namespacedefs[i];
++							tiny_string tmpprefix = tmpns->getPrefix(b);
++							if(tmpprefix == curprefix)
++							{
++								seen_prefix.insert(tmpprefix);
++								bfound = true;
++								break;
++							}
++						}
++						if (!bfound && tmp->parentNode)
++							tmp = tmp->parentNode.getPtr();
++						else
++							break;
++					}
++				}
++			}
++			if (!this->nodenamespace_uri.empty() && 
++					((this->nodenamespace_prefix.empty() && defaultnsprefix == "") ||
++					 (!this->nodenamespace_prefix.empty() && seen_prefix.find(this->nodenamespace_prefix)==seen_prefix.end())))
++			{
++				if (!this->nodenamespace_prefix.empty())
++				{
++					seen_prefix.insert(this->nodenamespace_prefix);
++					res += " xmlns:";
++					res += this->nodenamespace_prefix;
++				}
++				else
++					res += " xmlns";
++				res += "=\"";
++				res += this->nodenamespace_uri;
++				res += "\"";
++			}
++			else if (defaultnsprefix != "" && seen_prefix.find(defaultnsprefix)==seen_prefix.end())
++			{
++				seen_prefix.insert(defaultnsprefix);
++				res += " xmlns:";
++				res += defaultnsprefix;
++				res += "=\"";
++				res += getVm()->getDefaultXMLNamespace();
++				res += "\"";
++			}
++			for (XMLList::XMLListVector::const_iterator it = attributelist->nodes.begin(); it != attributelist->nodes.end(); it++)
++			{
++				_R<XML> attr = *it;
++				res += " ";
++				if (attr->nodenamespace_prefix != "")
++				{
++					res += attr->nodenamespace_prefix;
++					res += ":";
++				}
++				res += attr->nodename;
++				res += "=\"";
++				res += encodeToXML(attr->nodevalue,true);
++				res += "\"";
++			}
++			if (childrenlist->nodes.size() == 0)
++			{
++				res += "/>";
++				break;
++			}
++			res += ">";
++			tiny_string newindent;
++			bool bindent = (pretty && prettyPrinting && prettyIndent >=0 && 
++							(childrenlist->nodes.size() >1 || 
++							(childrenlist->nodes[0]->nodetype != XML_TEXT_NODE && childrenlist->nodes[0]->nodetype != XML_CDATA_SECTION_NODE)));
++			if (bindent)
++			{
++				newindent = indent;
++				for (int32_t j = 0; j < prettyIndent; j++)
++				{
++					newindent += " ";
++				}
++			}
++			for (uint32_t i = 0; i < childrenlist->nodes.size(); i++)
++			{
++				if (bindent)
++					res += "\n";
++				_R<XML> child= childrenlist->nodes[i];
++				res += child->toXMLString_internal(pretty,defaultnsprefix,newindent.raw_buf(),false);
++			}
++			if (bindent)
+ 			{
+-				localNamespaces.emplace_back(**cur);
+-				cur++;
++				res += "\n";
++				res += indent;
+ 			}
+-			for(uint32_t i=0;i<localNamespaces.size()-1;++i)
+-				localNamespaces[i].next=&localNamespaces[i+1];
+-			localNamespaces.back().next=NULL;
+-			//Free the namespaces arrary
+-			xmlFree(neededNamespaces);
+-			//Override the node defined namespaces
+-			cNode->nsDef=&localNamespaces.front();
++			res += "</";
++			if (this->nodenamespace_prefix.empty())
++			{
++				if (defaultnsprefix != "")
++				{
++					res += defaultnsprefix;
++					res += ":";
++				}
++			}
++			else
++			{
++				res += this->nodenamespace_prefix;
++				res += ":";
++			}
++			res += this->nodename;
++			res += ">";
++			break;
+ 		}
+-		retVal=xmlNodeDump(buf, xmlDoc, cNode, 0, prettyPrinting);
+-		//Restore the previously defined namespaces
+-		cNode->nsDef=oldNsDef;
++		case XML_CDATA_SECTION_NODE:
++			res += "<![CDATA[";
++			res += nodevalue;
++			res += "]]>";
++			break;
++		default:
++			LOG(LOG_NOT_IMPLEMENTED,"XML::toXMLString unhandled nodetype:"<<nodetype);
++			break;
+ 	}
+-	if(retVal==-1)
+-		throw RunTimeException("Error om XML::toXMLString_priv");
++	return res;
+ }
+ 
+ ASFUNCTIONBODY(XML,toXMLString)
+ {
+ 	XML* th=Class<XML>::cast(obj);
+ 	assert_and_throw(argslen==0);
+-	assert(th->node);
+-	//Allocate a page at the beginning
+-	xmlBufferPtr xmlBuffer=xmlBufferCreateSize(4096);
+-	th->toXMLString_priv(xmlBuffer);
+-	ASString* ret=Class<ASString>::getInstanceS((char*)xmlBuffer->content);
+-	xmlBufferFree(xmlBuffer);
++	tiny_string res = th->toXMLString_internal();
++	ASString* ret=Class<ASString>::getInstanceS(res);
+ 	return ret;
+ }
+ 
+ void XML::childrenImpl(XMLVector& ret, const tiny_string& name)
+ {
+-	assert(node);
+-	const xmlpp::Node::NodeList& list=node->get_children();
+-	xmlpp::Node::NodeList::const_iterator it=list.begin();
+-	_NR<XML> rootXML=getRootNode();
+-	for(;it!=list.end();++it)
++	for (uint32_t i = 0; i < childrenlist->nodes.size(); i++)
+ 	{
+-		if(name!="*" && (*it)->get_name() != name.raw_buf())
+-			continue;
+-
+-		// Ignore white-space-only text nodes
+-		xmlpp::TextNode *textnode=dynamic_cast<xmlpp::TextNode*>(*it);
+-		if (textnode && textnode->is_white_space())
++		_R<XML> child= childrenlist->nodes[i];
++		if(name!="*" && child->nodename != name)
+ 			continue;
+-
+-		ret.push_back(_MR(Class<XML>::getInstanceS(rootXML, *it)));
++		child->incRef();
++		ret.push_back(child);
+ 	}
+ }
+ 
+ void XML::childrenImpl(XMLVector& ret, uint32_t index)
+ {
+-	assert(node);
+-	_NR<XML> rootXML=getRootNode();
+-	uint32_t i=0;
+-	const xmlpp::Node::NodeList& list=node->get_children();
+-	xmlpp::Node::NodeList::const_iterator it=list.begin();
+-	while(it!=list.end())
++	if (constructed && index < childrenlist->nodes.size())
+ 	{
+-		xmlpp::TextNode* nodeText = dynamic_cast<xmlpp::TextNode*>(*it);
+-		if(!(nodeText && nodeText->is_white_space()))
+-		{
+-			if(i==index)
+-			{
+-				ret.push_back(_MR(Class<XML>::getInstanceS(rootXML, *it)));
+-				break;
+-			}
+-
+-			++i;
+-		}
+-
+-		++it;
++		_R<XML> child= childrenlist->nodes[index];
++		child->incRef();
++		ret.push_back(child);
+ 	}
+ }
+ 
+@@ -518,11 +655,11 @@ ASFUNCTIONBODY(XML,child)
+ 	mname.name_type=multiname::NAME_STRING;
+ 	mname.ns.push_back(nsNameAndKind("",NAMESPACE));
+ 	mname.isAttribute=false;
+-	if(Array::isValidMultiname(mname, index))
++	if(XML::isValidMultiname(mname, index))
+ 		th->childrenImpl(ret, index);
+ 	else
+ 		th->childrenImpl(ret, arg0);
+-	XMLList* retObj=Class<XMLList>::getInstanceS(ret);
++	XMLList* retObj=Class<XMLList>::getInstanceS(ret,th->getChildrenlist(),mname);
+ 	return retObj;
+ }
+ 
+@@ -532,38 +669,27 @@ ASFUNCTIONBODY(XML,children)
+ 	assert_and_throw(argslen==0);
+ 	XMLVector ret;
+ 	th->childrenImpl(ret, "*");
+-	XMLList* retObj=Class<XMLList>::getInstanceS(ret);
++	multiname mname(NULL);
++	mname.name_s_id=getSys()->getUniqueStringId("*");
++	mname.name_type=multiname::NAME_STRING;
++	mname.ns.push_back(nsNameAndKind("",NAMESPACE));
++	XMLList* retObj=Class<XMLList>::getInstanceS(ret,th->getChildrenlist(),mname);
+ 	return retObj;
+ }
+ 
+ ASFUNCTIONBODY(XML,childIndex)
+ {
+ 	XML* th=Class<XML>::cast(obj);
+-	xmlpp::Node *parent=th->node->get_parent();
+-	if (parent && (th->node->cobj()->type!=XML_ATTRIBUTE_NODE))
++	if (th->parentNode)
+ 	{
+-		xmlpp::Node::NodeList children=parent->get_children();
+-		xmlpp::Node::NodeList::const_iterator it;
+-		unsigned int n;
+-		
+-		it=children.begin();
+-		n=0;
+-		while(it!=children.end())
++		XML* parent = th->parentNode.getPtr();
++		for (uint32_t i = 0; i < parent->childrenlist->nodes.size(); i++)
+ 		{
+-			if((*it)==th->node)
+-				return abstract_i(n);
+-
+-			// Ignore white-space text nodes
+-			xmlpp::TextNode *textnode=dynamic_cast<xmlpp::TextNode*>(*it);
+-			if (!(textnode && textnode->is_white_space()))
+-			{
+-				++n;
+-			}
+-
+-			++it;
++			ASObject* o= parent->childrenlist->nodes[i].getPtr();
++			if (o == th)
++				return abstract_i(i);
+ 		}
+ 	}
+-
+ 	return abstract_i(-1);
+ }
+ 
+@@ -587,20 +713,15 @@ ASFUNCTIONBODY(XML,valueOf)
+ 
+ void XML::getText(XMLVector& ret)
+ {
+-	xmlpp::Node::NodeList nl = node->get_children();
+-	xmlpp::Node::NodeList::iterator i;
+-	_NR<XML> childroot = root;
+-	if(childroot.isNull())
++	for (uint32_t i = 0; i < childrenlist->nodes.size(); i++)
+ 	{
+-		this->incRef();
+-		childroot = _MR(this);
+-	}
+-	for(i=nl.begin(); i!= nl.end(); ++i)
+-	{
+-		xmlpp::TextNode* nodeText = dynamic_cast<xmlpp::TextNode*>(*i);
+-		//The official implementation seems to ignore whitespace-only textnodes
+-		if(nodeText && !nodeText->is_white_space())
+-			ret.push_back( _MR(Class<XML>::getInstanceS(childroot, nodeText)) );
++		_R<XML> child= childrenlist->nodes[i];
++		if (child->getNodeKind() == XML_TEXT_NODE  ||
++			child->getNodeKind() == XML_CDATA_SECTION_NODE)
++		{
++			child->incRef();
++			ret.push_back( child );
++		}
+ 	}
+ }
+ 
+@@ -610,7 +731,7 @@ ASFUNCTIONBODY(XML,text)
+ 	ARG_UNPACK;
+ 	XMLVector ret;
+ 	th->getText(ret);
+-	return Class<XMLList>::getInstanceS(ret);
++	return Class<XMLList>::getInstanceS(ret,th->getChildrenlist(),multiname(NULL));
+ }
+ 
+ ASFUNCTIONBODY(XML,elements)
+@@ -623,19 +744,19 @@ ASFUNCTIONBODY(XML,elements)
+ 		name="";
+ 
+ 	th->getElementNodes(name, ret);
+-	return Class<XMLList>::getInstanceS(ret);
++	return Class<XMLList>::getInstanceS(ret,th->getChildrenlist(),multiname(NULL));
+ }
+ 
+ void XML::getElementNodes(const tiny_string& name, XMLVector& foundElements)
+ {
+-	_NR<XML> rootXML=getRootNode();
+-	const xmlpp::Node::NodeList& children=node->get_children();
+-	xmlpp::Node::NodeList::const_iterator it=children.begin();
+-	for(;it!=children.end();++it)
++	for (uint32_t i = 0; i < childrenlist->nodes.size(); i++)
+ 	{
+-		xmlElementType nodetype=(*it)->cobj()->type;
+-		if(nodetype==XML_ELEMENT_NODE && (name.empty() || name == (*it)->get_name()))
+-			foundElements.push_back(_MR(Class<XML>::getInstanceS(rootXML, *it)));
++		_R<XML> child= childrenlist->nodes[i];
++		if(child->nodetype==XML_ELEMENT_NODE && (name.empty() || name == child->nodename))
++		{
++			child->incRef();
++			foundElements.push_back( child );
++		}
+ 	}
+ }
+ 
+@@ -645,29 +766,25 @@ ASFUNCTIONBODY(XML,inScopeNamespaces)
+ 	Array *namespaces = Class<Array>::getInstanceS();
+ 	set<tiny_string> seen_prefix;
+ 
+-	xmlDocPtr xmlDoc=th->getRootNode()->parser.get_document()->cobj();
+-	xmlNsPtr *nsarr=xmlGetNsList(xmlDoc, th->node->cobj());
+-	if(nsarr)
++	XML* tmp = th;
++	while(tmp)
+ 	{
+-		for(int i=0; nsarr[i]!=NULL; i++)
++		for (uint32_t i = 0; i < tmp->namespacedefs.size(); i++)
+ 		{
+-			if(!nsarr[i]->prefix)
+-				continue;
+-
+-			tiny_string prefix((const char*)nsarr[i]->prefix, true);
+-			if(seen_prefix.find(prefix)==seen_prefix.end())
++			bool b;
++			_R<Namespace> tmpns = tmp->namespacedefs[i];
++			if(seen_prefix.find(tmpns->getPrefix(b))==seen_prefix.end())
+ 			{
+-				tiny_string uri((const char*)nsarr[i]->href, true);
+-				Namespace *ns=Class<Namespace>::getInstanceS(uri, prefix);
+-				namespaces->push(_MR(ns));
++				tmpns->incRef();
++				namespaces->push(tmpns);
++				seen_prefix.insert(tmp->nodenamespace_prefix);
+ 			}
+-
+-			seen_prefix.insert(prefix);
+ 		}
+-
+-		xmlFree(nsarr);
++		if (tmp->parentNode)
++			tmp = tmp->parentNode.getPtr();
++		else
++			break;
+ 	}
+-
+ 	return namespaces;
+ }
+ 
+@@ -677,37 +794,44 @@ ASFUNCTIONBODY(XML,addNamespace)
+ 	_NR<ASObject> newNamespace;
+ 	ARG_UNPACK(newNamespace);
+ 
+-	xmlpp::Element *element=dynamic_cast<xmlpp::Element*>(th->node);
+-	if(!element)
+-		return NULL;
+-
+-	// TODO: check if the prefix already exists
+ 
+-	Namespace *ns=dynamic_cast<Namespace *>(newNamespace.getPtr());
+-	if(ns)
++	tiny_string ns_uri;
++	tiny_string ns_prefix;
++	if (newNamespace->is<Namespace>())
+ 	{
+-		tiny_string uri=ns->getURI();
+-		bool prefix_is_undefined=false;
+-		tiny_string prefix=ns->getPrefix(prefix_is_undefined);
+-		element->set_namespace_declaration(uri, prefix);
++		Namespace* tmpns = newNamespace->as<Namespace>();
++		bool b;
++		ns_prefix = tmpns->getPrefix(b);
++		ns_uri = tmpns->getURI();
+ 	}
+-	else
++	else if (newNamespace->is<ASQName>())
+ 	{
+-		tiny_string uri=newNamespace->toString();
+-		element->set_namespace_declaration(uri);
++		ns_uri = newNamespace->as<ASQName>()->getURI();
+ 	}
+-
++	else
++		ns_uri = newNamespace->toString();
++	if (th->nodenamespace_prefix == ns_prefix)
++		th->nodenamespace_prefix="";
++	for (uint32_t i = 0; i < th->namespacedefs.size(); i++)
++	{
++		bool b;
++		_R<Namespace> tmpns = th->namespacedefs[i];
++		if (tmpns->getPrefix(b) == ns_prefix)
++		{
++			th->namespacedefs[i] = _R<Namespace>(Class<Namespace>::getInstanceS(ns_uri,ns_prefix));
++			return NULL;
++		}
++	}
++	th->namespacedefs.push_back(_R<Namespace>(Class<Namespace>::getInstanceS(ns_uri,ns_prefix)));
+ 	return NULL;
+ }
+ 
+ ASObject *XML::getParentNode()
+ {
+-	xmlpp::Node *parent=node->get_parent();
+-	if (parent)
++	if (parentNode && parentNode->is<XML>())
+ 	{
+-		if (!hasParentNode)
+-			return getSys()->getUndefinedRef();
+-		return Class<XML>::getInstanceS(getRootNode(), parent);
++		parentNode->incRef();
++		return parentNode.getPtr();
+ 	}
+ 	else
+ 		return getSys()->getUndefinedRef();
+@@ -736,54 +860,26 @@ ASFUNCTIONBODY(XML,_namespace)
+ 	tiny_string prefix;
+ 	ARG_UNPACK(prefix, "");
+ 
+-	xmlElementType nodetype=th->node->cobj()->type;
++	xmlElementType nodetype=th->nodetype;
+ 	if(prefix.empty() && 
+ 	   nodetype!=XML_ELEMENT_NODE && 
+ 	   nodetype!=XML_ATTRIBUTE_NODE)
+ 	{
+ 		return getSys()->getNullRef();
+ 	}
+-
+-	tiny_string local_uri=th->node->get_namespace_uri();
+-	ASObject *ret=NULL;
+-	xmlDocPtr xmlDoc=th->getRootNode()->parser.get_document()->cobj();
+-	xmlNsPtr *nsarr=xmlGetNsList(xmlDoc, th->node->cobj());
+-	if(nsarr)
+-	{
+-		for(int i=0; nsarr[i]!=NULL; i++)
+-		{
+-			tiny_string ns_prefix;
+-			if(nsarr[i]->prefix)
+-				ns_prefix=tiny_string((const char*)nsarr[i]->prefix, true);
+-			tiny_string ns_uri((const char*)nsarr[i]->href, true);
+-			if(!prefix.empty() && ns_prefix==prefix)
+-			{
+-				ret=Class<Namespace>::getInstanceS(ns_uri, prefix);
+-				break;
+-			}
+-			else if(prefix.empty() && ns_uri==local_uri)
+-			{
+-				ret=Class<Namespace>::getInstanceS(ns_uri);
+-				break;
+-			}
+-		}
+-
+-		xmlFree(nsarr);
+-	}
+-
+-	if(!ret)
++	if (prefix.empty())
++		return Class<Namespace>::getInstanceS(th->nodenamespace_uri, th->nodenamespace_prefix);
++		
++	for (uint32_t i = 0; i < th->namespacedefs.size(); i++)
+ 	{
+-		if(prefix.empty() && local_uri.empty())
+-		{
+-			ret=Class<Namespace>::getInstanceS();
+-		}
+-		else
++		bool b;
++		_R<Namespace> tmpns = th->namespacedefs[i];
++		if (tmpns->getPrefix(b) == prefix)
+ 		{
+-			ret=getSys()->getUndefinedRef();
++			return Class<Namespace>::getInstanceS(tmpns->getURI(), prefix);
+ 		}
+ 	}
+-
+-	return ret;
++	return getSys()->getUndefinedRef();
+ }
+ 
+ ASFUNCTIONBODY(XML,_setLocalName)
+@@ -792,7 +888,7 @@ ASFUNCTIONBODY(XML,_setLocalName)
+ 	_NR<ASObject> newName;
+ 	ARG_UNPACK(newName);
+ 
+-	xmlElementType nodetype=th->node->cobj()->type;
++	xmlElementType nodetype=th->nodetype;
+ 	if(nodetype==XML_TEXT_NODE || nodetype==XML_COMMENT_NODE)
+ 		return NULL;
+ 
+@@ -817,8 +913,7 @@ void XML::setLocalName(const tiny_string& new_name)
+ 	{
+ 		throwError<TypeError>(kXMLInvalidName, new_name);
+ 	}
+-
+-	node->set_name(new_name);
++	this->nodename = new_name;
+ }
+ 
+ ASFUNCTIONBODY(XML,_setName)
+@@ -827,12 +922,12 @@ ASFUNCTIONBODY(XML,_setName)
+ 	_NR<ASObject> newName;
+ 	ARG_UNPACK(newName);
+ 
+-	xmlElementType nodetype=th->node->cobj()->type;
+-	if(nodetype==XML_TEXT_NODE || nodetype==XML_COMMENT_NODE)
++	if(th->nodetype==XML_TEXT_NODE || th->nodetype==XML_COMMENT_NODE)
+ 		return NULL;
+ 
+ 	tiny_string localname;
+ 	tiny_string ns_uri;
++	tiny_string ns_prefix = th->nodenamespace_prefix;
+ 	if(newName->is<ASQName>())
+ 	{
+ 		ASQName *qname=newName->as<ASQName>();
+@@ -842,10 +937,11 @@ ASFUNCTIONBODY(XML,_setName)
+ 	else if (!newName->is<Undefined>())
+ 	{
+ 		localname=newName->toString();
++		ns_prefix= "";
+ 	}
+ 
+ 	th->setLocalName(localname);
+-	th->setNamespace(ns_uri);
++	th->setNamespace(ns_uri,ns_prefix);
+ 
+ 	return NULL;
+ }
+@@ -856,12 +952,10 @@ ASFUNCTIONBODY(XML,_setNamespace)
+ 	_NR<ASObject> newNamespace;
+ 	ARG_UNPACK(newNamespace);
+ 
+-	xmlElementType nodetype=th->node->cobj()->type;
+-	if(nodetype==XML_TEXT_NODE ||
+-	   nodetype==XML_COMMENT_NODE ||
+-	   nodetype==XML_PI_NODE)
++	if(th->nodetype==XML_TEXT_NODE ||
++	   th->nodetype==XML_COMMENT_NODE ||
++	   th->nodetype==XML_PI_NODE)
+ 		return NULL;
+-
+ 	tiny_string ns_uri;
+ 	tiny_string ns_prefix;
+ 	if(newNamespace->is<Namespace>())
+@@ -875,45 +969,55 @@ ASFUNCTIONBODY(XML,_setNamespace)
+ 	{
+ 		ASQName *qname=newNamespace->as<ASQName>();
+ 		ns_uri=qname->getURI();
++		for (uint32_t i = 0; i < th->namespacedefs.size(); i++)
++		{
++			bool b;
++			_R<Namespace> tmpns = th->namespacedefs[i];
++			if (tmpns->getURI() == ns_uri)
++			{
++				ns_prefix = tmpns->getPrefix(b);
++				break;
++			}
++		}
+ 	}
+ 	else if (!newNamespace->is<Undefined>())
+ 	{
+ 		ns_uri=newNamespace->toString();
++		for (uint32_t i = 0; i < th->namespacedefs.size(); i++)
++		{
++			bool b;
++			_R<Namespace> tmpns = th->namespacedefs[i];
++			if (tmpns->getURI() == ns_uri)
++			{
++				ns_prefix = tmpns->getPrefix(b);
++				break;
++			}
++		}
+ 	}
+-
+ 	th->setNamespace(ns_uri, ns_prefix);
++	if (th->nodetype==XML_ATTRIBUTE_NODE && th->parentNode)
++	{
++		XML* tmp = th->parentNode.getPtr();
++		for (uint32_t i = 0; i < tmp->namespacedefs.size(); i++)
++		{
++			bool b;
++			_R<Namespace> tmpns = tmp->namespacedefs[i];
++			if (tmpns->getPrefix(b) == ns_prefix)
++			{
++				tmp->namespacedefs[i] = _R<Namespace>(Class<Namespace>::getInstanceS(ns_uri,ns_prefix));
++				return NULL;
++			}
++		}
++		tmp->namespacedefs.push_back(_R<Namespace>(Class<Namespace>::getInstanceS(ns_uri,ns_prefix)));
++	}
+ 	
+ 	return NULL;
+ }
+ 
+ void XML::setNamespace(const tiny_string& ns_uri, const tiny_string& ns_prefix)
+ {
+-	if(ns_uri.empty())
+-	{
+-		// libxml++ set_namespace() doesn't seem to be able to
+-		// reset the namespace to empty (default) namespace,
+-		// so we have to do this through libxml2
+-		xmlDocPtr xmlDoc=getRootNode()->parser.get_document()->cobj();
+-		xmlNsPtr default_ns=xmlSearchNs(xmlDoc, node->cobj(), NULL);
+-		xmlSetNs(node->cobj(), default_ns);
+-	}
+-	else
+-	{
+-		if(!ns_prefix.empty())
+-		{
+-			xmlpp::Element *element;
+-			element=dynamic_cast<xmlpp::Element *>(node);
+-			xmlpp::Attribute *attribute;
+-			attribute=dynamic_cast<xmlpp::Attribute *>(node);
+-			if(attribute)
+-				element=attribute->get_parent();
+-
+-			if(element)
+-				element->set_namespace_declaration(ns_uri, ns_prefix);
+-		}
+-
+-		node->set_namespace(getNamespacePrefixByURI(ns_uri, true));
+-	}
++	this->nodenamespace_prefix = ns_prefix;
++	this->nodenamespace_uri = ns_uri;
+ }
+ 
+ ASFUNCTIONBODY(XML,_copy)
+@@ -922,9 +1026,9 @@ ASFUNCTIONBODY(XML,_copy)
+ 	return th->copy();
+ }
+ 
+-XML *XML::copy() const
++XML *XML::copy()
+ {
+-	return Class<XML>::getInstanceS(node);
++	return Class<XML>::getInstanceS(this->toXMLString_internal(false));
+ }
+ 
+ ASFUNCTIONBODY(XML,_setChildren)
+@@ -933,16 +1037,18 @@ ASFUNCTIONBODY(XML,_setChildren)
+ 	_NR<ASObject> newChildren;
+ 	ARG_UNPACK(newChildren);
+ 
+-	th->removeAllChildren();
++	th->childrenlist->clear();
+ 
+ 	if (newChildren->is<XML>())
+ 	{
+ 		XML *newChildrenXML=newChildren->as<XML>();
+-		th->node->import_node(newChildrenXML->node);
++		newChildrenXML->incRef();
++		th->appendChild(_R<XML>(newChildrenXML));
+ 	}
+ 	else if (newChildren->is<XMLList>())
+ 	{
+ 		XMLList *list=newChildren->as<XMLList>();
++		list->incRef();
+ 		list->appendNodesTo(th);
+ 	}
+ 	else
+@@ -965,35 +1071,14 @@ ASFUNCTIONBODY(XML,_normalize)
+ 
+ void XML::normalize()
+ {
+-	normalizeRecursive(node);
+-}
+-
+-void XML::normalizeRecursive(xmlpp::Node *node)
+-{
+-	// TODO: merge adjacent text nodes
+-
+-	xmlpp::Node::NodeList children=node->get_children();
+-	xmlpp::Node::NodeList::const_iterator it=children.begin();
+-	for(;it!=children.end();++it)
+-	{
+-		if (dynamic_cast<xmlpp::Element*>(*it))
+-		{
+-			normalizeRecursive(*it);
+-		}
+-		else
+-		{
+-			xmlpp::TextNode *textnode = dynamic_cast<xmlpp::TextNode*>(*it);
+-			if (textnode && textnode->is_white_space())
+-				node->remove_child(*it);
+-		}
+-	}
++	childrenlist->normalize();
+ }
+ 
+ void XML::addTextContent(const tiny_string& str)
+ {
+ 	assert(getNodeKind() == XML_TEXT_NODE);
+ 
+-	xmlNodeAddContentLen(node->cobj(), BAD_CAST str.raw_buf(), str.numBytes());
++	nodevalue += str;
+ }
+ 
+ void XML::setTextContent(const tiny_string& content)
+@@ -1001,77 +1086,197 @@ void XML::setTextContent(const tiny_string& content)
+ 	if (getNodeKind() == XML_TEXT_NODE ||
+ 	    getNodeKind() == XML_ATTRIBUTE_NODE ||
+ 	    getNodeKind() == XML_COMMENT_NODE ||
+-	    getNodeKind() == XML_PI_NODE)
++	    getNodeKind() == XML_PI_NODE ||
++		getNodeKind() == XML_CDATA_SECTION_NODE)
+ 	{
+-		xmlChar *encoded = xmlEncodeSpecialChars(node->cobj()->doc, BAD_CAST content.raw_buf());
+-		xmlNodeSetContent(node->cobj(), encoded);
+-		xmlFree(encoded);
++		nodevalue = content;
+ 	}
+ }
+ 
+-void XML::removeAllChildren()
+-{
+-	xmlpp::Node::NodeList children=node->get_children();
+-	xmlpp::Node::NodeList::const_iterator it=children.begin();
+-	for(;it!=children.end();++it)
+-	{
+-		node->remove_child(*it);
+-	}
+-}
+ 
+ bool XML::hasSimpleContent() const
+ {
+-	xmlElementType nodetype=node->cobj()->type;
+-	if(nodetype==XML_COMMENT_NODE || nodetype==XML_PI_NODE)
++	if (getNodeKind() == XML_COMMENT_NODE ||
++		getNodeKind() == XML_PI_NODE)
+ 		return false;
+-
+-	const xmlpp::Node::NodeList& children=node->get_children();
+-	xmlpp::Node::NodeList::const_iterator it=children.begin();
+-	for(;it!=children.end();++it)
++	for(size_t i=0; i<childrenlist->nodes.size(); i++)
+ 	{
+-		if((*it)->cobj()->type==XML_ELEMENT_NODE)
++		if (childrenlist->nodes[i]->getNodeKind() == XML_ELEMENT_NODE)
+ 			return false;
+ 	}
+-
+ 	return true;
+ }
+ 
+ bool XML::hasComplexContent() const
+ {
+-	const xmlpp::Node::NodeList& children=node->get_children();
+-	xmlpp::Node::NodeList::const_iterator it=children.begin();
+-	for(;it!=children.end();++it)
+-	{
+-		if((*it)->cobj()->type==XML_ELEMENT_NODE)
+-			return true;
+-	}
+-
+-	return false;
++	return !hasSimpleContent();
+ }
+ 
+ xmlElementType XML::getNodeKind() const
+ {
+-	return node->cobj()->type;
++	return nodetype;
+ }
+ 
+-void XML::recursiveGetDescendantsByQName(_R<XML> root, xmlpp::Node* node, const tiny_string& name, const tiny_string& ns,
+-		XMLVector& ret)
++
++void XML::getDescendantsByQName(const tiny_string& name, const tiny_string& ns, bool bIsAttribute, XMLVector& ret)
+ {
+-	//Check if this node is being requested. Both "" and "*" strings mean all
+-	if(name=="" || name=="*" || name == node->get_name())
+-		ret.push_back(_MR(Class<XML>::getInstanceS(root, node)));
+-	//NOTE: Creating a temporary list is quite a large overhead, but there is no way in libxml++ to access the first child
+-	const xmlpp::Node::NodeList& list=node->get_children();
+-	xmlpp::Node::NodeList::const_iterator it=list.begin();
+-	for(;it!=list.end();++it)
+-		recursiveGetDescendantsByQName(root, *it, name, ns, ret);
++	if (!constructed)
++		return;
++	if (bIsAttribute)
++	{
++		for (uint32_t i = 0; i < attributelist->nodes.size(); i++)
++		{
++			_R<XML> child= attributelist->nodes[i];
++			if(name=="" || name=="*" || (name == child->nodename && (ns == "*" || ns == child->nodenamespace_uri)))
++			{
++				child->incRef();
++				ret.push_back(child);
++			}
++		}
++	}
++	for (uint32_t i = 0; i < childrenlist->nodes.size(); i++)
++	{
++		_R<XML> child= childrenlist->nodes[i];
++		if(!bIsAttribute && (name=="" || name=="*" || (name == child->nodename && (ns == "*" || ns == child->nodenamespace_uri))))
++		{
++			child->incRef();
++			ret.push_back(child);
++		}
++		child->getDescendantsByQName(name, ns, bIsAttribute, ret);
++	}
+ }
+ 
+-void XML::getDescendantsByQName(const tiny_string& name, const tiny_string& ns, XMLVector& ret)
++XML::XMLVector XML::getAttributes()
++{ 
++	multiname mn(NULL);
++	mn.name_type=multiname::NAME_STRING;
++	mn.ns.push_back(nsNameAndKind("",NAMESPACE));
++	mn.ns.push_back(nsNameAndKind(AS3,NAMESPACE));
++	mn.isAttribute = true;
++	return getAttributesByMultiname(mn); 
++}
++XML::XMLVector XML::getAttributesByMultiname(const multiname& name)
+ {
+-	assert(node);
+-	assert_and_throw(ns=="");
+-	recursiveGetDescendantsByQName(getRootNode(), node, name, ns, ret);
++	XMLVector ret;
++	tiny_string defns = "|";
++	defns += getVm()->getDefaultXMLNamespace();
++	defns += "|";
++	tiny_string normalizedName= "";
++	if (!name.isEmpty()) normalizedName= name.normalizedName();
++	if (normalizedName.startsWith("@"))
++		normalizedName = normalizedName.substr(1,normalizedName.end());
++	tiny_string namespace_uri="|";
++	uint32_t i = 0;
++	while (i < name.ns.size())
++	{
++		nsNameAndKindImpl ns=name.ns[i].getImpl();
++		if (ns.kind==NAMESPACE && ns.name != AS3)
++		{
++			if (ns.name.empty())
++				namespace_uri +=getVm()->getDefaultXMLNamespace();
++			else
++				namespace_uri +=ns.name;
++			namespace_uri += "|";
++		}
++		i++;
++	}
++	for (uint32_t i = 0; i < attributelist->nodes.size(); i++)
++	{
++		_R<XML> child= attributelist->nodes[i];
++		tiny_string childnamespace_uri = "|";
++		childnamespace_uri += child->nodenamespace_uri;
++		childnamespace_uri += "|";
++		
++		bool bmatch = (
++					((normalizedName=="") &&
++					 ((namespace_uri.find(defns)!= tiny_string::npos) ||
++					  (namespace_uri=="|*|") ||
++					  (namespace_uri.find(childnamespace_uri) != tiny_string::npos)
++					 )
++					)||
++					((normalizedName=="*") &&
++					 ((namespace_uri.find(defns)!= tiny_string::npos) ||
++					  (namespace_uri=="|*|") ||
++					  (namespace_uri.find(childnamespace_uri) != tiny_string::npos)
++					 )
++					)||
++					((normalizedName==child->nodename) &&
++					 (
++					  (namespace_uri=="|*|") ||
++					  (namespace_uri=="|" && childnamespace_uri=="||") ||
++					  (namespace_uri.find(childnamespace_uri) != tiny_string::npos)
++					 )
++					)
++					);
++		if(bmatch)
++		{
++			child->incRef();
++			ret.push_back(child);
++		}
++	}
++	return ret;
++}
++XML::XMLVector XML::getValuesByMultiname(_NR<XMLList> nodelist, const multiname& name)
++{
++	XMLVector ret;
++	tiny_string defns = "|";
++	defns += getVm()->getDefaultXMLNamespace();
++	defns += "|";
++	tiny_string normalizedName= "";
++	if (!name.isEmpty()) normalizedName= name.normalizedName();
++	if (normalizedName.startsWith("@"))
++		normalizedName = normalizedName.substr(1,normalizedName.end());
++	tiny_string namespace_uri="|";
++	uint32_t i = 0;
++	while (i < name.ns.size())
++	{
++		nsNameAndKindImpl ns=name.ns[i].getImpl();
++		if (ns.kind==NAMESPACE && ns.name != AS3)
++		{
++			if (ns.name.empty())
++				namespace_uri +=getVm()->getDefaultXMLNamespace();
++			else
++				namespace_uri +=ns.name;
++			namespace_uri += "|";
++		}
++		i++;
++	}
++
++	for (uint32_t i = 0; i < nodelist->nodes.size(); i++)
++	{
++		_R<XML> child= nodelist->nodes[i];
++		tiny_string childnamespace_uri = "|";
++		childnamespace_uri += child->nodenamespace_uri;
++		childnamespace_uri += "|";
++		
++		bool bmatch = (
++					((normalizedName=="") &&
++					 ((namespace_uri.find(defns)!= tiny_string::npos) ||
++					  (namespace_uri=="|*|") ||
++					  (namespace_uri.find(childnamespace_uri) != tiny_string::npos)
++					 )
++					)||
++					((normalizedName=="*") &&
++					 ((namespace_uri.find(defns)!= tiny_string::npos) ||
++					  (namespace_uri=="|*|") ||
++					  (namespace_uri.find(childnamespace_uri) != tiny_string::npos)
++					 )
++					)||
++					((normalizedName==child->nodename) &&
++					 ((namespace_uri.find(defns)!= tiny_string::npos) ||
++					  (namespace_uri=="|*|") ||
++					  (namespace_uri=="|" && childnamespace_uri=="||") ||
++					  (namespace_uri.find(childnamespace_uri) != tiny_string::npos)
++					 )
++					)
++					);
++		if(bmatch)
++		{
++			child->incRef();
++			ret.push_back(child);
++		}
++	}
++	return ret;
+ }
+ 
+ _NR<ASObject> XML::getVariableByMultiname(const multiname& name, GET_VARIABLE_OPTION opt)
+@@ -1092,46 +1297,21 @@ _NR<ASObject> XML::getVariableByMultiname(const multiname& name, GET_VARIABLE_OP
+ 		return res;
+ 	}
+ 
+-	if(node==NULL)
+-	{
+-		//This is possible if the XML object was created from an empty string
+-		return NullRef;
+-	}
+-
+ 	bool isAttr=name.isAttribute;
+ 	unsigned int index=0;
+-	//Normalize the name to the string form
+-	tiny_string normalizedName=name.normalizedName();
+-	if(normalizedName=="*")
+-		normalizedName="";
+ 
+-	//Only the first namespace is used, is this right?
+-	tiny_string namespace_uri;
+-	if(name.ns.size() > 0 && !name.ns[0].hasEmptyName())
+-	{
+-		nsNameAndKindImpl ns=name.ns[0].getImpl();
+-		assert_and_throw(ns.kind==NAMESPACE);
+-		namespace_uri=ns.name;
+-	}
+-
+-	// namespace set by "default xml namespace = ..."
+-	if(namespace_uri.empty())
+-		namespace_uri=getVm()->getDefaultXMLNamespace();
+-
+-	const char *buf=normalizedName.raw_buf();
+-	if(!normalizedName.empty() && normalizedName.charAt(0)=='@')
++	tiny_string normalizedName=name.normalizedName();
++	if(!normalizedName.empty() && normalizedName.charAt(0)=='@')
+ 	{
+ 		isAttr=true;
+-		buf+=1;
+ 	}
+ 	if(isAttr)
+ 	{
+ 		//Lookup attribute
+-		tiny_string ns_uri=namespace_uri.empty() ? "*" : namespace_uri;
+-		const XMLVector& attributes=getAttributes(buf, ns_uri);
+-		return _MNR(Class<XMLList>::getInstanceS(attributes));
++		const XMLVector& attributes=getAttributesByMultiname(name);
++		return _MNR(Class<XMLList>::getInstanceS(attributes,attributelist.getPtr(),name));
+ 	}
+-	else if(Array::isValidMultiname(name,index))
++	else if(XML::isValidMultiname(name,index))
+ 	{
+ 		// If the multiname is a valid array property, the XML
+ 		// object is treated as a single-item XMLList.
+@@ -1145,33 +1325,12 @@ _NR<ASObject> XML::getVariableByMultiname(const multiname& name, GET_VARIABLE_OP
+ 	}
+ 	else
+ 	{
+-		//Lookup children
+-		_NR<XML> rootnode=getRootNode();
+-
+-		//Use low level libxml2 access for speed
+-		const xmlNode* xmlN = node->cobj();
+-		XMLVector ret;
+-		for(xmlNode* child=xmlN->children; child!=NULL; child=child->next)
+-		{
+-			bool nameMatches = (normalizedName=="" || normalizedName==child->name);
+-			bool nsMatches = (namespace_uri=="*" || 
+-					  (namespace_uri=="" && child->ns==NULL) || 
+-					  (child->ns && namespace_uri==child->ns->href));
+-
+-			if(nameMatches && nsMatches)
+-			{
+-				//NOTE: libxmlpp headers says that Node::create_wrapper
+-				//is supposed to be internal API. Still it's very useful and
+-				//we use it.
+-				xmlpp::Node::create_wrapper(child);
+-				xmlpp::Node* attrX=static_cast<xmlpp::Node*>(child->_private);
+-				ret.push_back(_MR(Class<XML>::getInstanceS(rootnode, attrX)));
+-			}
+-		}
++		const XMLVector& ret=getValuesByMultiname(childrenlist,name);
+ 		if(ret.empty() && (opt & XML_STRICT)!=0)
+ 			return NullRef;
+ 
+-		return _MNR(Class<XMLList>::getInstanceS(ret));
++		_R<XMLList> ch =_MNR(Class<XMLList>::getInstanceS(ret,this->getChildrenlist(),name));
++		return ch;
+ 	}
+ }
+ 
+@@ -1188,9 +1347,11 @@ void XML::setVariableByMultiname(const multiname& name, ASObject* o, CONST_ALLOW
+ 	if(name.ns.size() > 0 && !name.ns[0].hasEmptyName())
+ 	{
+ 		nsNameAndKindImpl ns=name.ns[0].getImpl();
+-		assert_and_throw(ns.kind==NAMESPACE);
+-		ns_uri=ns.name;
+-		ns_prefix=getNamespacePrefixByURI(ns_uri);
++		if (ns.kind==NAMESPACE)
++		{
++			ns_uri=ns.name;
++			ns_prefix=getNamespacePrefixByURI(ns_uri);
++		}
+ 	}
+ 
+ 	// namespace set by "default xml namespace = ..."
+@@ -1205,54 +1366,162 @@ void XML::setVariableByMultiname(const multiname& name, ASObject* o, CONST_ALLOW
+ 		isAttr=true;
+ 		buf+=1;
+ 	}
++	
+ 	if(isAttr)
+ 	{
+-		//To have attributes we must be an Element
+-		xmlpp::Element* element=dynamic_cast<xmlpp::Element*>(node);
+-		assert_and_throw(element);
+-		element->set_attribute(buf, o->toString(), ns_prefix);
+-
+-		if(ns_prefix.empty() && !ns_uri.empty())
++		bool found = false;
++		for (XMLList::XMLListVector::iterator it = attributelist->nodes.begin(); it != attributelist->nodes.end(); it++)
++		{
++			_R<XML> attr = *it;
++			if (attr->nodenamespace_uri == ns_uri && (attr->nodename == buf || (*buf==0)))
++			{
++				if(o->is<XMLList>())
++				{
++					_NR<XMLList> x = _NR<XMLList>(o->as<XMLList>());
++					for (auto it = x->nodes.begin(); it != x->nodes.end(); it++)
++					{
++						if (!found)
++							attr->nodevalue = (*it)->toString();
++						else
++						{
++							attr->nodevalue += " ";
++							attr->nodevalue += (*it)->toString();
++						}
++						found = true;
++					}
++				}
++				else
++				{
++					if (!found)
++						attr->nodevalue = o->toString();
++					else
++					{
++						attr->nodevalue += " ";
++						attr->nodevalue += o->toString();
++					}
++					found = true;
++				}
++				
++			}
++		}
++		if (!found && !normalizedName.empty())
+ 		{
+-			element->set_namespace_declaration(ns_uri);
++			_NR<XML> tmp = _MR<XML>(Class<XML>::getInstanceS());
++			this->incRef();
++			tmp->parentNode = _MR<XML>(this);
++			tmp->nodetype = XML_ATTRIBUTE_NODE;
++			tmp->nodename = buf;
++			tmp->nodenamespace_uri = ns_uri;
++			tmp->nodenamespace_prefix = ns_prefix;
++			tmp->nodevalue = o->toString();
++			tmp->constructed = true;
++			attributelist->nodes.push_back(tmp);
+ 		}
+ 	}
+-	else if(Array::isValidMultiname(name,index))
++	else if(XML::isValidMultiname(name,index))
+ 	{
+-		LOG(LOG_NOT_IMPLEMENTED, "XML::setVariableByMultiname: array indexes");
++		childrenlist->setVariableByMultiname(name,o,allowConst);
+ 	}
+ 	else
+ 	{
+-		LOG(LOG_NOT_IMPLEMENTED, "XML::setVariableByMultiname: should replace if a node with the given name exists");
+-		if(o->is<XML>() || o->is<XMLList>())
++		bool found = false;
++		XMLVector tmpnodes;
++		while (!childrenlist->nodes.empty())
+ 		{
+-			LOG(LOG_NOT_IMPLEMENTED, "XML::setVariableByMultiname: assigning XML values not implemented");
+-			return;
+-		}
+-
+-		xmlpp::Element* child = NULL;
+-		try
+-		{
+-			child=node->add_child(getSys()->getStringFromUniqueId(name.name_s_id), ns_prefix);
+-		}
+-		catch (xmlpp::exception& e)
+-		{
+-			LOG(LOG_NOT_IMPLEMENTED, "Adding child node failed: " << e.what());
+-			return;
++			_R<XML> tmpnode = childrenlist->nodes.back();
++			if (tmpnode->nodenamespace_uri == ns_uri && tmpnode->nodename == normalizedName)
++			{
++				if(o->is<XMLList>())
++				{
++					if (!found)
++					{
++						_NR<XMLList> x = _NR<XMLList>(Class<XMLList>::getInstanceS(o->as<XMLList>()->toXMLString_internal(false)));
++						tmpnodes.insert(tmpnodes.end(), x->nodes.rbegin(),x->nodes.rend());
++					}
++				}
++				else if(o->is<XML>())
++				{
++					_NR<XML> tmp = _MR<XML>(o->as<XML>());
++					tmp->parentNode = _MR<XML>(this);
++					tmp->incRef();
++					
++					if (!found)
++						tmpnodes.push_back(tmp);
++				}
++				else
++				{
++					if (tmpnode->childrenlist->nodes.size() == 1 && tmpnode->childrenlist->nodes[0]->nodetype == XML_TEXT_NODE)
++						tmpnode->childrenlist->nodes[0]->nodevalue = o->toString();
++					else
++					{
++						XML* newnode = Class<XML>::getInstanceS(o->toString());
++						tmpnode->childrenlist->clear();
++						tmpnode->setVariableByMultiname(name,newnode,allowConst);
++					}
++					if (!found)
++					{
++						tmpnode->incRef();
++						tmpnodes.push_back(tmpnode);
++					}
++				}
++				found = true;
++			}
++			else
++			{
++				tmpnode->incRef();
++				tmpnodes.push_back(tmpnode);
++			}
++			childrenlist->nodes.pop_back();
+ 		}
+-
+-		child->add_child_text(o->toString());
+-
+-		if(ns_prefix.empty() && !ns_uri.empty())
++		if (!found)
+ 		{
+-			child->set_namespace_declaration(ns_uri);
++			if(o->is<XML>())
++			{
++				_R<XML> tmp = _MR<XML>(o->as<XML>());
++				tmp->parentNode = _MR<XML>(this);
++				tmp->incRef();
++				tmpnodes.insert(tmpnodes.begin(),tmp);
++			}
++			else
++			{
++				tiny_string tmpstr = "<";
++				if (!this->nodenamespace_prefix.empty())
++				{
++					tmpstr += ns_prefix;
++					tmpstr += ":";
++				}
++				tmpstr += normalizedName;
++				if (!ns_prefix.empty() && !ns_uri.empty())
++				{
++					tmpstr += " xmlns:";
++					tmpstr += ns_prefix;
++					tmpstr += "=\"";
++					tmpstr += ns_uri;
++					tmpstr += "\"";
++				}
++				tmpstr +=">";
++				tmpstr += encodeToXML(o->toString(),false);
++				tmpstr +="</";
++				if (!ns_prefix.empty())
++				{
++					tmpstr += ns_prefix;
++					tmpstr += ":";
++				}
++				tmpstr += normalizedName;
++				tmpstr +=">";
++				_NR<XML> tmp = _MR<XML>(Class<XML>::getInstanceS(tmpstr));
++				this->incRef();
++				tmp->parentNode = _MR<XML>(this);
++				tmpnodes.push_back(tmp);
++			}
+ 		}
++		childrenlist->nodes.insert(childrenlist->nodes.begin(), tmpnodes.rbegin(),tmpnodes.rend());
+ 	}
+ }
+ 
+ bool XML::hasPropertyByMultiname(const multiname& name, bool considerDynamic, bool considerPrototype)
+ {
+-	if(node==NULL || considerDynamic == false)
++	if(considerDynamic == false)
+ 		return ASObject::hasPropertyByMultiname(name, considerDynamic, considerPrototype);
+ 
+ 	//Only the first namespace is used, is this right?
+@@ -1283,28 +1552,22 @@ bool XML::hasPropertyByMultiname(const multiname& name, bool considerDynamic, bo
+ 	if(isAttr)
+ 	{
+ 		//Lookup attribute
+-		assert(node);
+-		//To have attributes we must be an Element
+-		xmlpp::Element* element=dynamic_cast<xmlpp::Element*>(node);
+-		if(element)
++		for (XMLList::XMLListVector::const_iterator it = attributelist->nodes.begin(); it != attributelist->nodes.end(); it++)
+ 		{
+-			xmlpp::Attribute* attr=element->get_attribute(buf, ns_prefix);
+-			if(attr!=NULL)
++			_R<XML> attr = *it;
++			if (attr->nodenamespace_uri == ns_uri && attr->nodename == buf)
+ 				return true;
+ 		}
+ 	}
+ 	else
+ 	{
+ 		//Lookup children
+-		assert(node);
+-		//Use low level libxml2 access to optimize the code
+-		const xmlNode* cNode=node->cobj();
+-		for(const xmlNode* cur=cNode->children;cur!=NULL;cur=cur->next)
++		for (uint32_t i = 0; i < childrenlist->nodes.size(); i++)
+ 		{
+-			//NOTE: xmlStrEqual returns 1 when the strings are equal.
+-			bool name_match=xmlStrEqual(cur->name,(const xmlChar*)buf);
++			_R<XML> child= childrenlist->nodes[i];
++			bool name_match=(child->nodename == buf);
+ 			bool ns_match=ns_uri.empty() || 
+-				(cur->ns && xmlStrEqual(cur->ns->href, (const xmlChar*)ns_uri.raw_buf()));
++				(child->nodenamespace_uri == ns_uri);
+ 			if(name_match && ns_match)
+ 				return true;
+ 		}
+@@ -1313,42 +1576,119 @@ bool XML::hasPropertyByMultiname(const multiname& name, bool considerDynamic, bo
+ 	//Try the normal path as the last resource
+ 	return ASObject::hasPropertyByMultiname(name, considerDynamic, considerPrototype);
+ }
+-
+-tiny_string XML::getNamespacePrefixByURI(const tiny_string& uri, bool create)
++bool XML::deleteVariableByMultiname(const multiname& name)
+ {
+-	tiny_string prefix;
+-	bool found=false;
+-	xmlDocPtr xmlDoc=getRootNode()->parser.get_document()->cobj();
+-	xmlNsPtr* namespaces=xmlGetNsList(xmlDoc,node->cobj());
+-
+-	if(namespaces)
++	unsigned int index=0;
++	bool bdeleted = false;
++	if(name.isAttribute)
+ 	{
+-		for(int i=0; namespaces[i]!=NULL; i++)
++		//Only the first namespace is used, is this right?
++		tiny_string ns_uri;
++		tiny_string ns_prefix;
++		if(name.ns.size() > 0 && !name.ns[0].hasEmptyName())
+ 		{
+-			tiny_string nsuri((const char*)namespaces[i]->href);
+-			if(nsuri==uri)
++			nsNameAndKindImpl ns=name.ns[0].getImpl();
++			assert_and_throw(ns.kind==NAMESPACE);
++			ns_uri=ns.name;
++			ns_prefix=getNamespacePrefixByURI(ns_uri);
++		}
++		if (ns_uri.empty() && ns_prefix.empty())
++		{
++			ns_uri = getVm()->getDefaultXMLNamespace();
++		}
++		if (attributelist->nodes.size() > 0)
++		{
++			XMLList::XMLListVector::iterator it = attributelist->nodes.end();
++			while (it != attributelist->nodes.begin())
+ 			{
+-				if(namespaces[i]->prefix)
++				it--;
++				_R<XML> attr = *it;
++				if ((ns_uri=="" && name.normalizedName() == "") ||
++						(ns_uri=="" && name.normalizedName() == attr->nodename) ||
++						(attr->nodenamespace_uri == ns_uri && name.normalizedName() == "") ||
++						(attr->nodenamespace_uri == ns_uri && attr->nodename == name.normalizedName()))
+ 				{
+-					prefix=tiny_string((const char*)namespaces[i]->prefix, true);
++					attributelist->nodes.erase(it);
++					bdeleted= true;
++				}
++			}
++		}
++	}
++	else if(XML::isValidMultiname(name,index))
++	{
++		childrenlist->nodes.erase(childrenlist->nodes.begin() + index);
++	}
++	else
++	{
++		//Only the first namespace is used, is this right?
++		tiny_string ns_uri;
++		if(name.ns.size() > 0 && !name.ns[0].hasEmptyName())
++		{
++			nsNameAndKindImpl ns=name.ns[0].getImpl();
++			assert_and_throw(ns.kind==NAMESPACE);
++			ns_uri=ns.name;
++		}
++		if (childrenlist->nodes.size() > 0)
++		{
++			XMLList::XMLListVector::iterator it = childrenlist->nodes.end();
++			while (it != childrenlist->nodes.begin())
++			{
++				it--;
++				_R<XML> node = *it;
++				if ((ns_uri=="" && name.normalizedName() == "") ||
++						(ns_uri=="" && name.normalizedName() == node->nodename) ||
++						(node->nodenamespace_uri == ns_uri && name.normalizedName() == "") ||
++						(node->nodenamespace_uri == ns_uri && node->nodename == name.normalizedName()))
++				{
++					childrenlist->nodes.erase(it);
++					bdeleted= true;
+ 				}
+-
+-				found = true;
+-				break;
+ 			}
+ 		}
++	}
++	return bdeleted;
++}
++bool XML::isValidMultiname(const multiname& name, uint32_t& index)
++{
++	//First of all the multiname has to contain the null namespace
++	//As the namespace vector is sorted, we check only the first one
++	if(name.ns.size()!=0 && !name.ns[0].hasEmptyName())
++		return false;
+ 
+-		xmlFree(namespaces);
++	if (name.isEmpty())
++		return false;
++	bool validIndex=name.toUInt(index, true);
++	// Don't throw for non-numeric NAME_STRING or NAME_OBJECT
++	// because they can still be valid built-in property names.
++	if(!validIndex && (name.name_type==multiname::NAME_INT || name.name_type==multiname::NAME_NUMBER))
++		throwError<RangeError>(kOutOfRangeError, name.normalizedName(), "?");
++
++	return validIndex;
++}
++
++tiny_string XML::getNamespacePrefixByURI(const tiny_string& uri, bool create)
++{
++	tiny_string prefix;
++	bool found=false;
++
++
++	XML* tmp = this;
++	while(tmp && tmp->is<XML>())
++	{
++		if(tmp->nodenamespace_uri==uri)
++		{
++			prefix=tmp->nodenamespace_prefix;
++			found = true;
++			break;
++		}
++		if (!tmp->parentNode)
++			break;
++		tmp = tmp->parentNode.getPtr();
+ 	}
+ 
+ 	if(!found && create)
+ 	{
+-		xmlpp::Element *element=dynamic_cast<xmlpp::Element *>(node);
+-		xmlpp::Attribute *attribute=dynamic_cast<xmlpp::Attribute *>(node);
+-		if(attribute)
+-			element=attribute->get_parent();
+-		if(element)
+-			element->set_namespace_declaration(uri);
++		nodenamespace_uri = uri;
+ 	}
+ 
+ 	return prefix;
+@@ -1368,7 +1708,6 @@ ASFUNCTIONBODY(XML,_setIgnoreComments)
+ {
+ 	assert(args && argslen==1);
+ 	ignoreComments = Boolean_concrete(args[0]);
+-	LOG(LOG_INFO,"ignoreComments handling is not implemented yet");
+ 	return NULL;
+ }
+ ASFUNCTIONBODY(XML,_getIgnoreProcessingInstructions)
+@@ -1379,7 +1718,6 @@ ASFUNCTIONBODY(XML,_setIgnoreProcessingInstructions)
+ {
+ 	assert(args && argslen==1);
+ 	ignoreProcessingInstructions = Boolean_concrete(args[0]);
+-	LOG(LOG_INFO,"ignoreProcessingInstructions handling is not implemented yet");
+ 	return NULL;
+ }
+ ASFUNCTIONBODY(XML,_getIgnoreWhitespace)
+@@ -1401,7 +1739,6 @@ ASFUNCTIONBODY(XML,_setPrettyIndent)
+ {
+ 	assert(args && argslen==1);
+ 	prettyIndent = args[0]->toInt();
+-	xmlThrDefIndentTreeOutput(prettyIndent);
+ 	return NULL;
+ }
+ ASFUNCTIONBODY(XML,_getPrettyPrinting)
+@@ -1518,28 +1855,370 @@ ASFUNCTIONBODY(XML,_toJSON)
+ 	return Class<ASString>::getInstanceS("XML");
+ }
+ 
++void XML::CheckCyclicReference(XML* node)
++{
++	XML* tmp = node;
++	if (tmp == this)
++		throwError<TypeError>(kXMLIllegalCyclicalLoop);
++	for (auto it = tmp->childrenlist->nodes.begin(); it != tmp->childrenlist->nodes.end(); it++)
++	{
++		if ((*it).getPtr() == this)
++			throwError<TypeError>(kXMLIllegalCyclicalLoop);
++		CheckCyclicReference((*it).getPtr());
++	}
++}
++
++ASFUNCTIONBODY(XML,insertChildAfter)
++{
++	XML* th=Class<XML>::cast(obj);
++	_NR<ASObject> child1;
++	_NR<ASObject> child2;
++	ARG_UNPACK(child1)(child2);
++	if (th->nodetype != XML_ELEMENT_NODE)
++		return getSys()->getUndefinedRef();
++	
++	if (child2->is<XML>())
++		th->CheckCyclicReference(child2->as<XML>());
++	else if (child2->is<XMLList>())
++	{
++		for (auto it = child2->as<XMLList>()->nodes.begin(); it < child2->as<XMLList>()->nodes.end(); it++)
++		{
++			th->CheckCyclicReference((*it).getPtr());
++		}
++	}
++	else
++		child2 = _NR<XML>(Class<XML>::getInstanceS(child2->toString()));
++	if (child1->is<Null>())
++	{
++		th->incRef();
++		child2->as<XML>()->parentNode = _NR<XML>(th);
++		if (child2->is<XML>())
++		{
++			th->incRef();
++			child2->incRef();
++			child2->as<XML>()->parentNode = _NR<XML>(th);
++			th->childrenlist->nodes.insert(th->childrenlist->nodes.begin(),_NR<XML>(child2->as<XML>()));
++		}
++		else if (child2->is<XMLList>())
++		{
++			for (auto it2 = child2->as<XMLList>()->nodes.begin(); it2 < child2->as<XMLList>()->nodes.end(); it2++)
++			{
++				th->incRef();
++				(*it2)->incRef();
++				(*it2)->parentNode = _NR<XML>(th);
++			}
++			th->childrenlist->nodes.insert(th->childrenlist->nodes.begin(),child2->as<XMLList>()->nodes.begin(), child2->as<XMLList>()->nodes.end());
++		}
++		th->incRef();
++		return th;
++	}
++	if (child1->is<XMLList>())
++	{
++		if (child1->as<XMLList>()->nodes.size()==0)
++			return getSys()->getUndefinedRef();
++		child1 = child1->as<XMLList>()->nodes[0];
++	}
++	for (auto it = th->childrenlist->nodes.begin(); it != th->childrenlist->nodes.end(); it++)
++	{
++		if ((*it).getPtr() == child1.getPtr())
++		{
++			th->incRef();
++			if (child2->is<XML>())
++			{
++				th->incRef();
++				child2->incRef();
++				child2->as<XML>()->parentNode = _NR<XML>(th);
++				th->childrenlist->nodes.insert(it+1,_NR<XML>(child2->as<XML>()));
++			}
++			else if (child2->is<XMLList>())
++			{
++				for (auto it2 = child2->as<XMLList>()->nodes.begin(); it2 < child2->as<XMLList>()->nodes.end(); it2++)
++				{
++					th->incRef();
++					(*it2)->incRef();
++					(*it2)->parentNode = _NR<XML>(th);
++				}
++				th->childrenlist->nodes.insert(it+1,child2->as<XMLList>()->nodes.begin(), child2->as<XMLList>()->nodes.end());
++			}
++			return th;
++		}
++	}
++	return getSys()->getUndefinedRef();
++}
++ASFUNCTIONBODY(XML,insertChildBefore)
++{
++	XML* th=Class<XML>::cast(obj);
++	_NR<ASObject> child1;
++	_NR<ASObject> child2;
++	ARG_UNPACK(child1)(child2);
++	if (th->nodetype != XML_ELEMENT_NODE)
++		return getSys()->getUndefinedRef();
++	
++	if (child2->is<XML>())
++		th->CheckCyclicReference(child2->as<XML>());
++	else if (child2->is<XMLList>())
++	{
++		for (auto it = child2->as<XMLList>()->nodes.begin(); it < child2->as<XMLList>()->nodes.end(); it++)
++		{
++			th->CheckCyclicReference((*it).getPtr());
++		}
++	}
++	else
++		child2 = _NR<XML>(Class<XML>::getInstanceS(child2->toString()));
++
++	if (child1->is<Null>())
++	{
++		if (child2->is<XML>())
++		{
++			th->appendChild(_NR<XML>(child2->as<XML>()));
++		}
++		else if (child2->is<XMLList>())
++		{
++			for (auto it = child2->as<XMLList>()->nodes.begin(); it < child2->as<XMLList>()->nodes.end(); it++)
++			{
++				th->incRef();
++				(*it)->incRef();
++				(*it)->parentNode = _NR<XML>(th);
++				th->childrenlist->nodes.push_back(_NR<XML>(*it));
++			}
++		}
++		th->incRef();
++		return th;
++	}
++	if (child1->is<XMLList>())
++	{
++		if (child1->as<XMLList>()->nodes.size()==0)
++			return getSys()->getUndefinedRef();
++		child1 = child1->as<XMLList>()->nodes[0];
++	}
++	for (auto it = th->childrenlist->nodes.begin(); it != th->childrenlist->nodes.end(); it++)
++	{
++		if ((*it).getPtr() == child1.getPtr())
++		{
++			th->incRef();
++			if (child2->is<XML>())
++			{
++				th->incRef();
++				child2->incRef();
++				child2->as<XML>()->parentNode = _NR<XML>(th);
++				th->childrenlist->nodes.insert(it,_NR<XML>(child2->as<XML>()));
++			}
++			else if (child2->is<XMLList>())
++			{
++				for (auto it2 = child2->as<XMLList>()->nodes.begin(); it2 < child2->as<XMLList>()->nodes.end(); it2++)
++				{
++					th->incRef();
++					(*it2)->incRef();
++					(*it2)->parentNode = _NR<XML>(th);
++				}
++				th->childrenlist->nodes.insert(it,child2->as<XMLList>()->nodes.begin(), child2->as<XMLList>()->nodes.end());
++			}
++			return th;
++		}
++	}
++	return getSys()->getUndefinedRef();
++}
++
++ASFUNCTIONBODY(XML,namespaceDeclarations)
++{
++	XML *th = obj->as<XML>();
++	Array *namespaces = Class<Array>::getInstanceS();
++	for (uint32_t i = 0; i < th->namespacedefs.size(); i++)
++	{
++		_R<Namespace> tmpns = th->namespacedefs[i];
++		bool b;
++		if (tmpns->getPrefix(b) != "")
++		{
++			tmpns->incRef();
++			namespaces->push(tmpns);
++		}
++	}
++	return namespaces;
++}
++
++ASFUNCTIONBODY(XML,removeNamespace)
++{
++	XML *th = obj->as<XML>();
++	_NR<ASObject> arg1;
++	ARG_UNPACK(arg1);
++	Namespace* ns;
++	if (arg1->is<Namespace>())
++		ns = arg1->as<Namespace>();
++	else
++		ns = Class<Namespace>::getInstanceS(arg1->toString(), "");
++
++	th->RemoveNamespace(ns);
++	th->incRef();
++	return th;
++}
++void XML::RemoveNamespace(Namespace *ns)
++{
++	if (this->nodenamespace_uri == ns->getURI())
++	{
++		this->nodenamespace_uri = "";
++		this->nodenamespace_prefix = "";
++	}
++	for (auto it = namespacedefs.begin(); it !=  namespacedefs.end(); it++)
++	{
++		_R<Namespace> tmpns = *it;
++		if (tmpns->getURI() == ns->getURI())
++		{
++			namespacedefs.erase(it);
++			break;
++		}
++	}
++	if (childrenlist)
++	{
++		for (auto it = childrenlist->nodes.begin(); it != childrenlist->nodes.end(); it++)
++		{
++			(*it)->RemoveNamespace(ns);
++		}
++	}
++}
++
++ASFUNCTIONBODY(XML,comments)
++{
++	XML* th=Class<XML>::cast(obj);
++	tiny_string name;
++	ARG_UNPACK(name,"*");
++	XMLVector ret;
++	th->getComments(ret);
++	return Class<XMLList>::getInstanceS(ret,th->getChildrenlist(),multiname(NULL));
++}
++void XML::getComments(XMLVector& ret)
++{
++	if (childrenlist)
++	{
++		for (auto it = childrenlist->nodes.begin(); it != childrenlist->nodes.end(); it++)
++		{
++			if ((*it)->getNodeKind() == XML_COMMENT_NODE)
++			{
++				(*it)->incRef();
++				ret.push_back(*it);
++			}
++		}
++	}
++}
++
++ASFUNCTIONBODY(XML,processingInstructions)
++{
++	XML* th=Class<XML>::cast(obj);
++	tiny_string name;
++	ARG_UNPACK(name,"*");
++	XMLVector ret;
++	th->getprocessingInstructions(ret,name);
++	return Class<XMLList>::getInstanceS(ret,th->getChildrenlist(),multiname(NULL));
++}
++void XML::getprocessingInstructions(XMLVector& ret, tiny_string name)
++{
++	if (childrenlist)
++	{
++		for (auto it = childrenlist->nodes.begin(); it != childrenlist->nodes.end(); it++)
++		{
++			if ((*it)->getNodeKind() == XML_PI_NODE && (name == "*" || name == (*it)->nodename))
++			{
++				(*it)->incRef();
++				ret.push_back(*it);
++			}
++		}
++	}
++}
++ASFUNCTIONBODY(XML,_propertyIsEnumerable)
++{
++	return abstract_b(argslen == 1 && args[0]->toString() == "0" );
++}
++ASFUNCTIONBODY(XML,_hasOwnProperty)
++{
++	tiny_string prop;
++	ARG_UNPACK(prop);
++
++	bool ret = false;
++	if (prop == "0")
++		ret = true;
++	else
++	{
++		multiname name(NULL);
++		name.name_type=multiname::NAME_STRING;
++		name.name_s_id=getSys()->getUniqueStringId(args[0]->toString());
++		name.ns.push_back(nsNameAndKind("",NAMESPACE));
++		name.ns.push_back(nsNameAndKind(AS3,NAMESPACE));
++		name.isAttribute=false;
++		ret=obj->hasPropertyByMultiname(name, true, true);
++	}
++	return abstract_b(ret);
++}
++
+ tiny_string XML::toString_priv()
+ {
+-	//We have to use vanilla libxml2, libxml++ is not enough
+-	xmlNodePtr libXml2Node=node->cobj();
+ 	tiny_string ret;
+-	if(hasSimpleContent())
++	if (getNodeKind() == XML_TEXT_NODE ||
++		getNodeKind() == XML_ATTRIBUTE_NODE ||
++		getNodeKind() == XML_CDATA_SECTION_NODE)
+ 	{
+-		xmlChar* content=xmlNodeGetContent(libXml2Node);
+-		ret=tiny_string((char*)content,true);
+-		xmlFree(content);
++		ret=nodevalue;
++	}
++	else if (hasSimpleContent())
++	{
++		auto it = childrenlist->nodes.begin();
++		while(it != childrenlist->nodes.end())
++		{
++			if ((*it)->getNodeKind() != XML_COMMENT_NODE &&
++					(*it)->getNodeKind() != XML_PI_NODE)
++				ret += (*it)->toString_priv();
++			it++;
++		}
+ 	}
+ 	else
+ 	{
+-		assert_and_throw(!node->get_children().empty());
+-		xmlBufferPtr xmlBuffer=xmlBufferCreateSize(4096);
+-		toXMLString_priv(xmlBuffer);
+-		ret=tiny_string((char*)xmlBuffer->content,true);
+-		xmlBufferFree(xmlBuffer);
++		ret=toXMLString_internal();
+ 	}
+ 	return ret;
+ }
+ 
++const tiny_string XML::encodeToXML(const tiny_string value, bool bIsAttribute)
++{
++
++	tiny_string res;
++	auto it = value.begin();
++	while (it != value.end())
++	{
++		switch (*it)
++		{
++			case '<':
++				res += "&lt;";
++				break;
++			case '>':
++				res += bIsAttribute ? ">" : "&gt;";
++				break;
++			case '&':
++				res += "&amp;";
++				break;
++			case '\"':
++				res += bIsAttribute ? "&quot;" : "\"";
++				break;
++			case '\r':
++				res += bIsAttribute ? "&#xD;" : "\r";
++				break;
++			case '\n':
++				res += bIsAttribute ? "&#xA;" : "\n";
++				break;
++			case '\t':
++				res += bIsAttribute ? "&#x9;" : "\t";
++				break;
++			default:
++				res += *it;
++				break;
++		}
++		it++;
++	}
++	return res;
++}
++
++bool XML::getPrettyPrinting()
++{
++	return prettyPrinting;
++}
++
+ tiny_string XML::toString()
+ {
+ 	return toString_priv();
+@@ -1550,86 +2229,44 @@ int32_t XML::toInt()
+ 	if (!hasSimpleContent())
+ 		return 0;
+ 
+-	tiny_string str = toString();
++	tiny_string str = toString_priv();
+ 	return Integer::stringToASInteger(str.raw_buf(), 0);
+ }
+ 
+-bool XML::nodesEqual(xmlpp::Node *a, xmlpp::Node *b) const
++bool XML::nodesEqual(XML *a, XML *b) const
+ {
+ 	assert(a && b);
+ 
+ 	// type
+-	if(a->cobj()->type!=b->cobj()->type)
++	if(a->nodetype!=b->nodetype)
+ 		return false;
+ 
+ 	// name
+-	if(a->get_name()!=b->get_name() || 
+-	   (!a->get_name().empty() && 
+-	    a->get_namespace_uri()!=b->get_namespace_uri()))
++	if(a->nodename!=b->nodename || 
++	   (!a->nodename.empty() && 
++	    a->nodenamespace_uri!=b->nodenamespace_uri))
+ 		return false;
+ 
+ 	// attributes
+-	xmlpp::Element *el1=dynamic_cast<xmlpp::Element *>(a);
+-	xmlpp::Element *el2=dynamic_cast<xmlpp::Element *>(b);
+-	if(el1 && el2)
++	if(a->nodetype==XML_ELEMENT_NODE)
+ 	{
+-		xmlpp::Element::AttributeList attrs1=el1->get_attributes();
+-		xmlpp::Element::AttributeList attrs2=el2->get_attributes();
+-		if(attrs1.size()!=attrs2.size())
++		if (a->attributelist->nodes.size() != b->attributelist->nodes.size())
+ 			return false;
+-
+-		xmlpp::Element::AttributeList::iterator it=attrs1.begin();
+-		while(it!=attrs1.end())
++			
++		for (int i = 0; i < (int)a->attributelist->nodes.size(); i++)
+ 		{
+-			xmlpp::Attribute *attr=el2->get_attribute((*it)->get_name(),
+-								  (*it)->get_namespace_prefix());
+-			if(!attr || (*it)->get_value()!=attr->get_value())
++			_R<XML> oa= a->attributelist->nodes[i];
++			_R<XML> ob= b->attributelist->nodes[i];
++			if (!oa->isEqual(ob.getPtr()))
+ 				return false;
+-
+-			++it;
+ 		}
+ 	}
+-
+ 	// content
+-	xmlpp::ContentNode *c1=dynamic_cast<xmlpp::ContentNode *>(a);
+-	xmlpp::ContentNode *c2=dynamic_cast<xmlpp::ContentNode *>(b);
+-	if(el1 && el2)
+-	{
+-		xmlpp::TextNode *text1=el1->get_child_text();
+-		xmlpp::TextNode *text2=el2->get_child_text();
+-
+-		if(text1 && text2)
+-		{
+-			if(text1->get_content()!=text2->get_content())
+-				return false;
+-		}
+-		else if(text1 || text2)
+-			return false;
+-
+-	}
+-	else if(c1 && c2)
+-	{
+-		if(c1->get_content()!=c2->get_content())
+-			return false;
+-	}
++	if (a->nodevalue != b->nodevalue)
++		return false;
+ 	
+ 	// children
+-	xmlpp::Node::NodeList myChildren=a->get_children();
+-	xmlpp::Node::NodeList otherChildren=b->get_children();
+-	if(myChildren.size()!=otherChildren.size())
+-		return false;
+-
+-	xmlpp::Node::NodeList::iterator it1=myChildren.begin();
+-	xmlpp::Node::NodeList::iterator it2=otherChildren.begin();
+-	while(it1!=myChildren.end())
+-	{
+-		if (!nodesEqual(*it1, *it2))
+-			return false;
+-		++it1;
+-		++it2;
+-	}
+-
+-	return true;
++	return a->childrenlist->isEqual(b->childrenlist.getPtr());
+ }
+ 
+ uint32_t XML::nextNameIndex(uint32_t cur_index)
+@@ -1663,7 +2300,7 @@ bool XML::isEqual(ASObject* r)
+ {
+ 	XML *x=dynamic_cast<XML *>(r);
+ 	if(x)
+-		return nodesEqual(node, x->node);
++		return nodesEqual(this, x);
+ 
+ 	XMLList *xl=dynamic_cast<XMLList *>(r);
+ 	if(xl)
+@@ -1683,13 +2320,110 @@ void XML::serialize(ByteArray* out, std::map<tiny_string, uint32_t>& stringMap,
+ 	out->writeXMLString(objMap, this, toString());
+ }
+ 
+-_NR<XML> XML::getRootNode()
++void XML::createTree(xmlpp::Node* node)
+ {
+-	if(root.isNull())
++	const xmlpp::Node::NodeList& list=node->get_children();
++	xmlpp::Node::NodeList::const_iterator it=list.begin();
++	childrenlist = _MR(Class<XMLList>::getInstanceS());
++	childrenlist->incRef();
++
++	this->nodetype = node->cobj()->type;
++	this->nodename = node->get_name();
++	this->nodenamespace_uri = node->get_namespace_uri();
++	this->nodenamespace_prefix = node ->get_namespace_prefix();
++	
++	switch (this->nodetype)
+ 	{
+-		incRef();
+-		return _MR(this);
++		case XML_ATTRIBUTE_NODE:
++		case XML_TEXT_NODE:
++		{
++			xmlpp::ContentNode *textnode=dynamic_cast<xmlpp::ContentNode*>(node);
++			this->nodevalue = textnode->get_content();
++			if (ignoreWhitespace)
++			{
++				nodevalue = removeWhitespace(nodevalue);
++				if (nodevalue.empty())
++					return;
++			}
++			break;
++		}
++		case XML_PI_NODE:
++		{
++			xmlpp::ContentNode *textnode=dynamic_cast<xmlpp::ContentNode*>(node);
++			this->nodevalue = textnode->get_content();
++			break;
++		}
++		case XML_COMMENT_NODE:
++		case XML_CDATA_SECTION_NODE:
++		{
++			xmlpp::ContentNode *textnode=dynamic_cast<xmlpp::ContentNode*>(node);
++			this->nodevalue = textnode->get_content();
++			break;
++		}
++		default:
++			break;
+ 	}
+-	else
+-		return root;
++	for(;it!=list.end();++it)
++	{
++		if (ignoreProcessingInstructions && (*it)->cobj()->type == XML_PI_NODE)
++			continue;
++		if (ignoreComments && (*it)->cobj()->type == XML_COMMENT_NODE)
++			continue;
++		if (ignoreWhitespace && (*it)->cobj()->type == XML_TEXT_NODE)
++		{
++			xmlpp::ContentNode *textnode=dynamic_cast<xmlpp::ContentNode*>(*it);
++			tiny_string tmpstr = textnode->get_content();
++			if (ignoreWhitespace)
++			{
++				tmpstr = removeWhitespace(tmpstr);
++				if (tmpstr.empty())
++					continue;
++			}
++		}
++		_NR<XML> tmp = _MR<XML>(Class<XML>::getInstanceS(*it));
++		this->incRef();
++		tmp->parentNode = _MR<XML>(this);
++		childrenlist->append(_R<XML>(tmp));
++	}
++	const xmlNode* xmlN = node->cobj();
++
++	xmlNsPtr nsdefs = xmlN->nsDef;
++	while (nsdefs)
++	{
++		tiny_string uri;
++		if (nsdefs->href) uri= (char*)nsdefs->href;
++		tiny_string prefix;
++		if (nsdefs->prefix) prefix= (char*)nsdefs->prefix;
++		Namespace* ns = Class<Namespace>::getInstanceS(uri,prefix);
++		namespacedefs.push_back(_MR(ns));
++		nsdefs = nsdefs->next;
++	}
++	attributelist = _MR(Class<XMLList>::getInstanceS());
++	for(xmlAttr* attr=xmlN->properties; attr!=NULL; attr=attr->next)
++	{
++		_NR<XML> tmp = _MR<XML>(Class<XML>::getInstanceS());
++		this->incRef();
++		tmp->parentNode = _MR<XML>(this);
++		tmp->nodetype = XML_ATTRIBUTE_NODE;
++		tmp->nodename = (char*)attr->name;
++		if (attr->ns)
++		{
++			tmp->nodenamespace_uri = (char*)attr->ns->href;
++			tmp->nodenamespace_prefix = (char*)attr->ns->prefix;
++		}
++		else 
++			tmp->nodenamespace_uri = getVm()->getDefaultXMLNamespace();
++
++		//NOTE: libxmlpp headers says that Node::create_wrapper
++		//is supposed to be internal API. Still it's very useful and
++		//we use it.
++		xmlpp::Node::create_wrapper(reinterpret_cast<xmlNode*>(attr));
++		xmlpp::Node* attrX=static_cast<xmlpp::Node*>(attr->_private);
++		xmlpp::Attribute *textnode=dynamic_cast<xmlpp::Attribute*>(attrX);
++		tmp->nodevalue = textnode->get_value();
++		tmp->constructed = true;
++		attributelist->nodes.push_back(tmp);
++	}
++	constructed=true;
+ }
++
+diff --git a/src/scripting/toplevel/XML.h b/src/scripting/toplevel/XML.h
+index 2064b7c..767548a 100644
+--- a/src/scripting/toplevel/XML.h
++++ b/src/scripting/toplevel/XML.h
+@@ -24,27 +24,36 @@
+ 
+ namespace lightspark
+ {
++class Namespace;
+ class XMLList;
+ class XML: public ASObject, public XMLBase
+ {
+ friend class XMLList;
+ public:
+ 	typedef std::vector<_R<XML>> XMLVector;
++	typedef std::vector<_R<Namespace>> NSVector;
+ private:
+-	//Pointer to the root XML element, the one that owns the parser that created this node
+-	_NR<XML> root;
+-	//The node this object represent
+-	xmlpp::Node* node;
+-	static void recursiveGetDescendantsByQName(_R<XML> root, xmlpp::Node* node, const tiny_string& name, const tiny_string& ns, 
+-			XMLVector& ret);
++	_NR<XMLList> childrenlist;
++	_NR<XML> parentNode;
++	xmlElementType nodetype;
++	tiny_string nodename;
++	tiny_string nodevalue;
++	tiny_string nodenamespace_uri;
++	tiny_string nodenamespace_prefix;
++	_NR<XMLList> attributelist;
++	NSVector namespacedefs;
++
++	void createTree(xmlpp::Node* node);
+ 	tiny_string toString_priv();
++	const char* nodekindString();
++	
+ 	bool constructed;
+-	bool nodesEqual(xmlpp::Node *a, xmlpp::Node *b) const;
+-	XMLVector getAttributes(const tiny_string& name="*",
+-				const tiny_string& namespace_uri="*");
++	bool nodesEqual(XML *a, XML *b) const;
++	XMLVector getAttributes();
++	XMLVector getAttributesByMultiname(const multiname& name);
++	XMLVector getValuesByMultiname(_NR<XMLList> nodelist, const multiname& name);
+ 	XMLList* getAllAttributes();
+ 	void getText(XMLVector& ret);
+-	_NR<XML> getRootNode();
+ 	/*
+ 	 * @param name The name of the wanted children, "*" for all children
+ 	 *
+@@ -54,17 +63,19 @@ private:
+ 	tiny_string getNamespacePrefixByURI(const tiny_string& uri, bool create=false);
+ 	void setLocalName(const tiny_string& localname);
+ 	void setNamespace(const tiny_string& ns_uri, const tiny_string& ns_prefix="");
+-	void removeAllChildren();
+ 	// Append node or attribute to this. Concatenates adjacent
+ 	// text nodes.
+ 	void appendChild(_R<XML> child);
+-	static void normalizeRecursive(xmlpp::Node *node);
++	static void normalizeRecursive(XML *node);
+ 	void addTextContent(const tiny_string& str);
+ 	bool hasParentNode;
++	void RemoveNamespace(Namespace *ns);
++	void getComments(XMLVector& ret);
++	void getprocessingInstructions(XMLVector& ret, tiny_string name);
++	void CheckCyclicReference(XML* node);
+ public:
+ 	XML(Class_base* c);
+ 	XML(Class_base* c,const std::string& str);
+-	XML(Class_base* c,_R<XML> _r, xmlpp::Node* _n);
+ 	XML(Class_base* c,xmlpp::Node* _n);
+ 	void finalize();
+ 	ASFUNCTION(_constructor);
+@@ -113,23 +124,43 @@ public:
+ 	ASFUNCTION(_setSettings);
+ 	ASFUNCTION(_getDefaultSettings);
+ 	ASFUNCTION(_toJSON);
++	ASFUNCTION(insertChildAfter);
++	ASFUNCTION(insertChildBefore);
++	ASFUNCTION(namespaceDeclarations);
++	ASFUNCTION(removeNamespace);
++	ASFUNCTION(comments);
++	ASFUNCTION(processingInstructions);
++	ASFUNCTION(_propertyIsEnumerable);
++	ASFUNCTION(_hasOwnProperty);
+ 
+-	static void buildTraits(ASObject* o){};
++	static void buildTraits(ASObject* o){}
+ 	static void sinit(Class_base* c);
+-	void getDescendantsByQName(const tiny_string& name, const tiny_string& ns, XMLVector& ret);
++	
++	static const tiny_string encodeToXML(const tiny_string value, bool bIsAttribute);
++	static bool getPrettyPrinting();
++
++	const tiny_string getName() const { return nodename;}
++	const tiny_string getNamespaceURI() const { return nodenamespace_uri;}
++	XMLList* getChildrenlist() { return childrenlist ? childrenlist.getPtr() : NULL; }
++	
++	
++	void getDescendantsByQName(const tiny_string& name, const tiny_string& ns,bool bIsAttribute, XMLVector& ret);
+ 	void getElementNodes(const tiny_string& name, XMLVector& foundElements);
+-	_NR<ASObject> getVariableByMultiname(const multiname& name, GET_VARIABLE_OPTION opt);
++	_NR<ASObject> getVariableByMultiname(const multiname& name, GET_VARIABLE_OPTION opt=NONE);
+ 	bool hasPropertyByMultiname(const multiname& name, bool considerDynamic, bool considerPrototype);
+ 	void setVariableByMultiname(const multiname& name, ASObject* o, CONST_ALLOWED_FLAG allowConst);
++	bool deleteVariableByMultiname(const multiname& name);
++	static bool isValidMultiname(const multiname& name, uint32_t& index);
++
+ 	void setTextContent(const tiny_string& content);
+ 	tiny_string toString();
++	const tiny_string toXMLString_internal(bool pretty=true, tiny_string defaultnsprefix = "", const char* indent = "", bool bfirst = true);
+ 	int32_t toInt();
+-	void toXMLString_priv(xmlBufferPtr buf);
+ 	bool hasSimpleContent() const;
+ 	bool hasComplexContent() const;
+ 	xmlElementType getNodeKind() const;
+ 	ASObject *getParentNode();
+-	XML *copy() const;
++	XML *copy();
+ 	void normalize();
+ 	bool isEqual(ASObject* r);
+ 	uint32_t nextNameIndex(uint32_t cur_index);
+diff --git a/src/scripting/toplevel/XMLList.cpp b/src/scripting/toplevel/XMLList.cpp
+index 20a2352..b242627 100644
+--- a/src/scripting/toplevel/XMLList.cpp
++++ b/src/scripting/toplevel/XMLList.cpp
+@@ -51,28 +51,43 @@ using namespace lightspark;
+ 		return NULL; \
+ 	}
+ 
+-XMLList::XMLList(Class_base* c):ASObject(c),nodes(c->memoryAccount),constructed(false)
++XMLList::XMLList(Class_base* c):ASObject(c),nodes(c->memoryAccount),constructed(false),targetobject(NULL),targetproperty(c->memoryAccount)
+ {
+ }
+ 
+-XMLList::XMLList(Class_base* cb,bool c):ASObject(cb),nodes(cb->memoryAccount),constructed(c)
++XMLList::XMLList(Class_base* cb,bool c):ASObject(cb),nodes(cb->memoryAccount),constructed(c),targetobject(NULL),targetproperty(cb->memoryAccount)
+ {
+ 	assert(c);
+ }
+ 
+-XMLList::XMLList(Class_base* c, const std::string& str):ASObject(c),nodes(c->memoryAccount),constructed(true)
++XMLList::XMLList(Class_base* c, const std::string& str):ASObject(c),nodes(c->memoryAccount),constructed(true),targetobject(NULL),targetproperty(c->memoryAccount)
+ {
+ 	buildFromString(str);
+ }
+ 
+-XMLList::XMLList(Class_base* c,const XML::XMLVector& r):
+-	ASObject(c),nodes(r.begin(),r.end(),c->memoryAccount),constructed(true)
++XMLList::XMLList(Class_base* c, const XML::XMLVector& r):
++	ASObject(c),nodes(r.begin(),r.end(),c->memoryAccount),constructed(true),targetobject(NULL),targetproperty(c->memoryAccount)
+ {
+ }
++XMLList::XMLList(Class_base* c, const XML::XMLVector& r, XMLList *targetobject, const multiname &targetproperty):
++	ASObject(c),nodes(r.begin(),r.end(),c->memoryAccount),constructed(true),targetobject(targetobject),targetproperty(c->memoryAccount)
++{
++	if (targetobject)
++		targetobject->incRef();
++	this->targetproperty.name_type = targetproperty.name_type;
++	this->targetproperty.isAttribute = targetproperty.isAttribute;
++	this->targetproperty.name_s_id = targetproperty.name_s_id;
++	for (auto it = targetproperty.ns.begin();it != targetproperty.ns.end(); it++)
++	{
++		this->targetproperty.ns.push_back(*it);
++	}
++}
+ 
+ void XMLList::finalize()
+ {
+-	nodes.clear();
++	if (targetobject)
++		targetobject->decRef();
++	//nodes.clear();
+ 	ASObject::finalize();
+ }
+ 
+@@ -88,7 +103,7 @@ void XMLList::sinit(Class_base* c)
+ 	c->setDeclaredMethodByQName("copy",AS3,Class<IFunction>::getFunction(copy),NORMAL_METHOD,true);
+ 	c->setDeclaredMethodByQName("descendants",AS3,Class<IFunction>::getFunction(descendants),NORMAL_METHOD,true);
+ 	c->setDeclaredMethodByQName("elements",AS3,Class<IFunction>::getFunction(elements),NORMAL_METHOD,true);
+-	c->setDeclaredMethodByQName("normalize",AS3,Class<IFunction>::getFunction(normalize),NORMAL_METHOD,true);
++	c->setDeclaredMethodByQName("normalize",AS3,Class<IFunction>::getFunction(_normalize),NORMAL_METHOD,true);
+ 	c->setDeclaredMethodByQName("parent",AS3,Class<IFunction>::getFunction(parent),NORMAL_METHOD,true);
+ 	c->setDeclaredMethodByQName("hasSimpleContent",AS3,Class<IFunction>::getFunction(_hasSimpleContent),NORMAL_METHOD,true);
+ 	c->setDeclaredMethodByQName("hasComplexContent",AS3,Class<IFunction>::getFunction(_hasComplexContent),NORMAL_METHOD,true);
+@@ -98,21 +113,24 @@ void XMLList::sinit(Class_base* c)
+ 	c->setDeclaredMethodByQName("valueOf",AS3,Class<IFunction>::getFunction(valueOf),NORMAL_METHOD,true);
+ 	c->setDeclaredMethodByQName("toXMLString",AS3,Class<IFunction>::getFunction(toXMLString),NORMAL_METHOD,true);
+ 	c->setDeclaredMethodByQName("text",AS3,Class<IFunction>::getFunction(text),NORMAL_METHOD,true);
++	c->setDeclaredMethodByQName("comments",AS3,Class<IFunction>::getFunction(comments),NORMAL_METHOD,true);
++	c->setDeclaredMethodByQName("processingInstructions",AS3,Class<IFunction>::getFunction(processingInstructions),NORMAL_METHOD,true);
++	c->setDeclaredMethodByQName("propertyIsEnumerable",AS3,Class<IFunction>::getFunction(_propertyIsEnumerable),NORMAL_METHOD,true);
+ 	REGISTER_XML_DELEGATE(addNamespace);
+ 	REGISTER_XML_DELEGATE2(appendChild,_appendChild);
+ 	REGISTER_XML_DELEGATE(childIndex);
+ 	REGISTER_XML_DELEGATE(inScopeNamespaces);
+-	//REGISTER_XML_DELEGATE(insertChildAfter);
+-	//REGISTER_XML_DELEGATE(insertChildBefore);
++	REGISTER_XML_DELEGATE(insertChildAfter);
++	REGISTER_XML_DELEGATE(insertChildBefore);
+ 	REGISTER_XML_DELEGATE(localName);
+ 	REGISTER_XML_DELEGATE(name);
+ 	REGISTER_XML_DELEGATE2(namespace,_namespace);
+-	//REGISTER_XML_DELEGATE(namespaceDeclarations);
++	REGISTER_XML_DELEGATE(namespaceDeclarations);
+ 	REGISTER_XML_DELEGATE(nodeKind);
+ 	//REGISTER_XML_DELEGATE(prependChild);
+-	//REGISTER_XML_DELEGATE(removeNamespace);
++	REGISTER_XML_DELEGATE(removeNamespace);
+ 	//REGISTER_XML_DELEGATE(replace);
+-	REGISTER_XML_DELEGATE(_setChildren);
++	REGISTER_XML_DELEGATE2(setChildren,_setChildren);
+ 	REGISTER_XML_DELEGATE2(setLocalName,_setLocalName);
+ 	REGISTER_XML_DELEGATE2(setName,_setName);
+ 	REGISTER_XML_DELEGATE2(setNamespace,_setNamespace);
+@@ -122,15 +140,15 @@ ASFUNCTIONBODY_XML_DELEGATE(addNamespace);
+ ASFUNCTIONBODY_XML_DELEGATE(_appendChild);
+ ASFUNCTIONBODY_XML_DELEGATE(childIndex);
+ ASFUNCTIONBODY_XML_DELEGATE(inScopeNamespaces);
+-//ASFUNCTIONBODY_XML_DELEGATE(insertChildAfter);
+-//ASFUNCTIONBODY_XML_DELEGATE(insertChildBefore);
++ASFUNCTIONBODY_XML_DELEGATE(insertChildAfter);
++ASFUNCTIONBODY_XML_DELEGATE(insertChildBefore);
+ ASFUNCTIONBODY_XML_DELEGATE(localName);
+ ASFUNCTIONBODY_XML_DELEGATE(name);
+ ASFUNCTIONBODY_XML_DELEGATE(_namespace);
+-//ASFUNCTIONBODY_XML_DELEGATE(namespaceDeclarations);
++ASFUNCTIONBODY_XML_DELEGATE(namespaceDeclarations);
+ ASFUNCTIONBODY_XML_DELEGATE(nodeKind);
+ //ASFUNCTIONBODY_XML_DELEGATE(prependChild);
+-//ASFUNCTIONBODY_XML_DELEGATE(removeNamespace);
++ASFUNCTIONBODY_XML_DELEGATE(removeNamespace);
+ //ASFUNCTIONBODY_XML_DELEGATE(replace);
+ ASFUNCTIONBODY_XML_DELEGATE(_setChildren);
+ ASFUNCTIONBODY_XML_DELEGATE(_setLocalName);
+@@ -150,6 +168,7 @@ ASFUNCTIONBODY(XMLList,_constructor)
+ 	   args[0]->is<Null>() || 
+ 	   args[0]->is<Undefined>())
+ 	{
++		th->constructed=true;
+ 		return NULL;
+ 	}
+ 	else if(args[0]->is<XML>())
+@@ -207,23 +226,46 @@ void XMLList::buildFromString(const std::string& str)
+ 	  parser.get_document()->get_root_node()->get_children();
+ 	xmlpp::Node::NodeList::const_iterator it;
+ 	for(it=children.begin(); it!=children.end(); ++it)
+-		nodes.push_back(_MR(Class<XML>::getInstanceS(*it)));
++	{
++		_R<XML> tmp = _MR(Class<XML>::getInstanceS(*it));
++		if (tmp->constructed)
++			nodes.push_back(tmp);
++	}
+ }
+ 
+ std::string XMLList::extractXMLDeclaration(const std::string& xml, std::string& xmldecl_out)
+ {
++	if (xml.compare(0, 2, "<?") != 0)
++		return xml;
+ 	std::string res = xml;
+ 	xmldecl_out = "";
+-	if (xml.compare(0, 4, "<?xml"))
++	size_t declEnd = 0;
++	size_t len = xml.length();
++	while (declEnd<len && declEnd != xml.npos)
+ 	{
+-		size_t declEnd = xml.find("?>");
+-		if (declEnd != xml.npos)
++		if (g_unichar_isspace(xml[declEnd]))
++				declEnd++;
++		else
+ 		{
+-			declEnd += 2;
+-			xmldecl_out = xml.substr(0, declEnd);
+-			res = xml.substr(declEnd);
++			if (xml.compare(declEnd, 2, "<?") == 0)
++			{
++				size_t tmp = xml.find("?>",declEnd);
++				if (tmp == xml.npos)
++					break;
++				declEnd = tmp +2;
++			}
++			else
++				break;
+ 		}
+ 	}
++	if (declEnd && declEnd != xml.npos)
++	{
++		xmldecl_out = xml.substr(0, declEnd);
++		if (declEnd<len)
++			res = xml.substr(declEnd);
++		else
++			res = "";
++	}
+ 	return res;
+ }
+ 
+@@ -304,8 +346,8 @@ ASFUNCTIONBODY(XMLList,descendants)
+ 	assert_and_throw(argslen==0 || args[0]->getObjectType()!=T_QNAME);
+ 	ARG_UNPACK(name,"*");
+ 	XML::XMLVector ret;
+-	th->getDescendantsByQName(name,"",ret);
+-	return Class<XMLList>::getInstanceS(ret);
++	th->getDescendantsByQName(name,"",false,ret);
++	return Class<XMLList>::getInstanceS(ret,th->targetobject,multiname(NULL));
+ }
+ 
+ ASFUNCTIONBODY(XMLList,elements)
+@@ -316,11 +358,11 @@ ASFUNCTIONBODY(XMLList,elements)
+ 
+ 	XML::XMLVector elems;
+ 	auto it=th->nodes.begin();
+-        for(; it!=th->nodes.end(); ++it)
+-        {
++	for(; it!=th->nodes.end(); ++it)
++	{
+ 		(*it)->getElementNodes(name, elems);
+ 	}
+-	return Class<XMLList>::getInstanceS(elems);
++	return Class<XMLList>::getInstanceS(elems,th->targetobject,multiname(NULL));
+ }
+ 
+ ASFUNCTIONBODY(XMLList,parent)
+@@ -334,8 +376,8 @@ ASFUNCTIONBODY(XMLList,parent)
+ 	ASObject *parent=(*it)->getParentNode();
+ 	++it;
+ 
+-        for(; it!=th->nodes.end(); ++it)
+-        {
++	for(; it!=th->nodes.end(); ++it)
++	{
+ 		ASObject *otherParent=(*it)->getParentNode();
+ 		if(!parent->isEqual(otherParent))
+ 			return getSys()->getUndefinedRef();
+@@ -354,14 +396,28 @@ ASFUNCTIONBODY(XMLList,child)
+ {
+ 	XMLList* th = obj->as<XMLList>();
+ 	assert_and_throw(argslen==1);
+-	const tiny_string& arg0=args[0]->toString();
+ 	XML::XMLVector ret;
+-	auto it=th->nodes.begin();
+-        for(; it!=th->nodes.end(); ++it)
+-        {
+-		(*it)->childrenImpl(ret, arg0);
++	if(args[0]->is<Number>() ||
++		args[0]->is<Integer>() ||
++		args[0]->is<UInteger>())
++	{
++		uint32_t index =args[0]->toUInt();
++		auto it=th->nodes.begin();
++		for(; it!=th->nodes.end(); ++it)
++		{
++			(*it)->childrenImpl(ret, index);
++		}
++	}
++	else
++	{
++		const tiny_string& arg0=args[0]->toString();
++		auto it=th->nodes.begin();
++		for(; it!=th->nodes.end(); ++it)
++		{
++			(*it)->childrenImpl(ret, arg0);
++		}
+ 	}
+-	XMLList* retObj=Class<XMLList>::getInstanceS(ret);
++	XMLList* retObj=Class<XMLList>::getInstanceS(ret,th->targetobject,multiname(NULL));
+ 	return retObj;
+ }
+ 
+@@ -371,11 +427,11 @@ ASFUNCTIONBODY(XMLList,children)
+ 	assert_and_throw(argslen==0);
+ 	XML::XMLVector ret;
+ 	auto it=th->nodes.begin();
+-        for(; it!=th->nodes.end(); ++it)
+-        {
++	for(; it!=th->nodes.end(); ++it)
++	{
+ 		(*it)->childrenImpl(ret, "*");
+ 	}
+-	XMLList* retObj=Class<XMLList>::getInstanceS(ret);
++	XMLList* retObj=Class<XMLList>::getInstanceS(ret,th->targetobject,multiname(NULL));
+ 	return retObj;
+ }
+ 
+@@ -385,11 +441,11 @@ ASFUNCTIONBODY(XMLList,text)
+ 	ARG_UNPACK;
+ 	XML::XMLVector ret;
+ 	auto it=th->nodes.begin();
+-        for(; it!=th->nodes.end(); ++it)
+-        {
++	for(; it!=th->nodes.end(); ++it)
++	{
+ 		(*it)->getText(ret);
+ 	}
+-	return Class<XMLList>::getInstanceS(ret);
++	return Class<XMLList>::getInstanceS(ret,th->targetobject,multiname(NULL));
+ }
+ 
+ ASFUNCTIONBODY(XMLList,contains)
+@@ -401,8 +457,8 @@ ASFUNCTIONBODY(XMLList,contains)
+ 		return abstract_b(false);
+ 
+ 	auto it=th->nodes.begin();
+-        for(; it!=th->nodes.end(); ++it)
+-        {
++	for(; it!=th->nodes.end(); ++it)
++	{
+ 		if((*it)->isEqual(value.getPtr()))
+ 			return abstract_b(true);
+ 	}
+@@ -414,9 +470,10 @@ ASFUNCTIONBODY(XMLList,copy)
+ {
+ 	XMLList* th = obj->as<XMLList>();
+ 	XMLList *dest = Class<XMLList>::getInstanceS();
++	dest->targetobject = th->targetobject;
+ 	auto it=th->nodes.begin();
+-        for(; it!=th->nodes.end(); ++it)
+-        {
++	for(; it!=th->nodes.end(); ++it)
++	{
+ 		dest->nodes.push_back(_MR((*it)->copy()));
+ 	}
+ 	return dest;
+@@ -456,11 +513,59 @@ ASFUNCTIONBODY(XMLList,attributes)
+ 	return res;
+ }
+ 
+-ASFUNCTIONBODY(XMLList,normalize)
++ASFUNCTIONBODY(XMLList,comments)
+ {
+-	XMLList *th = obj->as<XMLList>();
++	XMLList* th=Class<XMLList>::cast(obj);
++
++	XMLList *res = Class<XMLList>::getInstanceS();
++	XML::XMLVector nodecomments;
+ 	auto it=th->nodes.begin();
+-	while (it!=th->nodes.end())
++	for(; it!=th->nodes.end(); ++it)
++	{
++		(*it)->getComments(nodecomments);
++	}
++	res->nodes.insert(res->nodes.end(), nodecomments.begin(), nodecomments.end());
++	return res;
++}
++ASFUNCTIONBODY(XMLList,processingInstructions)
++{
++	XMLList* th=Class<XMLList>::cast(obj);
++	tiny_string name;
++	ARG_UNPACK(name,"*");
++
++	XMLList *res = Class<XMLList>::getInstanceS();
++	XML::XMLVector nodeprocessingInstructions;
++	auto it=th->nodes.begin();
++	for(; it!=th->nodes.end(); ++it)
++	{
++		(*it)->getprocessingInstructions(nodeprocessingInstructions,name);
++	}
++	res->nodes.insert(res->nodes.end(), nodeprocessingInstructions.begin(), nodeprocessingInstructions.end());
++	return res;
++}
++ASFUNCTIONBODY(XMLList,_propertyIsEnumerable)
++{
++	XMLList* th=Class<XMLList>::cast(obj);
++	if (argslen == 1)
++	{
++		int32_t n = args[0]->toInt();
++		return abstract_b(n < (int32_t)th->nodes.size());
++		
++	}
++	return abstract_b(false);
++}
++
++ASFUNCTIONBODY(XMLList,_normalize)
++{
++	XMLList *th = obj->as<XMLList>();
++	th->normalize();
++	th->incRef();
++	return th;
++}
++void XMLList::normalize()
++{
++	auto it=nodes.begin();
++	while (it!=nodes.end())
+ 	{
+ 		if ((*it)->getNodeKind() == XML_ELEMENT_NODE)
+ 		{
+@@ -471,17 +576,17 @@ ASFUNCTIONBODY(XMLList,normalize)
+ 		{
+ 			if ((*it)->toString().empty())
+ 			{
+-				it = th->nodes.erase(it);
++				it = nodes.erase(it);
+ 			}
+ 			else
+ 			{
+ 				_R<XML> textnode = *it;
+ 
+ 				++it;
+-				while (it!=th->nodes.end() && (*it)->getNodeKind() == XML_TEXT_NODE)
++				while (it!=nodes.end() && (*it)->getNodeKind() == XML_TEXT_NODE)
+ 				{
+ 					textnode->addTextContent((*it)->toString());
+-					it = th->nodes.erase(it);
++					it = nodes.erase(it);
+ 				}
+ 			}
+ 
+@@ -491,9 +596,51 @@ ASFUNCTIONBODY(XMLList,normalize)
+ 			++it;
+ 		}
+ 	}
++}
+ 
+-	th->incRef();
+-	return th;
++void XMLList::clear()
++{
++	nodes.clear();
++}
++void XMLList::getTargetVariables(const multiname& name,XML::XMLVector& retnodes)
++{
++	unsigned int index=0;
++	if(XML::isValidMultiname(name,index))
++	{
++		retnodes.push_back(nodes[index]);
++	}
++	else
++	{
++		tiny_string normalizedName=name.normalizedName();
++		
++		//Only the first namespace is used, is this right?
++		tiny_string namespace_uri;
++		if(name.ns.size() > 0 && !name.ns[0].hasEmptyName())
++		{
++			nsNameAndKindImpl ns=name.ns[0].getImpl();
++			if (ns.kind==NAMESPACE)
++				namespace_uri=ns.name;
++		}
++		
++		// namespace set by "default xml namespace = ..."
++		if(namespace_uri.empty())
++			namespace_uri=getVm()->getDefaultXMLNamespace();
++
++		for (uint32_t i = 0; i < nodes.size(); i++)
++		{
++			_R<XML> child= nodes[i];
++			bool nameMatches = (normalizedName=="" || normalizedName==child->nodename);
++			bool nsMatches = (namespace_uri=="" || 
++							  (child->nodenamespace_uri == namespace_uri));
++			
++			if(nameMatches && nsMatches)
++			{
++				retnodes.push_back(child);
++			}
++			if (child->childrenlist)
++				child->childrenlist->getTargetVariables(name,retnodes);
++		}
++	}
+ }
+ 
+ _NR<ASObject> XMLList::getVariableByMultiname(const multiname& name, GET_VARIABLE_OPTION opt)
+@@ -514,9 +661,28 @@ _NR<ASObject> XMLList::getVariableByMultiname(const multiname& name, GET_VARIABL
+ 
+ 		return res;
+ 	}
++	if (name.isAttribute)
++	{
++		XML::XMLVector retnodes;
++		auto it=nodes.begin();
++		for(; it!=nodes.end(); ++it)
++		{
++			_NR<ASObject> o=(*it)->getVariableByMultiname(name,opt);
++			XMLList *x=dynamic_cast<XMLList *>(o.getPtr());
++			if(!x)
++				continue;
++
++			retnodes.insert(retnodes.end(), x->nodes.begin(), x->nodes.end());
++		}
++
++		if(retnodes.size()==0 && (opt & XML_STRICT)!=0)
++			return NullRef;
+ 
++		this->incRef();
++		return _MNR(Class<XMLList>::getInstanceS(retnodes,this,name));
++	}
+ 	unsigned int index=0;
+-	if(Array::isValidMultiname(name,index))
++	if(XML::isValidMultiname(name,index))
+ 	{
+ 		if(index<nodes.size())
+ 			return nodes[index];
+@@ -540,7 +706,8 @@ _NR<ASObject> XMLList::getVariableByMultiname(const multiname& name, GET_VARIABL
+ 		if(retnodes.size()==0 && (opt & XML_STRICT)!=0)
+ 			return NullRef;
+ 
+-		return _MNR(Class<XMLList>::getInstanceS(retnodes));
++		this->incRef();
++		return _MNR(Class<XMLList>::getInstanceS(retnodes,this,name));
+ 	}
+ }
+ 
+@@ -549,16 +716,11 @@ bool XMLList::hasPropertyByMultiname(const multiname& name, bool considerDynamic
+ 	if(considerDynamic==false)
+ 		return ASObject::hasPropertyByMultiname(name, considerDynamic, considerPrototype);
+ 
+-	assert_and_throw(name.ns.size()>0);
+-	if(!name.ns[0].hasEmptyName())
+-		return ASObject::hasPropertyByMultiname(name, considerDynamic, considerPrototype);
+-
+ 	unsigned int index=0;
+-	if(Array::isValidMultiname(name,index))
++	if(XML::isValidMultiname(name,index))
+ 		return index<nodes.size();
+ 	else
+ 	{
+-		XML::XMLVector retnodes;
+ 		auto it=nodes.begin();
+ 		for(; it!=nodes.end(); ++it)
+ 		{
+@@ -575,25 +737,75 @@ void XMLList::setVariableByMultiname(const multiname& name, ASObject* o, CONST_A
+ {
+ 	assert_and_throw(implEnable);
+ 	unsigned int index=0;
+-	if(Array::isValidMultiname(name,index))
++	XML::XMLVector retnodes;
++	XMLList* tmplist = targetobject;
++	multiname tmpprop = targetproperty;
++	if (targetobject)
++	{
++		while (tmplist->targetobject)
++		{
++			tmpprop = tmplist->targetproperty;
++			tmplist = tmplist->targetobject;
++		}
++		if (tmplist && !tmpprop.isEmpty())
++		{
++			tmplist->getTargetVariables(tmpprop,retnodes);
++		}
++	}
++	if(XML::isValidMultiname(name,index))
+ 	{
+ 		if (index >= nodes.size())
+ 		{
++			if (targetobject)
++				targetobject->appendSingleNode(o);
+ 			appendSingleNode(o);
+ 		}
+ 		else
+ 		{
+-			replace(index, o);
++			replace(index, o,retnodes,allowConst);
+ 		}
+ 	}
+ 	else if (nodes.size() == 0)
+ 	{
+-		appendSingleNode(o);
++		if (tmplist)
++		{
++			if (!tmpprop.isEmpty())
++			{
++				XML* tmp = Class<XML>::getInstanceS();
++				tmp->nodetype = XML_ELEMENT_NODE;
++				tmp->nodename = targetproperty.normalizedName();
++				tmp->attributelist = _MR(Class<XMLList>::getInstanceS());
++				tmp->constructed = true;
++				tmp->setVariableByMultiname(name,o,allowConst);
++				tmp->incRef();
++				tiny_string tmpname = tmpprop.normalizedName();
++				if (retnodes.empty() && tmpname != "" && tmpname != "*")
++				{
++					XML* tmp2 = Class<XML>::getInstanceS();
++					tmp2->nodetype = XML_ELEMENT_NODE;
++					tmp2->nodename = tmpname;
++					tmp2->attributelist = _MR(Class<XMLList>::getInstanceS());
++					tmp2->constructed = true;
++					tmp2->setVariableByMultiname(targetproperty,tmp,allowConst);
++					tmp2->incRef();
++					tmplist->appendSingleNode(tmp2);
++					appendSingleNode(tmp2);
++				}
++				else
++					tmplist->setVariableByMultiname(tmpprop,tmp,allowConst);
++			}
++			else
++			{
++				tmplist->appendSingleNode(o);
++				appendSingleNode(o);
++			}
++		}
++		else
++			appendSingleNode(o);
+ 	}
+ 	else if (nodes.size() == 1)
+ 	{
+-		nodes.pop_back();
+-		appendSingleNode(o);
++		nodes[0]->setVariableByMultiname(name, o, allowConst);
+ 	}
+ 	else
+ 	{
+@@ -601,12 +813,47 @@ void XMLList::setVariableByMultiname(const multiname& name, ASObject* o, CONST_A
+ 	}
+ }
+ 
+-void XMLList::getDescendantsByQName(const tiny_string& name, const tiny_string& ns, XML::XMLVector& ret)
++bool XMLList::deleteVariableByMultiname(const multiname& name)
++{
++	unsigned int index=0;
++	bool bdeleted = false;
++	
++	if(XML::isValidMultiname(name,index))
++	{
++		_R<XML> node = nodes[index];
++		if (node->parentNode)
++		{
++			XMLList::XMLListVector::iterator it = node->parentNode->childrenlist->nodes.end();
++			while (it != node->parentNode->childrenlist->nodes.begin())
++			{
++				it--;
++				_R<XML> n = *it;
++				if (n.getPtr() == node.getPtr())
++				{
++					node->parentNode->childrenlist->nodes.erase(it);
++					break;
++				}
++			}
++		}
++	}
++	else
++	{
++		for (XMLList::XMLListVector::iterator it = nodes.begin(); it != nodes.end(); it++)
++		{
++			_R<XML> node = *it;
++			if (node->deleteVariableByMultiname(name))
++				bdeleted = true;
++		}
++	}
++	return bdeleted;
++}
++
++void XMLList::getDescendantsByQName(const tiny_string& name, const tiny_string& ns, bool bIsAttribute, XML::XMLVector& ret)
+ {
+ 	auto it=nodes.begin();
+ 	for(; it!=nodes.end(); ++it)
+ 	{
+-		(*it)->getDescendantsByQName(name, ns, ret);
++		(*it)->getDescendantsByQName(name, ns, bIsAttribute, ret);
+ 	}
+ }
+ 
+@@ -620,46 +867,30 @@ _NR<XML> XMLList::convertToXML() const
+ 
+ bool XMLList::hasSimpleContent() const
+ {
+-	if(nodes.size()==0)
+-		return true;
+-	else if(nodes.size()==1)
+-		return nodes[0]->hasSimpleContent();
+-	else
++	switch(nodes.size())
+ 	{
+-		auto it=nodes.begin();
+-		for(; it!=nodes.end(); ++it)
+-		{
+-			if((*it)->getNodeKind()==XML_ELEMENT_NODE)
+-				return false;
+-		}
++		case 0:
++			return true;
++		case 1:
++			return nodes[0]->hasSimpleContent();
++	}
++	auto it = nodes.begin();
++	while (it != nodes.end())
++	{
++		if ((*it)->nodetype == XML_ELEMENT_NODE)
++			return false;
++		it++;
+ 	}
+-
+ 	return true;
+ }
+ 
+ bool XMLList::hasComplexContent() const
+ {
+-	if(nodes.size()==0)
+-		return false;
+-	else if(nodes.size()==1)
+-		return nodes[0]->hasComplexContent();
+-	else
+-	{
+-		auto it=nodes.begin();
+-		for(; it!=nodes.end(); ++it)
+-		{
+-			if((*it)->getNodeKind()==XML_ELEMENT_NODE)
+-				return true;
+-		}
+-	}
+-
+-	return false;
++	return !hasSimpleContent();
+ }
+ 
+ void XMLList::appendSingleNode(ASObject *x)
+ {
+-	LOG(LOG_NOT_IMPLEMENTED, "XMLList::appendSingleNode should set the parent property of the added node");
+-
+ 	if (x->is<XML>())
+ 	{
+ 		x->incRef();
+@@ -692,19 +923,35 @@ void XMLList::append(_R<XMLList> x)
+ 	nodes.insert(nodes.end(),x->nodes.begin(),x->nodes.end());
+ }
+ 
+-void XMLList::replace(unsigned int idx, ASObject *o)
++void XMLList::replace(unsigned int idx, ASObject *o, const XML::XMLVector &retnodes,CONST_ALLOWED_FLAG allowConst)
+ {
+ 	if (idx >= nodes.size())
+ 		return;
+ 
+-	LOG(LOG_NOT_IMPLEMENTED, "XMLList::replace should set the parent property of the added nodes");
+-
+-	if (nodes[idx]->getNodeKind() == XML_ATTRIBUTE_NODE)
++	if (nodes[idx]->getNodeKind() == XML_ATTRIBUTE_NODE || nodes[idx]->getNodeKind() == XML_TEXT_NODE)
+ 	{
++		if (targetobject)
++			targetobject->setVariableByMultiname(targetproperty,o,allowConst);
+ 		nodes[idx]->setTextContent(o->toString());
+ 	}
+ 	else if (o->is<XMLList>())
+ 	{
++		if (targetobject)
++		{
++			for (uint32_t i = 0; i < targetobject->nodes.size(); i++)
++			{
++				XML* n= targetobject->nodes[i].getPtr();
++				if (n == nodes[idx].getPtr())
++				{
++					multiname m(NULL);
++					m.name_type = multiname::NAME_INT;
++					m.name_i = i;
++					m.ns.push_back(nsNameAndKind("",NAMESPACE));
++					targetobject->setVariableByMultiname(m,o,allowConst);
++					break;
++				}
++			}
++		}
+ 		unsigned int k = 0;
+ 		vector<_R<XML>, reporter_allocator<_R<XML>>>::iterator it = nodes.begin();
+ 		while (k < idx && it!=nodes.end())
+@@ -720,36 +967,64 @@ void XMLList::replace(unsigned int idx, ASObject *o)
+ 	}
+ 	else if (o->is<XML>())
+ 	{
++		if (retnodes.size() > idx)
++		{
++			multiname m(NULL);
++			m.name_type = multiname::NAME_INT;
++			m.name_i = idx;
++			m.ns.push_back(nsNameAndKind("",NAMESPACE));
++			targetobject->setVariableByMultiname(m,o,allowConst);
++		}
+ 		o->incRef();
+ 		nodes[idx] = _MR(o->as<XML>());
+ 	}
+ 	else
+ 	{
+-		nodes[idx] = _MR(Class<XML>::getInstanceS(o->toString()));
++		if (nodes[idx]->nodetype == XML_TEXT_NODE)
++			nodes[idx]->nodevalue = o->toString();
++		else 
++		{
++			nodes[idx]->childrenlist->clear();
++			_R<XML> tmp = _MR<XML>(Class<XML>::getInstanceS());
++			nodes[idx]->incRef();
++			tmp->parentNode = nodes[idx];
++			tmp->nodetype = XML_TEXT_NODE;
++			tmp->nodename = "text";
++			tmp->nodenamespace_uri = "";
++			tmp->nodenamespace_prefix = "";
++			tmp->nodevalue = o->toString();
++			tmp->constructed = true;
++			nodes[idx]->childrenlist->append(tmp);
++		}
+ 	}
+ }
+ 
+-tiny_string XMLList::toString_priv() const
++tiny_string XMLList::toString_priv()
+ {
+-	if(hasSimpleContent())
++	if (hasSimpleContent())
+ 	{
+ 		tiny_string ret;
+-		for(uint32_t i=0;i<nodes.size();i++)
++		for(size_t i=0; i<nodes.size(); i++)
+ 		{
+ 			xmlElementType kind=nodes[i]->getNodeKind();
+-			if(kind!=XML_COMMENT_NODE && kind!=XML_PI_NODE)
+-				ret+=nodes[i]->toString();
++			switch (kind)
++			{
++				case XML_COMMENT_NODE:
++				case XML_PI_NODE:
++					break;
++				case XML_ATTRIBUTE_NODE:
++					ret+=nodes[i]->toString_priv();
++					break;
++				default:
++					ret+=nodes[i]->toString_priv();
++					break;
++			}
++
++				
+ 		}
+ 		return ret;
+ 	}
+-	else
+-	{
+-		xmlBufferPtr xmlBuffer=xmlBufferCreateSize(4096);
+-		toXMLString_priv(xmlBuffer);
+-		tiny_string ret((char*)xmlBuffer->content, true);
+-		xmlBufferFree(xmlBuffer);
+-		return ret;
+-	}
++	return toXMLString_internal();
+ }
+ 
+ tiny_string XMLList::toString()
+@@ -772,24 +1047,28 @@ ASFUNCTIONBODY(XMLList,_toString)
+ 	return Class<ASString>::getInstanceS(th->toString_priv());
+ }
+ 
+-void XMLList::toXMLString_priv(xmlBufferPtr buf) const
++tiny_string XMLList::toXMLString_internal(bool pretty)
+ {
+-	for(size_t i=0; i<nodes.size(); i++)
++	tiny_string res;
++	size_t len = nodes.size();
++	for(size_t i=0; i<len; i++)
+ 	{
+-		if(i>0)
+-			xmlBufferWriteChar(buf, "\n");
+-		nodes[i].getPtr()->toXMLString_priv(buf);
++		tiny_string tmp = nodes[i].getPtr()->toXMLString_internal(pretty);
++		if (tmp != "")
++		{
++			res += tmp;
++			if (pretty && i < len-1)
++				res += "\n";
++		}
+ 	}
++	return res;
+ }
+ 
+ ASFUNCTIONBODY(XMLList,toXMLString)
+ {
+ 	XMLList* th=Class<XMLList>::cast(obj);
+ 	assert_and_throw(argslen==0);
+-	xmlBufferPtr xmlBuffer=xmlBufferCreateSize(4096);
+-	th->toXMLString_priv(xmlBuffer);
+-	ASString* ret=Class<ASString>::getInstanceS((char*)xmlBuffer->content);
+-	xmlBufferFree(xmlBuffer);
++	ASString* ret=Class<ASString>::getInstanceS(th->toXMLString_internal());
+ 	return ret;
+ }
+ 
+diff --git a/src/scripting/toplevel/XMLList.h b/src/scripting/toplevel/XMLList.h
+index 0055c8d..4fecd35 100644
+--- a/src/scripting/toplevel/XMLList.h
++++ b/src/scripting/toplevel/XMLList.h
+@@ -28,15 +28,21 @@ namespace lightspark
+ {
+ class XMLList: public ASObject
+ {
++friend class XML;
++public:
++	typedef std::vector<_R<XML>, reporter_allocator<_R<XML>>> XMLListVector;
+ private:
+-	std::vector<_R<XML>, reporter_allocator<_R<XML>>> nodes;
++	XMLListVector nodes;
+ 	bool constructed;
+-	tiny_string toString_priv() const;
++	XMLList* targetobject;
++	multiname targetproperty;
++
++	tiny_string toString_priv();
+ 	void buildFromString(const std::string& str);
+ 	std::string extractXMLDeclaration(const std::string& xml, std::string& xmldecl_out);
+-	void toXMLString_priv(xmlBufferPtr buf) const;
+ 	void appendSingleNode(ASObject *x);
+-	void replace(unsigned int i, ASObject *x);
++	void replace(unsigned int i, ASObject *x, const XML::XMLVector& retnodes, CONST_ALLOWED_FLAG allowConst);
++	void getTargetVariables(const multiname& name, XML::XMLVector& retnodes);
+ public:
+ 	XMLList(Class_base* c);
+ 	/*
+@@ -44,9 +50,10 @@ public:
+ 	*/
+ 	XMLList(Class_base* cb,bool c);
+ 	XMLList(Class_base* c,const XML::XMLVector& r);
++	XMLList(Class_base* c,const XML::XMLVector& r,XMLList* targetobject,const multiname& targetproperty);
+ 	XMLList(Class_base* c,const std::string& str);
+ 	void finalize();
+-	static void buildTraits(ASObject* o){};
++	static void buildTraits(ASObject* o){}
+ 	static void sinit(Class_base* c);
+ 	ASFUNCTION(_constructor);
+ 	ASFUNCTION(_getLength);
+@@ -71,7 +78,7 @@ public:
+ 	ASFUNCTION(_namespace);
+ 	ASFUNCTION(name);
+ 	ASFUNCTION(nodeKind);
+-	ASFUNCTION(normalize);
++	ASFUNCTION(_normalize);
+ 	ASFUNCTION(localName);
+ 	ASFUNCTION(inScopeNamespaces);
+ 	ASFUNCTION(addNamespace);
+@@ -79,16 +86,25 @@ public:
+ 	ASFUNCTION(_setLocalName);
+ 	ASFUNCTION(_setName);
+ 	ASFUNCTION(_setNamespace);
++	ASFUNCTION(insertChildAfter);
++	ASFUNCTION(insertChildBefore);
++	ASFUNCTION(namespaceDeclarations);
++	ASFUNCTION(removeNamespace);
++	ASFUNCTION(comments);
++	ASFUNCTION(processingInstructions);
++	ASFUNCTION(_propertyIsEnumerable);
+ 	_NR<ASObject> getVariableByMultiname(const multiname& name, GET_VARIABLE_OPTION opt);
+ 	void setVariableByMultiname(const multiname& name, ASObject* o, CONST_ALLOWED_FLAG allowConst);
+ 	bool hasPropertyByMultiname(const multiname& name, bool considerDynamic, bool considerPrototype);
+-	void getDescendantsByQName(const tiny_string& name, const tiny_string& ns, XML::XMLVector& ret);
++	bool deleteVariableByMultiname(const multiname& name);
++	void getDescendantsByQName(const tiny_string& name, const tiny_string& ns, bool bIsAttribute, XML::XMLVector& ret);
+ 	_NR<XML> convertToXML() const;
+ 	bool hasSimpleContent() const;
+ 	bool hasComplexContent() const;
+ 	void append(_R<XML> x);
+ 	void append(_R<XMLList> x);
+ 	tiny_string toString();
++	tiny_string toXMLString_internal(bool pretty=true);
+ 	int32_t toInt();
+ 	bool isEqual(ASObject* r);
+ 	uint32_t nextNameIndex(uint32_t cur_index);
+@@ -96,6 +112,9 @@ public:
+ 	_R<ASObject> nextValue(uint32_t index);
+ 	_R<XML> reduceToXML() const;
+ 	void appendNodesTo(XML *dest) const;
++	void normalize();
++	void clear();
++	XMLList* getTargetObject() { return targetobject; }
+ };
+ }
+ #endif /* SCRIPTING_TOPLEVEL_XMLLIST_H */
+diff --git a/src/scripting/toplevel/toplevel.cpp b/src/scripting/toplevel/toplevel.cpp
+index e72b5e6..ac201ad 100644
+--- a/src/scripting/toplevel/toplevel.cpp
++++ b/src/scripting/toplevel/toplevel.cpp
+@@ -45,7 +45,6 @@
+ #include "parsing/amf3_generator.h"
+ #include "scripting/argconv.h"
+ #include "scripting/toplevel/Number.h"
+-#include "scripting/toplevel/XML.h"
+ 
+ using namespace std;
+ using namespace lightspark;
+@@ -371,6 +370,8 @@ ASObject* SyntheticFunction::call(ASObject* obj, ASObject* const* args, uint32_t
+ 	cc.scope_stack=func_scope;
+ 	cc.initialScopeStack=func_scope.size();
+ 	cc.exec_pos=0;
++	if (getVm()->currentCallContext)
++		cc.defaultNamespaceUri = getVm()->currentCallContext->defaultNamespaceUri;
+ 
+ 	/* Set the current global object, each script in each DoABCTag has its own */
+ 	call_context* saved_cc = getVm()->currentCallContext;
+@@ -1357,6 +1358,12 @@ void ASQName::setByNode(xmlpp::Node* node)
+ 	local_name = node->get_name();
+ 	uri=node->get_namespace_uri();
+ }
++void ASQName::setByXML(XML* node)
++{
++	uri_is_null=false;
++	local_name = node->getName();
++	uri=node->getNamespaceURI();
++}
+ 
+ void ASQName::sinit(Class_base* c)
+ {
+@@ -1454,9 +1461,7 @@ ASFUNCTIONBODY(ASQName,generator)
+ 	{
+ 		th->local_name="";
+ 		th->uri_is_null=false;
+-		th->uri="";
+-		// Should set th->uri to the default namespace
+-		LOG(LOG_NOT_IMPLEMENTED, "QName constructor not completely implemented");
++		th->uri=getVm()->getDefaultXMLNamespace();
+ 		return th;
+ 	}
+ 	if(argslen==1)
+@@ -1498,9 +1503,7 @@ ASFUNCTIONBODY(ASQName,generator)
+ 		}
+ 		else
+ 		{
+-			// Should set th->uri to the default namespace
+-			LOG(LOG_NOT_IMPLEMENTED, "QName constructor not completely implemented");
+-			th->uri="";
++			th->uri=getVm()->getDefaultXMLNamespace();
+ 		}
+ 	}
+ 	else if(namespaceval->getObjectType()==T_NULL)
+@@ -1583,9 +1586,9 @@ Namespace::Namespace(Class_base* c, const tiny_string& _uri, const tiny_string&
+ void Namespace::sinit(Class_base* c)
+ {
+ 	CLASS_SETUP(c, ASObject, _constructor, CLASS_SEALED | CLASS_FINAL);
+-	c->setDeclaredMethodByQName("uri","",Class<IFunction>::getFunction(_setURI),SETTER_METHOD,true);
++	//c->setDeclaredMethodByQName("uri","",Class<IFunction>::getFunction(_setURI),SETTER_METHOD,true);
+ 	c->setDeclaredMethodByQName("uri","",Class<IFunction>::getFunction(_getURI),GETTER_METHOD,true);
+-	c->setDeclaredMethodByQName("prefix","",Class<IFunction>::getFunction(_setPrefix),SETTER_METHOD,true);
++	//c->setDeclaredMethodByQName("prefix","",Class<IFunction>::getFunction(_setPrefix),SETTER_METHOD,true);
+ 	c->setDeclaredMethodByQName("prefix","",Class<IFunction>::getFunction(_getPrefix),GETTER_METHOD,true);
+ 	c->setDeclaredMethodByQName("valueOf",AS3,Class<IFunction>::getFunction(_valueOf),NORMAL_METHOD,true);
+ 	c->prototype->setVariableByQName("toString","",Class<IFunction>::getFunction(_toString),DYNAMIC_TRAIT);
+@@ -1769,20 +1772,20 @@ ASFUNCTIONBODY(Namespace,generator)
+ 	}
+ 	return th;
+ }
+-
++/*
+ ASFUNCTIONBODY(Namespace,_setURI)
+ {
+ 	Namespace* th=static_cast<Namespace*>(obj);
+ 	th->uri=args[0]->toString();
+ 	return NULL;
+ }
+-
++*/
+ ASFUNCTIONBODY(Namespace,_getURI)
+ {
+ 	Namespace* th=static_cast<Namespace*>(obj);
+ 	return Class<ASString>::getInstanceS(th->uri);
+ }
+-
++/*
+ ASFUNCTIONBODY(Namespace,_setPrefix)
+ {
+ 	Namespace* th=static_cast<Namespace*>(obj);
+@@ -1798,7 +1801,7 @@ ASFUNCTIONBODY(Namespace,_setPrefix)
+ 	}
+ 	return NULL;
+ }
+-
++*/
+ ASFUNCTIONBODY(Namespace,_getPrefix)
+ {
+ 	Namespace* th=static_cast<Namespace*>(obj);
+diff --git a/src/scripting/toplevel/toplevel.h b/src/scripting/toplevel/toplevel.h
+index c70d407..50118e2 100644
+--- a/src/scripting/toplevel/toplevel.h
++++ b/src/scripting/toplevel/toplevel.h
+@@ -29,7 +29,7 @@
+ #include "scripting/abcutils.h"
+ #include "scripting/toplevel/Boolean.h"
+ #include "scripting/toplevel/Error.h"
+-//#include "scripting/toplevel/XML.h"
++#include "scripting/toplevel/XML.h"
+ #include "memory_support.h"
+ #include <libxml++/parsers/domparser.h>
+ #include <boost/intrusive/list.hpp>
+@@ -538,6 +538,7 @@ private:
+ public:
+ 	ASQName(Class_base* c);
+ 	void setByNode(xmlpp::Node* node);
++	void setByXML(XML* node);
+ 	static void sinit(Class_base*);
+ 	ASFUNCTION(_constructor);
+ 	ASFUNCTION(generator);
+@@ -566,9 +567,10 @@ public:
+ 	ASFUNCTION(_constructor);
+ 	ASFUNCTION(generator);
+ 	ASFUNCTION(_getURI);
+-	ASFUNCTION(_setURI);
++	// according to ECMA-357 and tamarin tests uri/prefix properties are readonly
++	//ASFUNCTION(_setURI);
+ 	ASFUNCTION(_getPrefix);
+-	ASFUNCTION(_setPrefix);
++	//ASFUNCTION(_setPrefix);
+ 	ASFUNCTION(_toString);
+ 	ASFUNCTION(_valueOf);
+ 	ASFUNCTION(_ECMA_valueOf);
+diff --git a/src/swftypes.h b/src/swftypes.h
+index c435130..b766000 100644
+--- a/src/swftypes.h
++++ b/src/swftypes.h
+@@ -376,6 +376,7 @@ struct multiname: public memory_reporter
+ 	void resetNameIfObject();
+ 	bool isQName() const { return ns.size() == 1; }
+ 	bool toUInt(uint32_t& out, bool acceptStringFractions=false) const;
++	bool isEmpty() const { return name_type == NAME_OBJECT && name_o == NULL;}
+ };
+ 
+ class FLOAT 
+-- 
+1.8.5.3
+

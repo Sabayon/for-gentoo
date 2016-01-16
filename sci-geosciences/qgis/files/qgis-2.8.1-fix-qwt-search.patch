@@ -1,0 +1,12 @@
+diff -ur qgis-2.8.1_orig/cmake/FindQwt.cmake qgis-2.8.1/cmake/FindQwt.cmake
+--- qgis-2.8.1_orig/cmake/FindQwt.cmake	2015-02-26 15:12:00.000000000 +0600
++++ qgis-2.8.1/cmake/FindQwt.cmake	2015-03-26 18:23:37.509670456 +0600
+@@ -20,7 +20,7 @@
+   PATH_SUFFIXES qwt-qt4 qwt qwt5 qwt6
+   )
+ 
+-FIND_LIBRARY(QWT_LIBRARY NAMES qwt qwt5 qwt6 qwt-qt4 qwt5-qt4 PATHS
++FIND_LIBRARY(QWT_LIBRARY NAMES qwt qwt5 qwt6 qwt-qt4 qwt5-qt4 qwt6-qt4 PATHS
+   /usr/lib
+   /usr/local/lib
+   "$ENV{LIB_DIR}/lib" 

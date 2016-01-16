@@ -1,0 +1,26 @@
+diff -Nurp cinepaint.orig/app/cms.c cinepaint/app/cms.c
+--- cinepaint.orig/app/cms.c	2013-08-08 18:21:38.017294461 +0200
++++ cinepaint/app/cms.c	2013-08-08 18:20:23.943298740 +0200
+@@ -45,7 +45,8 @@
+ #include <arpa/inet.h>  /* ntohl */
+ #include <oyranos/oyranos_monitor.h>
+ #else
+-#include <oyranos/oyranos_alpha.h>
++#include <oyranos/oyProfiles_s.h>
++#include <oyranos/alpha/oyranos_alpha.h>
+ #endif
+ #endif
+ 
+diff -Nurp cinepaint.orig/plug-ins/icc_examin/icc_examin/icc_oyranos_extern.h cinepaint/plug-ins/icc_examin/icc_examin/icc_oyranos_extern.h
+--- cinepaint.orig/plug-ins/icc_examin/icc_examin/icc_oyranos_extern.h	2008-08-22 20:11:18.000000000 +0200
++++ cinepaint/plug-ins/icc_examin/icc_examin/icc_oyranos_extern.h	2013-08-08 18:23:25.790288235 +0200
+@@ -39,7 +39,8 @@
+ #endif
+ #if OYRANOS_VERSION > 107
+ # include <oyranos/oyranos_icc.h>
+-# include <oyranos/oyranos_alpha.h>
++# include <oyranos/oyProfiles_s.h>
++# include <oyranos/alpha/oyranos_alpha.h>
+ #endif
+ #endif
+ #include "icc_icc.h"
