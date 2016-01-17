@@ -1,0 +1,16 @@
+--- configure.ac	2015-08-31 18:14:27.000000000 +0300
++++ configure.ac	2015-09-01 14:46:22.000000000 +0300
+@@ -67,10 +67,9 @@
+ AC_SUBST([SIGC_LIBS])
+ 
+ # ncursesw
+-AC_PATH_LIB_LIBCONFIG
+-AC_PATH_LIB([ncursesw], , [ncurses.h], [ncursesw5-config], , , [
+-	AC_MSG_RESULT([no])
+-	AC_ERROR([You must have the ncursesw library and developement headers installed to build.])])
++PKG_CHECK_MODULES([NCURSESW], [ncursesw])
++AC_SUBST([NCURSESW_CFLAGS])
++AC_SUBST([NCURSESW_LIBS])
+ 
+ ############################
+ # Checks for header files. #
