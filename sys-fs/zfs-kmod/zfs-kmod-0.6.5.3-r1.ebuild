@@ -18,7 +18,8 @@ else
 	inherit eutils versionator
 	MY_PV=$(replace_version_separator 4 '-')
 	SRC_URI="https://github.com/zfsonlinux/zfs/archive/zfs-${MY_PV}.tar.gz
-		https://github.com/zfsonlinux/spl/archive/spl-${MY_PV}.tar.gz"
+		https://github.com/zfsonlinux/spl/archive/spl-${MY_PV}.tar.gz
+		https://dev.gentoo.org/~ryao/dist/zfs-${PV}-patches-p2.tar.xz"
 
 	S="${WORKDIR}"
 	ZFS_S="${WORKDIR}/zfs-${MY_PV}"
@@ -70,19 +71,23 @@ pkg_setup() {
 	kernel_is ge 2 6 26 || die "Linux 2.6.26 or newer required"
 
 	[ ${PV} != "9999" ] && \
-		{ kernel_is le 4 3 || die "Linux 4.3 is the latest supported version."; }
+		{ kernel_is le 4 4 || die "Linux 4.4 is the latest supported version."; }
 
 	check_extra_config
 }
 
-src_prepare() {
+src_prepare(){
+
+	if [ ${PV} != "9999" ]; then
+		pushd "${ZFS_S}"
+		EPATCH_SUFFIX="patch" \
+		EPATCH_FORCE="yes" \
+		epatch "${WORKDIR}/zfs-${PV}-patches"
+		popd
+	fi
+
 	# Remove GPLv2-licensed ZPIOS unless we are debugging
 	use debug || sed -e 's/^subdir-m += zpios$//' -i "${ZFS_S}/module/Makefile.in"
-	# Workaround for hard coded path
-	sed -i "s|/sbin/lsmod|/bin/lsmod|" "${SPL_S}"/scripts/check.sh || die
-
-	# splat is unnecessary unless we are debugging
-	use debug || sed -e 's/^subdir-m += splat$//' -i "${SPL_S}/module/Makefile.in"
 
 	local d
 	for d in "${ZFS_S}" "${SPL_S}"; do
