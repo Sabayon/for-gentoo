@@ -1,4 +1,4 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -19,7 +19,9 @@ IUSE=""
 # >=virtual/perl-version-0.990.800 due to #505524
 DEPEND="sys-devel/gettext"
 
-RDEPEND="dev-lang/perl[ithreads]
+# app-text/poppler for the pdfunite binary
+RDEPEND="app-text/poppler
+	dev-lang/perl[ithreads]
 	>=dev-perl/Config-General-2.40
 	dev-perl/Data-UUID
 	dev-perl/Filesys-Df
@@ -44,8 +46,6 @@ RDEPEND="dev-lang/perl[ithreads]
 	media-gfx/imagemagick[perl]
 	media-gfx/sane-backends
 	media-libs/tiff:0"
-
-PATCHES=( "${FILESDIR}/${P}-dialog.patch" )
 
 src_install() {
 	perl-module_src_install
