@@ -4,40 +4,39 @@
 
 EAPI=5
 
-PYTHON_COMPAT=( python2_7 )
+PYTHON_COMPAT=( python2_{6,7} )
+DISTUTILS_SINGLE_IMPL="1"
 
-inherit distutils-r1 eutils
+inherit distutils-r1
 
 DESCRIPTION="Wallpaper changer for Linux"
 HOMEPAGE="http://peterlevi.com/variety/"
-MY_P="${PN}_${PV}"
-SRC_URI="https://launchpad.net/variety/trunk/${PV}/+download/${MY_P}.tar.gz"
-LICENSE="GPL-3"
+SRC_URI="https://launchpad.net/${PN}/trunk/${PV}/+download/${PN}_${PV}.tar.gz"
+
+LICENSE=""
 SLOT="0"
 KEYWORDS="~amd64 ~arm"
 IUSE=""
 
-DEPEND="dev-python/python-distutils-extra"
+DEPEND="dev-python/python-distutils-extra[${PYTHON_USEDEP}]"
 RDEPEND="${DEPEND}
-dev-python/beautifulsoup:4
-dev-python/configobj
-dev-python/dbus-python
-dev-python/httplib2
-dev-python/lxml
-dev-python/pycairo
-dev-python/pycurl
-dev-python/pygobject:3
-dev-python/six
-gnome-extra/yelp
-media-gfx/imagemagick
-media-libs/gexiv2[introspection]
-net-libs/webkit-gtk:3[introspection]
-virtual/python-imaging
-x11-libs/gtk+:3[introspection]"
+	${PYTHON_DEPS}
+	x11-libs/gtk+:3[introspection]
+	>=x11-libs/libnotify-0.7[introspection]
+	dev-python/configobj[${PYTHON_USEDEP}]
+	dev-python/pycurl[${PYTHON_USEDEP}]
+	dev-python/dbus-python[${PYTHON_USEDEP}]
+	x11-libs/pango[introspection]
+	>=dev-libs/glib-2
+	virtual/python-imaging[${PYTHON_USEDEP}]
+	dev-python/pycairo[${PYTHON_USEDEP}]
+	dev-python/beautifulsoup:4[${PYTHON_USEDEP}]
+	net-libs/webkit-gtk:3[introspection]
+	gnome-extra/yelp
+	media-gfx/imagemagick
+	media-libs/gexiv2[${PYTHON_USEDEP}]
+	dev-python/lxml[${PYTHON_USEDEP}]"
 
-S=${WORKDIR}/${PN}
+S="${WORKDIR}/${PN}"
 
-src_prepare() {
-	epatch ${FILESDIR}/variety-0.4.17-gexiv2.patch
-	distutils-r1_src_prepare
-}
+PATCHES="${FILESDIR}/${PN}-0.4.17-gexiv2.patch"
