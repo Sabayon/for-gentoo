@@ -65,6 +65,8 @@ src_prepare() {
 	use qt4 || sed -i -e '/list.*APPEND.*cli_tools.*iv/d' doc/CMakeLists.txt
 
 	use python && python_fix_shebang .
+
+	epatch "${FILESDIR}/r_frame_rate.patch"
 }
 
 src_configure() {
