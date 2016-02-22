@@ -31,7 +31,10 @@ DEPEND="
 	dev-libs/jemalloc
 	dev-python/numpy[${PYTHON_USEDEP}]
 	>=dev-libs/c-blosc-1.5.2
-	dev-libs/log4cplus"
+	dev-libs/log4cplus
+	media-libs/glu
+	media-libs/mesa
+	media-libs/ilmbase"
 
 RDEPEND="${RDEPEND}"
 
