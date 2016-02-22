@@ -22,7 +22,9 @@ DEPEND=">=sci-libs/symbolic-0.31
 	media-libs/glee
 	media-libs/freeglut
 	>=media-gfx/openvdb-3.1.0
-	media-libs/libpng:="
+	media-libs/libpng:=
+	media-libs/ilmbase
+	dev-cpp/tbb"
 RDEPEND="${DEPEND}"
 
 src_prepare() {
