@@ -1,4 +1,4 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -16,9 +16,9 @@ SRC_URI="http://launchpad.net/${MY_PN}/${MM_PV}/${PV}/+download/${P}.tar.gz"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="xcomposite"
+IUSE="crypt xcomposite desktop_manager gtk3"
 
-COMMON_DEPEND="
+RDEPEND="
 	dev-libs/dbus-glib
 	dev-libs/glib:2
 	dev-libs/libxml2:2
@@ -27,36 +27,35 @@ COMMON_DEPEND="
 	sys-apps/dbus
 	x11-libs/cairo
 	x11-libs/pango
-	x11-libs/gdk-pixbuf:2
-	x11-libs/gtk+:3
+	!gtk3? ( x11-libs/gtk+:2 )
 	x11-libs/gtkglext
-	x11-libs/libXrandr
 	x11-libs/libXrender
+	gtk3? ( x11-libs/gtk+:3 )
+	crypt? ( sys-libs/glibc )
 	xcomposite? (
 		x11-libs/libXcomposite
 		x11-libs/libXinerama
 		x11-libs/libXtst
 	)
 "
-DEPEND="${COMMON_DEPEND}
+DEPEND="${RDEPEND}
 	dev-util/intltool
-	sys-devel/gettext
 	virtual/pkgconfig
-"
-RDEPEND="${COMMON_DEPEND}
-	net-misc/wget
-	x11-apps/xwininfo
-	x11-terms/xterm
+	sys-devel/gettext
 "
 
-src_prepare() {
-	epatch "${FILESDIR}/${PN}-runpath.patch"
+src_configure() {
+	mycmakeargs=(
+		`use gtk3 && echo "-Dforce-gtk2=OFF" || echo "-Dforce-gtk2=ON"`
+		`use desktop_manager && echo "-Denable-desktop-manager=ON" || echo "-Denable-desktop-manager=OFF"`
+	)
+	cmake-utils_src_configure
 }
 
 pkg_postinst() {
 	elog "Additional plugins are available to extend the functionality"
 	elog "of Cairo-Dock. It is recommended to install at least"
-	elog "x11-plugins/cairo-dock-plugins-core."
+	elog "x11-pluings/cairo-dock-plugins."
 	elog
 	elog "Cairo-Dock is an app that draws on a RGBA GLX visual."
 	elog "Some users have noticed that if the dock is launched,"

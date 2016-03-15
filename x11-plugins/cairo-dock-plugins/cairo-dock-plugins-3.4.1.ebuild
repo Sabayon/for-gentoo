@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI="3"
+EAPI="5"
 
 inherit cmake-utils eutils versionator
 
@@ -11,7 +11,7 @@ MM_PV=$(get_version_component_range '1-2')
 
 DESCRIPTION="Official plugins for cairo-dock"
 HOMEPAGE="http://www.glx-dock.org"
-SRC_URI="http://launchpad.net/${MY_PN}/${MM_PV}/${PV}/+download/${PN}-${PV}.tar.gz"
+SRC_URI="http://launchpad.net/${MY_PN}/${MM_PV}/${PV}/+download/${MY_PN}-${PV}.tar.gz"
 
 LICENSE="GPL-3"
 SLOT="0"
@@ -25,7 +25,7 @@ RDEPEND="
 	gnome-base/librsvg:2
 	sys-apps/dbus
 	x11-libs/cairo
-	x11-libs/gtk+:2
+	!gtk3? ( x11-libs/gtk+:2 )
 	x11-libs/gtkglext
 	~x11-misc/cairo-dock-${PV}
 	gtk3? ( x11-libs/gtk+:3 )
@@ -34,8 +34,8 @@ RDEPEND="
 	gmenu? ( gnome-base/gnome-menus )
 	kde? ( kde-base/kdelibs )
 	terminal? ( x11-libs/vte )
-	vala? ( dev-lang/vala:0.12 )
-	webkit? ( >=net-libs/webkit-gtk-1.0 )
+	vala? ( dev-lang/vala )
+	webkit? ( >=net-libs/webkit-gtk-1.4.0:3 )
 	xfce? ( xfce-base/thunar )
 	xgamma? ( x11-libs/libXxf86vm )
 	xklavier? ( x11-libs/libxklavier )
@@ -52,13 +52,11 @@ DEPEND="${RDEPEND}
 	virtual/pkgconfig
 	dev-libs/libdbusmenu[gtk3]
 "
-
-S="${WORKDIR}/${PN}-${PV}"
-
 src_configure() {
-	# broken with 0.99.x
 	mycmakeargs=(
+		# broken with 0.99.x (as of cairo-dock 3.3.2)
 		"-Denable-upower-support=OFF"
+		`use gtk3 && echo "-Dforce-gtk2=OFF" || echo "-Dforce-gtk2=ON"`
 	)
 	cmake-utils_src_configure
 }
