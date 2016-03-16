@@ -29,25 +29,32 @@ DEPEND="${PYTHON_DEPS}
 	$(add_frameworks_dep ki18n)
 	$(add_frameworks_dep kcoreaddons)
 	$(add_frameworks_dep solid)
+	$(add_frameworks_dep extra-cmake-modules)
+	$(add_frameworks_dep kio)
+	$(add_frameworks_dep kiconthemes)
+	$(add_frameworks_dep kservice)
+	$(add_frameworks_dep kparts)
 	dev-qt/linguist-tools:5
 	dev-qt/qtdbus:5
 	dev-qt/qtgui:5
 	dev-qt/qtquick1:5
 	dev-qt/qtsvg:5
 	dev-qt/qtwidgets:5
+	dev-qt/qtconcurrent:5
+	dev-qt/qtwebkit:5
 	sys-apps/dbus
 	sys-apps/dmidecode
 	sys-auth/polkit-qt[qt5]
-	dev-qt/qtwebkit:5
+	>=sys-libs/kpmcore-2.1:5
 "
 
 RDEPEND="${DEPEND}
 	app-admin/sudo
 	dev-libs/libatasmart
 	net-misc/rsync
-	sys-apps/gptfdisk
+	>=sys-apps/gptfdisk-1.0.1
 	>=sys-block/parted-3.0
-	|| ( sys-boot/grub:2 sys-boot/gummiboot )
+	sys-boot/grub:2
 	sys-boot/os-prober
 	sys-fs/squashfs-tools
 	sys-fs/udisks:2[systemd]
