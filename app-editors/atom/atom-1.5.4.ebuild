@@ -1,11 +1,11 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $id$
 
 EAPI=5
 
 PYTHON_COMPAT=( python2_7 )
-inherit flag-o-matic python-any-r1 eutils 
+inherit flag-o-matic python-any-r1 eutils
 
 DESCRIPTION="A hackable text editor for the 21st Century"
 HOMEPAGE="https://atom.io"
