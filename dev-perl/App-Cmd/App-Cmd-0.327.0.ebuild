@@ -25,7 +25,6 @@ RDEPEND="
 	dev-perl/String-RewritePrefix
 	dev-perl/Sub-Exporter
 	dev-perl/Sub-Install
-	virtual/perl-constant
 	virtual/perl-parent
 "
 DEPEND="
