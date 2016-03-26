@@ -6,7 +6,7 @@ EAPI=5
 
 inherit autotools
 MY_AUTHOR="horst3180"
-MY_PN="Arc-theme"
+MY_PN="arc-theme"
 DESCRIPTION="a flat theme with transparent elements for GTK 3, GTK 2 and Gnome-Shell."
 HOMEPAGE="https://github.com/${MY_AUTHOR}/${MY_PN}"
 
