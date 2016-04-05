@@ -1,6 +1,6 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: $
+# $Id$
 
 EAPI=5
 
@@ -16,7 +16,7 @@ if [[ ${PV} == "9999" ]] ; then
 else
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/${MY_AUTHOR}/${PN}.git"
-	EGIT_COMMIT="cd0e7988f6a838698d3f1a8ac48e63dd351e4ba0"
+	EGIT_COMMIT="ae82c98cc8c4248d940fdd27870f146c70cdf228"
 	KEYWORDS="~amd64 ~arm ~x86"
 fi
 

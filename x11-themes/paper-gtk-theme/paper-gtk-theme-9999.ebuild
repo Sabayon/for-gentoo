@@ -1,6 +1,6 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: $
+# $Id$
 
 EAPI=5
 
@@ -21,7 +21,7 @@ fi
 LICENSE="GPL-3"
 SLOT="0"
 
-DEPEND=">=gnome-base/gnome-shell-3.12
+DEPEND=">=gnome-base/gnome-shell-3.16
 	gnome-extra/gnome-shell-extensions
 	x11-libs/gdk-pixbuf"
 RDEPEND="${DEPEND}"
