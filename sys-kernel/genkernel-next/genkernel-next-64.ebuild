@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: /var/cvsroot/gentoo-x86/sys-kernel/genkernel-next/genkernel-next-60.ebuild,v 1.1 2015/01/20 08:25:58 lxnay Exp $
 
-EAPI=5
+EAPI=6
 
 if [[ "${PV}" != "9999" ]]; then
 	SRC_URI="https://github.com/Sabayon/genkernel-next/archive/v${PV}.tar.gz -> ${PV}.tar.gz"
@@ -12,7 +12,7 @@ else
 	inherit git-2
 	RESTRICT=""
 fi
-inherit bash-completion-r1 eutils
+inherit bash-completion-r1
 
 if [[ "${PV}" == "9999" ]]; then
 	KEYWORDS=""
@@ -27,6 +27,7 @@ LICENSE="GPL-2"
 SLOT="0"
 
 IUSE="cryptsetup dmraid gpg iscsi mdadm plymouth selinux"
+DOCS=( AUTHORS )
 
 DEPEND="app-text/asciidoc
 	sys-fs/e2fsprogs
@@ -49,17 +50,16 @@ RDEPEND="${DEPEND}
 	sys-fs/lvm2"
 
 src_prepare() {
+	default
 	sed -i "/^GK_V=/ s:GK_V=.*:GK_V=${PV}:g" "${S}/genkernel" || \
 		die "Could not setup release"
-
-	epatch_user
 }
 
 src_install() {
-	emake DESTDIR="${D}" install || die "make install failed"
+	default
 
-	doman "${S}"/genkernel.8 || die "doman"
-	dodoc "${S}"/AUTHORS || die "dodoc"
+	doman "${S}"/genkernel.8
 
 	newbashcomp "${S}"/genkernel.bash genkernel
 }
+
