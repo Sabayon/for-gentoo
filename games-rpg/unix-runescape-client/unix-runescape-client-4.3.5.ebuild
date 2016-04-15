@@ -23,7 +23,7 @@ DEPEND="virtual/jre
 		dev-perl/Archive-Extract
 		dev-perl/Config-IniFiles
 		dev-perl/IO-stringy
-		dev-perl/wxperl
+		dev-perl/Wx
 		net-misc/wget
 		media-libs/libpng:1.2
 		alsa-oss? ( media-libs/alsa-oss )
