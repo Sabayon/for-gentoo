@@ -5,7 +5,7 @@
 EAPI=5
 
 GOLANG_PKG_IMPORTPATH="github.com/mudler"
-GOLANG_PKG_VERSION="b47ae754d7535f6625dcdb4ff6d95f0649f1c6db"
+GOLANG_PKG_VERSION="d5d006cec9303baadbf2615d2fd0a272eee197e1"
 GOLANG_PKG_HAVE_TEST=0
 
 # Declares dependencies
