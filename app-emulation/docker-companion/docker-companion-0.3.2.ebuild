@@ -12,7 +12,7 @@ GOLANG_PKG_HAVE_TEST=0
 GOLANG_PKG_DEPENDENCIES=(
 
 	"github.com/Sirupsen/logrus:f7f79f7"
-	"github.com/codegangsta/cli:222ec6fb7eb8a3da24cfa4017694ba45e3f1f516"
+	"github.com/codegangsta/cli:63ed8b0bde9fdc2e321dba73a65af9d0381133f3"
 	"github.com/fsouza/go-dockerclient:1d4f4ae73768d3ca16a6fb964694f58dc5eba601"
 	"github.com/spf13/jWalterWeatherman:33c24e77fb80341fe7130ee7c594256ff08ccc46"
 	"github.com/docker/docker:717842fbdeeec3e3bd56525e998a2ffcb087b4d0"
