@@ -1,10 +1,11 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI=5
+EAPI=6
 
-PYTHON_COMPAT=( python{3_3,3_4} )
+QT_MINIMAL="5.6.0"
+PYTHON_COMPAT=( python{3_4,3_5} )
 inherit kde5 python-r1 eutils
 
 DESCRIPTION="Distribution-independent installer framework"
@@ -23,29 +24,32 @@ IUSE="+networkmanager +upower +fat jfs reiserfs xfs ntfs"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
 DEPEND="${PYTHON_DEPS}
-	>=dev-cpp/yaml-cpp-0.5.1
-	>=dev-libs/boost-1.55:=[${PYTHON_USEDEP}]
 	$(add_frameworks_dep kconfig)
 	$(add_frameworks_dep ki18n)
 	$(add_frameworks_dep kcoreaddons)
+	$(add_frameworks_dep kparts)
 	$(add_frameworks_dep solid)
 	$(add_frameworks_dep extra-cmake-modules)
 	$(add_frameworks_dep kio)
 	$(add_frameworks_dep kiconthemes)
 	$(add_frameworks_dep kservice)
-	$(add_frameworks_dep kparts)
-	dev-qt/linguist-tools:5
-	dev-qt/qtdbus:5
-	dev-qt/qtgui:5
-	dev-qt/qtquick1:5
-	dev-qt/qtsvg:5
-	dev-qt/qtwidgets:5
-	dev-qt/qtconcurrent:5
-	dev-qt/qtwebkit:5
+	$(add_qt_dep linguist-tools)
+	$(add_qt_dep qtdbus)
+	$(add_qt_dep qtdeclarative)
+	$(add_qt_dep qtgui)
+	$(add_qt_dep qtnetwork)
+	$(add_qt_dep qtquick1)
+	$(add_qt_dep qtsvg)
+	$(add_qt_dep qtwebengine 'widgets')
+	$(add_qt_dep qtwidgets)
+	$(add_qt_dep qtconcurrent)
+	$(add_qt_dep qtwebkit)
+	>=dev-cpp/yaml-cpp-0.5.1
+	>=dev-libs/boost-1.55:=[${PYTHON_USEDEP}]
 	sys-apps/dbus
 	sys-apps/dmidecode
 	sys-auth/polkit-qt[qt5]
-	>=sys-libs/kpmcore-2.1:5
+	>=sys-libs/kpmcore-2.1.0:5
 "
 
 RDEPEND="${DEPEND}
@@ -78,6 +82,8 @@ src_prepare() {
 	       PYTHON_INCLUDE_PATH="$(python_get_library_path)"\
 	       PYTHON_CFLAGS="$(python_get_CFLAGS)"\
 	       PYTHON_LIBS="$(python_get_LIBS)"
+
+	eapply_user
 	export QT_SELECT=qt5
 }
 
