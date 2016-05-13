@@ -4,7 +4,7 @@
 
 EAPI=6
 
-QT_MINIMAL="5.6.0"
+QT_MINIMAL="5.5.0"
 PYTHON_COMPAT=( python{3_4,3_5} )
 inherit kde5 python-r1 eutils
 
@@ -40,7 +40,6 @@ DEPEND="${PYTHON_DEPS}
 	$(add_qt_dep qtnetwork)
 	$(add_qt_dep qtquick1)
 	$(add_qt_dep qtsvg)
-	$(add_qt_dep qtwebengine 'widgets')
 	$(add_qt_dep qtwidgets)
 	$(add_qt_dep qtconcurrent)
 	$(add_qt_dep qtwebkit)
