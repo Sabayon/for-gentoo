@@ -6,7 +6,6 @@ EAPI=5
 inherit eutils git-2
 DESCRIPTION="Raspberry Pi config tool"
 HOMEPAGE="https://github.com/asb/raspi-config"
-
 EGIT_PROJECT="raspi-config"
 EGIT_REPO_URI="https://github.com/RPi-Distro/raspi-config.git"
 
@@ -18,7 +17,8 @@ KEYWORDS="~arm"
 IUSE=""
 RDEPEND="dev-libs/newt
   sys-block/parted
-  >=dev-lang/lua-5.1"
+  >=dev-lang/lua-5.1
+  app-misc/triggerhappy"
 
 src_install()
 {
