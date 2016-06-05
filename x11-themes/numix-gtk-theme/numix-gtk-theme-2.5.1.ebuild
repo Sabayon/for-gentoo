@@ -25,7 +25,7 @@ DEPEND=">=x11-libs/gtk+-3.6
 	x11-themes/gtk-engines-murrine"
 RDEPEND="${DEPEND}"
 
-S="${WORKDIR}/${MY_PN}-${PV}"
+S="${WORKDIR}/${PN}-${PV}"
 
 src_install() {
 	insinto /usr/share/themes/Numix
