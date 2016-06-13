@@ -30,7 +30,9 @@ DEPEND="${RDEPEND}
 
 src_prepare() {
 	default
-	epatch "${FILESDIR}/bb_nvidia_modeset-detection_bug699.patch"
+	# Switch to modprobe -r instead of rmmod https://github.com/Bumblebee-Project/Bumblebee/issues/719
+	epatch "${FILESDIR}/replace_rmmod_with_modprobe.patch"
+	#epatch "${FILESDIR}/bb_nvidia_modeset-detection_bug699.patch"
 }
 
 src_configure() {
