@@ -35,4 +35,10 @@ src_install() {
 	# remove desktop shortcuts, not needed
 	rm -r "${D}/usr/share/applications/"redhat-*.desktop || die
 	rm -r "${D}/usr/share/pixmaps"
+
+	dodir /etc/security/console.apps
+	insinto /etc/security/console.apps
+	doins "${FILESDIR}/config-util"
+
+	fperms 4711 /usr/sbin/userhelper
 }
