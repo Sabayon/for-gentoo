@@ -1,0 +1,16 @@
+---
+ multipathd/multipathd.service |    1 +
+ 1 file changed, 1 insertion(+)
+
+Index: multipath-tools-130222/multipathd/multipathd.service
+===================================================================
+--- multipath-tools-130222.orig/multipathd/multipathd.service
++++ multipath-tools-130222/multipathd/multipathd.service
+@@ -2,6 +2,7 @@
+ Description=Device-Mapper Multipath Device Controller
+ Before=iscsi.service iscsid.service lvm2-activation-early.service
+ After=syslog.target
++ConditionPathExists=/etc/multipath.conf
+ DefaultDependencies=no
+ Conflicts=shutdown.target
+ 

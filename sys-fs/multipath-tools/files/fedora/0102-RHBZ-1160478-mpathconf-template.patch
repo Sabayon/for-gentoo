@@ -1,0 +1,52 @@
+---
+ multipath/mpathconf |   26 ++++++++++++++++++++------
+ 1 file changed, 20 insertions(+), 6 deletions(-)
+
+Index: multipath-tools-130222/multipath/mpathconf
+===================================================================
+--- multipath-tools-130222.orig/multipath/mpathconf
++++ multipath-tools-130222/multipath/mpathconf
+@@ -19,10 +19,27 @@
+ 
+ unset ENABLE FIND FRIENDLY MODULE MULTIPATHD HAVE_DISABLE HAVE_FIND HAVE_BLACKLIST HAVE_DEFAULTS HAVE_FRIENDLY HAVE_MULTIPATHD HAVE_MODULE SHOW_STATUS CHANGED_CONFIG
+ 
+-DEFAULT_CONFIGFILE="/usr/share/doc/device-mapper-multipath-0.4.9/multipath.conf"
++DEFAULT_CONFIG="# device-mapper-multipath configuration file
++
++# For a complete list of the default configuration values, run either:
++# # multipath -t
++# or
++# # multipathd show config
++
++# For a list of configuration options with descriptions, see the
++# multipath.conf man page.
++
++# For an example configuration file, see:
++# /user/share/doc/device-mapper-multipath/multipath.conf
++
++defaults {
++	user_friendly_names yes
++	find_multipaths yes
++}"
++
+ CONFIGFILE="/etc/multipath.conf"
+ MULTIPATHDIR="/etc/multipath"
+-TMPFILE=/etc/multipath/.multipath.conf.tmp
++TMPFILE="/etc/multipath/.multipath.conf.tmp"
+ 
+ function usage
+ {
+@@ -134,12 +151,9 @@ if [ ! -d "$MULTIPATHDIR" ]; then
+ fi
+ 
+ rm $TMPFILE 2> /dev/null
++echo "$DEFAULT_CONFIG" > $TMPFILE
+ if [ -f "$CONFIGFILE" ]; then
+ 	cp $CONFIGFILE $TMPFILE
+-elif [ -f "$DEFAULT_CONFIGFILE" ]; then
+-	cp $DEFAULT_CONFIGFILE $TMPFILE
+-else
+-	touch $TMPFILE
+ fi
+ 
+ if grep -q "^blacklist[[:space:]]*{" $TMPFILE ; then

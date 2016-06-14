@@ -1,0 +1,17 @@
+---
+ multipath/mpathconf.8 |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+Index: multipath-tools-130222/multipath/mpathconf.8
+===================================================================
+--- multipath-tools-130222.orig/multipath/mpathconf.8
++++ multipath-tools-130222/multipath/mpathconf.8
+@@ -86,7 +86,7 @@ If set to \fBy\fP, this runs
+ .B service multipathd start
+ to start the multipathd daemon on \fB--enable\fP,
+ .B service multipathd stop
+-to start the multipathd daemon on \fB--disable\fP, and
++to stop the multipathd daemon on \fB--disable\fP, and
+ .B service multipathd reload
+ to reconfigure multipathd on \fB--user_frindly_names\fP and
+ \fB--find_multipaths\fP.
