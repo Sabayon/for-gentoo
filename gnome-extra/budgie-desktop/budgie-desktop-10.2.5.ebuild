@@ -39,6 +39,7 @@ DEPEND="${RDEPEND}
 	media-libs/cogl:1.0
 	dev-libs/libgee:0.8
 	x11-themes/gnome-themes-standard
+	dev-util/gtk-doc
 "
 src_prepare() {
 	vala_src_prepare
