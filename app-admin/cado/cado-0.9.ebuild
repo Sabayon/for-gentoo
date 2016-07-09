@@ -20,11 +20,13 @@ fi
 
 SLOT="0"
 LICENSE="GPL-2"
-RDEPEND=""
-DEPEND="
-	dev-libs/klibc
+
+COMMON_DEPEND="
+	sys-libs/glibc:2.2
 	sys-libs/pam
 	sys-libs/libcap"
+RDEPEND="${COMMON_DEPEND}"
+DEPEND="${COMMON_DEPEND}"
 
 src_prepare() {
 	eapply_user
