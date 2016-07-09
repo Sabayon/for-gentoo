@@ -21,7 +21,10 @@ fi
 SLOT="0"
 LICENSE="GPL-2"
 RDEPEND=""
-DEPEND=""
+DEPEND="
+	dev-libs/klibc
+	sys-libs/pam
+	sys-libs/libcap"
 
 src_prepare() {
 	eapply_user
