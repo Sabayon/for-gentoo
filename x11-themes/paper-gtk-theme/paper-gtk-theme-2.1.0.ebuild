@@ -5,6 +5,7 @@
 EAPI=5
 
 MY_AUTHOR="snwh"
+inherit autotools
 DESCRIPTION="the Paper gtk theme by snwh"
 HOMEPAGE="https://github.com/${MY_AUTHOR}/${PN}"
 
@@ -14,20 +15,20 @@ if [[ ${PV} == "9999" ]] ; then
 	EGIT_REPO_URI="https://github.com/${MY_AUTHOR}/${PN}.git"
 	KEYWORDS=""
 else
-	inherit git-r3
-	SRC_URI=""
-	EGIT_REPO_URI="https://github.com/${MY_AUTHOR}/${PN}.git"
-	EGIT_COMMIT="02973b6e054a3b1699eebfbf3b72d940f24f72e8"
+	SRC_URI="https://github.com/${MY_AUTHOR}/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 	KEYWORDS="~amd64 ~x86"
 fi
 
 LICENSE="GPL-3"
 SLOT="0"
 
-DEPEND=">=gnome-base/gnome-shell-3.16
-	gnome-extra/gnome-shell-extensions
+DEPEND="x11-themes/gtk-engines
 	x11-libs/gdk-pixbuf"
 RDEPEND="${DEPEND}"
+
+src_prepare() {
+	eautoreconf
+}
 
 src_install() {
 	insinto /usr/share/themes/
