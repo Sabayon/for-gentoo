@@ -58,6 +58,3 @@ app-emulation/qemu-gui
 
 # example:
 # -~sys-boot/grub-1.99
-
-# Anaconda 22
->=dev-util/pykickstart-1.99.66
