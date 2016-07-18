@@ -12,3 +12,9 @@ Here goes:
 * ebuilds that propose fixes wrt upstream bugs
 * new ebuilds that are not present in Portage, but follows Gentoo ebuild standards
 * ebuilds that fixes bad behaviours or fixes bugs that will be submitted upstream
+
+# Layman
+
+This overlay is available in layman:
+
+    layman -a sabayon-distro
