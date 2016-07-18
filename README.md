@@ -2,9 +2,9 @@
 
 This is a Gentoo overlay and it contains the ebuilds that could be upstreamed.
 
-If you are submitting a PR or committing keep in mind:
+If you are submitting a pull request or committing keep in mind:
 
-* If the ebuild/fixes you are submitting is already available in layman, the correct place is [community-repositories](https://github.com/Sabayon/community-repositories)
+* If the ebuild/fixes you are submitting are already available in layman, the correct place is [community-repositories](https://github.com/Sabayon/community-repositories)
 * If the ebuild/fixes is Sabayon related (e.g. specific tweaking, configurations, metas) the correct place is [sabayon-distro overlay](https://github.com/Sabayon/sabayon-distro)
 
 Here goes:
