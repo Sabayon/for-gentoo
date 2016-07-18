@@ -17,4 +17,4 @@ Here goes:
 
 This overlay is available in layman:
 
-    layman -a sabayon-distro
+    layman -a sabayon
