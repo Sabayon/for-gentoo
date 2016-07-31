@@ -14,7 +14,7 @@ SRC_URI="mirror://openssl/source/${MY_P}.tar.gz"
 LICENSE="openssl"
 SLOT="0"
 KEYWORDS="~alpha amd64 arm ~arm64 hppa ~ia64 ~m68k ~mips ~ppc ppc64 ~s390 ~sh ~sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~arm-linux ~x86-linux"
-IUSE="+asm bindist gmp kerberos rfc3779 sctp cpu_flags_x86_sse2 sslv2 +sslv3 tatic-libs test +tls-heartbeat vanilla zlib"
+IUSE="+asm bindist gmp kerberos rfc3779 sctp cpu_flags_x86_sse2 sslv2 +sslv3 static-libs test +tls-heartbeat vanilla zlib"
 RESTRICT="!bindist? ( bindist )"
 
 RDEPEND=">=app-misc/c_rehash-1.7-r1
@@ -43,6 +43,10 @@ src_prepare() {
 	# Make sure we only ever touch Makefile.org and avoid patching a file
 	# that gets blown away anyways by the Configure script in src_configure
 	rm -f Makefile
+
+	# bugs 585142 and 585276
+	epatch "${FILESDIR}"/${P}-CVE-2016-2177.patch
+	epatch "${FILESDIR}"/${P}-CVE-2016-2178.patch
 
 	if ! use vanilla ; then
 		epatch "${FILESDIR}"/${PN}-1.0.0a-ldflags.patch #327421
