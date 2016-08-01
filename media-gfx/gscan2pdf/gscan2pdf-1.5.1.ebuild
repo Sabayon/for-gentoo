@@ -1,6 +1,6 @@
 # Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: $
+# $Id$
 
 EAPI="5"
 inherit perl-app
@@ -41,7 +41,10 @@ RDEPEND="app-text/poppler
 	dev-perl/Set-IntSpan
 	dev-perl/Try-Tiny
 	virtual/perl-Archive-Tar
+	virtual/perl-File-Temp
 	virtual/perl-JSON-PP
+	virtual/perl-Storable
+	virtual/perl-Text-Balanced
 	>=virtual/perl-version-0.990.200-r1
 	media-gfx/imagemagick[perl]
 	media-gfx/sane-backends
