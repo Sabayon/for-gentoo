@@ -119,10 +119,12 @@ src_install() {
 		doins -r "${WORKDIR}"/qgis_sample_data/*
 	fi
 
-	python_fix_shebang "${D}"/usr/share/qgis/grass/scripts
-	python_optimize "${D}"/usr/share/qgis/python/plugins \
-		"${D}"/$(python_get_sitedir)/qgis \
-		"${D}"/usr/share/qgis/grass/scripts
+    if use grass; then
+        python_fix_shebang "${D}"/usr/share/qgis/grass/scripts
+        python_optimize "${D}"/usr/share/qgis/python/plugins \
+            "${D}"/$(python_get_sitedir)/qgis \
+            "${D}"/usr/share/qgis/grass/scripts
+    fi
 }
 
 pkg_preinst() {
