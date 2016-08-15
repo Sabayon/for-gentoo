@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: Exp $
+# $Id$
 
 EAPI=5
 
@@ -20,7 +20,8 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE="examples grass gsl mapserver postgres python test"
 
-REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
+REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )
+		mapserver? ( python )"
 
 RDEPEND="
 	${PYTHON_DEPS}
@@ -36,23 +37,32 @@ RDEPEND="
 	dev-qt/qtsvg:4
 	dev-qt/qtsql:4
 	dev-qt/qtwebkit:4
+	dev-qt/designer:4
 	x11-libs/qscintilla
 	|| (
 		( || ( <x11-libs/qwt-6.1.2:6[svg] >=x11-libs/qwt-6.1.2:6[svg,qt4] ) >=x11-libs/qwtpolar-1 )
 		( x11-libs/qwt:5[svg] <x11-libs/qwtpolar-1 )
 	)
-	grass? ( >=sci-geosciences/grass-6.4.0_rc6[python?] )
+	grass? ( || ( >=sci-geosciences/grass-7.0.0 ) )
 	mapserver? ( dev-libs/fcgi )
 	postgres? ( dev-db/postgresql:* )
 	python? (
 		dev-python/PyQt4[X,sql,svg,webkit,${PYTHON_USEDEP}]
 		dev-python/sip[${PYTHON_USEDEP}]
 		dev-python/qscintilla-python[${PYTHON_USEDEP}]
+		dev-python/python-dateutil[${PYTHON_USEDEP}]
+		dev-python/httplib2[${PYTHON_USEDEP}]
+		dev-python/jinja[${PYTHON_USEDEP}]
+		dev-python/markupsafe[${PYTHON_USEDEP}]
+		dev-python/pygments[${PYTHON_USEDEP}]
+		dev-python/pytz[${PYTHON_USEDEP}]
+		dev-python/six[${PYTHON_USEDEP}]
 		postgres? ( dev-python/psycopg:2[${PYTHON_USEDEP}] )
 		${PYTHON_DEPS}
 	)
 	dev-db/sqlite:3
 	dev-db/spatialite
+	app-crypt/qca:2[qt4,openssl]
 "
 
 DEPEND="${RDEPEND}
@@ -60,7 +70,8 @@ DEPEND="${RDEPEND}
 	sys-devel/flex"
 
 PATCHES=(
-	"${FILESDIR}/${P}-fix-qwt-search.patch"
+	"${FILESDIR}/${PN}-2.12.0-no-pyqtconfig.patch"
+	"${FILESDIR}/${PN}-2.12.2-remove-conversions.patch"
 )
 
 pkg_setup() {
@@ -73,14 +84,21 @@ src_configure() {
 		"-DBUILD_SHARED_LIBS=ON"
 		"-DQGIS_LIB_SUBDIR=$(get_libdir)"
 		"-DQGIS_PLUGIN_SUBDIR=$(get_libdir)/qgis"
+		"-DWITH_INTERNAL_DATEUTIL=OFF"
+		"-DWITH_INTERNAL_HTTPLIB2=OFF"
+		"-DWITH_INTERNAL_JINJA2=OFF"
+		"-DWITH_INTERNAL_MARKUPSAFE=OFF"
+		"-DWITH_INTERNAL_PYGMENTS=OFF"
+		"-DWITH_INTERNAL_PYTZ=OFF"
 		"-DWITH_INTERNAL_QWTPOLAR=OFF"
+		"-DWITH_INTERNAL_SIX=OFF"
 		"-DPEDANTIC=OFF"
 		"-DWITH_APIDOC=OFF"
 		"-DWITH_SPATIALITE=ON"
 		"-DWITH_INTERNAL_SPATIALITE=OFF"
 		$(cmake-utils_use_with postgres POSTGRESQL)
 		$(cmake-utils_use_with grass GRASS)
-		$(cmake-utils_use_with mapserver MAPSERVER)
+		$(cmake-utils_use_with mapserver SERVER)
 		$(cmake-utils_use_with python BINDINGS)
 		$(cmake-utils_use python BINDINGS_GLOBAL_INSTALL)
 		$(cmake-utils_use_with python PYSPATIALITE)
@@ -119,10 +137,14 @@ src_install() {
 		doins -r "${WORKDIR}"/qgis_sample_data/*
 	fi
 
-	python_fix_shebang "${D}"/usr/share/qgis/grass/scripts
-	python_optimize "${D}"/usr/share/qgis/python/plugins \
+	python_optimize "${D}"/usr/share/qgis/python \
 		"${D}"/$(python_get_sitedir)/qgis \
-		"${D}"/usr/share/qgis/grass/scripts
+		"${D}"/$(python_get_sitedir)/pyspatialite
+
+	if use grass; then
+		python_fix_shebang "${D}"/usr/share/qgis/grass/scripts
+		python_optimize "${D}"/usr/share/qgis/grass/scripts
+	fi
 }
 
 pkg_preinst() {
