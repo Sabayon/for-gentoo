@@ -28,7 +28,7 @@ RDEPEND="${DEPEND}
 	dev-python/dbus-python[${PYTHON_USEDEP}]
 	x11-libs/pango[introspection]
 	>=dev-libs/glib-2
-	virtual/python-imaging[${PYTHON_USEDEP}]
+	dev-python/pillow[${PYTHON_USEDEP}]
 	dev-python/pycairo[${PYTHON_USEDEP}]
 	dev-python/beautifulsoup:4[${PYTHON_USEDEP}]
 	net-libs/webkit-gtk:3[introspection]
@@ -39,4 +39,3 @@ RDEPEND="${DEPEND}
 
 S="${WORKDIR}/${PN}"
 
-PATCHES="${FILESDIR}/${PN}-0.4.17-gexiv2.patch"
