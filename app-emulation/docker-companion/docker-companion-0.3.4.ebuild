@@ -29,8 +29,6 @@ LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~x86 ~arm"
 
-use test && RESTRICT+=" sandbox"
-
 src_prepare() {
 	golang-single_src_prepare
 
