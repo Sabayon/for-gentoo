@@ -18,7 +18,7 @@ RDEPEND="dev-lang/perl
 	virtual/perl-Getopt-Long
 	dev-perl/HTML-TokeParser-Simple
 	dev-perl/libwww-perl
-	dev-perl/text-reform
+	dev-perl/Text-Reform
 	dev-perl/TermReadKey
 	dev-perl/Term-ReadLine-Perl
 	virtual/perl-MIME-Base64"
