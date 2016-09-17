@@ -1,35 +1,41 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 2014-2016 Julian Ospald <hasufell@posteo.de>
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
+# $Header: $
 
 EAPI=5
 
 PYTHON_COMPAT=( python2_7 )
 
-inherit cmake-utils eutils flag-o-matic user gnome2-utils python-any-r1
+inherit multilib cmake-utils eutils flag-o-matic user gnome2-utils python-any-r1
 
 MY_PN="Unvanquished"
+CBSE_COMMIT="1d621242e5bfce321c87b9cb29c5a893711a9f5c"
 
 DESCRIPTION="Daemon engine, a fork of OpenWolf which powers the game Unvanquished"
 HOMEPAGE="http://unvanquished.net/"
 SRC_URI="https://github.com/${MY_PN}/${MY_PN}/tarball/v${PV}
 	-> ${P}.tar.gz
-	x86? ( http://dl.unvanquished.net/deps/linux32-3.tar.bz2 -> unvanquished-${PV}-external-x86-3.tar.bz2 )
-	amd64? ( http://dl.unvanquished.net/deps/linux64-3.tar.bz2 -> unvanquished-${PV}-external-amd64-3.tar.bz2 )"
+	x86? ( http://dl.unvanquished.net/deps/linux32-4.tar.bz2 -> unvanquished-${PV}-external-x86-4.tar.bz2 )
+	amd64? ( http://dl.unvanquished.net/deps/linux64-4.tar.bz2 -> unvanquished-${PV}-external-amd64-4.tar.bz2 )
+	https://github.com/DaemonDevelopers/CBSE-Toolchain/archive/${CBSE_COMMIT}.tar.gz -> cbse-0.0.1.tar.gz"
 
 LICENSE="GPL-3 CC-BY-SA-2.5 CC-BY-SA-3.0"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="dedicated geoip +optimization +server +smp"
+IUSE="dedicated geoip +server +smp"
+
+# https://github.com/Unvanquished/Unvanquished/issues/502
+RESTRICT="strip"
 
 RDEPEND="
 	dev-libs/nettle[gmp]
 	dev-libs/gmp:0
 	~games-fps/${PN}-data-${PV}
 	net-misc/curl
+	sys-libs/ncurses:0
 	sys-libs/zlib
-	sys-libs/ncurses:=
 	!dedicated? (
+		dev-lang/lua:0
 		media-libs/freetype:2
 		media-libs/glew
 		media-libs/libogg
@@ -41,7 +47,7 @@ RDEPEND="
 		media-libs/openal
 		media-libs/opusfile
 		virtual/glu
-		virtual/jpeg:=
+		virtual/jpeg:0
 		virtual/opengl
 		x11-libs/libX11
 		server? ( app-misc/screen )
@@ -54,14 +60,21 @@ DEPEND="${RDEPEND}
 	${PYTHON_DEPS}
 	virtual/pkgconfig"
 
-CMAKE_IN_SOURCE_BUILD=1
+CMAKE_BUILD_TYPE="Release"
 
 UNV_SERVER_HOME=/var/lib/${PN}-server
 UNV_SERVER_DATA=${UNV_SERVER_HOME}/.Unvanquished/main
 
+pkg_pretend() {
+	einfo "This package can benefit from the following CFLAGS/CXXFLAGS:"
+	einfo "  -ffast-math"
+	einfo "  -fvisibility=hidden"
+	einfo
+	einfo "You may want to set these for this package prior to compilation."
+}
+
 pkg_setup() {
 	if use server || use dedicated ; then
-		enewgroup "${PN}-server"
 		enewuser \
 			"${PN}-server" \
 			"-1" \
@@ -74,35 +87,51 @@ pkg_setup() {
 }
 
 src_unpack() {
-	default
+	# unpack main archive
+	unpack ${P}.tar.gz
 	mv Unvanquished-Unvanquished-* "${S}" || die
-	mv "linux$(usex amd64 "64" "32")-3" "${S}"/external_deps/ || die
+
+	# unpack externel deps
+	unpack unvanquished-${PV}-external-$(usex amd64 "amd64" "x86")-4.tar.bz2
+	mv "linux$(usex amd64 "64" "32")-4" "${S}"/daemon/external_deps/ || die
+
+	# unpack cbse
+	cd "${S}"/src/utils || die
+	rmdir cbse || die
+	unpack cbse-0.0.1.tar.gz
+	mv CBSE-Toolchain-* cbse
 }
 
 src_prepare() {
-	epatch "${FILESDIR}"/${PN}-0.37.0-flags.patch
+	epatch "${FILESDIR}"/${PN}-0.47.0-flags.patch \
+		"${FILESDIR}"/${PN}-0.47.0-ncurses.patch
+
+	sed \
+		-e "s/@LIBDIR@/$(get_libdir)/" \
+		"${FILESDIR}"/${PN}-0.38.sh  > "${T}"/${PN}-0.38.sh || die
 }
 
 src_configure() {
-	if use optimization ; then
-		append-cflags -ffast-math -fno-strict-aliasing
-		append-cxxflags -ffast-math -fno-strict-aliasing -fvisibility=hidden
-	fi
-	append-cxxflags -std=gnu++11
-
 	# theora requires vorbis
 	local mycmakeargs=(
-		-DUSE_LTO=0
-		-DUSE_HARDENING=0
-		-DUSE_PRECOMPILED_HEADER=0
-		$(usex dedicated "-DBUILD_CLIENT=OFF" "-DBUILD_CLIENT=ON")
+		$(usex dedicated "-DBUILD_CLIENT=OFF -DBUILD_CGAME=OFF" "-DBUILD_CLIENT=ON -DBUILD_CGAME=ON")
+		$(if use dedicated || use server ; then
+			echo "-DBUILD_SERVER=ON -DBUILD_SGAME=ON"
+		else
+			echo "-DBUILD_SERVER=OFF -DBUILD_SGAME=OFF"
+		fi)
+		-DBUILD_GAME_NACL=OFF
 		-DBUILD_TTY_CLIENT=ON
-		$(usex dedicated "-DBUILD_SERVER=ON" "$(cmake-utils_use_build server SERVER)")
-		# https://github.com/Unvanquished/Unvanquished/issues/646
-		# $(cmake-utils_use_use voip VOIP)
-		-DUSE_VOIP=0
-		$(cmake-utils_use_use smp SMP)
+		-DCMAKE_C_FLAGS_RELEASE=""
+		-DCMAKE_CXX_FLAGS_RELEASE=""
+		-DUSE_DEBUG_OPTIMIZE=OFF
 		$(cmake-utils_use_use geoip GEOIP)
+		-DUSE_HARDENING=OFF
+		-DUSE_LTO=OFF
+		-DUSE_PEDANTIC=OFF
+		-DUSE_PRECOMPILED_HEADER=ON
+		$(cmake-utils_use_use smp SMP)
+		-DUSE_WERROR=OFF
 	)
 
 	cmake-utils_src_configure
@@ -113,7 +142,15 @@ src_compile() {
 }
 
 src_install() {
+	cd "${BUILD_DIR}" || die
+
+	exeinto /usr/$(get_libdir)/${PN}
+	doexe nacl_loader nacl_helper_bootstrap *.nexe
+
 	if use server || use dedicated ; then
+		exeinto /usr/$(get_libdir)/${PN}
+		doexe sgame-native-exe sgame-native-dll.so
+
 		insinto /etc/${PN}
 		doins "${FILESDIR}"/config/{maprotation,server}.cfg
 
@@ -125,11 +162,12 @@ src_install() {
 
 	if ! use dedicated ; then
 		newbin daemon ${PN}client
-		newbin "${FILESDIR}"/${PN}.sh ${PN}
+		newbin "${T}"/${PN}-0.38.sh ${PN}
 
-		dolib *.so
+		exeinto /usr/$(get_libdir)/${PN}
+		doexe cgame-native-exe cgame-native-dll.so
 
-		doicon -s 128 debian/${PN}.png
+		doicon -s 128 "${S}"/debian/${PN}.png
 		make_desktop_entry ${PN}
 		newbin daemon-tty ${PN}-tty
 	fi
@@ -158,3 +196,4 @@ pkg_postinst() {
 pkg_postrm() {
 	gnome2_icon_cache_update
 }
+

@@ -1,4 +1,4 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 2014-2016 Julian Ospald <hasufell@posteo.de>
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
@@ -9,9 +9,9 @@ MY_P=${PN%-data}_${PV}
 
 DESCRIPTION="Datafiles and maps for unvanquished"
 HOMEPAGE="http://unvanquished.net/"
-SRC_URI="mirror://sourceforge/${PN%-data}/${MY_P}.zip"
+SRC_URI="https://github.com/Unvanquished/Unvanquished/releases/download/v${PV}/${MY_P}.zip"
 
-LICENSE="CC-BY-SA-2.5 CC-BY-SA-3.0 CC-BY-NC-SA-3.0 CC-BY-NC-3.0"
+LICENSE="CC-BY-SA-2.5 CC-BY-SA-3.0 CC-BY-NC-SA-3.0 CC-BY-NC-3.0 shaderlab"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
@@ -26,3 +26,4 @@ src_install() {
 	insinto /usr/share/${PN%-data}/pkg
 	doins -r pkg/*
 }
+

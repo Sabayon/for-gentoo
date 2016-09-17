@@ -1,0 +1,29 @@
+diff --git a/daemon/cmake/FindCursesW.cmake b/daemon/cmake/FindCursesW.cmake
+index 546ccab..563dec7 100644
+--- a/daemon/cmake/FindCursesW.cmake
++++ b/daemon/cmake/FindCursesW.cmake
+@@ -96,6 +96,13 @@ ENDIF()
+ FIND_LIBRARY(CURSESW_EXTRA_LIBRARY cur_colrw HINTS "${_cursesLibDir}")
+ FIND_LIBRARY(CURSESW_EXTRA_LIBRARY cur_colrw )
+
++CHECK_LIBRARY_EXISTS("${CURSES_NCURSES_LIBRARY}"
++       cbreak "" CURSES_NCURSES_HAS_CBREAK)
++if(NOT CURSES_NCURSES_HAS_CBREAK)
++       find_library(CURSES_TINFO tinfo HINTS "${_cursesLibDir}")
++       find_library(CURSES_TINFO tinfo )
++endif()
++
+ FIND_LIBRARY(CURSESW_FORM_LIBRARY formw HINTS "${_cursesLibDir}")
+ FIND_LIBRARY(CURSESW_FORM_LIBRARY formw )
+
+@@ -112,6 +119,10 @@ IF(CURSESW_EXTRA_LIBRARY)
+   SET(CURSESW_LIBRARIES ${CURSESW_LIBRARIES} ${CURSESW_EXTRA_LIBRARY})
+ ENDIF()
+
++IF(CURSES_TINFO)
++  SET(CURSESW_LIBRARIES ${CURSESW_LIBRARIES} ${CURSES_TINFO})
++ENDIF()
++
+ IF(CURSESW_FORM_LIBRARY)
+   SET(CURSESW_LIBRARIES ${CURSESW_LIBRARIES} ${CURSESW_FORM_LIBRARY})
+ ENDIF()
