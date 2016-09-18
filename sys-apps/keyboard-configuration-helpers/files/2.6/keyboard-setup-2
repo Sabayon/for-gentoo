@@ -36,13 +36,14 @@ def _configure_system(root, keymap, variant, options):
     sys_key = vt_keymaps_fixes.get(keymap, keymap)
 
     output = []
-    with open(confd_keymaps, "r") as f:
-        for line in f.readlines():
-            if line.startswith("KEYMAP="):
-                line = 'KEYMAP="'+sys_key+'"\n'
-            if line.startswith("keymap="):
-                line = 'keymap="'+sys_key+'"\n'
-            output.append(line)
+    if os.path.isfile(confd_keymaps):
+        with open(confd_keymaps, "r") as f:
+            for line in f.readlines():
+                if line.startswith("KEYMAP="):
+                    line = 'KEYMAP="'+sys_key+'"\n'
+                if line.startswith("keymap="):
+                    line = 'keymap="'+sys_key+'"\n'
+                output.append(line)
 
     with open(confd_keymaps+".tmp", "w") as f:
         print("Writing to %s" % (confd_keymaps,))
