@@ -1,0 +1,159 @@
+From: Elvis Angelaccio <elvis.angelaccio@kde.org>
+Date: Wed, 14 Sep 2016 10:09:49 +0000
+Subject: Add support for application/vnd.rar, fixes opening RAR with shared-mime-info 1.7
+X-Git-Url: http://quickgit.kde.org/?p=ark.git&a=commitdiff&h=9a9a851049cd904f08c9594cc6aacf696886404e
+---
+Add support for application/vnd.rar, fixes opening RAR with shared-mime-info 1.7
+
+shared-mime-info 1.7 introduced the official IANA mimetype
+`application/vnd.rar` and degraded `application/x-rar` to alias.
+
+For now we need to register both mimetypes. Once distributions start
+shipping shared-mime-info 1.7, we can drop the alias.
+
+For this reason, we cannot have a reliable test case in mimetypetest.
+Also, in `PluginLoader::sortByComment()` we need to check whether
+mimetypes are valid, because `application/vnd.rar` might not be in
+`QMimeDatabase()`.
+
+BUG: 368786
+FIXED-IN: 16.08.2
+
+Closes T3729
+---
+
+
+--- a/autotests/kerfuffle/adddialogtest.cpp
++++ b/autotests/kerfuffle/adddialogtest.cpp
+@@ -79,8 +79,8 @@
+         qDebug() << "7z format not available, skipping test.";
+     }
+ 
+-    if (writeMimeTypes.contains(QStringLiteral("application/x-rar"))) {
+-        QTest::newRow("rar") << QStringLiteral("application/x-rar") << true << 2 << 5;
++    if (writeMimeTypes.contains(QStringLiteral("application/vnd.rar"))) {
++        QTest::newRow("rar") << QStringLiteral("application/vnd.rar") << true << 2 << 5;
+     } else {
+         qDebug() << "rar format not available, skipping test.";
+     }
+
+--- a/autotests/kerfuffle/addtoarchivetest.cpp
++++ b/autotests/kerfuffle/addtoarchivetest.cpp
+@@ -153,7 +153,7 @@
+         qDebug() << "7z/zip executable not found in path. Skipping compress-here-(ZIP) tests.";
+     }
+ 
+-    if (!PluginManager().preferredWritePluginsFor(QMimeDatabase().mimeTypeForName(QStringLiteral("application/x-rar"))).isEmpty()) {
++    if (!PluginManager().preferredWritePluginsFor(QMimeDatabase().mimeTypeForName(QStringLiteral("application/vnd.rar"))).isEmpty()) {
+         QTest::newRow("compress here (as RAR) - dir with files")
+             << QStringLiteral("rar")
+             << QStringList {QFINDTESTDATA("data/testdir")}
+
+--- a/autotests/kerfuffle/createdialogtest.cpp
++++ b/autotests/kerfuffle/createdialogtest.cpp
+@@ -78,8 +78,8 @@
+         qDebug() << "7z format not available in CreateDialog, skipping test.";
+     }
+ 
+-    if (writeMimeTypes.contains(QStringLiteral("application/x-rar"))) {
+-        QTest::newRow("rar") << QStringLiteral("application/x-rar");
++    if (writeMimeTypes.contains(QStringLiteral("application/vnd.rar"))) {
++        QTest::newRow("rar") << QStringLiteral("application/vnd.rar");
+     } else {
+         qDebug() << "rar format not available in CreateDialog, skipping test.";
+     }
+@@ -133,8 +133,8 @@
+         qDebug() << "7z format not available in CreateDialog, skipping test.";
+     }
+ 
+-    if (m_pluginManager.supportedWriteMimeTypes().contains(QStringLiteral("application/x-rar"))) {
+-        QTest::newRow("rar") << QStringLiteral("application/x-rar") << true << true;
++    if (m_pluginManager.supportedWriteMimeTypes().contains(QStringLiteral("application/vnd.rar"))) {
++        QTest::newRow("rar") << QStringLiteral("application/vnd.rar") << true << true;
+     } else {
+         qDebug() << "rar format not available in CreateDialog, skipping test.";
+     }
+
+--- a/kerfuffle/pluginmanager.cpp
++++ b/kerfuffle/pluginmanager.cpp
+@@ -199,7 +199,9 @@
+     // Initialize the QMap to sort by comment.
+     foreach (const QString &mimeType, mimeTypes) {
+         QMimeType mime(QMimeDatabase().mimeTypeForName(mimeType));
+-        map[mime.comment().toLower()] = mime.name();
++        if (mime.isValid()) {
++            map[mime.comment().toLower()] = mime.name();
++        }
+     }
+ 
+     // Convert to sorted QStringList.
+
+--- a/plugins/clirarplugin/CMakeLists.txt
++++ b/plugins/clirarplugin/CMakeLists.txt
+@@ -1,6 +1,7 @@
+ ########### next target ###############
+ 
+-set(SUPPORTED_CLIRAR_MIMETYPES "application/x-rar;")
++# TODO: drop application/x-rar alias once distributions ship shared-mime-info 1.7
++set(SUPPORTED_CLIRAR_MIMETYPES "application/vnd.rar;application/x-rar;")
+ 
+ set(kerfuffle_clirar_SRCS cliplugin.cpp)
+ 
+@@ -9,7 +10,11 @@
+                                 IDENTIFIER ARK
+                                 CATEGORY_NAME ark.clirar)
+ 
+-set(SUPPORTED_MIMETYPES "application/x-rar")
++# NOTE: the first double-quotes of the first mime and the last
++# double-quotes of the last mime must NOT be escaped.
++set(SUPPORTED_MIMETYPES
++    "application/vnd.rar\",
++    \"application/x-rar")
+ 
+ configure_file(
+     ${CMAKE_CURRENT_SOURCE_DIR}/kerfuffle_clirar.json.cmake
+
+--- a/plugins/clirarplugin/kerfuffle_clirar.json.cmake
++++ b/plugins/clirarplugin/kerfuffle_clirar.json.cmake
+@@ -45,6 +45,15 @@
+         "rar"
+     ],
+     "X-KDE-Priority": 120,
++    "application/vnd.rar": {
++        "CompressionLevelDefault": 3,
++        "CompressionLevelMax": 5,
++        "CompressionLevelMin": 0,
++        "SupportsWriteComment": true,
++        "SupportsTesting": true,
++        "HeaderEncryption": true,
++        "SupportsMultiVolume": true
++    },
+     "application/x-rar": {
+         "CompressionLevelDefault": 3,
+         "CompressionLevelMax": 5,
+
+--- a/plugins/cliunarchiverplugin/CMakeLists.txt
++++ b/plugins/cliunarchiverplugin/CMakeLists.txt
+@@ -1,6 +1,7 @@
+ ########### next target ###############
+ 
+-set(SUPPORTED_CLIUNARCHIVER_MIMETYPES "application/x-rar;")
++# TODO: drop application/x-rar alias once distributions ship shared-mime-info 1.7
++set(SUPPORTED_CLIUNARCHIVER_MIMETYPES "application/vnd.rar;application/x-rar;")
+ 
+ set(kerfuffle_cliunarchiver_SRCS cliplugin.cpp)
+ 
+@@ -9,7 +10,11 @@
+                                 IDENTIFIER ARK
+                                 CATEGORY_NAME ark.cliunarchiver)
+ 
+-set(SUPPORTED_MIMETYPES "application/x-rar")
++# NOTE: the first double-quotes of the first mime and the last
++# double-quotes of the last mime must NOT be escaped.
++set(SUPPORTED_MIMETYPES
++    "application/vnd.rar\",
++    \"application/x-rar")
+ 
+ configure_file(
+     ${CMAKE_CURRENT_SOURCE_DIR}/kerfuffle_cliunarchiver.json.cmake
+

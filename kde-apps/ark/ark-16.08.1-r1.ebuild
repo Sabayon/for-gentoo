@@ -45,6 +45,9 @@ DEPEND="${RDEPEND}
 # bug #560548, last checked with 16.04.1
 RESTRICT="test"
 
+# fixes https://bugs.kde.org/show_bug.cgi?id=368786
+PATCHES=( "${FILESDIR}/${PN}-${PV}-fixes-opening-rar-with-shared-mime-info-1.7.patch" )
+
 src_configure() {
 	local mycmakeargs=(
 		$(cmake-utils_use_find_package bzip2 BZip2)
