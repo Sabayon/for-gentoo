@@ -1,4 +1,4 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -8,7 +8,7 @@ WX_GTK_VER="3.0"
 MY_AUTHOR="dolphin-emu"
 MY_PN="dolphin"
 
-inherit cmake-utils eutils flag-o-matic pax-utils toolchain-funcs wxwidgets games
+inherit cmake-utils eutils flag-o-matic pax-utils toolchain-funcs wxwidgets
 
 DESCRIPTION="Free, open source emulator for Nintendo GameCube and Wii"
 HOMEPAGE="http://www.dolphin-emu.com/"
@@ -27,14 +27,14 @@ SLOT="0"
 
 # NOTES:
 # - wxWidgets support relies on 2.9 branch, which is currently masked in main tree
-IUSE="alsa ao bluetooth doc encode +lzo openal opengl portaudio pulseaudio upnp +wxwidgets +gui egl enet qt5 git debug llvm"
+IUSE="alsa ao bluetooth doc encode +lzo openal opengl portaudio pulseaudio upnp +wxwidgets +gui egl enet -qt git debug llvm"
 REQUIRED_USE="
 	opengl? ( gui )
 	wxwidgets? ( gui )
-	qt5? ( !wxwidgets gui )
+	qt? ( !wxwidgets gui )
 "
 
-RDEPEND=">=media-libs/glew-1.5
+RDEPEND=">=media-libs/glew-1.5:=
 	>=media-libs/libsdl-1.2[joystick]
 	>=dev-libs/libevdev-1.4.4
 	virtual/udev
@@ -49,8 +49,8 @@ RDEPEND=">=media-libs/glew-1.5
 	dev-cpp/gtest
 	net-libs/mbedtls[havege]
 	debug? ( dev-util/oprofile )
-	qt5? ( dev-qt/qtcore:5
-	       dev-qt/qtwidgets:5
+	qt? ( dev-qt/qtcore:5
+	      dev-qt/qtwidgets:5
 	      )
 	upnp? ( net-libs/miniupnpc )
 	gui? ( x11-libs/libX11
@@ -140,7 +140,7 @@ src_configure() {
 		$(cmake-utils_use egl USE_EGL)
 		$(cmake-utils_use gui TRY_X11)
 		$(cmake-utils_use upnp USE_UPNP)
-		$(cmake-utils_use qt5 ENABLE_QT)
+		$(cmake-utils_use qt ENABLE_QT2)
 		$(cmake-utils_use enet USE_SHARED_ENET)
 		$(cmake-utils_use debug FASTLOG)
 		$(cmake-utils_use debug OPROFILING)
@@ -164,7 +164,7 @@ src_install() {
 	fi
 
 	# create menu entry for GUI builds
-	if use wxwidgets || use qt5; then
+	if use wxwidgets || use qt; then
 		make_desktop_entry "${PN}" "Dolphin" "Dolphin" "Game;Emulator"
 	fi
 
@@ -178,7 +178,7 @@ pkg_postinst() {
 	if ! use portaudio; then
 		ewarn "If you need to use your microphone for a game, rebuild with USE=portaudio"
 	fi
-	if ! use wxwidgets && ! use qt5; then
+	if ! use wxwidgets && ! use qt; then
 		ewarn "Note: It is not currently possible to configure Dolphin without the GUI."
 		ewarn "Rebuild with USE=wxwidgets to enable the GUI if needed."
 	fi
