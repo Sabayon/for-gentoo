@@ -18,10 +18,7 @@ if [[ ${PV} == "9999" ]] ; then
 	EGIT_REPO_URI="https://github.com/${MY_AUTHOR}/${MY_PN}.git"
 	KEYWORDS=""
 else
-	inherit git-r3
-	SRC_URI=""
-	EGIT_REPO_URI="https://github.com/${MY_AUTHOR}/${MY_PN}.git"
-	EGIT_COMMIT="2842897d55d4d6dbf75fd7f6827d440377d00fb7"
+	SRC_URI="https://github.com/${MY_AUTHOR}/${MY_PN}/archive/${PV}.tar.gz -> ${P}.tar.gz"
 	KEYWORDS="~amd64 ~x86"
 fi
 
@@ -80,9 +77,9 @@ DEPEND="${RDEPEND}
 	virtual/pkgconfig
 	media-gfx/nvidia-cg-toolkit"
 
-#if [[ ${PV} != "9999" ]] ; then
-#	S="${WORKDIR}/${MY_PN}-${PV}"
-#fi
+if [[ ${PV} != "9999" ]] ; then
+	S="${WORKDIR}/${MY_PN}-${PV}"
+fi
 
 src_prepare() {
 	append-cflags $(test-flags-CC -fpermissive)
