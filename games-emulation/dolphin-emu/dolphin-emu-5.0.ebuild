@@ -11,7 +11,7 @@ MY_PN="dolphin"
 inherit cmake-utils eutils flag-o-matic pax-utils toolchain-funcs wxwidgets
 
 DESCRIPTION="Free, open source emulator for Nintendo GameCube and Wii"
-HOMEPAGE="http://www.dolphin-emu.com/"
+HOMEPAGE="http://www.dolphin-emu.org/"
 if [[ ${PV} == "9999" ]] ; then
 	inherit git-r3
 	SRC_URI=""
@@ -27,11 +27,11 @@ SLOT="0"
 
 # NOTES:
 # - wxWidgets support relies on 2.9 branch, which is currently masked in main tree
-IUSE="alsa ao bluetooth doc encode +lzo openal opengl portaudio pulseaudio upnp +wxwidgets +gui egl enet -qt git debug llvm"
+IUSE="alsa ao bluetooth doc encode +lzo openal opengl portaudio pulseaudio upnp +wxwidgets +gui egl enet -qt5 git debug llvm"
 REQUIRED_USE="
 	opengl? ( gui )
 	wxwidgets? ( gui )
-	qt? ( !wxwidgets gui )
+	qt5? ( !wxwidgets gui )
 "
 
 RDEPEND=">=media-libs/glew-1.5:=
@@ -49,7 +49,7 @@ RDEPEND=">=media-libs/glew-1.5:=
 	dev-cpp/gtest
 	net-libs/mbedtls[havege]
 	debug? ( dev-util/oprofile )
-	qt? ( dev-qt/qtcore:5
+	qt5? ( dev-qt/qtcore:5
 	      dev-qt/qtwidgets:5
 	      )
 	upnp? ( net-libs/miniupnpc )
@@ -140,7 +140,7 @@ src_configure() {
 		$(cmake-utils_use egl USE_EGL)
 		$(cmake-utils_use gui TRY_X11)
 		$(cmake-utils_use upnp USE_UPNP)
-		$(cmake-utils_use qt ENABLE_QT2)
+		$(cmake-utils_use qt5 ENABLE_QT2)
 		$(cmake-utils_use enet USE_SHARED_ENET)
 		$(cmake-utils_use debug FASTLOG)
 		$(cmake-utils_use debug OPROFILING)
@@ -164,7 +164,7 @@ src_install() {
 	fi
 
 	# create menu entry for GUI builds
-	if use wxwidgets || use qt; then
+	if use wxwidgets || use qt5; then
 		make_desktop_entry "${PN}" "Dolphin" "Dolphin" "Game;Emulator"
 	fi
 
@@ -178,7 +178,7 @@ pkg_postinst() {
 	if ! use portaudio; then
 		ewarn "If you need to use your microphone for a game, rebuild with USE=portaudio"
 	fi
-	if ! use wxwidgets && ! use qt; then
+	if ! use wxwidgets && ! use qt5; then
 		ewarn "Note: It is not currently possible to configure Dolphin without the GUI."
 		ewarn "Rebuild with USE=wxwidgets to enable the GUI if needed."
 	fi

@@ -6,7 +6,7 @@
 		<name>Francesco Ferro</name>
 	</maintainer>
 	<use>
-		<flag name="qt">Enable the experimental Qt interface</flag>
+		<flag name="qt5">Enable the experimental Qt interface</flag>
 		<flag name="egl">Enable EGL support</flag>		
 		<flag name="enet">Enable build with enet shared library</flag>
 		<flag name="gui">Enable the graphical user interface</flag>
