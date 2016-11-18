@@ -1,10 +1,10 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: $
+# $Id: $
 
 EAPI="5"
 VALA_MIN_API_VERSION="0.28"
-PYTHON_COMPAT=( python2_{6,7} )
+PYTHON_COMPAT=( python2_7 python3_{4,5} )
 
 inherit eutils autotools vala python-r1
 
