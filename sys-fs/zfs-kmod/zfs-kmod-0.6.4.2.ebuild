@@ -1,6 +1,6 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: $
+# $Id $
 
 EAPI="5"
 
@@ -60,10 +60,10 @@ pkg_setup() {
 		FRAME_POINTER
 		DEBUG_INFO
 		!DEBUG_INFO_REDUCED
-        "
+	"
 
 	use rootfs && \
-		CONFIG_CHECK="${CONFIG_CHECK} 
+		CONFIG_CHECK="${CONFIG_CHECK}
 			BLK_DEV_INITRD
 			DEVTMPFS"
 
