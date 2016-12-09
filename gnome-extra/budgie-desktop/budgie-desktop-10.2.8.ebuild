@@ -41,7 +41,7 @@ DEPEND="${PYTHON_DEPS}
 	media-libs/cogl:1.0
 	dev-libs/libgee:0.8
 	x11-themes/gnome-themes-standard
-	>=app-i18n/ibus-1.5.11
+	>=app-i18n/ibus-1.5.13
 	>=dev-libs/glib-2.44.0
 	dev-util/gtk-doc
 	sys-apps/util-linux
