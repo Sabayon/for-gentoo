@@ -47,7 +47,7 @@ src_install() {
 	doicon images/* || die "doicon failed"
 	domenu ${PN}.desktop || die "domenu failed"
 
-	dodoc CHANGES README DISCLAIMER
+	dodoc CHANGES README.md DISCLAIMER
 	doman ${PN}.1
 
 	# The custom Perl modules
