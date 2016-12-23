@@ -14,6 +14,14 @@ ExecStop=/usr/sbin/apache2 $APACHE2_OPTS -k graceful-stop
 # httpd time to finish.
 KillSignal=SIGCONT
 PrivateTmp=true
+#Hardening
+PrivateTmp=true
+CapabilityBoundingSet=CAP_CHOWN CAP_SETGID CAP_SETUID CAP_DAC_OVERRIDE CAP_KILL CAP_NET_BIND_SERVICE CAP_IPC_LOCK
+SecureBits=noroot-locked
+ProtectSystem=full
+NoNewPrivileges=true
+PrivateDevices=true
+MemoryDenyWriteExecute=true
 
 [Install]
 WantedBy=multi-user.target
