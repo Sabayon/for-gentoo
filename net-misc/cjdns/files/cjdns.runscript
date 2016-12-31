@@ -1,0 +1,41 @@
+#!/sbin/runscript
+description="Encrypted networking for regular people."
+command=/usr/sbin/cjdroute
+name="CJDNS"
+
+start() {
+    if [ ! -e /dev/net/tun ]; then
+        ebegin "Inserting TUN module"
+        
+        if ! modprobe tun;  then
+            eerror "Failed to insert TUN kernel module"
+            exit 1
+        fi
+    fi
+
+    ebegin "Starting $name"
+    $command < /etc/cjdroute.conf
+    eend $? "Failed to start $name"
+}
+
+status() {
+    ebegin "Pinging admin port"
+    exec 3<>/dev/udp/127.0.0.1/11234
+    echo -n 'd1:q4:pinge' >&3
+    
+    local pong
+    read -u 3 -N 11 pong 2>/dev/null
+    rv=$?
+    exec 3<&-
+    exec 3>&-
+
+    if !(( $rv )) && [ "$pong" = "d1:q4:ponge" ]; then
+        mark_service_started $SVC
+        einfo "$pong"
+        exit 0
+    fi
+
+    mark_service_wasinactive $SVC
+    eerror "failed to ping admin port"
+    exit 1
+}

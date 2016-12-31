@@ -1,0 +1,13 @@
+diff --git a/contrib/systemd/cjdns.service b/contrib/systemd/cjdns.service
+index 7ae0525..be0a4b2 100644
+--- a/contrib/systemd/cjdns.service
++++ b/contrib/systemd/cjdns.service
+@@ -5,7 +5,7 @@ Before=network.target
+ 
+ [Service]
+ Type=forking
+-ExecStart=/bin/sh -c "cjdroute < /etc/cjdroute.conf"
++ExecStart=/bin/sh -c "/usr/sbin/cjdroute < /etc/cjdroute.conf"
+ GuessMainPID=yes
+ Restart=on-failure
+ 
