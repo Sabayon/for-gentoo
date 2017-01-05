@@ -13,11 +13,12 @@ DESCRIPTION="Desktop Environment based on GNOME 3"
 HOMEPAGE="https://evolve-os.com/budgie/"
 EGIT_REPO_URI="https://github.com/${MY_AUTHOR}/${PN}.git"
 EGIT_COMMIT="v${PV}"
-IUSE="+introspection vala"
+IUSE="+introspection pm-utils vala"
 LICENSE="GPL-2 LGPL-2.1"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-RDEPEND="sys-power/upower[introspection=]
+RDEPEND="pm-utils? ( sys-power/upower-pm-utils[introspection=] )
+	 !pm-utils? ( sys-power/upower[introspection=] )
 	 >=gnome-base/gnome-menus-3.10.1:=
 	 >=net-wireless/gnome-bluetooth-3.16:=
 	 gnome-base/gnome-session
