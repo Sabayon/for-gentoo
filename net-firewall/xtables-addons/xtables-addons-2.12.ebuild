@@ -1,12 +1,12 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-firewall/xtables-addons/xtables-addons-2.6.ebuild,v 1.1 2014/09/30 21:35:28 blueness Exp $
+# $Id$
 
-EAPI="5"
+EAPI="6"
 
 inherit eutils linux-info linux-mod multilib
 
-DESCRIPTION="extensions not yet accepted in the main kernel/iptables (patch-o-matic(-ng) successor)"
+DESCRIPTION="iptables extensions not yet accepted in the main kernel"
 HOMEPAGE="http://xtables-addons.sourceforge.net/"
 SRC_URI="mirror://sourceforge/xtables-addons/${P}.tar.xz"
 
@@ -36,10 +36,9 @@ DEPEND="${DEPEND}
 
 SKIP_MODULES=""
 
-# XA_kernel_check tee "2 6 32"
 XA_check4internal_module() {
 	local mod=${1}
-	local version=${2}
+	local version=${3}
 	local kconfigname=${3}
 
 	if use xtables_addons_${mod} && kernel_is -gt ${version}; then
@@ -119,9 +118,27 @@ XA_get_module_name() {
 	done
 }
 
+# Die on modules known to fail on certain kernel version.
+XA_known_failure() {
+	local module_name=$1
+	local KV_max=$2
+
+	if use xtables_addons_${module_name} && kernel_is ge ${KV_max//./ }; then
+		eerror
+		eerror "XTABLES_ADDONS=${module_name} fails to build on linux ${KV_max} or above."
+		eerror "Either remove XTABLES_ADDONS=${module_name} or use an earlier version of the kernel."
+		eerror
+		die
+	fi
+}
+
 src_prepare() {
 	XA_qa_check
 	XA_has_something_to_build
+
+	# Bug #553630#c2.  echo fails on linux-4 and above.
+	# This appears to be fixed, at least as of linux-4.2
+	# XA_known_failure "echo" 4
 
 	local mod module_name
 	if use modules; then
@@ -140,11 +157,6 @@ src_prepare() {
 		fi
 	done
 	einfo "${MODULE_NAMES}" # for debugging
-
-        # Linux 4.1 support
-        if kernel_is ge 4 1; then
-                epatch "${FILESDIR}/fix_kernel_4.1.patch"
-        fi
 
 	sed -e 's/depmod -a/true/' -i Makefile.in || die
 	sed -e '/^all-local:/{s: modules::}' \
