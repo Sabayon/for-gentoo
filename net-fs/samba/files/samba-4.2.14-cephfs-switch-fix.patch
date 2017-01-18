@@ -1,0 +1,12 @@
+Make the option --with/without-cephfs take effect.
+--- samba-4.2.14/source3/wscript	2017-01-18 23:10:39.846810531 +0100
++++ samba-4.2.14/source3/wscript.new	2017-01-18 23:12:56.390494706 +0100
+@@ -1501,7 +1501,7 @@
+         conf.env['CPPPATH_CEPHFS'] = Options.options.libcephfs_dir + '/include'
+         conf.env['LIBPATH_CEPHFS'] = Options.options.libcephfs_dir + '/lib'
+ 
+-    if conf.CHECK_HEADERS('cephfs/libcephfs.h', False, False, 'cephfs') and conf.CHECK_LIB('cephfs'):
++    if Options.options.with_cephfs and conf.CHECK_HEADERS('cephfs/libcephfs.h', False, False, 'cephfs') and conf.CHECK_LIB('cephfs'):
+         conf.DEFINE('HAVE_CEPH', '1')
+ 
+     if Options.options.with_glusterfs:

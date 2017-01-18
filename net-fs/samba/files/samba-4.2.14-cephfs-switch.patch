@@ -1,0 +1,32 @@
+From 38bb993657f8eb6c49899de0d741ed5186ca5022 Mon Sep 17 00:00:00 2001
+From: Ira Cooper <ira@samba.org>
+Date: Tue, 26 Jul 2016 11:22:43 -0400
+Subject: [PATCH] source3/wscript: Add support for disabling vfs_cephfs
+
+--enable-cephfs and --disable-cephfs both work now.
+
+--enable-cephfs is the default to match previous
+versions of Samba.
+
+Signed-off-by: Ira Cooper <ira@samba.org>
+Reviewed-by: Steve French <sfrench@samba.org>
+Tested-by: Steve French <sfrench@samba.org>
+---
+ source3/wscript | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/source3/wscript b/source3/wscript
+index 497b673..fe3f40f 100644
+--- a/source3/wscript
++++ b/source3/wscript
+@@ -69,6 +69,7 @@ def set_options(opt):
+                    action="store", dest='libcephfs_dir', default=None)
+ 
+     opt.SAMBA3_ADD_OPTION('glusterfs', with_name="enable", without_name="disable", default=True)
++    opt.SAMBA3_ADD_OPTION('cephfs', with_name="enable", without_name="disable", default=True)
+ 
+     opt.add_option('--enable-vxfs',
+                   help=("enable support for VxFS (default=no)"),
+-- 
+1.9.1
+
