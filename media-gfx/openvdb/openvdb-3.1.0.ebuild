@@ -1,17 +1,17 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI="5"
+EAPI="6"
 
 PYTHON_COMPAT=( python{2_7,3_4} )
 
 inherit eutils versionator python-r1
 
+MY_AUTHOR="dreamworksanimation"
 DESCRIPTION="Libs for the efficient manipulation of volumetric data"
 HOMEPAGE="http://www.openvdb.org"
-MY_PV="$(replace_all_version_separators '_')"
-SRC_URI="http://www.openvdb.org/download/${PN}_${MY_PV}_library.zip"
+SRC_URI="https://github.com/${MY_AUTHOR}/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="MPL-2.0"
 SLOT="0"
@@ -38,14 +38,14 @@ DEPEND="
 
 RDEPEND="${RDEPEND}"
 
-S="${WORKDIR}"/openvdb
+S="${WORKDIR}/${P}/openvdb"
 
 src_prepare() {
 #	epatch "${FILESDIR}"/fixnumpy.patch
-	epatch "${FILESDIR}"/numpy_api.patch
-	epatch "${FILESDIR}"/pyOpenVDBModule.cc.patch
-	epatch "${FILESDIR}"/openvdb.patch
-	epatch "${FILESDIR}"/use_svg.patch
+	eapply "${FILESDIR}"/numpy_api.patch
+	eapply "${FILESDIR}"/pyOpenVDBModule.cc.patch
+	eapply "${FILESDIR}"/openvdb.patch
+	eapply "${FILESDIR}"/use_svg.patch
 
 	use doc || sed 's|^DOXYGEN :=|#|;s|^EPYDOC :=|#|' -i Makefile
 	sed \
@@ -73,6 +73,7 @@ src_prepare() {
 
 	python_setup
 	echo "lboost_python-$(echo ${EPYTHON} | sed 's/python//')"
+	eapply_user
 }
 
 src_compile() {
