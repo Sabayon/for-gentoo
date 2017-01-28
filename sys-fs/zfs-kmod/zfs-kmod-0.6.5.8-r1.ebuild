@@ -68,7 +68,7 @@ pkg_setup() {
 	kernel_is ge 2 6 32 || die "Linux 2.6.32 or newer required"
 
 	[ ${PV} != "9999" ] && \
-		{ kernel_is le 4 8 || die "Linux 4.8 is the latest supported version."; }
+		{ kernel_is le 4 9 || die "Linux 4.9 is the latest supported version."; }
 
 	check_extra_config
 }
@@ -76,6 +76,10 @@ pkg_setup() {
 src_prepare() {
 	# Remove GPLv2-licensed ZPIOS unless we are debugging
 	use debug || sed -e 's/^subdir-m += zpios$//' -i "${ZFS_S}/module/Makefile.in"
+
+	pushd "${ZFS_S}"
+		epatch "${FILESDIR}/${PN}-linux-4.9-support.patch"
+	popd
 
 	local d
 	for d in "${ZFS_S}" "${SPL_S}"; do
