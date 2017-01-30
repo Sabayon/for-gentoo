@@ -1,8 +1,8 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: $
+# $Id $
 
-EAPI="5"
+EAPI="6"
 
 inherit cmake-utils eutils versionator
 
@@ -32,16 +32,16 @@ RDEPEND="
 	alsa? ( media-libs/alsa-lib )
 	exif? ( media-libs/libexif )
 	gmenu? ( gnome-base/gnome-menus )
-	kde? ( kde-base/kdelibs )
-	terminal? ( x11-libs/vte )
-	vala? ( dev-lang/vala )
+	kde? ( kde-frameworks/kdelibs )
+	terminal? ( x11-libs/vte:= )
+	vala? ( dev-lang/vala:= )
 	webkit? ( >=net-libs/webkit-gtk-1.4.0:3 )
 	xfce? ( xfce-base/thunar )
 	xgamma? ( x11-libs/libXxf86vm )
 	xklavier? ( x11-libs/libxklavier )
 	gnote? ( app-misc/gnote )
 	twitter? ( dev-python/oauth dev-python/simplejson )
-	indicator3? ( dev-libs/libindicator )
+	indicator3? ( dev-libs/libindicator:= )
 	zeitgeist? ( dev-libs/libzeitgeist )
 	mail? ( net-libs/libetpan )
 "
