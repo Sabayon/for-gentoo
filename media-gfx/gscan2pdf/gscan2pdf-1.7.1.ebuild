@@ -15,8 +15,7 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
 
-# test only: dev-perl/Test-Perl-Critic
-# >=virtual/perl-version-0.990.800 due to #505524
+# test only: dev-perl/Test-Perl-Critic, dev-perl/Sub-Override
 DEPEND="sys-devel/gettext"
 
 # app-text/poppler for the pdfunite binary
@@ -24,6 +23,7 @@ RDEPEND="app-text/poppler
 	dev-lang/perl[ithreads]
 	>=dev-perl/Config-General-2.40
 	dev-perl/Data-UUID
+	dev-perl/Date-Calc
 	dev-perl/Filesys-Df
 	>=dev-perl/glib-perl-1.100-r1
 	dev-perl/Goo-Canvas
@@ -45,7 +45,7 @@ RDEPEND="app-text/poppler
 	virtual/perl-JSON-PP
 	virtual/perl-Storable
 	virtual/perl-Text-Balanced
-	>=virtual/perl-version-0.990.200-r1
+	virtual/perl-version
 	media-gfx/imagemagick[perl]
 	media-gfx/sane-backends
 	media-libs/tiff:0"
