@@ -1,6 +1,5 @@
 # Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 EAPI=6
 DESCRIPTION="a lightweight hotkey daemon"
 HOMEPAGE="https://github.com/wertarbyte/triggerhappy"

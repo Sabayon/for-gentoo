@@ -1,6 +1,5 @@
 # Copyright 2014-2015 Igor Savlook <agentsmith.hengsha.city@gmail.com>, 2015 Brenton Horne <brentonhorne77@gmail.com>
 # Distributed under the terms of the GNU General Public License v3
-# $Id$
 
 EAPI="5"
 PYTHON_COMPAT=( python3_{3,4} )
