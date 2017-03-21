@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
-	<herd>gnome</herd>
-	<herd>voip</herd>
-	<maintainer>
+	<maintainer type="person">
 		<email>tester@gentoo.org</email>
+	</maintainer>
+	<maintainer type="person">
+		<email>skullbocks@sabayon.org</email>
 	</maintainer>
 </pkgmetadata>
 

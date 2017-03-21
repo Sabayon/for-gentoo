@@ -1,11 +1,10 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-python/papyon/papyon-0.5.6.ebuild,v 1.5 2012/01/20 17:54:08 ssuominen Exp $
 
-EAPI="3"
-PYTHON_DEPEND="2:2.5"
+EAPI="5"
+PYTHON_COMPAT=( python2_7 )
 
-inherit eutils distutils python
+inherit eutils distutils-r1
 
 DESCRIPTION="Python MSN IM protocol implementation forked from pymsn"
 HOMEPAGE="http://www.freedesktop.org/wiki/Software/papyon"
@@ -18,18 +17,14 @@ IUSE=""
 
 RDEPEND=">=dev-python/pygobject-2.10:2
 	>=dev-python/pyopenssl-0.6
-	dev-python/gst-python
+	dev-python/gst-python:=
 	dev-python/pycrypto
 	net-libs/farstream[python]"
 DEPEND="${RDEPEND}"
 
-pkg_setup() {
-	python_set_active_version 2
-}
-
 src_prepare() {
 	epatch "${FILESDIR}/${P}-farstream.patch"
 
-	distutils_src_prepare
-	python_convert_shebangs -r 2 .
+	distutils-r1_src_prepare
+	default
 }
