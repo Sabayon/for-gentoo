@@ -1,12 +1,11 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: $
 
-EAPI=3
+EAPI=6
 
-PYTHON_DEPEND="2"
+PYTHON_COMPAT=( python2_7 )
 
-inherit distutils
+inherit distutils-r1
 
 DESCRIPTION="Python bindings for libsmbclient"
 HOMEPAGE="https://fedorahosted.org/pysmbc"
@@ -16,6 +15,9 @@ LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 
-pkg_setup() {
-	python_set_active_version 2
+DEPEND=">=net-fs/samba-4.2.14"
+
+src_prepare() {
+	eapply "${FILESDIR}/${PN}-libsmbclient-fix.patch"
+	eapply_user
 }

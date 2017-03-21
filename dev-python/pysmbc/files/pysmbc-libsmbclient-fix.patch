@@ -1,0 +1,12 @@
+--- a/smbcmodule.h	2017-03-21 18:07:04.234082345 +0100
++++ b/smbcmodule.h	2017-03-21 18:07:37.104125384 +0100
+@@ -24,7 +24,7 @@
+ #ifndef HAVE_SMBCMODULE_H
+ #define HAVE_SMBCMODULE_H
+ 
+-#include <libsmbclient.h>
++#include <samba-4.0/libsmbclient.h>
+ 
+ /* GCC attributes */
+ #if !defined(__GNUC__) || __GNUC__ < 2 || \
+
