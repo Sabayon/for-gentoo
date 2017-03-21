@@ -1,11 +1,12 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: $
 
-EAPI=3
-inherit versionator linux-info eutils flag-o-matic toolchain-funcs distutils
+EAPI=5
+PYTHON_COMPAT=( python{2_7,3_4,3_5} )
 
-DESCRIPTION="Open-iSCSI is a high performance, transport independent, multi-platform implementation of RFC3720"
+inherit versionator linux-info eutils flag-o-matic toolchain-funcs distutils-r1
+
+DESCRIPTION="high performance transport independent multi-platform implementation of RFC3720"
 HOMEPAGE="http://www.open-iscsi.org/"
 MY_PV="${PN}-$(replace_version_separator 2 "-" $MY_PV)"
 SRC_URI="http://www.open-iscsi.org/bits/${MY_PV}.tar.gz"
@@ -29,7 +30,7 @@ pkg_setup() {
 	# Needs to be done, as iscsid currently only starts, when having the iSCSI
 	# support loaded as module. Kernel builtion options don't work. See this for
 	# more information:
-	# http://groups.google.com/group/open-iscsi/browse_thread/thread/cc10498655b40507/fd6a4ba0c8e91966
+	# https://groups.google.com/group/open-iscsi/browse_thread/thread/cc10498655b40507/fd6a4ba0c8e91966
 	# If there's a new release, check whether this is still valid!
 	CONFIG_CHECK_MODULES="SCSI_ISCSI_ATTRS ISCSI_TCP"
 	if linux_config_exists; then
@@ -111,7 +112,7 @@ src_install() {
 	doins "${S}"/libiscsi/libiscsi.h
 
 	cd "${S}"/libiscsi || die
-	distutils_src_install
+	distutils-r1_src_install
 
 	keepdir /var/db/iscsi
 	fperms 700 /var/db/iscsi || die
