@@ -1,6 +1,5 @@
 # Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: $
 
 # svn export -r "{2009-05-09}" https://gluegen.dev.java.net/svn/gluegen/trunk
 # gluegen --username xxx --password xxx
