@@ -1,6 +1,5 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-laptop/tp_smapi/tp_smapi-0.41.ebuild,v 1.1 2011/12/20 02:56:49 ottxor Exp $
 
 EAPI=4
 

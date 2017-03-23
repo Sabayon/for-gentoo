@@ -1,6 +1,5 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/media-gfx/iscan-plugin-gt-f730/iscan-plugin-gt-f730-0.1.1.ebuild,v 1.4 2011/04/21 14:29:09 flameeyes Exp $
 
 EAPI="2"
 

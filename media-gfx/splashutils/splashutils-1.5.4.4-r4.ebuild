@@ -1,6 +1,5 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/media-gfx/splashutils/splashutils-1.5.4.4-r4.ebuild,v 1.1 2013/10/14 13:50:25 pinkbyte Exp $
 
 EAPI=5
 inherit autotools eutils multilib toolchain-funcs

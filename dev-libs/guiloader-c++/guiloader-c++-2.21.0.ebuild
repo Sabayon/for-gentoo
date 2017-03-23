@@ -1,6 +1,5 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/guiloader-c++/guiloader-c++-2.21.0.ebuild,v 1.3 2011/07/26 21:16:02 maekke Exp $
 
 EAPI="3"
 

@@ -1,6 +1,5 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/kmod/kmod-13.ebuild,v 1.2 2013/04/10 03:12:15 williamh Exp $
 
 EAPI=5
 

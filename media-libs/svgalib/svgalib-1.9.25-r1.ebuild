@@ -1,6 +1,5 @@
 # Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/media-libs/svgalib/svgalib-1.9.25-r1.ebuild,v 1.2 2010/03/04 09:41:47 fauli Exp $
 
 EAPI=1
 

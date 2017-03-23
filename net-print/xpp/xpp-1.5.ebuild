@@ -1,6 +1,5 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-print/xpp/xpp-1.5.ebuild,v 1.11 2011/03/21 18:33:49 ssuominen Exp $
 
 EAPI=2
 inherit eutils toolchain-funcs

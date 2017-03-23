@@ -1,6 +1,5 @@
 # Copyright 1999-2007 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/libnl/libnl-1.0_pre6-r1.ebuild,v 1.1 2007/12/01 19:47:49 rbu Exp $
 
 inherit eutils multilib linux-info versionator
 

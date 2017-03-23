@@ -1,6 +1,5 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/media-video/ushare/ushare-1.1a-r5.ebuild,v 1.1 2012/11/08 19:06:53 hwoarang Exp $
 
 EAPI=4
 inherit eutils multilib user

@@ -1,6 +1,5 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-wireless/madwifi-ng/madwifi-ng-0.9.4.4165.20110816.ebuild,v 1.2 2011/10/15 23:23:34 maekke Exp $
 
 EAPI="2"
 

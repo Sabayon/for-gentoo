@@ -1,6 +1,5 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/games-engines/exult/exult-1.4.9_rc1.ebuild,v 1.2 2011/10/19 16:51:53 mr_bones_ Exp $
 
 EAPI=2
 inherit multilib eutils games
