@@ -1,10 +1,10 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="3"
-PYTHON_DEPEND="*"
+EAPI="6"
+PYTHON_COMPAT=( python{2_7,3_4,3_5} )
 
-inherit python
+inherit python-any-r1 python-utils-r1
 
 DESCRIPTION="Release metatool used for creating Sabayon (and Gentoo) releases"
 HOMEPAGE="http://www.sabayon.org"
@@ -22,16 +22,14 @@ RDEPEND="net-misc/rsync
 	sys-process/lsof
 	virtual/cdrtools"
 
+pkg_setup() {
+    python-any-r1_pkg_setup  # (matches the default)
+}
+
 src_install() {
 	emake DESTDIR="${D}" LIBDIR="/usr/lib" \
 		PREFIX="/usr" SYSCONFDIR="/etc" install \
 		|| die "emake install failed"
+	python_optimize
 }
 
-pkg_postinst() {
-	python_mod_optimize "/usr/lib/molecule"
-}
-
-pkg_postrm() {
-	python_mod_cleanup "/usr/lib/molecule"
-}
