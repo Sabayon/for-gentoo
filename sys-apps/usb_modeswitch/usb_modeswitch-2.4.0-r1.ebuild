@@ -1,4 +1,4 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=5
@@ -37,6 +37,8 @@ CONFIG_CHECK="~USB_SERIAL"
 
 src_prepare() {
 	sed -i -e '/install.*BIN/s:-s::' Makefile || die
+	epatch "${FILESDIR}/usb_modeswitch.sh-tmpdir.patch"
+
 }
 
 src_compile() {
