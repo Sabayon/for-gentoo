@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
-inherit cmake-multilib multilib systemd
+inherit cmake-multilib flag-o-matic multilib systemd
 
 DESCRIPTION="Run OpenGL applications remotely with full 3D hardware acceleration"
 HOMEPAGE="http://www.virtualgl.org/"
@@ -48,6 +48,9 @@ src_prepare() {
 }
 
 src_configure() {
+	# Completely breaks steam/wine for discrete graphics otherwise
+	append-ldflags "-Wl,--no-as-needed"
+
 	abi_configure() {
 		local mycmakeargs=(
 			-DVGL_USESSL="$(usex ssl)"
