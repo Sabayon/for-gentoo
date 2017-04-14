@@ -30,7 +30,7 @@ DEPEND="${RDEPEND}
 
 CONFIG_CHECK="~USB_ACM"
 
-PATCHES=("${FILESDIR}/0001-fix-missing-tinfo-linking-in-cec-client.patch")
+PATCHES=( "${FILESDIR}/0001-fix-missing-tinfo-linking-in-cec-client.patch" )
 
 S="${WORKDIR}/${PN}-${MY_P}"
 
@@ -45,7 +45,6 @@ pkg_setup() {
 
 src_prepare() {
 	cmake-utils_src_prepare
-#	epatch "${FILESDIR}/0001-fix-missing-tinfo-linking-in-cec-client.patch"
 	# Do not hardcode the python libpath #577612
 	sed -i \
 		-e '/DESTINATION/s:lib/python${PYTHON_VERSION}/dist-packages:${PYTHON_SITEDIR}:' \
