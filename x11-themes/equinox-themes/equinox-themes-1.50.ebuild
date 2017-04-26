@@ -7,7 +7,7 @@ ODTAG="140449"
 
 DESCRIPTION="Themes for the Equinox GTK engine"
 HOMEPAGE="http://gnome-look.org/content/show.php?content=140449"
-SRC_URI="http://gnome-look.org/CONTENT/content-files/${ODTAG}-${P}.tar.gz"
+SRC_URI="https://dl.opendesktop.org/api/files/download/id/1460966672/${ODTAG}-${P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
