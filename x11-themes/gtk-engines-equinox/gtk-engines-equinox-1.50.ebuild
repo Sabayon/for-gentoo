@@ -9,7 +9,7 @@ MY_P="${MY_PN}-${PV}"
 
 DESCRIPTION="Sleek GTK Theme engine"
 HOMEPAGE="http://gnome-look.org/content/show.php?content=121881"
-SRC_URI="http://gnome-look.org/CONTENT/content-files/${ODTAG}-${MY_P}.tar.gz"
+SRC_URI="https://dl.opendesktop.org/api/files/download/id/1463004028/${ODTAG}-${MY_P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
