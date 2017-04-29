@@ -1,4 +1,4 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="5"
@@ -8,7 +8,7 @@ inherit eutils autotools python-single-r1 toolchain-funcs
 
 DESCRIPTION="Satyr is a collection of low-level algorithms for program failure processing"
 HOMEPAGE="https://github.com/abrt/satyr"
-SRC_URI="https://fedorahosted.org/released/abrt/satyr-${PV}.tar.xz"
+SRC_URI="http://pkgs.fedoraproject.org/repo/pkgs/${PN}/${P}.tar.xz/2921d7a6db43df61f0af241187b91cb9/${P}.tar.xz"
 
 LICENSE="GPL-2+"
 SLOT="0"
