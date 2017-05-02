@@ -1,4 +1,4 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=5
@@ -6,8 +6,8 @@ EAPI=5
 inherit base eutils autotools
 
 DESCRIPTION="library for manipulating and storing storage volume encryption keys"
-HOMEPAGE="https://fedorahosted.org/volume_key/"
-SRC_URI="https://fedorahosted.org/releases/v/o/${PN}/${P}.tar.xz"
+HOMEPAGE="https://admin.fedoraproject.org/pkgdb/package/rpms/volume_key/"
+SRC_URI="http://pkgs.fedoraproject.org/repo/pkgs/${PN}/${P}.tar.xz/a2d14931177c660e1f3ebbcf5f47d8e2/${P}.tar.xz"
 
 LICENSE="GPL-2+"
 SLOT="0"
