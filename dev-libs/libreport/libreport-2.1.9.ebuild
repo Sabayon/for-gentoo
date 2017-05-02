@@ -1,4 +1,4 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="5"
@@ -8,8 +8,8 @@ PYTHON_COMPAT=( python{2_6,2_7} )
 inherit autotools eutils python-r1 user
 
 DESCRIPTION="Generic library for reporting software bugs"
-HOMEPAGE="https://fedorahosted.org/abrt/"
-SRC_URI="https://fedorahosted.org/released/abrt/${P}.tar.gz"
+HOMEPAGE="https://github.com/abrt/libreport"
+SRC_URI="http://pkgs.fedoraproject.org/repo/pkgs/${PN}/${P}.tar.gz/fc827f5081b0dd6f0ec112666801dca3/${P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
