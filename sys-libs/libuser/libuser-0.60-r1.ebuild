@@ -1,13 +1,12 @@
-# Copyright 2004-2014 Sabayon
+# Copyright 2004-2017 Sabayon
 # Distributed under the terms of the GNU General Public License v2
-# $
 
 EAPI=5
 inherit autotools eutils
 
-DESCRIPTION="Implements a standardized interface for manipulating and administering user and group accounts"
-HOMEPAGE="https://fedorahosted.org/libuser"
-SRC_URI="https://fedorahosted.org/releases/l/i/${PN}/${P}.tar.xz"
+DESCRIPTION="A user and group account administration library"
+HOMEPAGE="https://pagure.io/libuser"
+SRC_URI="https://releases.pagure.org/libuser/${P}.tar.xz"
 
 LICENSE="GPL-2"
 KEYWORDS="~amd64 ~x86"
