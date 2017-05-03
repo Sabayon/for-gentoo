@@ -1,14 +1,13 @@
-# Copyright 2004-2016 Sabayon
+# Copyright 2004-2017 Sabayon
 # Distributed under the terms of the GNU General Public License v2
-# $
 
 EAPI=5
 inherit eutils
 
 DESCRIPTION="Tools for certain user account management tasks"
-HOMEPAGE="https://fedorahosted.org/usermode"
-SRC_URI="https://fedorahosted.org/releases/u/s/${PN}/${P}.tar.xz"
-RESTRICT=nomirror
+HOMEPAGE="https://admin.fedoraproject.org/pkgdb/package/rpms/usermode/"
+SRC_URI="http://pkgs.fedoraproject.org/repo/pkgs/usermode/usermode-1.111.tar.xz/28ba510fbd8da9f4e86e57d6c31cff29/usermode-1.111.tar.xz"
+RESTRICT=mirror
 
 LICENSE="GPL-2"
 KEYWORDS="~amd64"
