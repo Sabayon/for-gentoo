@@ -20,7 +20,7 @@ S="${WORKDIR}/entropy-${PV}/magneto"
 
 DEPEND="${PYTHON_DEPS}"
 RDEPEND="~app-misc/magneto-loader-${PV}[${PYTHON_USEDEP}]
-	kde-base/pykde4
+	kde-apps/pykde4
 	dev-python/PyQt4[dbus]
 	${DEPEND}"
 
