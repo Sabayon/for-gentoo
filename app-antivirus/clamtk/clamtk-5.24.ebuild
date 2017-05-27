@@ -27,7 +27,7 @@ RDEPEND="
 	dev-perl/Locale-gettext
 	dev-perl/Text-CSV
 	dev-perl/glib-perl
-	dev-perl/gtk2-perl
+	dev-perl/Gtk2
 	dev-perl/libwww-perl
 	virtual/perl-Digest-SHA
 	virtual/perl-MIME-Base64
