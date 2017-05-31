@@ -17,7 +17,7 @@ IUSE="ldap nat qt4 systemd"
 
 COMMON_DEPEND="dev-libs/libedit
 	dev-libs/openssl
-	qt4? ( dev-qt/qtgui )
+	qt4? ( dev-qt/qtgui:4 )
 	ldap? ( net-nds/openldap )"
 
 DEPEND="${COMMON_DEPEND}
