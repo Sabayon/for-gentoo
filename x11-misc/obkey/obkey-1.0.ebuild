@@ -7,7 +7,7 @@ inherit eutils fdo-mime distutils-r1
 
 DESCRIPTION="Openbox Key Editor"
 HOMEPAGE="http://code.google.com/p/obkey/"
-SRC_URI="http://obkey.googlecode.com/files/${P}.tar.gz"
+SRC_URI="https://github.com/nsf/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="MIT"
 SLOT="0"
