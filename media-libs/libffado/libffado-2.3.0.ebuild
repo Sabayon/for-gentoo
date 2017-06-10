@@ -15,7 +15,7 @@ KEYWORDS="~amd64 ~ppc ~x86"
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="debug qt4 optimization +test-programs"
+IUSE="debug qt4 optimization test-programs"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
 RDEPEND="dev-cpp/libxmlpp:2.6[${MULTILIB_USEDEP}]
