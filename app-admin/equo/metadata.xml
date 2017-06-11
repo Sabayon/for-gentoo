@@ -1,11 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
-	<maintainer>
+	<maintainer type="person">
+		<email>mudler@gentoo.org</email>
+		<name>Ettore Di Giacinto</name>
+		<description>Assign bugs to him</description>
+	</maintainer>
+	<maintainer type="person">
+                <email>skullbocks@sabayon.org</email>
+                <name>Francesco Ferretti</name>
+        </maintainer>
+	<maintainer type="person">
 		<email>lxnay@gentoo.org</email>
 		<name>Fabio Erculiani</name>
+		<description>CC on bugs</description>
 	</maintainer>
-	<use>
-	</use>
+<use>
+</use>
 </pkgmetadata>
-
