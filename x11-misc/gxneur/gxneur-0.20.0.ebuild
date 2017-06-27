@@ -12,12 +12,13 @@ SRC_URI="https://launchpad.net/~andrew-crew-kuznetsov/+archive/xneur-stable/+fil
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="+gconf nls"
+IUSE="appindicator +gconf nls"
 
 COMMON_DEPEND="gnome-base/libglade:2.0
 	>=sys-devel/gettext-0.16.1
 	>=x11-libs/gtk+-2.18:2
 	>=x11-misc/xneur-$(get_version_component_range 1-2)
+	appindicator? ( dev-libs/libappindicator:2 )
 	gconf? ( gnome-base/gconf:2 )
 	!x11-misc/xneur[gtk3]"
 RDEPEND="${COMMON_DEPEND}
@@ -39,6 +40,7 @@ src_prepare() {
 src_configure() {
 	econf \
 		$(use_enable nls) \
+		$(use_with appindicator) \
 		$(use_with gconf)
 }
 
