@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
-<maintainer><email>slawomir.nizio@sabayon.org</email></maintainer>
+	<maintainer type="person">
+		<email>slawomir.nizio@sabayon.org</email>
+	</maintainer>
 <use>
 	<flag name='aplay'>Use aplay from <pkg>media-sound/alsa-utils</pkg> for
 	playing sounds</flag>

@@ -1,13 +1,13 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=2
+EAPI=6
 
-inherit autotools eutils
+inherit autotools
 
-DESCRIPTION="In-place conversion of text typed in with a wrong keyboard layout (Punto Switcher replacement)"
+DESCRIPTION="In-place conversion of text typed in with a wrong keyboard layout"
 HOMEPAGE="http://www.xneur.ru/"
-SRC_URI="http://dists.xneur.ru/release-${PV}/tgz/${P}.tar.bz2"
+SRC_URI="https://launchpad.net/~andrew-crew-kuznetsov/+archive/${PN}-stable/+files/${PN}_${PV}.orig.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -17,8 +17,9 @@ IUSE="aplay debug gstreamer gtk gtk3 keylogger libnotify nls openal xosd +spell"
 COMMON_DEPEND=">=dev-libs/libpcre-5.0
 	sys-libs/zlib
 	>=x11-libs/libX11-1.1
+	x11-libs/libXi
 	x11-libs/libXtst
-	gstreamer? ( >=media-libs/gstreamer-0.10.6 )
+	gstreamer? ( media-libs/gstreamer:1.0 )
 	!gstreamer? (
 		openal? ( >=media-libs/freealut-1.0.1 )
 		!openal? (
@@ -39,23 +40,21 @@ DEPEND="${COMMON_DEPEND}
 	virtual/pkgconfig
 	nls? ( sys-devel/gettext )"
 
+REQUIRED_USE="libnotify? ( gtk )"
+
 src_prepare() {
-	# Fixes error/warning: no newline at end of file
-	find -name '*.c' -exec sed -i -e '${/[^ ]/s:$:\n:}' {} + || die
+	default
+
 	rm -f m4/{lt~obsolete,ltoptions,ltsugar,ltversion,libtool}.m4 \
 		ltmain.sh aclocal.m4 || die
 
-	sed -i -e "s/-Werror -g0//" configure.in || die
+	sed -i -e "s/-Werror -g0//" configure.ac || die
 	sed -i -e 's/@LDFLAGS@ //' xnconfig.pc.in || die
 	eautoreconf
 }
 
 src_configure() {
 	local myconf
-
-	if use gtk && ! use libnotify; then
-		einfo "libnotify is not in USE - gtk USE flag will have no effect"
-	fi
 
 	if use gstreamer; then
 		elog "Using gstreamer for sound output."
@@ -88,11 +87,6 @@ src_configure() {
 		$(use_with xosd) \
 		$(use_with libnotify) \
 		$(use_with keylogger)
-}
-
-src_install() {
-	emake DESTDIR="${D}" install || die
-	dodoc AUTHORS ChangeLog README NEWS TODO || die
 }
 
 pkg_postinst() {
