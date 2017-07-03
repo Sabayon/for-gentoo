@@ -49,12 +49,12 @@ src_prepare() {
 }
 
 src_configure() {
-	mycmakeargs=( -DRAZERCFG_PKG_BUILD=1 -DPYTHON="${PYTHON}" )
-	cmake-utils_src_configure
+	mycmakeargs=( -DPYTHON="${PYTHON}" )
+	RAZERCFG_PKG_BUILD=1 cmake-utils_src_configure
 }
 
 src_install() {
-	cmake-utils_src_install
+	RAZERCFG_PKG_BUILD=1 cmake-utils_src_install
 	newinitd "${FILESDIR}"/razerd.init.d-r2 razerd
 	dodoc README.* HACKING.* razer.conf
 
