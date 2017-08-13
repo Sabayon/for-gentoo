@@ -5,14 +5,14 @@ EAPI="6"
 VALA_MIN_API_VERSION="0.28"
 PYTHON_COMPAT=( python3_{4,5} )
 
-inherit eutils fdo-mime git-r3 gnome2-utils multiprocessing vala python-single-r1
+inherit eutils fdo-mime git-r3 gnome2-utils meson multiprocessing ninja-utils vala python-single-r1
 
 MY_AUTHOR="budgie-desktop"
 DESCRIPTION="Desktop Environment based on GNOME 3"
 HOMEPAGE="https://evolve-os.com/budgie/"
 EGIT_REPO_URI="https://github.com/${MY_AUTHOR}/${PN}.git"
 EGIT_COMMIT="v${PV}"
-IUSE="+bluetooth +introspection pm-utils"
+IUSE="+bluetooth +policykit +introspection pm-utils"
 LICENSE="GPL-2 LGPL-2.1"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
@@ -28,7 +28,7 @@ RDEPEND="pm-utils? ( sys-power/upower-pm-utils[introspection=] )
 	 media-sound/pulseaudio
 	 >=x11-libs/gtk+-3.16:3
 	 >=gnome-base/gnome-desktop-3.18.0:3
-	 >=sys-auth/polkit-0.110[introspection=]
+	 policykit? ( >=sys-auth/polkit-0.110[introspection=] )
 	 x11-libs/wxGTK:3.0"
 
 DEPEND="${PYTHON_DEPS}
@@ -50,49 +50,28 @@ DEPEND="${PYTHON_DEPS}
 "
 src_prepare() {
 	epatch "${FILESDIR}/${PN}-remove_postinstall.patch"
+	epatch "${FILESDIR}/${PN}-fix_gobject_types.patch"
 	mkdir ${S}/tmpbin
 	ln -s $(echo $(whereis valac-) | grep -oE "[^[[:space:]]*$") ${S}/tmpbin/valac
 	default
 }
 
 src_configure() {
-	PATH="${S}/tmpbin/:$PATH" meson build --prefix=/usr --sysconfdir=/etc --buildtype plain || die "src_prepare failed"
-
-	cd build || die "build directory not found"
-
-	if ! use bluetooth ; then
-		mesonconf -D with-bluetooth=false
-	fi
-
-	if ! use introspection ; then
-		mesonconf -D with-introspection=false
-	fi
-}
-
-eninja() {
-	if [[ -z ${NINJAOPTS+set} ]]; then
-		local jobs=$(makeopts_jobs)
-		local loadavg=$(makeopts_loadavg)
-
-		if [[ ${MAKEOPTS} == *-j* && ${jobs} != 999 ]]; then
-			NINJAOPTS+=" -j ${jobs}"
-		fi
-		if [[ ${MAKEOPTS} == *-l* && ${loadavg} != 999 ]]; then
-			NINJAOPTS+=" -l ${loadavg}"
-		fi
-	fi
-	set -- ninja -v ${NINJAOPTS} "$@"
-	echo "$@"
-	"$@"
+	local emesonargs=(
+		-Dwith-bluetooth=$(usex bluetooth true false)
+		-Dwith-introspection=$(usex introspection true false)
+		-Dwith-polkit=$(usex policykit true false)
+        )
+	PATH="${S}/tmpbin/:$PATH" meson_src_configure
 }
 
 src_compile() {
-	cd build || die "build directory not found"
+	cd ${BUILD_DIR} || die "build directory not found"
 	PATH="${S}/tmpbin/:$PATH" eninja || die "ninja failed"
 }
 
 src_install() {
-	cd build || die "build directory not found"
+	cd ${BUILD_DIR} || die "build directory not found"
 	PATH="${S}/tmpbin/:$PATH" DESTDIR="${D}" eninja install || die "ninja install failed"
 }
 
