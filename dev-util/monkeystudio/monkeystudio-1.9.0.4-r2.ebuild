@@ -23,7 +23,7 @@ RDEPEND="
 	dev-qt/qtgui:4
 	dev-qt/qthelp:4
 	dev-qt/qtsql:4
-	x11-libs/qscintilla:=[qt4(-)]
+	>=x11-libs/qscintilla-2.10:=[qt4(-)]
 "
 DEPEND="${RDEPEND}
 	doc? ( >=app-doc/doxygen-1.5.8 )
