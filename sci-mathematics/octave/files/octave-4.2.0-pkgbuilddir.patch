@@ -14,7 +14,7 @@
 +        endif
 +      elseif (exist (tgz, "file"))
          ## Create a temporary directory.
-         tmpdir = tmpnam ();
+         tmpdir = tempname ();
          tmpdirs{end+1} = tmpdir;
 @@ -89,20 +96,12 @@
          if (length (dirlist) > 3)
