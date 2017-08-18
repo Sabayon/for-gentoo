@@ -1,0 +1,11 @@
+--- a/mks_1.9.0.4-src/qscintilla/qscintilla.pri
++++ b/mks_1.9.0.4-src/qscintilla/qscintilla.pri
+@@ -20,7 +20,7 @@ isEqual( SYSTEM_QSCINTILLA, 1 ) {
+     LIBS    *= -L$${PACKAGE_BUILD_PATH}/$${Q_TARGET_ARCH}/$$buildMode()
+ }
+ 
+-QSCINTILLA_TARGET   = qscintilla2
++QSCINTILLA_TARGET   = qscintilla2_qt4
+ greaterThan(QT_MAJOR_VERSION, 4):QT *= widgets printsupport
+ 
+ contains( TEMPLATE, .*app ) {
