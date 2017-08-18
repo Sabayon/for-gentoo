@@ -1,0 +1,13 @@
+diff --git a/qwriter.pro b/qwriter.pro
+index d7e89f8..839d73a 100755
+--- a/qwriter.pro
++++ b/qwriter.pro
+@@ -27,7 +27,7 @@ SOURCES = src/MainWindow.cpp \
+ TEMPLATE = app
+ RESOURCES = qwriter.qrc
+ TRANSLATIONS = languages/qwriter_ru.ts
+-LIBS += -lqscintilla2
++LIBS += -lqscintilla2_qt4
+ CODEC = UTF-8
+ win32 { 
+     RC_FILE = resource/win_win.rc
