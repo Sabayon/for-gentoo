@@ -1,0 +1,25 @@
+diff --git a/kscope-1.9.4/app/app.pro b/kscope-1.9.4/app/app.pro
+index f06d0ad..787a596 100644
+--- a/kscope-1.9.4/app/app.pro
++++ b/kscope-1.9.4/app/app.pro
+@@ -63,7 +63,7 @@ LIBS += -L../core \
+     -lkscope_cscope \
+     -L../editor \
+     -lkscope_editor \
+-    -lqscintilla2
++    -lqscintilla2_qt4
+ RESOURCES = app.qrc
+ target.path = $${INSTALL_PATH}/bin
+ INSTALLS += target
+diff --git a/kscope-1.9.4/editor/editor.pro b/kscope-1.9.4/editor/editor.pro
+index daa6433..b097d73 100644
+--- a/kscope-1.9.4/editor/editor.pro
++++ b/kscope-1.9.4/editor/editor.pro
+@@ -33,6 +33,6 @@ INCLUDEPATH += .. \
+ LIBS += -L../core \
+     -lkscope_core \
+     -L$${QSCI_ROOT_PATH}/lib64 -L/usr/lib64/qt4 \
+-    -lqscintilla2
++    -lqscintilla2_qt4
+ target.path = $${INSTALL_PATH}/lib64
+ INSTALLS += target
