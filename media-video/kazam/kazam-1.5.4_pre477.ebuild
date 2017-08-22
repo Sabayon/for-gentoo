@@ -1,14 +1,14 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=5
-PYTHON_COMPAT=( python{3_3,3_4} )
+PYTHON_COMPAT=( python{3_4,3_5,3_6} )
 
 inherit gnome2 distutils-r1
 
 DESCRIPTION="A screencasting program created with design in mind"
 HOMEPAGE="https://launchpad.net/kazam"
-SRC_URI="http://launchpad.net/${PN}/stable/${PV}/+download/${P}.tar.gz"
+SRC_URI="mirror://sabayon/${CATEGORY}/${P}.tar.bz2"
 
 LICENSE="GPL-3 LGPL-3"
 SLOT="0"
@@ -24,16 +24,23 @@ RDEPEND="
 	dev-python/gst-python:1.0[${PYTHON_USEDEP}]
 	dev-python/pycairo[${PYTHON_USEDEP}]
 	dev-python/pygobject:3[${PYTHON_USEDEP}]
+	dev-python/python-xlib[${PYTHON_USEDEP}]
 	dev-python/pyxdg[${PYTHON_USEDEP}]
+	media-libs/gst-plugins-base:1.0
 	media-libs/gst-plugins-good:1.0
 	media-libs/libcanberra
 	media-plugins/gst-plugins-x264:1.0
 	media-plugins/gst-plugins-ximagesrc:1.0
 	x11-libs/gtk+:3[introspection]
 	x11-libs/libwnck:3
+	x11-libs/pango[introspection]
+	virtual/libgudev[introspection]
 "
 
-PATCHES=( "${FILESDIR}/${P}-datadir.patch" )
+PATCHES=(
+	"${FILESDIR}/${PN}-1.4.5-datadir.patch"
+	"${FILESDIR}/${P}-configparser_api_changes.patch"
+)
 
 python_prepare_all() {
 	# correct name of .desktop file
@@ -41,6 +48,8 @@ python_prepare_all() {
 		|| die
 	# fix a warning: value "GNOME" requires GTK to be present
 	sed -i -e 's/GNOME;/GNOME;GTK;/' data/kazam.desktop.in || die
+	# remove deprecated values (from "Desktop Action" entries)
+	sed -i -e '/^OnlyShowIn=/d' data/kazam.desktop.in || die
 	# otherwise /usr/bin/kazam has wrong shebang
 	sed -i -e '/^executable=/d' setup.cfg || die
 	distutils-r1_python_prepare_all

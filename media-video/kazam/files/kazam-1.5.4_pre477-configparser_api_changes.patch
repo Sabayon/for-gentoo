@@ -1,0 +1,23 @@
+adaptation to 1.5.4+bzr by Sławomir Nizio, based on the following from Debian:
+
+From: Andrew Starr-Bochicchio <asb@debian.org>
+Subject: Update for changes in ConfigParser api.
+Bug: https://bugs.launchpad.net/kazam/+bug/1500083
+
+=== modified file 'kazam/backend/config.py'
+--- kazam/backend/config.py	2015-04-04 14:25:19 +0000
++++ kazam/backend/config.py	2017-08-22 19:06:13 +0000
+@@ -111,9 +111,10 @@
+                     if d_key == key:
+                         return d_section["keys"][key]
+ 
+-    def get(self, section, key):
++    def get(self, section, key, **kwargs):
+         try:
+-            ret = ConfigParser.get(self, section, key)
++            ret = super(KazamConfig, self).get(section,
++                key, **kwargs)
+             if ret == "None":
+                 default = self.find_default(section, key)
+                 self.set(section, key, default)
+
