@@ -80,9 +80,9 @@ pkg_postinst() {
 	# files permissions. This fixes unprivileged Entropy Library usage
 	local res_file="${ROOT}"/var/lib/entropy/client/database/*/.using_resources
 	if [ -f "${res_file}" ]; then
-		fowners root:entropy "${res_file}"
-		fperms g+rw "${res_file}"
-		fperms o+r "${res_file}"
+		chown root:entropy "${res_file}"
+		chmod g+rw "${res_file}"
+		chmod o+r "${res_file}"
 	fi
 	local pkg_files="package.mask package.unmask package.mask.d package.unmask.d"
 	local pkg_file
@@ -93,15 +93,15 @@ pkg_postinst() {
 			recursive="-R"
 		fi
 		if [ -e "${pkg_file}" ]; then
-			fowners ${recursive} root:entropy "${pkg_file}"
-			fperms ${recursive} go+r "${pkg_file}"
+			chown ${recursive} root:entropy "${pkg_file}"
+			chmod ${recursive} go+r "${pkg_file}"
 		fi
 	done
 
 	# Setup Entropy Library directories ownership
-	fowners root:entropy "${ROOT}/var/lib/entropy" # no recursion
-	fowners root:entropy "${ROOT}/var/lib/entropy/client/packages" # no recursion
-	fowners root:entropy "${ROOT}/var/log/entropy" # no recursion
+	chown root:entropy "${ROOT}/var/lib/entropy" # no recursion
+	chown root:entropy "${ROOT}/var/lib/entropy/client/packages" # no recursion
+	chown root:entropy "${ROOT}/var/log/entropy" # no recursion
 
 	elog "If you want to enable Entropy packages delta download support, please"
 	elog "install dev-util/bsdiff."
