@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<longdescription lang="en">
+		Sabayon Docker to LXD imagebuilder converter.
+	</longdescription>
+	<maintainer type="person">
+		<email>geaaru@gmail.com</email>
+		<name>geaaru</name>
+	</maintainer>
+	<upstream>
+		<remote-id type="github">Sabayon/sabayon-lxd-imagebuilder</remote-id>
+	</upstream>
+</pkgmetadata>
