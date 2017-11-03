@@ -4,7 +4,7 @@
 EAPI=5
 
 CMAKE_IN_SOURCE_BUILD="1"
-inherit cmake-utils systemd
+inherit cmake-utils multilib systemd
 
 DESCRIPTION="Shrew soft VPN Client"
 HOMEPAGE="http://www.shrew.net/"
@@ -37,6 +37,7 @@ src_configure(){
 		$(cmake-utils_use qt4 QTGUI)
 		"-DMANDIR=/usr/share/man"
 		"-DETCDIR=/etc/ike"
+		"-DLIBDIR=/usr/$(get_libdir)"
 		)
 
 	cmake-utils_src_configure
