@@ -1,33 +1,38 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=6
 
-MY_PN="Numix"
-DESCRIPTION="the Numix flat theme for gtk."
-HOMEPAGE="https://github.com/shimmerproject/${MY_PN}"
+inherit eutils
 
-if [[ ${PV} == "9999" ]] ; then
-	inherit git-r3
-	SRC_URI=""
-	EGIT_REPO_URI="https://github.com/shimmerproject/${MY_PN}.git"
-	KEYWORDS=""
+DESCRIPTION="A modern flat theme with a combination of light and dark elements. It supports GNOME, Unity, Xfce and Openbox."
+HOMEPAGE="https://numixproject.org"
+
+BASE_URI="https://github.com/numixproject/${PN}"
+
+if [[ ${PV} == *9999 ]]; then
+    inherit git-r3
+    SRC_URI=""
+    EGIT_REPO_URI="${BASE_URI}.git"
+    KEYWORDS=""
 else
-	SRC_URI="https://github.com/shimmerproject/${MY_PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
-	KEYWORDS="~amd64 ~arm ~x86"
+    SRC_URI="${BASE_URI}/archive/${PV}.tar.gz -> ${P}.tar.gz"
+    KEYWORDS="~amd64 ~arm ~x86"
 fi
 
 LICENSE="GPL-3+"
 SLOT="0"
 
-DEPEND=">=x11-libs/gtk+-3.6
-	x11-themes/gtk-engines-murrine"
+DEPEND="x11-themes/gtk-engines-murrine
+        dev-ruby/sass
+        dev-libs/glib:2
+        x11-libs/gdk-pixbuf:2"
 RDEPEND="${DEPEND}"
 
-S="${WORKDIR}/${MY_PN}-${PV}"
+src_compile(){
+    emake DESTDIR="${D}" || die
+}
 
 src_install() {
-	insinto /usr/share/themes/Numix
-	doins -r *
-	dodoc README.md
+    emake DESTDIR="${D}" install || die
 }
