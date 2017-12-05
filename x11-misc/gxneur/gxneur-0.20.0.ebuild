@@ -24,6 +24,7 @@ COMMON_DEPEND="gnome-base/libglade:2.0
 RDEPEND="${COMMON_DEPEND}
 	nls? ( virtual/libintl )"
 DEPEND="${COMMON_DEPEND}
+	dev-util/intltool
 	virtual/pkgconfig
 	nls? ( sys-devel/gettext )"
 

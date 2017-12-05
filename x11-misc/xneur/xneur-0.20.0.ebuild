@@ -37,6 +37,7 @@ RDEPEND="${COMMON_DEPEND}
 	nls? ( virtual/libintl )
 	gtk3? ( !x11-misc/gxneur )"
 DEPEND="${COMMON_DEPEND}
+	dev-util/intltool
 	virtual/pkgconfig
 	nls? ( sys-devel/gettext )"
 
