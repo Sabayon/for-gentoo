@@ -1,0 +1,6 @@
+# Here you can choose the backend which osspd should use during operation.
+# You can choose from the following backends:
+# ossp-alsap - ALSA backend
+# ossp-padsp - Pulseaudio backend
+
+OSSPD_BACKEND="%OSSPD_BACKEND%"

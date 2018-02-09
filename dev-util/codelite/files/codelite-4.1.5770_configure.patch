@@ -1,0 +1,11 @@
+diff -rupN codelite-4.1.5770_aaa/configure codelite-4.1.5770_bbb/configure
+--- codelite-4.1.5770_aaa/configure	2012-08-28 09:43:41.000000000 +0300
++++ codelite-4.1.5770_bbb/configure	2012-10-14 09:15:48.029760894 +0300
+@@ -1017,7 +1017,6 @@ createInstallTarget()
+ 	echo "	@cp -fpr Runtime/src/*.gz \"\$(DESTDIR)${prefix}/share/codelite/src/\"" >> Makefile
+ 	echo "	@cp -fpr Runtime/codelite-icons.zip \"\$(DESTDIR)${prefix}/share/codelite/\"" >> Makefile
+ 	echo "	@cp -fpr Runtime/codelite-icons-fresh-farm.zip \"\$(DESTDIR)${prefix}/share/codelite/\"" >> Makefile
+-	echo "	@chmod 0666 \"\$(DESTDIR)${prefix}/share/codelite/codelite-icons.zip\"" >> Makefile
+ 	
+ 	if [ "$with_clang" = "yes" ]; then 
+ 		echo "	@cp -fpr ${lib_clang} \"\$(DESTDIR)${non_plugins_dir}/\"" >> Makefile

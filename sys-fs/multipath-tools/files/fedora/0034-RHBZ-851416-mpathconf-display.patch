@@ -1,0 +1,53 @@
+---
+ multipath/mpathconf |   21 +++++++++++++++------
+ 1 file changed, 15 insertions(+), 6 deletions(-)
+
+Index: multipath-tools-130222/multipath/mpathconf
+===================================================================
+--- multipath-tools-130222.orig/multipath/mpathconf
++++ multipath-tools-130222/multipath/mpathconf
+@@ -159,7 +159,7 @@ if [ -z "$MODULE" -o "$MODULE" = "y" ];
+ fi
+ 
+ if [ "$MULTIPATHD" = "y" ]; then
+-	if service multipathd status > /dev/null ; then
++	if /bin/systemctl status multipathd.service > /dev/null 2>&1 ; then
+ 		HAVE_MULTIPATHD=1
+ 	else
+ 		HAVE_MULTIPATHD=0
+@@ -210,8 +210,17 @@ if [ -n "$SHOW_STATUS" ]; then
+ 			echo "dm_multipath module is not loaded"
+ 		fi
+ 	fi
+-	if [ -n "$HAVE_MULTIPATHD" ]; then
+-		service multipathd status
++	if [ -z "$HAVE_MULTIPATHD" ]; then
++		if /bin/systemctl status multipathd.service > /dev/null 2>&1 ; then
++			HAVE_MULTIPATHD=1
++		else
++			HAVE_MULTIPATHD=0
++		fi
++	fi
++	if [ "$HAVE_MULTIPATHD" = 1 ]; then
++		echo "multipathd is running"
++	else
++		echo "multipathd is not running"
+ 	fi
+ 	exit 0
+ fi
+@@ -301,12 +310,12 @@ if [ "$ENABLE" = 1 ]; then
+ 		modprobe dm_multipath
+ 	fi
+ 	if [ "$HAVE_MULTIPATHD" = 0 ]; then
+-		service multipathd start
++		systemctl start multipathd.service
+ 	fi
+ elif [ "$ENABLE" = 0 ]; then
+ 	if [ "$HAVE_MULTIPATHD" = 1 ]; then
+-		service multipathd stop
++		systemctl stop multipathd.service
+ 	fi
+ elif [ -n "$CHANGED_CONFIG" -a "$HAVE_MULTIPATHD" = 1 ]; then
+-	service multipathd reload
++	systemctl reload multipathd.service
+ fi

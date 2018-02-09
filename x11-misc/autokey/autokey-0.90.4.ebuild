@@ -1,16 +1,13 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: $
 
-EAPI=4
-PYTHON_DEPEND="2"
-SUPPORT_PYTHON_ABIS="1"
-RESTRICT_PYTHON_ABIS="3.*"
-inherit eutils gnome2-utils distutils
+EAPI=6
+PYTHON_COMPAT=( python2_7 )
+inherit eutils gnome2-utils distutils-r1
 
 DESCRIPTION="Desktop automation utility for Linux and X11"
 HOMEPAGE="http://code.google.com/p/autokey/"
-SRC_URI="http://autokey.googlecode.com/files/${P}.tar.gz"
+SRC_URI="https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/autokey/${P}.tar.gz"
 
 LICENSE="GPL-3"
 SLOT="0"
@@ -38,11 +35,11 @@ RDEPEND="${DEPEND}
 src_prepare() {
 	epatch "${FILESDIR}"/${P}-disable-qt4.patch
 	rm ./src/lib/qtapp.py || die
-	distutils_src_prepare
+	distutils-r1_src_prepare
 }
 
 src_install() {
-	distutils_src_install
+	distutils-r1_src_install
 	if use doc; then
 		dodoc -r "${S}"/doc/scripting
 	fi

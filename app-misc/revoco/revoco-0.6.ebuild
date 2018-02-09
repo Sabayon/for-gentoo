@@ -1,6 +1,5 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: $
 
 EAPI=4
 inherit toolchain-funcs linux-info
@@ -15,7 +14,7 @@ KEYWORDS="~amd64 ~x86"
 IUSE=""
 
 DEPEND=""
-RDEPEND=">=sys-fs/udev-104"
+RDEPEND="virtual/udev"
 
 CONFIG_CHECK="~USB_HIDDEV"
 ERROR_USB_HIDDEN="You need to enable the CONFIG_USB_HIDDEV option."

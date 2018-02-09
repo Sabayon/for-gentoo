@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer>
+		<email>proaudio@tuxfamily.org</email>
+		<name>pro-audio overlay team</name>
+	</maintainer>
+	<use>
+		<flag name="mpg123">Enable support for mp3 decoding through media-sound/mpg123</flag>
+		<flag name="opus">Enable Opus audio codec support</flag>
+		<flag name="twolame">Enables twolame support (MPEG Audio Layer 2 encoder)</flag>
+	</use>
+</pkgmetadata>

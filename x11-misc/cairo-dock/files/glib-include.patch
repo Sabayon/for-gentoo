@@ -1,0 +1,12 @@
+diff -urN cairo-dock-3.0.0.orig/src/gldit/cairo-dock-keybinder.h cairo-dock-3.0.0/src/gldit/cairo-dock-keybinder.h
+--- cairo-dock-3.0.0.orig/src/gldit/cairo-dock-keybinder.h	2012-04-19 23:09:27.610906117 +0600
++++ cairo-dock-3.0.0/src/gldit/cairo-dock-keybinder.h	2012-04-19 23:11:13.424875527 +0600
+@@ -31,7 +31,7 @@
+ #ifndef __CD_KEY_BINDER_H__
+ #define __CD_KEY_BINDER_H__
+ 
+-#include <glib/gtypes.h>
++#include <glib.h>
+ #include "cairo-dock-struct.h"
+ #include "cairo-dock-manager.h"
+ 

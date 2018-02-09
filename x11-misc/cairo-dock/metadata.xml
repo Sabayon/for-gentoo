@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>skullbocks@sabayon.org</email>
+		<name>Francesco Ferretti</name>
+	</maintainer>
+	<longdescription>
+		Cairo-dock is a kind of dock applet, which doesn't depend on any gnome package.
+	</longdescription>
+	<use>
+		<flag name="desktop_manager">Add support for enable-desktop-manager compilation flag.</flag>
+		<flag name="gtk3">Link against version 3 of the GIMP Toolkit (x11-libs/gtk+).</flag>
+	</use>
+</pkgmetadata>

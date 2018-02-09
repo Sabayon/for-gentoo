@@ -1,0 +1,64 @@
+From 61b2002c6b2752c15b431e400cd614edc8c5b039 Mon Sep 17 00:00:00 2001
+From: Fabio M. Di Nitto <fdinitto@redhat.com>
+Date: Mon, 19 Oct 2009 07:05:45 +0200
+Subject: [PATCH 09/12] RH: multipathd blacklist all by default
+
+If there is no configuration installed on the system, blacklist
+everything by default.
+
+BZ#528059
+
+Signed-off-by: Fabio M. Di Nitto <fdinitto@redhat.com>
+---
+:100644 100644 e7e962e... 5aa1ab0... M	libmultipath/config.c
+:100644 100644 86b1320... 7e90e75... M	libmultipath/config.h
+ libmultipath/config.c |   16 ++++++++++++++++
+ libmultipath/config.h |    1 +
+ 2 files changed, 17 insertions(+)
+
+Index: multipath-tools-130222/libmultipath/config.c
+===================================================================
+--- multipath-tools-130222.orig/libmultipath/config.c
++++ multipath-tools-130222/libmultipath/config.c
+@@ -21,6 +21,7 @@
+ #include "defaults.h"
+ #include "prio.h"
+ #include "devmapper.h"
++#include "version.h"
+ 
+ static int
+ hwe_strmatch (struct hwentry *hwe1, struct hwentry *hwe2)
+@@ -585,6 +586,21 @@ load_config (char * file)
+ 
+ 	} else {
+ 		init_keywords();
++		condlog(0, "/etc/multipath.conf does not exist, blacklisting all devices.");
++		condlog(0, "A default multipath.conf file is located at");
++		condlog(0, "/usr/share/doc/device-mapper-multipath-%d.%d.%d/multipath.conf", MULTIPATH_VERSION(VERSION_CODE));
++		if (conf->blist_devnode == NULL) {
++			conf->blist_devnode = vector_alloc();
++			if (!conf->blist_devnode) {
++				condlog(0, "cannot allocate blacklist\n");
++				goto out;
++			}
++		}
++		if (store_ble(conf->blist_devnode, strdup(".*"),
++		              ORIGIN_NO_CONFIG)) {
++			condlog(0, "cannot store default no-config blacklist\n");
++			goto out;
++		}
+ 	}
+ 
+ 	/*
+Index: multipath-tools-130222/libmultipath/config.h
+===================================================================
+--- multipath-tools-130222.orig/libmultipath/config.h
++++ multipath-tools-130222/libmultipath/config.h
+@@ -6,6 +6,7 @@
+ 
+ #define ORIGIN_DEFAULT 0
+ #define ORIGIN_CONFIG  1
++#define ORIGIN_NO_CONFIG 2
+ 
+ /*
+  * In kernel, fast_io_fail == 0 means immediate failure on rport delete.

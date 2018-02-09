@@ -1,0 +1,47 @@
+From 0a9af08a5661ceac87d7b9f98b204a9f80169333 Mon Sep 17 00:00:00 2001
+From: Mark Rustad <mark.d.rustad@intel.com>
+Date: Thu, 25 Oct 2012 04:49:23 +0000
+Subject: [PATCH 4/7] build: Remove dependency on libnl
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+fcoe-utils really did not need to be dependent on libnl. It was
+only including netlink/netlink.h, not actually using the library,
+and the only real need for netlink/netlink.h was to get the
+including files stdint.h, linux/netlink.h and linux/rtnetlink.h.
+So, just include those directly and forget about libnl.
+
+Signed-off-by: Mark Rustad <mark.d.rustad@intel.com>
+Tested-by: Ross Brattain <ross.b.brattain@intel.com>
+Signed-off-by: Robert Love <robert.w.love@intel.com>
+Signed-off-by: Petr Šabata <contyk@redhat.com>
+---
+ fcoemon.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/fcoemon.c b/fcoemon.c
+index 9217552..daf9fab 100644
+--- a/fcoemon.c
++++ b/fcoemon.c
+@@ -24,6 +24,7 @@
+ #include <stddef.h>
+ #include <stdio.h>
+ #include <stdlib.h>
++#include <stdint.h>
+ #include <time.h>
+ #include <libgen.h>
+ #include <ulimit.h>
+@@ -40,7 +41,8 @@
+ #include <linux/sockios.h>
+ #include <linux/if.h>
+ #include <linux/if_arp.h>
+-#include <netlink/netlink.h>
++#include <linux/netlink.h>
++#include <linux/rtnetlink.h>
+ #include <linux/ethtool.h>
+ #include <linux/if_vlan.h>
+ #include <linux/dcbnl.h>
+-- 
+1.7.11.7
+

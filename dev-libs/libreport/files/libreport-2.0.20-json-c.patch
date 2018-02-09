@@ -1,0 +1,51 @@
+--- a/configure.ac
++++ b/configure.ac
+@@ -158,7 +158,14 @@ AS_HELP_STRING([--with-ureport],[use uRe
+ LIBREPORT_PARSE_WITH([ureport]))
+ if test -z "$NO_UREPORT"; then
+ AM_CONDITIONAL(BUILD_UREPORT, true)
+-PKG_CHECK_MODULES([JSON_C], [json])
++PKG_CHECK_MODULES([JSON_C], [json], [
++    JSON_C_PACKAGE=json
++], [
++    PKG_CHECK_MODULES([JSON_C], [json-c], [
++        JSON_C_PACKAGE=json-c
++    ])
++])
++AC_SUBST([JSON_C_PACKAGE])
+ else
+ AM_CONDITIONAL(BUILD_UREPORT, false)
+ fi dnl end NO_UREPORT
+--- a/libreport-web.pc.in
++++ b/libreport-web.pc.in
+@@ -6,7 +6,7 @@ includedir=@includedir@
+ Name: libreport
+ Description: Library providing network API for libreport
+ Version: @VERSION@
+-Requires: glib-2.0 libcurl libproxy-1.0 libxml-2.0 xmlrpc xmlrpc_client json btparser libreport
++Requires: glib-2.0 libcurl libproxy-1.0 libxml-2.0 xmlrpc xmlrpc_client @JSON_C_PACKAGE@ btparser libreport
+ Libs: -L${libdir} -lreport-web
+ Cflags:
+ 
+--- a/src/lib/json.c
++++ b/src/lib/json.c
+@@ -17,7 +17,7 @@
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+ 
+-#include <json/json.h>
++#include <json-c/json.h>
+ #include <btparser/thread.h>
+ #include <btparser/core-backtrace.h>
+ 
+--- a/src/plugins/ureport.c
++++ b/src/plugins/ureport.c
+@@ -17,7 +17,7 @@
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+ 
+-#include <json/json.h>
++#include <json-c/json.h>
+ #include "internal_libreport.h"
+ #include "ureport.h"
+ #include "libreport_curl.h"

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>skullbocks@sabayon.org</email>
+		<name>Francesco Ferretti</name>
+	</maintainer>
+	<longdescription>
+		Cairo-dock is a kind of dock applet, which doesn't depend on any gnome package.
+	</longdescription>
+	<use>
+		<flag name="gmenu">Add support for <pkg>gnome-base/gnome-menus</pkg>.</flag>
+		<flag name="gnote">Add support for <pkg>app-misc/gnote</pkg>.</flag>
+		<flag name="xgamma">Add support for <pkg>x11-libs/libXxf86vm</pkg>.</flag>
+		<flag name="indicator3">Add support for <pkg>dev-libs/libindicator</pkg>.</flag>
+		<flag name="gtk3">Link against version 3 of the GIMP Toolkit (x11-libs/gtk+).</flag>
+		<flag name="terminal">Enable terminal plugin.</flag>
+		<flag name="xfce">Add support for XFCE thunar.</flag>
+		<flag name="xklavier">Enable keyboard layout selection support using <pkg>x11-libs/libxklavier</pkg>.</flag>
+		<flag name="twitter">Enable Twitter support.</flag>
+		<flag name="zeitgeist">Add support for Zeitgeist event tracking system.</flag>
+		<flag name="mail">Add an extension to support e-mail functionality.</flag>
+	</use>
+</pkgmetadata>

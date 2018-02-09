@@ -1,0 +1,52 @@
+---
+ multipath/Makefile        |    3 +++
+ multipath/multipath.rules |   24 ++++++++++++++++++++++++
+ 2 files changed, 27 insertions(+)
+
+Index: multipath-tools-130222/multipath/multipath.rules
+===================================================================
+--- a/multipath/Makefile
++++ b/multipath/Makefile
+@@ -19,12 +19,15 @@ $(EXEC): $(OBJS)
+ install:
+ 	$(INSTALL_PROGRAM) -d $(DESTDIR)$(bindir)
+ 	$(INSTALL_PROGRAM) -m 755 $(EXEC) $(DESTDIR)$(bindir)/
++	$(INSTALL_PROGRAM) -d $(DESTDIR)/lib/udev/rules.d
++	$(INSTALL_PROGRAM) -m 644 multipath.rules $(DESTDIR)/lib/udev/rules.d/62-multipath.rules
+ 	$(INSTALL_PROGRAM) -d $(DESTDIR)$(mandir)
+ 	$(INSTALL_PROGRAM) -m 644 $(EXEC).8 $(DESTDIR)$(mandir)
+ 	$(INSTALL_PROGRAM) -d $(DESTDIR)$(man5dir)
+ 	$(INSTALL_PROGRAM) -m 644 $(EXEC).conf.5 $(DESTDIR)$(man5dir)
+ 
+ uninstall:
++	rm $(DESTDIR)/lib/udev/rules.d/62-multipath.rules
+ 	rm $(DESTDIR)$(bindir)/$(EXEC)
+ 	rm $(DESTDIR)$(mandir)/$(EXEC).8
+ 	rm $(DESTDIR)$(man5dir)/$(EXEC).conf.5
+--- /dev/null
++++ b/multipath/multipath.rules
+@@ -0,0 +1,24 @@
++# multipath wants the devmaps presented as meaninglful device names
++# so name them after their devmap name
++SUBSYSTEM!="block", GOTO="end_mpath"
++
++ENV{MPATH_SBIN_PATH}="/sbin"
++TEST!="$env{MPATH_SBIN_PATH}/multipath", ENV{MPATH_SBIN_PATH}="/usr/sbin"
++
++ACTION=="add", ENV{DEVTYPE}!="partition", \
++	ENV{DM_MULTIPATH_DEVICE_PATH}!="1", \
++	TEST=="/etc/multipath.conf", \
++	PROGRAM=="$env{MPATH_SBIN_PATH}/multipath -c $tempnode", \
++	ENV{DM_MULTIPATH_DEVICE_PATH}="1"
++
++ENV{DM_MULTIPATH_DEVICE_PATH}=="1", ENV{DEVTYPE}!="partition", \
++	RUN+="/sbin/partx -d --nr 1-1024 $env{DEVNAME}"
++
++KERNEL!="dm-*", GOTO="end_mpath"
++ENV{DM_UUID}=="mpath-?*|part[0-9]*-mpath-?*", OPTIONS+="link_priority=10"
++ACTION!="change", GOTO="end_mpath"
++ENV{DM_UUID}!="mpath-?*", GOTO="end_mpath"
++ENV{DM_SUSPENDED}=="1", GOTO="end_mpath"
++ENV{DM_ACTION}=="PATH_FAILED", GOTO="end_mpath"
++RUN+="$env{MPATH_SBIN_PATH}/kpartx -a $tempnode"
++LABEL="end_mpath"

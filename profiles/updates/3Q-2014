@@ -1,0 +1,2 @@
+move dev-libs/cjs gnome-extra/cjs
+slotmove gnome-extra/cinnamon-desktop 3 0

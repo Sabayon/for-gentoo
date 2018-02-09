@@ -1,0 +1,4 @@
+move app-admin/eselect-bzimage app-eselect/eselect-bzimage
+move app-admin/eselect-lightdm app-eselect/eselect-lightdm
+move app-admin/eselect-uimage app-eselect/eselect-uimage
+

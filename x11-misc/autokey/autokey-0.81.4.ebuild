@@ -1,16 +1,14 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: $
 
-EAPI=4
-PYTHON_DEPEND="2"
-SUPPORT_PYTHON_ABIS="1"
-RESTRICT_PYTHON_ABIS="3.*"
-inherit distutils
+EAPI=5
+PYTHON_COMPAT=( python2_7 )
+
+inherit distutils-r1
 
 DESCRIPTION="Desktop automation utility for Linux and X11"
 HOMEPAGE="http://code.google.com/p/autokey/"
-SRC_URI="http://autokey.googlecode.com/files/${PN}_${PV}.tar.gz"
+SRC_URI="https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/autokey/${PN}_${PV}.tar.gz"
 
 LICENSE="GPL-3"
 SLOT="0"
@@ -27,7 +25,7 @@ RDEPEND="${DEPEND}
 	dev-python/pyinotify"
 
 src_install() {
-	distutils_src_install
+	distutils-r1_src_install
 	if use doc; then
 		dodoc -r "${S}"/doc/scripting
 	fi

@@ -1,0 +1,82 @@
+From 3cb7cf3e6f756e15377f7512ba0dc27c10063935 Mon Sep 17 00:00:00 2001
+From: Robert Love <robert.w.love@intel.com>
+Date: Thu, 4 Oct 2012 03:17:23 +0000
+Subject: [PATCH 1/7] doc: Make '-s|--stats' description more readable
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+This patch improves the language in the fcoeadm
+man page for the '-s|--stats' option to make it more
+readable.
+
+Signed-off-by: Robert Love <robert.w.love@intel.com>
+Tested-by: Ross Brattain <ross.b.brattain@intel.com>
+Signed-off-by: Petr Šabata <contyk@redhat.com>
+---
+ doc/fcoeadm.8   | 12 +++++++-----
+ doc/fcoeadm.txt | 12 ++++++------
+ 2 files changed, 13 insertions(+), 11 deletions(-)
+
+diff --git a/doc/fcoeadm.8 b/doc/fcoeadm.8
+index 2a696b3..6dd6d9b 100644
+--- a/doc/fcoeadm.8
++++ b/doc/fcoeadm.8
+@@ -2,12 +2,12 @@
+ .\"     Title: fcoeadm
+ .\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
+ .\" Generator: DocBook XSL Stylesheets v1.76.1 <http://docbook.sf.net/>
+-.\"      Date: 01/30/2012
++.\"      Date: 07/20/2012
+ .\"    Manual: Open-FCoE Tools
+ .\"    Source: Open-FCoE
+ .\"  Language: English
+ .\"
+-.TH "FCOEADM" "8" "01/30/2012" "Open\-FCoE" "Open\-FCoE Tools"
++.TH "FCOEADM" "8" "07/20/2012" "Open\-FCoE" "Open\-FCoE Tools"
+ .\" -----------------------------------------------------------------
+ .\" * Define some portability stuff
+ .\" -----------------------------------------------------------------
+@@ -102,11 +102,13 @@ Show detailed information about the discovered SCSI LUNs associated with the FCo
+ .PP
+ \fB\-s\fR, \fB\-\-stats\fR \fIethX\fR [\fIinterval\fR]
+ .RS 4
+-Show the statistics (including FC4 statistics) of the FCoE interface on the specified network interface\&. The information will be display in one line on the screen per given time interval\&.
++Show the statistics (including FC4 statistics) of the FCoE connection on the specified network interface\&. The information will be displayed repeatedly until the user cancels the command\&. The statistics will be printed every specified
+ \fIinterval\fR
+-should be specified in whole integers greater than 0\&. It specifies the time interval in the unit of seconds\&. If
++(in seconds)\&.
++\fIinterval\fR
++should be specified as a whole number greater than 0\&. If
+ \fIinterval\fR
+-is not specified, the default interval is one second\&.
++is not specified, a default interval of one second is used\&.
+ .RE
+ .PP
+ \fB\-b\fR, \fB\-\-lesb\fR \fIethX\fR [\fIinterval\fR]
+diff --git a/doc/fcoeadm.txt b/doc/fcoeadm.txt
+index 4069978..40348ab 100644
+--- a/doc/fcoeadm.txt
++++ b/doc/fcoeadm.txt
+@@ -100,12 +100,12 @@ OPTIONS
+ 
+ *-s*, *--stats* _ethX_ [_interval_]::
+ 	Show the statistics (including FC4 statistics) of the FCoE
+-	interface on the specified network interface.
+-	The information will be display in one line on the screen per given
+-	time interval. _interval_ should be specified in whole integers
+-	greater than 0. It specifies the time interval in the unit of
+-	seconds. If _interval_ is not specified, the default interval is
+-	one second.
++	connection on the specified network interface. The information will
++	be displayed repeatedly until the user cancels the command. The
++	statistics will be printed every specified _interval_ (in seconds).
++	_interval_ should be specified as a whole number greater than 0.
++	If _interval_ is not specified, a default interval of one second is
++	used.
+ 
+ *-b*, *--lesb* _ethX_ [_interval_]::
+ 	Show the Link Error Statistics Block (LESB) of the FCoE connection
+-- 
+1.7.11.7
+

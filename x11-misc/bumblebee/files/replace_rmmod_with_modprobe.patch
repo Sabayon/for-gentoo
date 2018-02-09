@@ -1,0 +1,24 @@
+From 1ada79fe5916961fc4e4917f8c63bb184908d986 Mon Sep 17 00:00:00 2001
+From: Alexander Monakov <amonakov@gmail.com>
+Date: Sun, 30 Mar 2014 09:47:53 +0400
+Subject: [PATCH] module: use "modprobe -r" instead of rmmod: GH-565
+
+With the introduction of nvidia-uvm module, unloading nvidia module will fail unless nvidia-uvm is unloaded.  GH-565 suggests using "remove" or "softdep" modprobe.d clauses to teach modprobe to handle that for us; "rmmod" does not have that functionality, so switch to "modprobe -r".
+---
+ src/module.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/module.c b/src/module.c
+index f7b99fa..f6d7144 100644
+--- a/src/module.c
++++ b/src/module.c
+@@ -96,7 +96,8 @@ int module_unload(char *driver) {
+     int retries = 30;
+     bb_log(LOG_INFO, "Unloading %s driver\n", driver);
+     char *mod_argv[] = {
+-      "rmmod",
++      "modprobe",
++      "-r",
+       driver,
+       NULL
+     };

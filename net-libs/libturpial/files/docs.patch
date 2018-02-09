@@ -1,0 +1,9 @@
+--- setup.py.old	2016-01-13 16:26:13.930230992 +0100
++++ setup.py	2016-01-13 16:32:42.814015235 +0100
+@@ -56,5 +56,4 @@ setup(name="libturpial",
+           'simplejson',
+           'requests',
+     ],
+-    data_files=data_files,
+ )
+

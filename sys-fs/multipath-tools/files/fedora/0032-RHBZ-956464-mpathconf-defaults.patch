@@ -1,0 +1,19 @@
+---
+ multipath/mpathconf |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+Index: multipath-tools-130222/multipath/mpathconf
+===================================================================
+--- multipath-tools-130222.orig/multipath/mpathconf
++++ multipath-tools-130222/multipath/mpathconf
+@@ -31,8 +31,8 @@ function usage
+ 	echo "Commands:"
+ 	echo "Enable: --enable "
+ 	echo "Disable: --disable"
+-	echo "Set user_friendly_names (Default n): --user_friendly_names <y|n>"
+-	echo "Set find_multipaths (Default n): --find_multipaths <y|n>"
++	echo "Set user_friendly_names (Default y): --user_friendly_names <y|n>"
++	echo "Set find_multipaths (Default y): --find_multipaths <y|n>"
+ 	echo "Load the dm-multipath modules on enable (Default y): --with_module <y|n>"
+ 	echo "start/stop/reload multipathd (Default n): --with_multipathd <y|n>"
+ 	echo ""

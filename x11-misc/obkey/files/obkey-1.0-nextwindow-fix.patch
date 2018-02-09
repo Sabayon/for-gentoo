@@ -1,0 +1,26 @@
+From a595871fbedb32513419395ee02828c47e22abd0 Mon Sep 17 00:00:00 2001
+From: nsf <no.smile.face@gmail.com>
+Date: Sat, 22 Oct 2011 15:51:32 +0600
+Subject: Fix issue #7.
+
+http://code.google.com/p/obkey/issues/detail?id=7
+---
+ obkey_classes.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/obkey_classes.py b/obkey_classes.py
+index c443b04..32bc8c2 100644
+--- a/obkey_classes.py
++++ b/obkey_classes.py
+@@ -1361,7 +1361,7 @@ actions = {
+ 		OCString("menu", "")
+ 	],
+ 	"NextWindow": [
+-		OCBoolean("dialog", True),
++		OCCombo('dialog', 'list', ['list', 'icons', 'none']),
+ 		OCBoolean("bar", True),
+ 		OCBoolean("raise", False),
+ 		OCBoolean("allDesktops", False),
+-- 
+1.8.0
+

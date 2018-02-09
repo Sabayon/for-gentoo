@@ -1,8 +1,7 @@
-# Copyright 1999-2009 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: Exp $
 
-EAPI="2"
+EAPI="5"
 
 DESCRIPTION="Listadmin is a Perl script designed to administer Mailman mailinglists easily."
 HOMEPAGE="http://heim.ifi.uio.no/kjetilho/hacks/#listadmin"
@@ -15,10 +14,10 @@ IUSE=""
 
 RDEPEND="dev-lang/perl
 	net-mail/mailman
-	perl-core/Getopt-Long
+	virtual/perl-Getopt-Long
 	dev-perl/HTML-TokeParser-Simple
 	dev-perl/libwww-perl
-	dev-perl/text-reform
+	dev-perl/Text-Reform
 	dev-perl/TermReadKey
 	dev-perl/Term-ReadLine-Perl
 	virtual/perl-MIME-Base64"

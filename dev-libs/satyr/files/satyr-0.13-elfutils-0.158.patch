@@ -1,0 +1,13 @@
+diff --git a/lib/core_unwind.c b/lib/core_unwind.c
+index d0c7aec..7910254 100644
+--- a/lib/core_unwind.c
++++ b/lib/core_unwind.c
+@@ -206,7 +206,7 @@ open_coredump(const char *elf_file, const char *exe_file, char **error_msg)
+     ch->cb.section_address = dwfl_offline_section_address;
+     ch->dwfl = dwfl_begin(&ch->cb);
+ 
+-    if (dwfl_core_file_report(ch->dwfl, ch->eh) == -1)
++    if (dwfl_core_file_report(ch->dwfl, ch->eh, exe_file) == -1)
+     {
+         set_error_dwfl("dwfl_core_file_report");
+         goto fail_dwfl;

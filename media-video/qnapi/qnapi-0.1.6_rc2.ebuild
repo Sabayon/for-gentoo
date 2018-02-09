@@ -1,8 +1,7 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: $
 
-EAPI="3"
+EAPI="5"
 KDE_REQUIRED="optional"
 CMAKE_REQUIRED="false"
 
@@ -21,8 +20,8 @@ IUSE="gnome"
 
 S=${WORKDIR}/${MY_P}
 
-DEPEND="x11-libs/qt-core:4
-	x11-libs/qt-gui:4
+DEPEND="dev-qt/qtcore:4
+	dev-qt/qtgui:4
 	gnome? ( gnome-base/gconf )"
 RDEPEND="${DEPEND}
 	app-arch/p7zip"
@@ -40,11 +39,6 @@ src_configure() {
 	use gnome && integr="gnome_integration"
 	use kde && integr="${integr} kde4_integration"
 	KDE4DIR="${KDEDIR}" INTEGRATION_TARGETS="${integr}" eqmake4
-}
-
-src_install() {
-	qt4-r2_src_install
-	#prepalldocs || die "prepalldocs failed."
 }
 
 pkg_preinst() {

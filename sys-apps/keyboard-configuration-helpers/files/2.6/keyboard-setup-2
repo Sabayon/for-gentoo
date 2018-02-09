@@ -21,31 +21,50 @@ def _configure_system(root, keymap, variant, options):
         'tj': 'tj_alt-UTF8',
         'tr': 'trq',
         'tr_f': 'trf',
+        'gb': 'uk',
     }
     vt_keymaps_fixes_us = ['ad', 'af', 'al', 'am', 'ara', 'az', 'ba', 'bd',
-        'bt', 'ca', 'cd', 'cs',  'ee', 'epo', 'fi_smi', 'fo', 'fr_oss', 'gb',
+        'bt', 'ca', 'cd', 'cs',  'ee', 'epo', 'fi_smi', 'fo', 'fr_oss',
         'ge', 'gh', 'hr', 'ie', 'in', 'in_guj', 'in_guru', 'in_kan', 'in_mal',
         'in_tam', 'in_tel', 'iq', 'ir', 'kg', 'kh', 'kr', 'kz', 'lk', 'lv', 'mao',
         'mm', 'mn', 'mt', 'mv', 'ng', 'pk', 'si', 'sy', 'th', 'uz', 'vn', 'za']
     for k in vt_keymaps_fixes_us:
         vt_keymaps_fixes[k] = "us"
+
     confd_keymaps = os.path.join(root, "etc/conf.d/keymaps")
+    vconsole_conf = os.path.join(root, "etc/vconsole.conf")
     sys_key = vt_keymaps_fixes.get(keymap, keymap)
 
     output = []
-    with open(confd_keymaps, "r") as f:
-        for line in f.readlines():
-            if line.startswith("KEYMAP="):
-                line = 'KEYMAP="'+sys_key+'"\n'
-            if line.startswith("keymap="):
-                line = 'keymap="'+sys_key+'"\n'
-            output.append(line)
+    if os.path.isfile(confd_keymaps):
+        with open(confd_keymaps, "r") as f:
+            for line in f.readlines():
+                if line.startswith("KEYMAP="):
+                    line = 'KEYMAP="'+sys_key+'"\n'
+                if line.startswith("keymap="):
+                    line = 'keymap="'+sys_key+'"\n'
+                output.append(line)
 
     with open(confd_keymaps+".tmp", "w") as f:
         print("Writing to %s" % (confd_keymaps,))
         f.writelines(output)
         f.flush()
     os.rename(confd_keymaps+".tmp", confd_keymaps)
+
+    # /etc/vconsole.conf support
+    output = []
+    if os.path.isfile(vconsole_conf):
+        with open(vconsole_conf, "r") as f:
+            for line in f.readlines():
+                if line.startswith("KEYMAP="):
+                    continue
+                output.append(line)
+
+    output.append("KEYMAP=%s\n" % (sys_key,))
+    with open(vconsole_conf+".tmp", "w") as f:
+        f.writelines(output)
+        f.flush()
+    os.rename(vconsole_conf+".tmp", vconsole_conf)
 
     return 0
 

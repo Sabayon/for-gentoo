@@ -1,0 +1,20 @@
+#!/sbin/runscript
+# Copyright 1999-2013 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: $
+
+start() {
+	# workaround the fact that udev may have loaded nvidia or nouveau
+	# and bbswitch refuses to turn off the card.
+	ebegin "Setting up bbswitch"
+	# make sure that the nvidia and nouveau modules are
+	# removed, then reload bbswitch.
+	for mod in nvidia nouveau; do
+		modprobe -r ${mod} 2> /dev/null  # best effort
+	done
+	# reload bbswitch now
+	modprobe -r bbswitch
+	modprobe bbswitch  # this inherits the options
+	eend 0
+}
+

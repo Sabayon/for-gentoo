@@ -1,0 +1,11 @@
+--- doc/Doxyfile.in.orig        2015-05-13 00:17:58.789310422 +0200
++++ doc/Doxyfile.in     2015-05-13 00:18:23.078038352 +0200
+@@ -46,6 +46,8 @@
+ DISTRIBUTE_GROUP_DOC   = NO
+ SUBGROUPING            = YES
+ TYPEDEF_HIDES_STRUCT   = NO
++EXTENSION_MAPPING      = no_extension=C++
++
+ #---------------------------------------------------------------------------
+ # Build related configuration options
+ #---------------------------------------------------------------------------

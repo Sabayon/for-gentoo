@@ -1,0 +1,376 @@
+From bc95f13701e018f4dc07e6c206c8b638acc6113a Mon Sep 17 00:00:00 2001
+From: Fabio Erculiani <lxnay@sabayon.org>
+Date: Sat, 10 May 2014 18:05:10 +0100
+Subject: [PATCH 2/2] Drop Fedora workflows, add Sabayon one
+
+---
+ src/workflows/Makefile.am                      | 33 ++++----------------------
+ src/workflows/anaconda_event.conf              |  3 +--
+ src/workflows/report_fedora.conf               | 19 ---------------
+ src/workflows/report_rhel.conf                 | 19 ---------------
+ src/workflows/workflow_AnacondaFedora.xml.in   |  9 -------
+ src/workflows/workflow_AnacondaRHEL.xml.in     |  9 -------
+ src/workflows/workflow_AnacondaSabayon.xml.in  |  9 +++++++
+ src/workflows/workflow_FedoraCCpp.xml.in       | 13 ----------
+ src/workflows/workflow_FedoraKerneloops.xml.in | 12 ----------
+ src/workflows/workflow_FedoraPython.xml.in     | 12 ----------
+ src/workflows/workflow_FedoraVmcore.xml.in     | 13 ----------
+ src/workflows/workflow_FedoraXorg.xml.in       |  9 -------
+ src/workflows/workflow_RHELCCpp.xml.in         | 10 --------
+ src/workflows/workflow_RHELKerneloops.xml.in   | 10 --------
+ src/workflows/workflow_RHELPython.xml.in       | 10 --------
+ src/workflows/workflow_RHELvmcore.xml.in       | 10 --------
+ src/workflows/workflow_RHELxorg.xml.in         |  9 -------
+ 17 files changed, 14 insertions(+), 195 deletions(-)
+ delete mode 100644 src/workflows/report_fedora.conf
+ delete mode 100644 src/workflows/report_rhel.conf
+ delete mode 100644 src/workflows/workflow_AnacondaFedora.xml.in
+ delete mode 100644 src/workflows/workflow_AnacondaRHEL.xml.in
+ create mode 100644 src/workflows/workflow_AnacondaSabayon.xml.in
+ delete mode 100644 src/workflows/workflow_FedoraCCpp.xml.in
+ delete mode 100644 src/workflows/workflow_FedoraKerneloops.xml.in
+ delete mode 100644 src/workflows/workflow_FedoraPython.xml.in
+ delete mode 100644 src/workflows/workflow_FedoraVmcore.xml.in
+ delete mode 100644 src/workflows/workflow_FedoraXorg.xml.in
+ delete mode 100644 src/workflows/workflow_RHELCCpp.xml.in
+ delete mode 100644 src/workflows/workflow_RHELKerneloops.xml.in
+ delete mode 100644 src/workflows/workflow_RHELPython.xml.in
+ delete mode 100644 src/workflows/workflow_RHELvmcore.xml.in
+ delete mode 100644 src/workflows/workflow_RHELxorg.xml.in
+
+diff --git a/src/workflows/Makefile.am b/src/workflows/Makefile.am
+index 7f1e676..33fb8e6 100644
+--- a/src/workflows/Makefile.am
++++ b/src/workflows/Makefile.am
+@@ -1,30 +1,17 @@
+ workflowsdir = $(WORKFLOWS_DIR)
+ 
+ dist_workflows_DATA = \
+-    workflow_FedoraCCpp.xml \
+-    workflow_FedoraKerneloops.xml \
+-    workflow_FedoraPython.xml \
+-    workflow_FedoraVmcore.xml \
+-    workflow_FedoraXorg.xml \
+-    workflow_Upload.xml \
+-    workflow_RHELCCpp.xml \
+-    workflow_RHELKerneloops.xml \
+-    workflow_RHELPython.xml \
+-    workflow_RHELvmcore.xml \
+-    workflow_RHELxorg.xml
++    workflow_Upload.xml
+ 
+ if BUILD_BUGZILLA
+ dist_workflows_DATA += \
+-    workflow_AnacondaFedora.xml \
+-    workflow_AnacondaRHEL.xml \
++    workflow_AnacondaSabayon.xml \
+     workflow_AnacondaUpload.xml
+ endif
+ 
+ workflowsdefdir = $(WORKFLOWS_DEFINITION_DIR)
+ 
+-dist_workflowsdef_DATA =\
+-    report_fedora.conf \
+-    report_rhel.conf
++dist_workflowsdef_DATA =
+ 
+ if BUILD_BUGZILLA
+ dist_workflowsdef_DATA += \
+@@ -34,21 +21,9 @@ endif
+ @INTLTOOL_XML_RULE@
+ 
+ EXTRA_DIST = \
+-    workflow_FedoraCCpp.xml.in \
+-    workflow_FedoraKerneloops.xml.in \
+-    workflow_FedoraPython.xml.in \
+-    workflow_FedoraVmcore.xml.in \
+-    workflow_FedoraXorg.xml.in \
+-    workflow_Upload.xml.in \
+-    workflow_RHELCCpp.xml.in \
+-    workflow_RHELKerneloops.xml.in \
+-    workflow_RHELPython.xml.in \
+-    workflow_RHELvmcore.xml.in \
+-    workflow_RHELxorg.xml.in
++    workflow_Upload.xml.in
+ 
+ if BUILD_BUGZILLA
+ EXTRA_DIST += \
+-    workflow_AnacondaFedora.xml.in \
+-    workflow_AnacondaRHEL.xml.in \
+     workflow_AnacondaUpload.xml.in
+ endif
+diff --git a/src/workflows/anaconda_event.conf b/src/workflows/anaconda_event.conf
+index 5828b5a..91a2e14 100644
+--- a/src/workflows/anaconda_event.conf
++++ b/src/workflows/anaconda_event.conf
+@@ -1,3 +1,2 @@
+-EVENT=workflow_AnacondaFedora component=anaconda
+-EVENT=workflow_AnacondaRHEL component=anaconda
++EVENT=workflow_AnacondaSabayon component=anaconda
+ EVENT=workflow_AnacondaUpload component=anaconda
+diff --git a/src/workflows/report_fedora.conf b/src/workflows/report_fedora.conf
+deleted file mode 100644
+index 84009bf..0000000
+--- a/src/workflows/report_fedora.conf
++++ /dev/null
+@@ -1,19 +0,0 @@
+-EVENT=workflow_FedoraCCpp analyzer=CCpp
+-# this is just a meta event which consists of other events
+-# the list is defined in the xml file
+-
+-EVENT=workflow_FedoraPython analyzer=Python component!=anaconda
+-# this is just a meta event which consists of other events
+-# the list is defined in the xml file
+-
+-EVENT=workflow_FedoraKerneloops analyzer=Kerneloops
+-# this is just a meta event which consists of other events
+-# the list is defined in the xml file
+-
+-EVENT=workflow_FedoraVmcore analyzer=vmcore
+-# this is just a meta event which consists of other events
+-# the list is defined in the xml file
+-
+-EVENT=workflow_FedoraXorg analyzer=xorg
+-# this is just a meta event which consists of other events
+-# the list is defined in the xml file
+diff --git a/src/workflows/report_rhel.conf b/src/workflows/report_rhel.conf
+deleted file mode 100644
+index 104bcc3..0000000
+--- a/src/workflows/report_rhel.conf
++++ /dev/null
+@@ -1,19 +0,0 @@
+-EVENT=workflow_RHELCCpp analyzer=CCpp
+-# this is just a meta event which consists of other events
+-# the list is defined in the xml file
+-
+-EVENT=workflow_RHELPython analyzer=Python component!=anaconda
+-# this is just a meta event which consists of other events
+-# the list is defined in the xml file
+-
+-EVENT=workflow_RHELKerneloops analyzer=Kerneloops
+-# this is just a meta event which consists of other events
+-# the list is defined in the xml file
+-
+-EVENT=workflow_RHELvmcore analyzer=vmcore
+-# this is just a meta event which consists of other events
+-# the list is defined in the xml file
+-
+-EVENT=workflow_RHELxorg analyzer=xorg
+-# this is just a meta event which consists of other events
+-# the list is defined in the xml file
+diff --git a/src/workflows/workflow_AnacondaFedora.xml.in b/src/workflows/workflow_AnacondaFedora.xml.in
+deleted file mode 100644
+index 6322d9a..0000000
+--- a/src/workflows/workflow_AnacondaFedora.xml.in
++++ /dev/null
+@@ -1,9 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8" ?>
+-<workflow>
+-    <_name>Report a bug to Fedora maintainers</_name>
+-    <_description>Process the report using the Fedora infrastructure</_description>
+-
+-    <events>
+-        <event>report_Bugzilla</event>
+-    </events>
+-</workflow>
+diff --git a/src/workflows/workflow_AnacondaRHEL.xml.in b/src/workflows/workflow_AnacondaRHEL.xml.in
+deleted file mode 100644
+index 6d401ff..0000000
+--- a/src/workflows/workflow_AnacondaRHEL.xml.in
++++ /dev/null
+@@ -1,9 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8" ?>
+-<workflow>
+-    <_name>Report a bug to Red Hat Support Tool</_name>
+-    <_description>Process the report using the Red Hat infrastructure</_description>
+-
+-    <events>
+-        <event>report_RHTSupport</event>
+-    </events>
+-</workflow>
+diff --git a/src/workflows/workflow_AnacondaSabayon.xml.in b/src/workflows/workflow_AnacondaSabayon.xml.in
+new file mode 100644
+index 0000000..bf27e52
+--- /dev/null
++++ b/src/workflows/workflow_AnacondaSabayon.xml.in
+@@ -0,0 +1,9 @@
++<?xml version="1.0" encoding="UTF-8" ?>
++<workflow>
++    <_name>Report a bug to Sabayon maintainers</_name>
++    <_description>Process the report using the Sabayon infrastructure</_description>
++
++    <events>
++        <event>report_Bugzilla</event>
++    </events>
++</workflow>
+diff --git a/src/workflows/workflow_FedoraCCpp.xml.in b/src/workflows/workflow_FedoraCCpp.xml.in
+deleted file mode 100644
+index b48d25a..0000000
+--- a/src/workflows/workflow_FedoraCCpp.xml.in
++++ /dev/null
+@@ -1,13 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8" ?>
+-<workflow>
+-    <_name>Report to Fedora</_name>
+-    <_description>Process the C/C++ crash using the Fedora infrastructure</_description>
+-
+-    <events>
+-        <event>report_uReport</event>
+-        <event>collect_*</event>
+-        <event>analyze_CCpp</event>
+-        <event>report_Bugzilla</event>
+-        <event>post_report</event>
+-    </events>
+-</workflow>
+diff --git a/src/workflows/workflow_FedoraKerneloops.xml.in b/src/workflows/workflow_FedoraKerneloops.xml.in
+deleted file mode 100644
+index a3aa867..0000000
+--- a/src/workflows/workflow_FedoraKerneloops.xml.in
++++ /dev/null
+@@ -1,12 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8" ?>
+-<workflow>
+-    <_name>Report to Fedora</_name>
+-    <_description>Process the kerneloops using the Fedora infrastructure</_description>
+-
+-    <events>
+-        <event>report_uReport</event>
+-        <event>collect_*</event>
+-        <event>report_Bugzilla</event>
+-        <event>post_report</event>
+-    </events>
+-</workflow>
+diff --git a/src/workflows/workflow_FedoraPython.xml.in b/src/workflows/workflow_FedoraPython.xml.in
+deleted file mode 100644
+index 520f406..0000000
+--- a/src/workflows/workflow_FedoraPython.xml.in
++++ /dev/null
+@@ -1,12 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8" ?>
+-<workflow>
+-    <_name>Report to Fedora</_name>
+-    <_description>Process the python exception using the Fedora infrastructure</_description>
+-
+-    <events>
+-        <event>report_uReport</event>
+-        <event>collect_*</event>
+-        <event>report_Bugzilla</event>
+-        <event>post_report</event>
+-    </events>
+-</workflow>
+diff --git a/src/workflows/workflow_FedoraVmcore.xml.in b/src/workflows/workflow_FedoraVmcore.xml.in
+deleted file mode 100644
+index b6b9cd9..0000000
+--- a/src/workflows/workflow_FedoraVmcore.xml.in
++++ /dev/null
+@@ -1,13 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8" ?>
+-<workflow>
+-    <_name>Report to Fedora</_name>
+-    <_description>Process the kernel crash using the Fedora infrastructure</_description>
+-
+-    <events>
+-        <event>analyze_VMcore</event>
+-        <event>report_uReport</event>
+-        <event>collect_*</event>
+-        <event>report_Bugzilla</event>
+-        <event>post_report</event>
+-    </events>
+-</workflow>
+diff --git a/src/workflows/workflow_FedoraXorg.xml.in b/src/workflows/workflow_FedoraXorg.xml.in
+deleted file mode 100644
+index d796bae..0000000
+--- a/src/workflows/workflow_FedoraXorg.xml.in
++++ /dev/null
+@@ -1,9 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8" ?>
+-<workflow>
+-    <_name>Report to Fedora</_name>
+-    <_description>Process the X Server problem using the Fedora infrastructure</_description>
+-
+-    <events>
+-        <event>report_Bugzilla</event>
+-    </events>
+-</workflow>
+diff --git a/src/workflows/workflow_RHELCCpp.xml.in b/src/workflows/workflow_RHELCCpp.xml.in
+deleted file mode 100644
+index 026062a..0000000
+--- a/src/workflows/workflow_RHELCCpp.xml.in
++++ /dev/null
+@@ -1,10 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8" ?>
+-<workflow>
+-    <_name>Report to Red Hat</_name>
+-    <_description>Process the C/C++ crash using the Red Hat infrastructure</_description>
+-
+-    <events>
+-        <event>collect_*</event>
+-        <event>report_RHTSupport</event>
+-    </events>
+-</workflow>
+diff --git a/src/workflows/workflow_RHELKerneloops.xml.in b/src/workflows/workflow_RHELKerneloops.xml.in
+deleted file mode 100644
+index 7f84822..0000000
+--- a/src/workflows/workflow_RHELKerneloops.xml.in
++++ /dev/null
+@@ -1,10 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8" ?>
+-<workflow>
+-    <_name>Report to Red Hat</_name>
+-    <_description>Process the kerneloops using the Red Hat infrastructure</_description>
+-
+-    <events>
+-        <event>collect_*</event>
+-        <event>report_RHTSupport</event>
+-    </events>
+-</workflow>
+diff --git a/src/workflows/workflow_RHELPython.xml.in b/src/workflows/workflow_RHELPython.xml.in
+deleted file mode 100644
+index a0a4aeb..0000000
+--- a/src/workflows/workflow_RHELPython.xml.in
++++ /dev/null
+@@ -1,10 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8" ?>
+-<workflow>
+-    <_name>Report to Red Hat</_name>
+-    <_description>Process the python exception using the Red Hat infrastructure</_description>
+-
+-    <events>
+-        <event>collect_*</event>
+-        <event>report_RHTSupport</event>
+-    </events>
+-</workflow>
+diff --git a/src/workflows/workflow_RHELvmcore.xml.in b/src/workflows/workflow_RHELvmcore.xml.in
+deleted file mode 100644
+index 31712e0..0000000
+--- a/src/workflows/workflow_RHELvmcore.xml.in
++++ /dev/null
+@@ -1,10 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8" ?>
+-<workflow>
+-    <_name>Report to Red Hat</_name>
+-    <_description>Process the kernel crash using the Red Hat infrastructure</_description>
+-
+-    <events>
+-        <event>collect_*</event>
+-        <event>report_RHTSupport</event>
+-    </events>
+-</workflow>
+diff --git a/src/workflows/workflow_RHELxorg.xml.in b/src/workflows/workflow_RHELxorg.xml.in
+deleted file mode 100644
+index 7dfda52..0000000
+--- a/src/workflows/workflow_RHELxorg.xml.in
++++ /dev/null
+@@ -1,9 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8" ?>
+-<workflow>
+-    <_name>Report to Red Hat</_name>
+-    <_description>Process the X Server problem using the Red Hat infrastructure</_description>
+-
+-    <events>
+-        <event>report_RHTSupport</event>
+-    </events>
+-</workflow>
+-- 
+1.9.2
+

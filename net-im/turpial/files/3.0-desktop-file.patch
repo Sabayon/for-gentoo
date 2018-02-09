@@ -1,0 +1,10 @@
+--- turpial.desktop	2016-01-13 17:27:35.768307403 +0100
++++ turpial.desktop	2016-01-13 17:28:47.134086269 +0100
+@@ -1,5 +1,5 @@
+ [Desktop Entry]
+-Version=2.0
++Version=1.0
+ Name=Turpial
+ Name[es]=Turpial
+ GenericName=Microblogging client
+

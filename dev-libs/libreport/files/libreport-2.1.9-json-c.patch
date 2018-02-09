@@ -1,0 +1,24 @@
+diff -Nurp libreport-2.1.9.orig/src/lib/json.c libreport-2.1.9/src/lib/json.c
+--- libreport-2.1.9.orig/src/lib/json.c	2013-10-22 15:32:23.000000000 +0100
++++ libreport-2.1.9/src/lib/json.c	2014-05-10 16:12:52.436219734 +0100
+@@ -17,7 +17,7 @@
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+ 
+-#include <json/json.h>
++#include <json-c/json.h>
+ 
+ #include <satyr/abrt.h>
+ #include <satyr/report.h>
+diff -Nurp libreport-2.1.9.orig/src/plugins/ureport.c libreport-2.1.9/src/plugins/ureport.c
+--- libreport-2.1.9.orig/src/plugins/ureport.c	2013-10-23 16:07:05.000000000 +0100
++++ libreport-2.1.9/src/plugins/ureport.c	2014-05-10 16:12:45.532339236 +0100
+@@ -17,7 +17,7 @@
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+ 
+-#include <json/json.h>
++#include <json-c/json.h>
+ #include "internal_libreport.h"
+ #include "ureport.h"
+ #include "libreport_curl.h"

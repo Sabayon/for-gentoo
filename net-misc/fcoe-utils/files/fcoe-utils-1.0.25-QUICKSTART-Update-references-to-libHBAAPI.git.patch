@@ -1,0 +1,59 @@
+From 90d2c333010103ef65d6d12f186d0b483e152b1d Mon Sep 17 00:00:00 2001
+From: Robert Love <robert.w.love@intel.com>
+Date: Wed, 10 Oct 2012 07:14:06 +0000
+Subject: [PATCH 3/7] QUICKSTART: Update references to libHBAAPI.git
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The SourceForge HBAAPI project has merged into the
+hbaapi_build.git repository, resulting in the
+libHBAAPI.git repository. This patch converts the
+documentation to point to the new repository and
+removes a now unnecessary installation step.
+
+Signed-off-by: Robert Love <robert.w.love@intel.com>
+Tested-by: Ross Brattain <ross.b.brattain@intel.com>
+Signed-off-by: Petr Šabata <contyk@redhat.com>
+---
+ QUICKSTART | 15 +++++----------
+ 1 file changed, 5 insertions(+), 10 deletions(-)
+
+diff --git a/QUICKSTART b/QUICKSTART
+index 3634ee2..3534c5e 100644
+--- a/QUICKSTART
++++ b/QUICKSTART
+@@ -11,7 +11,7 @@ distributions.
+ # Dependencies
+ ###############
+ 
+-git://open-fcoe.org/fcoe/hbaapi_build.git
++git://open-fcoe.org/fcoe/libHBAAPI.git
+ git://open-fcoe.org/fcoe/libhbalinux.git
+ git://open-fcoe.org/fcoe/fcoe-utils.git
+ 
+@@ -131,17 +131,12 @@ DEPENDENCIES
+ 
+ PROCESS
+ 
+-1) Obtain the source tarball from sourceforge
+-   http://sourceforge.net/projects/hbaapi/
++1) Obtain the latest source
+ 
+-2) Untar the tarball and move its contents to hbaapi_build/
+-   and change into its directory
+-   # tar -xvzf hbaapi_src_2.2.tgz
+-   # mv hbaapi_src_2.2/* hbaapi_build/
+-   # rmdir hbaapi_src_2.2/
+-   # cd hbaapi_build/
++   git clone git://open-fcoe.org/fcoe/libHBAAPI.git
+ 
+-3) Bootstrap, configure, make and make install
++2) Bootstrap, configure, make and make install
++   # cd libHBAAPI
+    # ./bootstrap.sh
+    # rpm --eval "%configure" | sh
+    # make
+-- 
+1.7.11.7
+

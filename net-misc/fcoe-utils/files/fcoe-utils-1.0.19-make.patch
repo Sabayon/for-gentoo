@@ -1,0 +1,27 @@
+diff --git a/Makefile.am b/Makefile.am
+index c5c99e5..a36cf7c 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -2,7 +2,7 @@
+ sbin_PROGRAMS = fcoeadm fcoemon fcping fipvlan fcnsq fcrls
+ 
+ ## all targets should look for headers in the include directory
+-AM_CPPFLAGS = -I${srcdir}/include -I${builddir}/include
++AM_CPPFLAGS = -I${srcdir}/include -I${builddir}/include -I/lib/modules/`rpm -q --list kernel | grep "^/lib/modules/.*/build$$" | cut -f4 -d"/" | sort -r | head -1`/build/include
+ ## pass the sysconfdir into the C proprocessor
+ AM_CPPFLAGS += -DSYSCONFDIR="\"${sysconfdir}\""
+ AM_CFLAGS = -Wall
+@@ -66,12 +66,9 @@ init_d_SCRIPTS = etc/initd/fcoe
+ 
+ dist_noinst_DATA = README COPYING INSTALL fcoe-utils.spec etc/config
+ 
+-BASH_COMPLETION_DIR=/etc/bash_completion.d/
++BASH_COMPLETION_DIR=${DESTDIR}/etc/bash_completion.d/
+ 
+ install-data-hook:
+-	if [ ! -f ${DESTDIR}${fcoe_configdir}/config ] ; then \
+-		cp ${srcdir}/etc/config ${DESTDIR}${fcoe_configdir}/config; \
+-	fi; \
+ 	if [ ! -d "${BASH_COMPLETION_DIR}" ] ; then \
+ 		mkdir ${BASH_COMPLETION_DIR}; \
+ 	fi; \

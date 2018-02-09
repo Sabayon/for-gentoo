@@ -8,17 +8,17 @@ PORTDIR="${1}"
 TARGET_VERSION="${2}"
 
 PACKAGES="
-	app-admin/rigo
-	sys-apps/rigo-daemon
+	app-admin/matter
 	x11-misc/magneto-gtk
 	kde-misc/magneto-kde
 	app-misc/magneto-loader
 	sys-apps/magneto-core
-	kde-misc/entropy-kioslaves
+	app-admin/rigo
+	sys-apps/rigo-daemon
 	sys-apps/entropy-server
 	app-admin/equo
-	sys-apps/entropy-client-services
-	sys-apps/entropy"
+	sys-apps/entropy
+	"
 
 
 for package in ${PACKAGES}; do
@@ -27,9 +27,9 @@ for package in ${PACKAGES}; do
 	source_ebuild="${PORTDIR}/${package}/${package_name}-${TARGET_VERSION}.ebuild"
 	source_ebuild_dir=$(dirname "${source_ebuild}")
 	source_ebuild_name=$(basename "${source_ebuild}")
-	cd "${source_ebuild_dir}" || exit 1
+	cd "${source_ebuild_dir}" || continue
 
-	rm "${source_ebuild_name}" || exit 1
+	rm "${source_ebuild_name}" || continue
 	cvs rm "${source_ebuild_name}" || exit 1
 	echangelog "drop older version ${TARGET_VERSION}" || exit 1
 	ebuild "$(ls -1 *.ebuild | sort | tail -n 1)" manifest || exit 1

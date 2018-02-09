@@ -1,0 +1,40 @@
+--- Dbus/interfaces/bash/BashInstall.cmake.in	2013-10-03 13:04:33.000000000 +0200
++++ Dbus/interfaces/bash/BashInstall.cmake.in	2013-10-10 19:45:26.158863997 +0200
+@@ -4,7 +4,7 @@
+ 	IF("@ROOT_PREFIX@" STREQUAL "")
+ 		EXEC_PROGRAM("@PYTHON2_EXECUTABLE@" "${CMAKE_CURRENT_BINARY_DIR}" ARGS
+ 						"setup.py" "install"
+-						"--prefix=${CMAKE_INSTALL_PREFIX}"
++						"--prefix=$ENV{D}${CMAKE_INSTALL_PREFIX}"
+ 						"--root=`test -z \"\$DESTDIR\" && echo / || echo \$DESTDIR`"
+ 						"@DEBIAN_INSTALL_LAYOUT@")
+ 	ELSEIF("@python_no_deb_layout@" STREQUAL "")
+@@ -23,7 +23,7 @@
+ 	IF("@ROOT_PREFIX@" STREQUAL "")
+ 		EXEC_PROGRAM("@PYTHON3_EXECUTABLE@" "${CMAKE_CURRENT_BINARY_DIR}" ARGS
+ 						"setup.py" "install"
+-						"--prefix=${CMAKE_INSTALL_PREFIX}"
++						"--prefix=$ENV{D}${CMAKE_INSTALL_PREFIX}"
+ 						"--root=`test -z \"\$DESTDIR\" && echo / || echo \$DESTDIR`"
+ 						"@DEBIAN_INSTALL_LAYOUT@")
+ 	ELSEIF("@python_no_deb_layout@" STREQUAL "")
+--- Dbus/interfaces/python/PythonInstall.cmake.in	2013-10-03 13:04:33.000000000 +0200
++++ Dbus/interfaces/python/PythonInstall.cmake.in	2013-10-10 19:47:23.499859292 +0200
+@@ -4,7 +4,7 @@
+ 	IF("@ROOT_PREFIX@" STREQUAL "")
+ 		EXEC_PROGRAM("@PYTHON2_EXECUTABLE@" "${CMAKE_CURRENT_BINARY_DIR}" ARGS
+ 						"setup.py" "install"
+-						"--prefix=${CMAKE_INSTALL_PREFIX}"
++						"--prefix=$ENV{D}${CMAKE_INSTALL_PREFIX}"
+ 						"--root=`test -z \"\$DESTDIR\" && echo / || echo \$DESTDIR`"
+ 						"@DEBIAN_INSTALL_LAYOUT@")
+ 	ELSEIF("@python_no_deb_layout@" STREQUAL "")
+@@ -23,7 +23,7 @@
+ 	IF("@ROOT_PREFIX@" STREQUAL "")
+ 		EXEC_PROGRAM("@PYTHON3_EXECUTABLE@" "${CMAKE_CURRENT_BINARY_DIR}" ARGS
+ 						"setup.py" "install"
+-						"--prefix=${CMAKE_INSTALL_PREFIX}"
++						"--prefix=$ENV{D}${CMAKE_INSTALL_PREFIX}"
+ 						"--root=`test -z \"\$DESTDIR\" && echo / || echo \$DESTDIR`"
+ 						"@DEBIAN_INSTALL_LAYOUT@")
+ 	ELSEIF("@python_no_deb_layout@" STREQUAL "")

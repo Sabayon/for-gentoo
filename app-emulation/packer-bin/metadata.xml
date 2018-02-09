@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<longdescription lang="en">
+		Packer automates the creation of any type of machine image.
+	</longdescription>
+	<maintainer type="person">
+		<email>geaaru@gmail.com</email>
+		<name>geaaru</name>
+	</maintainer>
+	<maintainer type="person">
+		<email>mudler@sabayon.org</email>
+		<name>Ettore Di Giacinto </name>
+	</maintainer>
+</pkgmetadata>

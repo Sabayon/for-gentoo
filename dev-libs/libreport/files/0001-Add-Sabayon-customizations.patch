@@ -1,0 +1,108 @@
+From 1b071a4f6529e4753519b0a9c5a68ac258f4a03a Mon Sep 17 00:00:00 2001
+From: Fabio Erculiani <lxnay@sabayon.org>
+Date: Sat, 10 May 2014 15:45:58 +0100
+Subject: [PATCH] Add Sabayon customizations
+
+---
+ src/include/internal_libreport.h | 4 ++--
+ src/lib/dump_dir.c               | 2 +-
+ src/plugins/bugzilla.conf        | 2 +-
+ src/plugins/report_Bugzilla.conf | 2 +-
+ src/plugins/reporter-bugzilla.c  | 2 +-
+ src/report-python/__init__.py    | 6 +++---
+ 6 files changed, 9 insertions(+), 9 deletions(-)
+
+diff --git a/src/include/internal_libreport.h b/src/include/internal_libreport.h
+index db2ffd8..e61a80f 100644
+--- a/src/include/internal_libreport.h
++++ b/src/include/internal_libreport.h
+@@ -840,13 +840,13 @@ struct dump_dir *open_directory_for_writing(
+ #define FILENAME_KERNEL       "kernel"
+ /*
+  * From /etc/os-release
+- * os_release filename name is alredy occupied by /etc/redhat-release (see
++ * os_release filename name is alredy occupied by /etc/sabayon-release (see
+  * below) in sake of backward compatibility /etc/os-release is stored in
+  * os_info file
+  */
+ #define FILENAME_OS_INFO      "os_info"
+ #define FILENAME_OS_INFO_IN_ROOTDIR "os_info_in_rootdir"
+-// From /etc/system-release or /etc/redhat-release
++// From /etc/system-release or /etc/sabayon-release
+ #define FILENAME_OS_RELEASE   "os_release"
+ #define FILENAME_OS_RELEASE_IN_ROOTDIR "os_release_in_rootdir"
+ // Filled by <what?>
+diff --git a/src/lib/dump_dir.c b/src/lib/dump_dir.c
+index 83f898b..63b6492 100644
+--- a/src/lib/dump_dir.c
++++ b/src/lib/dump_dir.c
+@@ -672,7 +672,7 @@ void dd_create_basic_files(struct dump_dir *dd, uid_t uid, const char *chroot_di
+         release = load_text_file("/etc/system-release",
+                 DD_LOAD_TEXT_RETURN_NULL_ON_FAILURE | DD_OPEN_FOLLOW);
+         if (!release)
+-            release = load_text_file("/etc/redhat-release",
++            release = load_text_file("/etc/sabayon-release",
+                     DD_LOAD_TEXT_RETURN_NULL_ON_FAILURE | DD_OPEN_FOLLOW);
+         if (!release)
+             release = load_text_file("/etc/SuSE-release", DD_OPEN_FOLLOW);
+diff --git a/src/plugins/bugzilla.conf b/src/plugins/bugzilla.conf
+index 29c44b3..c495f13 100644
+--- a/src/plugins/bugzilla.conf
++++ b/src/plugins/bugzilla.conf
+@@ -1,5 +1,5 @@
+ # Bugzilla URL
+-BugzillaURL = https://bugzilla.redhat.com/
++BugzillaURL = https://bugs.sabayon.org/
+ # yes means that ssl certificates will be checked
+ SSLVerify = yes
+ # your login has to exist, if you don have any, please create one
+diff --git a/src/plugins/report_Bugzilla.conf b/src/plugins/report_Bugzilla.conf
+index f1a77f5..9e6f875 100644
+--- a/src/plugins/report_Bugzilla.conf
++++ b/src/plugins/report_Bugzilla.conf
+@@ -1,4 +1,4 @@
+-Bugzilla_BugzillaURL = https://bugzilla.redhat.com
++Bugzilla_BugzillaURL = https://bugs.sabayon.org
+ Bugzilla_Login =
+ Bugzilla_Password =
+ Bugzilla_SSLVerify = yes
+diff --git a/src/plugins/reporter-bugzilla.c b/src/plugins/reporter-bugzilla.c
+index a45419c..01e2b6d 100644
+--- a/src/plugins/reporter-bugzilla.c
++++ b/src/plugins/reporter-bugzilla.c
+@@ -696,7 +696,7 @@ static void set_settings(struct bugzilla_struct *b, map_string_t *settings)
+     environ = getenv("Bugzilla_BugzillaURL");
+     b->b_bugzilla_url = environ ? environ : get_map_string_item_or_empty(settings, "BugzillaURL");
+     if (!b->b_bugzilla_url[0])
+-        b->b_bugzilla_url = "https://bugzilla.redhat.com";
++        b->b_bugzilla_url = "https://bugs.sabayon.org";
+     else
+     {
+         /* We don't want trailing '/': "https://host/dir/" -> "https://host/dir" */
+diff --git a/src/report-python/__init__.py b/src/report-python/__init__.py
+index 2c58736..26368bd 100644
+--- a/src/report-python/__init__.py
++++ b/src/report-python/__init__.py
+@@ -21,8 +21,8 @@ from report.io import TextIO, GTKIO, NewtIO
+ 
+ import os
+ 
+-SYSTEM_RELEASE_PATHS = ["/etc/system-release","/etc/redhat-release"]
+-SYSTEM_RELEASE_DEPS = ["system-release", "redhat-release"]
++SYSTEM_RELEASE_PATHS = ["/etc/system-release","/etc/sabayon-release"]
++SYSTEM_RELEASE_DEPS = ["sabayon-version"]
+ 
+ _hardcoded_default_product = ""
+ _hardcoded_default_version = ""
+@@ -178,7 +178,7 @@ def createPythonUnhandledExceptionSignature(**kwargs):
+     version = getVersion()
+     if version:
+         pd.add("version", version)
+-    #libreport expect the os_release as in /etc/redhat-release
++    #libreport expect the os_release as in /etc/sabayon-release
+     if (version and product):
+         # need to add "release", parse_release() expects format "<product> release <version>"
+         pd.add("os_release", product +" release "+ version)
+-- 
+1.9.2
+

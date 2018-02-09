@@ -1,0 +1,24 @@
+From 637695f1e37cd81b98cd1a0429fd9f842874ec55 Mon Sep 17 00:00:00 2001
+From: Ettore Di Giacinto <mudler@gentoo.org>
+Date: Fri, 14 Apr 2017 19:41:03 +0200
+Subject: [PATCH] fix missing tinfo linking in cec-client
+
+---
+ src/cec-client/CMakeLists.txt | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/cec-client/CMakeLists.txt b/src/cec-client/CMakeLists.txt
+index 2cb42bb..37c733b 100644
+--- a/src/cec-client/CMakeLists.txt
++++ b/src/cec-client/CMakeLists.txt
+@@ -44,6 +44,7 @@ if (NOT WIN32)
+   # curses
+   if (HAVE_CURSES_API)
+     target_link_libraries(cec-client curses)
++    target_link_libraries(cec-client tinfo)
+   endif()
+ 
+   # rt
+-- 
+2.12.2
+

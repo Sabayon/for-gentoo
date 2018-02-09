@@ -1,12 +1,19 @@
-#!/sbin/runscript
-# Copyright 1999-2008 Gentoo Technologies, Inc.
+#!/sbin/openrc-run
+# Copyright 1999-2015 Gentoo Foundation, Inc.
 # Distributed under the terms of the GNU General Public License, v2 or later
-# $Header: /var/cvsroot/gentoo-x86/sys-block/open-iscsi/files/iscsid-init.d,v 1.5 2009/03/20 16:23:50 dertobi123 Exp $
 
-opts="${opts} starttargets stoptargets restarttargets"
+command="/usr/sbin/iscsid"
+command_args="${OPTS}"
+start_stop_daemon_args="-w 100" # iscsid might fail e.g. when the iSCSI kernel modules aren't available
+pidfile=${PIDFILE:-/var/run/${SVCNAME}.pid}
+
+extra_started_commands="starttargets stoptargets"
+extra_commands="restarttargets"
+
+ISCSIADM=/usr/sbin/iscsiadm
 
 depend() {
-	after modules
+	after modules multipath
 	use net
 }
 
@@ -19,90 +26,42 @@ checkconfig() {
 		eerror "Config file ${CONFIG_FILE} does not exist!"
 		return 1
 	fi
-	if [ ! -e ${INITIATORNAME_FILE} ] || [ ! "$(grep "^InitiatorName=iqn\." ${INITIATORNAME_FILE})" ]; then
+
+	if [ -e ${INITIATORNAME_FILE} ]; then
+		. ${INITIATORNAME_FILE}
+	fi
+	if [ ! -e ${INITIATORNAME_FILE} -o -z "${InitiatorName}" ]; then
 		ewarn "${INITIATORNAME_FILE} should contain a string with your initiatior name."
-		IQN=iqn.$(date +%Y-%m).$(hostname -f | awk 'BEGIN { FS=".";}{x=NF; while (x>0) {printf $x ;x--; if (x>0) printf ".";} print ""}'):openiscsi
-		IQN=${IQN}-$(echo ${RANDOM}${RANDOM}${RANDOM}${RANDOM}${RANDOM} | md5sum | sed -e "s/\(.*\) -/\1/g" -e 's/ //g')
+		local IQN=$(/usr/sbin/iscsi-iname)
 		ebegin "Creating InitiatorName ${IQN} in ${INITIATORNAME_FILE}"
 		echo "InitiatorName=${IQN}" >> "${INITIATORNAME_FILE}"
 		eend $?
 	fi
 }
 
-do_modules() {
-	msg="$1"
-	shift
-	modules="${1}"
-	shift
-	modopts="$@"
-	for m in ${modules}
-	do
-		if [ -n "$(modprobe -l | grep ${m})" ]
-		then
-			ebegin "${msg} ${m}"
-			modprobe ${modopts} ${m}
-			ret=$?
-			eend ${ret}
-			if [ ${ret} -ne 0 ]; then
-				return ${ret}
-			fi
-		else
-			ebegin "${msg} ${m}: not found"
-			return 1
-		fi
-	done
-	return 0
-}
-
-start() {
-	ebegin "Checking open-iSCSI configuration"
-	checkconfig
-	ret=$?
-	if [ $ret -ne 0 ]; then
-		eend 1
-		return 1
-	fi
-	ebegin "Loading iSCSI modules"
-	do_modules 'Loading' 'libiscsi scsi_transport_iscsi iscsi_tcp'
-	ret=$?
-	if [ $ret -ne 0 ]; then
-		eend 1
-		return 1
-	fi
-
-	ebegin "Starting ${SVCNAME}"
-	start-stop-daemon --start --quiet --exec /usr/sbin/iscsid -- ${OPTS}
-	eend $?
-
-	# Start automatic targets when iscsid is started
-	[ "${AUTOSTARTTARGETS}" = "yes" ] && starttargets
-	return 0
-}
-	
-stop() {
-	stoptargets
-	ebegin "Stopping ${SVCNAME}"
-	start-stop-daemon --signal HUP --stop --quiet --exec /usr/sbin/iscsid #--pidfile $PID_FILE
-	eend $?
-
-	# ugly, but pid file is not removed by iscsid
-	rm -f $PID_FILE
-	
-	do_modules 'Removing iSCSI modules' 'iscsi_tcp scsi_transport_iscsi libiscsi' '-r'
-	eend $?
-}
-
 starttargets() {
-        ebegin "Setting up iSCSI targets"
-        /usr/sbin/iscsiadm -m node --loginall=automatic
-        eend $?
+	ebegin "Setting up iSCSI targets"
+	$ISCSIADM -m node --loginall=automatic
+	local ret=$?
+	eend $ret
+	return $ret
 }
 
 stoptargets() {
-        ebegin "Disconnecting iSCSI targets"
-        sync
-        /usr/sbin/iscsiadm -m node --logoutall=all
-        eend $?
+	ebegin "Disconnecting iSCSI targets"
+	sync
+	$ISCSIADM -m node --logoutall=all
+	local ret=$?
+
+	if [ $ret -eq 21 ]; then
+		# See man iscsiadm(8)
+		einfo "No active sessions to disconnect"
+		eend 0
+		return 0
+	fi
+
+	eend $ret
+	return $ret
 }
 
 restarttargets() {
@@ -112,5 +71,36 @@ restarttargets() {
 
 status() {
 	ebegin "Showing current active iSCSI sessions"
-	/usr/sbin/iscsiadm -m session
+	$ISCSIADM -m session
+}
+
+
+start_pre() {
+	local ret=1
+
+	ebegin "Checking Open-iSCSI configuration"
+	checkconfig
+	ret=$?
+	if [ $ret -ne 0 ]; then
+		eend 1
+		return 1
+	fi
+	eend 0
+}
+
+start_post() {
+	# Start automatic targets when iscsid is started
+	if [ "${AUTOSTARTTARGETS}" = "yes" ]; then
+		starttargets
+		local ret=$?
+		if [ "${AUTOSTART}" = "strict" -a $ret -ne 0 ]; then
+			stop
+			return $ret
+		fi
+	fi
+	return 0
+}
+
+stop_pre() {
+	stoptargets
 }

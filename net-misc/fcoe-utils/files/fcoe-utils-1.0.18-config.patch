@@ -1,0 +1,13 @@
+diff --git a/etc/config b/etc/config
+index c993f35..bfccf8c 100644
+--- a/etc/config
++++ b/etc/config
+@@ -12,3 +12,8 @@ USE_SYSLOG="yes"
+ ## Default:    list of default drivers
+ # All supported drivers listed here are loaded when service starts
+ SUPPORTED_DRIVERS="fcoe bnx2fc"
++
++## Type:       integer
++## Default:    65
++# Wait at most for this amount of seconds to discover all _netdev fstab devices
++WAIT_TIMEOUT="65"

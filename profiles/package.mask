@@ -49,10 +49,6 @@ app-emulation/qemu-gui
 =media-libs/imlib2-9999
 
 # Fabio Erculiani <lxnay@sabayon.org>
-# Testing, breaks libs, not yet needed
-dev-libs/libdbusmenu
-
-# Fabio Erculiani <lxnay@sabayon.org>
 # They work like shit
 ~x11-drivers/ati-drivers-11.9
 ~x11-drivers/ati-userspace-11.9
