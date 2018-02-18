@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="5"
@@ -12,11 +12,14 @@ else
 	MY_PV=$(replace_version_separator 4 '-')
 	SRC_URI="https://github.com/zfsonlinux/zfs/releases/download/zfs-${PV}/zfs-${PV}.tar.gz
 		 https://github.com/zfsonlinux/spl/archive/spl-${MY_PV}.tar.gz"
-	S="${WORKDIR}"
 	ZFS_S="${WORKDIR}/zfs-${MY_PV}"
 	SPL_S="${WORKDIR}/spl-${MY_PV}"
+	S="${ZFS_S}"
 	KEYWORDS="~amd64"
 fi
+
+AUTOTOOLS_IN_SOURCE_BUILD="1"
+AUTOTOOLS_AUTORECONF="1"
 
 inherit flag-o-matic linux-info linux-mod toolchain-funcs autotools-utils
 
@@ -39,11 +42,11 @@ RDEPEND="${DEPEND}
 "
 
 AT_M4DIR="config"
-AUTOTOOLS_IN_SOURCE_BUILD="1"
 
 pkg_setup() {
 	linux-info_pkg_setup
-	CONFIG_CHECK="!DEBUG_LOCK_ALLOC
+	CONFIG_CHECK="
+		!DEBUG_LOCK_ALLOC
 		EFI_PARTITION
 		IOSCHED_NOOP
 		MODULES
@@ -67,7 +70,7 @@ pkg_setup() {
 	kernel_is ge 2 6 32 || die "Linux 2.6.32 or newer required"
 
 	[ ${PV} != "9999" ] && \
-		{ kernel_is le 4 12 || die "Linux 4.12 is the latest supported version."; }
+		{ kernel_is le 4 15 || die "Linux 4.15 is the latest supported version."; }
 
 	check_extra_config
 }
@@ -78,10 +81,10 @@ src_prepare() {
 
 	local d
 	for d in "${ZFS_S}" "${SPL_S}"; do
-		pushd "${d}"
+		pushd "${d}" || die
 		S="${d}" BUILD_DIR="${d}" autotools-utils_src_prepare
 		unset AUTOTOOLS_BUILD_DIR
-		popd
+		popd || die
 	done
 	# Set module revision number
 	[ ${PV} != "9999" ] && \
