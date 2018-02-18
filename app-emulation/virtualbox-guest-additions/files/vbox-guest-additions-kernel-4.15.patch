@@ -1,0 +1,87 @@
+diff -Naru a/vboxguest/VBoxGuest-linux.c b/vboxguest/VBoxGuest-linux.c
+--- a/vboxguest/VBoxGuest-linux.c	2018-01-30 19:18:15.560963904 +0100
++++ b/vboxguest/VBoxGuest-linux.c	2018-01-30 19:21:00.601954775 +0100
+@@ -1058,7 +1058,7 @@
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 0)
+ 
+ /** log and dbg_log parameter setter. */
+-static int vgdrvLinuxParamLogGrpSet(const char *pszValue, struct kernel_param *pParam)
++static int vgdrvLinuxParamLogGrpSet(const char *pszValue, const struct kernel_param *pParam)
+ {
+     if (g_fLoggerCreated)
+     {
+@@ -1073,7 +1073,7 @@
+ }
+ 
+ /** log and dbg_log parameter getter. */
+-static int vgdrvLinuxParamLogGrpGet(char *pszBuf, struct kernel_param *pParam)
++static int vgdrvLinuxParamLogGrpGet(char *pszBuf, const struct kernel_param *pParam)
+ {
+     PRTLOGGER pLogger = pParam->name[0] == 'd' ? RTLogDefaultInstance() : RTLogRelGetDefaultInstance();
+     *pszBuf = '\0';
+@@ -1084,7 +1084,7 @@
+ 
+ 
+ /** log and dbg_log_flags parameter setter. */
+-static int vgdrvLinuxParamLogFlagsSet(const char *pszValue, struct kernel_param *pParam)
++static int vgdrvLinuxParamLogFlagsSet(const char *pszValue, const struct kernel_param *pParam)
+ {
+     if (g_fLoggerCreated)
+     {
+@@ -1098,7 +1098,7 @@
+ }
+ 
+ /** log and dbg_log_flags parameter getter. */
+-static int vgdrvLinuxParamLogFlagsGet(char *pszBuf, struct kernel_param *pParam)
++static int vgdrvLinuxParamLogFlagsGet(char *pszBuf, const struct kernel_param *pParam)
+ {
+     PRTLOGGER pLogger = pParam->name[0] == 'd' ? RTLogDefaultInstance() : RTLogRelGetDefaultInstance();
+     *pszBuf = '\0';
+@@ -1109,7 +1109,7 @@
+ 
+ 
+ /** log and dbg_log_dest parameter setter. */
+-static int vgdrvLinuxParamLogDstSet(const char *pszValue, struct kernel_param *pParam)
++static int vgdrvLinuxParamLogDstSet(const char *pszValue, const struct kernel_param *pParam)
+ {
+     if (g_fLoggerCreated)
+     {
+@@ -1123,7 +1123,7 @@
+ }
+ 
+ /** log and dbg_log_dest parameter getter. */
+-static int vgdrvLinuxParamLogDstGet(char *pszBuf, struct kernel_param *pParam)
++static int vgdrvLinuxParamLogDstGet(char *pszBuf, const struct kernel_param *pParam)
+ {
+     PRTLOGGER pLogger = pParam->name[0] == 'd' ? RTLogDefaultInstance() : RTLogRelGetDefaultInstance();
+     *pszBuf = '\0';
+@@ -1134,7 +1134,7 @@
+ 
+ 
+ /** r3_log_to_host parameter setter. */
+-static int vgdrvLinuxParamR3LogToHostSet(const char *pszValue, struct kernel_param *pParam)
++static int vgdrvLinuxParamR3LogToHostSet(const char *pszValue, const struct kernel_param *pParam)
+ {
+     if (    pszValue == NULL
+         || *pszValue == '\0'
+@@ -1152,7 +1152,7 @@
+ }
+ 
+ /** r3_log_to_host parameter getter. */
+-static int vgdrvLinuxParamR3LogToHostGet(char *pszBuf, struct kernel_param *pParam)
++static int vgdrvLinuxParamR3LogToHostGet(char *pszBuf, const struct kernel_param *pParam)
+ {
+     strcpy(pszBuf, g_DevExt.fLoggingEnabled ? "enabled" : "disabled");
+     return strlen(pszBuf);
+diff -Naru a/vboxvideo/vbox_mode.c b/vboxvideo/vbox_mode.c
+--- a/vboxvideo/vbox_mode.c	2018-01-30 19:21:17.581953836 +0100
++++ b/vboxvideo/vbox_mode.c	2018-01-30 19:22:22.592950240 +0100
+@@ -396,7 +396,7 @@
+ 
+ 	/* pick the encoder ids */
+ 	if (enc_id)
+-		return drm_encoder_find(connector->dev, enc_id);
++		return drm_encoder_find(connector->dev, NULL, enc_id);
+ 
+ 	return NULL;
+ }
