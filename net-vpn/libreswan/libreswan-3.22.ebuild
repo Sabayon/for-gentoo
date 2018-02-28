@@ -104,8 +104,10 @@ src_install() {
 
 pkg_postinst() {
 	local IPSEC_CONFDIR=${ROOT%/}/etc/ipsec.d
-	# Sabayon modification for Gentoo bug 649068 (Gentoo has cert8.db)
-	if [[ ! -f ${IPSEC_CONFDIR}/cert9.db ]]; then
+	# Sabayon modification for Gentoo bug 649068 (Gentoo checks for cert8.db)
+	local whee
+	whee=$( shopt -s nullglob; echo ${IPSEC_CONFDIR}/cert*.db ) || true
+	if [[ -z ${whee} ]]; then
 		ebegin "Setting up NSS database in ${IPSEC_CONFDIR}"
 		certutil -N -d "${IPSEC_CONFDIR}" -f <(echo)
 		eend $?
