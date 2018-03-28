@@ -1,0 +1,10 @@
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -41,7 +41,6 @@ set (MIN_SIZE_EVER 8)
+ ###
+ 
+ add_subdirectory (cursors)
+-add_subdirectory (volumeicon)
+ 
+ list (LENGTH DIRECTORIES LENGTH_1)
+ list (LENGTH DIRECTORIES_CONTEXTS LENGTH_2)
