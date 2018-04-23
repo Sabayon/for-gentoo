@@ -1,12 +1,12 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
 # latest gentoo apache files
-GENTOO_PATCHSTAMP="20170918"
-GENTOO_DEVELOPER="whissi"
-GENTOO_PATCHNAME="gentoo-apache-2.4.27"
+GENTOO_PATCHSTAMP="20160303"
+GENTOO_DEVELOPER="polynomial-c"
+GENTOO_PATCHNAME="gentoo-apache-2.4.18-r1"
 
 # IUSE/USE_EXPAND magic
 IUSE_MPMS_FORK="prefork"
@@ -33,14 +33,14 @@ IUSE_MPMS_THREAD="event worker"
 IUSE_MODULES="access_compat actions alias asis auth_basic auth_digest
 authn_alias authn_anon authn_core authn_dbd authn_dbm authn_file authz_core
 authz_dbd authz_dbm authz_groupfile authz_host authz_owner authz_user autoindex
-cache cache_disk cache_socache cern_meta charset_lite cgi cgid dav dav_fs dav_lock
+brotli cache cache_disk cache_socache cern_meta charset_lite cgi cgid dav dav_fs dav_lock
 dbd deflate dir dumpio env expires ext_filter file_cache filter headers http2
 ident imagemap include info lbmethod_byrequests lbmethod_bytraffic lbmethod_bybusyness
 lbmethod_heartbeat log_config log_forensic logio macro mime mime_magic negotiation
 proxy proxy_ajp proxy_balancer proxy_connect proxy_ftp proxy_html proxy_http proxy_scgi
 proxy_fcgi  proxy_wstunnel rewrite ratelimit remoteip reqtimeout setenvif
 slotmem_shm speling socache_shmcb status substitute unique_id userdir usertrack
-unixd version vhost_alias xml2enc"
+unixd version vhost_alias watchdog xml2enc"
 # The following are also in the source as of this version, but are not available
 # for user selection:
 # bucketeer case_filter case_filter_in echo http isapi optional_fn_export
@@ -49,6 +49,7 @@ unixd version vhost_alias xml2enc"
 # inter-module dependencies
 # TODO: this may still be incomplete
 MODULE_DEPENDS="
+	brotli:filter
 	dav_fs:dav
 	dav_lock:dav
 	deflate:filter
@@ -127,9 +128,13 @@ HOMEPAGE="https://httpd.apache.org/"
 # some helper scripts are Apache-1.1, thus both are here
 LICENSE="Apache-2.0 Apache-1.1"
 SLOT="2"
-KEYWORDS="~alpha amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~amd64-linux ~x64-macos ~x86-macos ~m68k-mint ~sparc64-solaris ~x64-solaris"
+KEYWORDS="alpha amd64 arm ~arm64 ~hppa ia64 ~mips ~ppc ppc64 ~s390 ~sh sparc x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x64-macos ~x86-macos ~m68k-mint ~sparc64-solaris ~x64-solaris"
 
-DEPEND+="apache2_modules_http2? ( >=net-libs/nghttp2-1.2.1 )"
+CDEPEND="apache2_modules_brotli? ( >=app-arch/brotli-0.6.0:= )
+	apache2_modules_http2? ( >=net-libs/nghttp2-1.2.1 )"
+
+DEPEND+="${CDEPEND}"
+RDEPEND+="${CDEPEND}"
 
 REQUIRED_USE="apache2_modules_http2? ( ssl )"
 
