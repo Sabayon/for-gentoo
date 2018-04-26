@@ -1,4 +1,4 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=5
@@ -7,7 +7,7 @@ inherit systemd user versionator
 
 MY_PN=${PN/-core-bin}
 
-DESCRIPTION="Qt/KDE IRC client - the \"core\" (server) component (static build, no Qt dependency)"
+DESCRIPTION="Qt/KDE IRC client - \"core\" (server) component (static build, no Qt dependency)"
 HOMEPAGE="http://quassel-irc.org/"
 
 MY_FETCH_NAME="quasselcore-static-${PV}"
@@ -48,8 +48,8 @@ src_install() {
 	fowners "${QUASSEL_USER}":"${QUASSEL_USER}" "${QUASSEL_DIR}"
 
 	# init scripts & systemd unit
-	newinitd "${FILESDIR}"/quasselcore.init quasselcore
-	newconfd "${FILESDIR}"/quasselcore.conf quasselcore
+	newinitd "${FILESDIR}"/quasselcore.init-r1 quasselcore
+	newconfd "${FILESDIR}"/quasselcore.conf-r1 quasselcore
 	systemd_dounit "${FILESDIR}"/quasselcore.service
 
 	# logrotate
