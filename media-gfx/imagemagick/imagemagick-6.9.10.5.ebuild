@@ -3,17 +3,17 @@
 
 EAPI=6
 
-inherit eutils flag-o-matic libtool multilib toolchain-funcs versionator
+inherit eutils flag-o-matic libtool multilib toolchain-funcs eapi7-ver
 
-MY_P=ImageMagick-$(replace_version_separator 3 '-')
+MY_P=ImageMagick-$(ver_rs 3 '-')
 
 DESCRIPTION="A collection of tools and libraries for many image formats"
-HOMEPAGE="http://www.imagemagick.org/"
+HOMEPAGE="https://www.imagemagick.org/"
 SRC_URI="mirror://${PN}/${MY_P}.tar.xz"
 
 LICENSE="imagemagick"
 SLOT="0/${PV}"
-KEYWORDS="alpha amd64 ~arm hppa ~ia64 ~mips ppc ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh sparc x86 ~ppc-aix ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~x64-solaris ~x86-solaris"
 IUSE="bzip2 corefonts cxx djvu fftw fontconfig fpx graphviz hdri jbig jpeg jpeg2k lcms lqr lzma opencl openexr openmp pango perl png postscript q32 q8 raw static-libs svg test tiff truetype webp wmf X xml zlib"
 
 RESTRICT="perl? ( userpriv )"
@@ -38,7 +38,7 @@ RDEPEND="
 	perl? ( >=dev-lang/perl-5.8.8:0= )
 	png? ( media-libs/libpng:0= )
 	postscript? ( app-text/ghostscript-gpl )
-	raw? ( media-gfx/ufraw )
+	raw? ( media-libs/libraw:= )
 	svg? ( gnome-base/librsvg )
 	tiff? ( media-libs/tiff:0= )
 	truetype? (
@@ -59,12 +59,14 @@ RDEPEND="
 DEPEND="${RDEPEND}
 	!media-gfx/graphicsmagick[imagemagick]
 	virtual/pkgconfig
-	X? ( x11-proto/xextproto )"
+	X? ( x11-base/xorg-proto )"
 
 REQUIRED_USE="corefonts? ( truetype )
 	test? ( corefonts )"
 
-S=${WORKDIR}/${MY_P}
+PATCHES=( "${FILESDIR}"/${PN}-7.0.26-FTBFS-on-i386.patch )
+
+S="${WORKDIR}/${MY_P}"
 
 src_prepare() {
 	local mesa_cards ati_cards nvidia_cards render_cards
@@ -140,6 +142,7 @@ src_configure() {
 		$(use_with openexr)
 		$(use_with pango)
 		$(use_with png)
+		$(use_with raw)
 		$(use_with svg rsvg)
 		$(use_with tiff)
 		$(use_with webp)
@@ -164,7 +167,7 @@ src_install() {
 		DOCUMENTATION_PATH="${EPREFIX}"/usr/share/doc/${PF}/html \
 		install
 
-	rm -f "${ED}"/usr/share/doc/${PF}/html/{ChangeLog,LICENSE,NEWS.txt}
+	rm -f "${ED%/}"/usr/share/doc/${PF}/html/{ChangeLog,LICENSE,NEWS.txt}
 	dodoc {AUTHORS,README}.txt ChangeLog
 
 	if use perl; then
