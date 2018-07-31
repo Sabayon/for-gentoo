@@ -226,6 +226,7 @@ src_install() {
 
 pkg_postinst() {
 	apache-2_pkg_postinst || die "apache-2_pkg_postinst failed"
+	systemd_tmpfiles_create apache.conf
 	# warnings that default config might not work out of the box
 	for mod in $MODULE_CRITICAL; do
 		if ! use "apache2_modules_${mod}"; then
