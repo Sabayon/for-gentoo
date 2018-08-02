@@ -143,6 +143,7 @@ PATCHES=(
 
 	# Sabayon mod.
 	"${FILESDIR}/chromium-stddef.patch"
+	"${FILESDIR}/chromium-68.0.3440.75-gcc6.patch"
 )
 
 pre_build_checks() {
