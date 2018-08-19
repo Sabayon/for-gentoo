@@ -1,0 +1,23 @@
+From aa4718cdbf1e9d6427960f3239c87b0e71434317 Mon Sep 17 00:00:00 2001
+From: Adam Nielsen <malvineous@shikadi.net>
+Date: Sun, 19 Nov 2017 10:40:38 +1000
+Subject: [PATCH] Ignore conflicting getopt.h
+
+ALSA now includes the system-wide variant which conflicts with ours.
+---
+ src/adplay.cc | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/adplay.cc b/src/adplay.cc
+index 199169e..4f2041b 100644
+--- a/src/adplay.cc
++++ b/src/adplay.cc
+@@ -38,6 +38,8 @@
+ #		include <getopt.h>
+ #	else
+ #		include "getopt.h"
++// ALSA now includes the system-wide getopt under Linux, so stop this
++#   define _GETOPT_POSIX_H 1
+ #	endif
+ #endif
+ 
