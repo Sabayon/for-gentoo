@@ -122,7 +122,7 @@ MODULE_CRITICAL="
 	mime
 	unixd
 "
-inherit apache-2 systemd toolchain-funcs
+inherit apache-2 systemd tmpfiles toolchain-funcs
 
 DESCRIPTION="The Apache Web Server"
 HOMEPAGE="https://httpd.apache.org/"
@@ -130,7 +130,7 @@ HOMEPAGE="https://httpd.apache.org/"
 # some helper scripts are Apache-1.1, thus both are here
 LICENSE="Apache-2.0 Apache-1.1"
 SLOT="2"
-KEYWORDS="~alpha amd64 ~arm ~arm64 ~hppa ia64 ~mips ~ppc ppc64 ~s390 ~sh sparc x86 ~amd64-linux ~x64-macos ~x86-macos ~m68k-mint ~sparc64-solaris ~x64-solaris"
+KEYWORDS="~alpha amd64 arm ~arm64 ~hppa ia64 ~mips ~ppc ppc64 ~s390 ~sh sparc x86 ~amd64-linux ~x64-macos ~x86-macos ~m68k-mint ~sparc64-solaris ~x64-solaris"
 
 # Enable http2 by default (bug #563452)
 # FIXME: Move to apache-2.eclass once this has reached stable.
@@ -151,6 +151,7 @@ REQUIRED_USE="apache2_modules_http2? ( ssl )
 
 PATCHES=(
 	"${FILESDIR}/${PN}-2.4.34-suexec_parallel_install.patch" #661358
+	"${FILESDIR}"/${P}-PR62557.patch #663312
 )
 
 pkg_setup() {
@@ -226,7 +227,9 @@ src_install() {
 
 pkg_postinst() {
 	apache-2_pkg_postinst || die "apache-2_pkg_postinst failed"
-	systemd_tmpfiles_create apache.conf
+
+	tmpfiles_process apache.conf #662544
+
 	# warnings that default config might not work out of the box
 	local mod cmod
 	for mod in ${MODULE_CRITICAL} ; do
