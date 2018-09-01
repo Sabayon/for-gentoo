@@ -1,0 +1,32 @@
+diff --git a/app-misc/cdircmp/.cdircmp-0.3-r2.ebuild.swp b/app-misc/cdircmp/.cdircmp-0.3-r2.ebuild.swp
+deleted file mode 100644
+index c07b26203..000000000
+Binary files a/app-misc/cdircmp/.cdircmp-0.3-r2.ebuild.swp and /dev/null differ
+diff --git a/app-misc/cdircmp/cdircmp-0.3-r2.ebuild b/app-misc/cdircmp/cdircmp-0.3-r2.ebuild
+index 928b138f6..d3e2d1c80 100644
+--- a/app-misc/cdircmp/cdircmp-0.3-r2.ebuild
++++ b/app-misc/cdircmp/cdircmp-0.3-r2.ebuild
+@@ -11,10 +11,13 @@ SRC_URI="http://home.hccnet.nl/paul.schuurmans/linux/download/${P}.tar.gz"
+ 
+ LICENSE="GPL-2"
+ SLOT="0"
+-KEYWORDS="amd64 ~ppc x86"
++KEYWORDS="~amd64 ~x86"
+ IUSE=""
+ 
+ RDEPEND=">=sys-libs/ncurses-5.4:0="
++DEPEND="${RDEPEND}
++	virtual/pkgconfig
++"
+ 
+ src_prepare() {
+ 	sed -i Makefile \
+@@ -26,7 +29,7 @@ src_prepare() {
+ src_compile() {
+ 	emake CC="$(tc-getCC)" \
+ 		CFLAGS="${CFLAGS}" \
+-		LDFLAGS="${LDFLAGS}"
++		LDFLAGS="$(pkg-config --libs ncurses) ${LDFLAGS}"
+ }
+ 
+ src_install() {
