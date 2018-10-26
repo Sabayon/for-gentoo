@@ -1,0 +1,24 @@
+From f9c7e4b01341f45aec55f452b583c544e2557ca4 Mon Sep 17 00:00:00 2001
+From: Joachim Pouderoux <jpouderoux@gmail.com>
+Date: Thu, 9 Aug 2018 11:07:54 -0400
+Subject: [PATCH] Fix StreamLinesRepresentation plugin documentation issue
+
+---
+ Plugins/StreamLinesRepresentation/CMakeLists.txt | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/Plugins/StreamLinesRepresentation/CMakeLists.txt b/Plugins/StreamLinesRepresentation/CMakeLists.txt
+index 5d656a54b8..86c24964fe 100644
+--- a/Plugins/StreamLinesRepresentation/CMakeLists.txt
++++ b/Plugins/StreamLinesRepresentation/CMakeLists.txt
+@@ -41,7 +41,6 @@ encode_files_as_strings(ENCODED_STRING_FILES
+ 
+ add_paraview_plugin(
+   StreamLinesRepresentation "0.1"
+-  DOCUMENTATION_DIR "${CMAKE_CURRENT_SOURCE_DIR}/doc"
+   SERVER_MANAGER_XML StreamLinesRepresentation.xml
+   SERVER_MANAGER_SOURCES
+     vtkStreamLinesRepresentation.cxx
+-- 
+2.18.1
+
