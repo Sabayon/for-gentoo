@@ -43,6 +43,7 @@ src_prepare() {
 	export NACL_LIB_DIR="${EROOT}usr/$(get_libdir)/nacl"
 
 	epatch "${FILESDIR}/${P}-memcpy-memset.patch"
+	epatch "${FILESDIR}/${P}-GENL_ID_GENERATE.patch"
 	epatch_user
 }
 
