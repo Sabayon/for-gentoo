@@ -23,10 +23,12 @@ RDEPEND="dev-libs/geoip
 	net-libs/libpcap
 	sys-libs/ncurses:0
 	sys-libs/zlib"
+# Sabayon: also net-libs/nacl -> dev-libs/libsodium
+# fixes linking/relocation problem with libnacl.a
 DEPEND="${RDEPEND}
 	sys-devel/flex
 	sys-devel/bison
-	=net-libs/nacl-0_p20110221*
+	dev-libs/libsodium
 	virtual/pkgconfig"
 
 src_prepare() {
@@ -39,8 +41,11 @@ src_prepare() {
 		die "have nacl-20110221, expected $(grep ${MY_NACL_P} curvetun/nacl_build.sh)"
 	fi
 
-	export NACL_INC_DIR="${EROOT}usr/include/nacl"
-	export NACL_LIB_DIR="${EROOT}usr/$(get_libdir)/nacl"
+	#export NACL_INC_DIR="${EROOT}usr/include/nacl"
+	#export NACL_LIB_DIR="${EROOT}usr/$(get_libdir)/nacl"
+
+	export NACL_INC_DIR=/usr/include/sodium
+	export NACL_LIB=sodium
 
 	epatch "${FILESDIR}/${P}-memcpy-memset.patch"
 	epatch "${FILESDIR}/${P}-GENL_ID_GENERATE.patch"
