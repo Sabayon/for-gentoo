@@ -1,0 +1,63 @@
+https://bugs.gentoo.org/651278
+
+commit f232545c215022de5be5e0b37e0c7130962cc5d0
+Author: Tobias Klauser <tklauser@distanz.ch>
+Date:   Fri May 12 18:13:31 2017 +0200
+
+    built_in: don't redefine memcpy/memset
+    
+    Redefining memset/memcpy causes problems when building with fortified
+    headers on Alpine Linux. Instead of uncoditionally defining these,
+    explicitely use fmemcpy/fmemset in performance critical paths and
+    otherwise let the compiler decide about optimizations.
+    
+    Fixes #173
+    Signed-off-by: Tobias Klauser <tklauser@distanz.ch>
+
+diff --git a/built_in.h b/built_in.h
+index bb24746..da04dbd 100644
+--- a/built_in.h
++++ b/built_in.h
+@@ -322,12 +322,6 @@ static inline u64 cpu_to_le64(u64 val)
+ #define be32_to_cpu	cpu_to_be32
+ #define be16_to_cpu	cpu_to_be16
+ 
+-#undef memset
+-#undef memcpy
+-
+-#define memset		fmemset
+-#define memcpy		fmemcpy
+-
+ #if defined(__amd64__) || defined(__x86_64__) || defined(__AMD64__) || \
+     defined(_M_X64) || defined(__amd64)
+ # define CO_IN_CACHE_SHIFT		7
+diff --git a/csum.h b/csum.h
+index de76755..96211c5 100644
+--- a/csum.h
++++ b/csum.h
+@@ -182,10 +182,10 @@ static inline uint16_t p6_csum(const struct ip6_hdr *ip6, const uint8_t *data,
+ 		uint8_t proto;
+ 	} __packed ph;
+ 
+-	memcpy(&ph.src, ip6->ip6_src.s6_addr, sizeof(ph.src));
+-	memcpy(&ph.dst, ip6->ip6_dst.s6_addr, sizeof(ph.dst));
++	fmemcpy(&ph.src, ip6->ip6_src.s6_addr, sizeof(ph.src));
++	fmemcpy(&ph.dst, ip6->ip6_dst.s6_addr, sizeof(ph.dst));
+ 	ph.len = htons(len);
+-	memset(&ph.mbz, 0, sizeof(ph.mbz));
++	fmemset(&ph.mbz, 0, sizeof(ph.mbz));
+ 	ph.proto = next_proto;
+ 
+ 	vec[0].ptr = (const uint8_t *) (void *) &ph;
+diff --git a/link.c b/link.c
+index 56b839b..72f513f 100644
+--- a/link.c
++++ b/link.c
+@@ -1,6 +1,7 @@
+ #include <sys/types.h>
+ #include <sys/ioctl.h>
+ #include <linux/sockios.h>
++#include <string.h>
+ #include <unistd.h>
+ #include <errno.h>
+ 
