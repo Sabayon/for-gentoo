@@ -53,6 +53,7 @@ pkg_setup() {
 src_install() {
 	emake DESTDIR="${D}" LIBDIR="usr/lib" install || die "make install failed"
 	python_optimize "${D}/usr/lib/entropy/lib/entropy"
+	python_optimize "${D}/usr/lib/entropy/entropy_path_loader"
 }
 
 pkg_postinst() {
