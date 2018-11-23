@@ -1,4 +1,4 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="6"
@@ -16,7 +16,7 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/${P}
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="amd64 ~arm64 ~x86"
+KEYWORDS="~amd64 ~x86"
 IUSE="component-build cups gnome-keyring +hangouts jumbo-build kerberos neon pic +proprietary-codecs pulseaudio selinux +suid +system-ffmpeg +system-icu +system-libvpx +tcmalloc widevine"
 RESTRICT="!system-ffmpeg? ( proprietary-codecs? ( bindist ) )"
 
@@ -37,7 +37,7 @@ COMMON_DEPEND="
 	>=media-libs/alsa-lib-1.0.19:=
 	media-libs/fontconfig:=
 	media-libs/freetype:=
-	>=media-libs/harfbuzz-1.6.0:=[icu(-)]
+	>=media-libs/harfbuzz-2.0.0:0=[icu(-)]
 	media-libs/libjpeg-turbo:=
 	media-libs/libpng:=
 	system-libvpx? ( media-libs/libvpx:=[postproc,svc] )
@@ -94,16 +94,22 @@ DEPEND="${COMMON_DEPEND}
 		dev-lang/yasm
 	)
 	dev-lang/perl
+	dev-util/gn
 	>=dev-util/gperf-3.0.3
 	>=dev-util/ninja-1.7.2
-	>=net-libs/nodejs-6.9.4
+	>=net-libs/nodejs-7.6.0[inspector]
 	sys-apps/hwids[usb(+)]
 	>=sys-devel/bison-2.4.3
 	sys-devel/flex
-	>=sys-devel/clang-5
 	virtual/pkgconfig
 	dev-vcs/git
 "
+
+: ${CHROMIUM_FORCE_CLANG=no}
+
+if [[ ${CHROMIUM_FORCE_CLANG} == yes ]]; then
+	DEPEND+=" >=sys-devel/clang-5"
+fi
 
 if ! has chromium_pkg_die ${EBUILD_DEATH_HOOKS}; then
 	EBUILD_DEATH_HOOKS+=" chromium_pkg_die";
@@ -129,21 +135,20 @@ GTK+ icon theme.
 "
 
 PATCHES=(
+	"${FILESDIR}/chromium-compiler-r4.patch"
 	"${FILESDIR}/chromium-widevine-r2.patch"
-	"${FILESDIR}/chromium-compiler-r2.patch"
 	"${FILESDIR}/chromium-webrtc-r0.patch"
 	"${FILESDIR}/chromium-memcpy-r0.patch"
 	"${FILESDIR}/chromium-math.h-r0.patch"
 	"${FILESDIR}/chromium-stdint.patch"
-	"${FILESDIR}/chromium-ffmpeg-r1.patch"
-	"${FILESDIR}/chromium-libjpeg-r0.patch"
-	"${FILESDIR}/chromium-cors-string-r0.patch"
-	"${FILESDIR}/chromium-libwebp-shim-r0.patch"
-	"${FILESDIR}/chromium-ffmpeg-ebp-r1.patch"
+	"${FILESDIR}/chromium-pdfium-stdlib-r0.patch"
+	"${FILESDIR}/chromium-harfbuzz-r0.patch"
+	"${FILESDIR}/chromium-70-gcc-0.patch"
+	"${FILESDIR}/chromium-70-gcc-1.patch"
+	"${FILESDIR}/chromium-70-gcc-2.patch"
 
 	# Sabayon mod.
-	"${FILESDIR}/chromium-stddef.patch"
-	"${FILESDIR}/chromium-68.0.3440.75-gcc6.patch"
+	"${FILESDIR}/constructor.patch"
 )
 
 pre_build_checks() {
@@ -211,7 +216,9 @@ src_prepare() {
 		net/third_party/nss
 		net/third_party/quic
 		net/third_party/spdy
+		net/third_party/uri_template
 		third_party/WebKit
+		third_party/abseil-cpp
 		third_party/analytics
 		third_party/angle
 		third_party/angle/src/common/third_party/base
@@ -222,6 +229,9 @@ src_prepare() {
 		third_party/angle/third_party/glslang
 		third_party/angle/third_party/spirv-headers
 		third_party/angle/third_party/spirv-tools
+		third_party/angle/third_party/vulkan-headers
+		third_party/angle/third_party/vulkan-loader
+		third_party/angle/third_party/vulkan-tools
 		third_party/angle/third_party/vulkan-validation-layers
 		third_party/apple_apsl
 		third_party/blink
@@ -271,6 +281,8 @@ src_prepare() {
 		third_party/libXNVCtrl
 		third_party/libaddressinput
 		third_party/libaom
+		third_party/libaom/source/libaom/third_party/vector
+		third_party/libaom/source/libaom/third_party/x86inc
 		third_party/libjingle
 		third_party/libphonenumber
 		third_party/libsecret
@@ -330,14 +342,21 @@ src_prepare() {
 		third_party/web-animations-js
 		third_party/webdriver
 		third_party/webrtc
+		third_party/webrtc/common_audio/third_party/fft4g
+		third_party/webrtc/common_audio/third_party/spl_sqrt_floor
+		third_party/webrtc/modules/third_party/fft
+		third_party/webrtc/modules/third_party/g711
+		third_party/webrtc/modules/third_party/g722
+		third_party/webrtc/rtc_base/third_party/base64
+		third_party/webrtc/rtc_base/third_party/sigslot
 		third_party/widevine
 		third_party/woff2
 		third_party/zlib/google
 		url/third_party/mozilla
 		v8/src/third_party/valgrind
 		v8/src/third_party/utf8-decoder
-		v8/third_party/antlr4
 		v8/third_party/inspector_protocol
+		v8/third_party/v8
 
 		# gyp -> gn leftovers
 		base/third_party/libevent
@@ -365,22 +384,6 @@ src_prepare() {
 	build/linux/unbundle/remove_bundled_libraries.py "${keeplibs[@]}" --do-remove || die
 }
 
-bootstrap_gn() {
-	if tc-is-cross-compiler; then
-		local -x AR=${BUILD_AR}
-		local -x CC=${BUILD_CC}
-		local -x CXX=${BUILD_CXX}
-		local -x NM=${BUILD_NM}
-		local -x CFLAGS=${BUILD_CFLAGS}
-		local -x CXXFLAGS=${BUILD_CXXFLAGS}
-		local -x LDFLAGS=${BUILD_LDFLAGS}
-	fi
-	einfo "Building GN..."
-	set -- tools/gn/bootstrap/bootstrap.py -s -v --no-clean
-	echo "$@"
-	"$@" || die
-}
-
 src_configure() {
 	# Calling this here supports resumption via FEATURES=keepwork
 	python_setup
@@ -390,7 +393,7 @@ src_configure() {
 	# Make sure the build system will use the right tools, bug #340795.
 	tc-export AR CC CXX NM
 
-	if ! tc-is-clang; then
+	if [[ ${CHROMIUM_FORCE_CLANG} == yes ]] && ! tc-is-clang; then
 		# Force clang since gcc is pretty broken at the moment.
 		CC=${CHOST}-clang
 		CXX=${CHOST}-clang++
@@ -573,19 +576,36 @@ src_configure() {
 		popd > /dev/null || die
 	fi
 
-	bootstrap_gn
-
 	einfo "Configuring Chromium..."
-	set -- out/Release/gn gen --args="${myconf_gn} ${EXTRA_GN}" out/Release
+	set -- gn gen --args="${myconf_gn} ${EXTRA_GN}" out/Release
 	echo "$@"
 	"$@" || die
 }
 
 src_compile() {
+	# Final link uses lots of file descriptors.
+	ulimit -n 2048 || die
+
 	# Calling this here supports resumption via FEATURES=keepwork
 	python_setup
 
 	#"${EPYTHON}" tools/clang/scripts/update.py --force-local-build --gcc-toolchain /usr --skip-checkout --use-system-cmake --without-android || die
+
+	# Build mksnapshot and pax-mark it.
+	local x
+	for x in mksnapshot v8_context_snapshot_generator; do
+		if tc-is-cross-compiler; then
+			eninja -C out/Release "host/${x}"
+			pax-mark m "out/Release/host/${x}"
+		else
+			eninja -C out/Release "${x}"
+			pax-mark m "out/Release/${x}"
+		fi
+	done
+
+	# Work around broken deps
+	eninja -C out/Release gen/ui/accessibility/ax_enums.mojom.h
+	eninja -C out/Release gen/ui/accessibility/ax_enums.mojom-shared.h
 
 	# Even though ninja autodetects number of CPUs, we respect
 	# user's options, for debugging with -j 1 or any other reason.
