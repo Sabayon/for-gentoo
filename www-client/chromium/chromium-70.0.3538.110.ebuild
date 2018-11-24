@@ -149,6 +149,7 @@ PATCHES=(
 
 	# Sabayon mod.
 	"${FILESDIR}/constructor.patch"
+	"${FILESDIR}/constexpr.patch"
 )
 
 pre_build_checks() {
