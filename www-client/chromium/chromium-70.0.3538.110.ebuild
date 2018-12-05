@@ -150,6 +150,7 @@ PATCHES=(
 	# Sabayon mod.
 	"${FILESDIR}/constructor.patch"
 	"${FILESDIR}/constexpr.patch"
+	"${FILESDIR}/ownership-error.patch"
 )
 
 pre_build_checks() {
