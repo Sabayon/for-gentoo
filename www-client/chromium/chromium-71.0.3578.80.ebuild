@@ -150,6 +150,7 @@ PATCHES=(
 	"${FILESDIR}/constructor.patch"
 	"${FILESDIR}/constexpr.patch"
 	"${FILESDIR}/ownership-error.patch"
+	"${FILESDIR}/namespace.patch"
 )
 
 pre_build_checks() {
