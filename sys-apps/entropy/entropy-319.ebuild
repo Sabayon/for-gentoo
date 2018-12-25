@@ -33,6 +33,8 @@ REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
 S="${S}/lib"
 
+PACKAGE_MASK_CONFPATH="${ROOT}/etc/entropy/packages/package.mask"
+PACKAGE_UNMASK_CONFPATH="${ROOT}/etc/entropy/packages/package.unmask"
 REPO_CONFPATH="${ROOT}/etc/entropy/repositories.conf"
 REPO_D_CONFPATH="${ROOT}/etc/entropy/repositories.conf.d"
 ENTROPY_CACHEDIR="${ROOT}/var/lib/entropy/caches"
@@ -66,11 +68,13 @@ pkg_postinst() {
 		cp "${ex_conf}" "${real_conf}" -p
 	done
 
-	# Copy config file over
-	if [ -f "${REPO_CONFPATH}.example" ] && [ ! -f "${REPO_CONFPATH}" ]; then
-		elog "Copying ${REPO_CONFPATH}.example over to ${REPO_CONFPATH}"
-		cp "${REPO_CONFPATH}.example" "${REPO_CONFPATH}" -p
-	fi
+	# Copy config files over
+	for cfg in "${PACKAGE_MASK_CONFPATH}" "${PACKAGE_UNMASK_CONFPATH}" "${REPO_CONFPATH}"; do
+		if [ -f "${cfg}.example" ] && [ ! -f "${cfg}" ]; then
+			elog "Copying ${cfg}.example over to ${cfg}"
+			cp -p "${cfg}.example" "${cfg}"
+		fi
+	done
 
 	if [ -d "${ENTROPY_CACHEDIR}" ]; then
 		einfo "Purging current Entropy cache"
