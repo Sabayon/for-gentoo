@@ -20,8 +20,9 @@ S="${WORKDIR}/entropy-${PV}/client"
 MISC_DIR="${WORKDIR}/entropy-${PV}/misc"
 
 COMMON_DEPEND="${PYTHON_DEPS}
-	       ~sys-apps/entropy-${PV}[${PYTHON_USEDEP}]"
+	~sys-apps/entropy-${PV}[${PYTHON_USEDEP}]"
 DEPEND="${COMMON_DEPEND}
+	dev-util/intltool
 	app-text/asciidoc"
 RDEPEND="${COMMON_DEPEND}
 	sys-apps/file[python]"

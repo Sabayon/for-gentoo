@@ -23,6 +23,7 @@ MISC_DIR="${WORKDIR}/${P}/misc"
 COMMON_DEPEND="${PYTHON_DEPS}
 	sys-apps/entropy[${PYTHON_USEDEP}]"
 DEPEND="${COMMON_DEPEND}
+	dev-util/intltool
 	app-text/asciidoc"
 RDEPEND="${COMMON_DEPEND}
 	sys-apps/file[python]"
