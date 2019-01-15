@@ -13,7 +13,7 @@ else
 	SRC_URI="https://github.com/zfsonlinux/zfs/releases/download/zfs-${PV}/zfs-${PV}.tar.gz
 		 https://github.com/zfsonlinux/spl/archive/spl-${MY_PV}.tar.gz"
 	ZFS_S="${WORKDIR}/zfs-${MY_PV}"
-	SPL_S="${WORKDIR}/spl-${MY_PV}"
+	SPL_S="${WORKDIR}/spl-spl-${MY_PV}"
 	S="${ZFS_S}"
 	KEYWORDS="~amd64"
 fi
