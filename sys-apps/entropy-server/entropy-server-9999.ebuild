@@ -33,7 +33,7 @@ src_prepare() {
 }
 
 src_install() {
-	emake DESTDIR="${D}" install
+	emake DESTDIR="${D}" PYTHON_SITEDIR="$(python_get_sitedir)" install
 	newbashcomp "${S}/eit-completion.bash" eit
-	python_optimize "${D}/usr/lib/entropy/server"
+	python_optimize
 }

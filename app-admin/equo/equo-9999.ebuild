@@ -36,8 +36,7 @@ src_prepare() {
 }
 
 src_install() {
-	emake DESTDIR="${D}" LIBDIR="usr/lib" install
+	emake DESTDIR="${D}" LIBDIR="usr/lib" PYTHON_SITEDIR="$(python_get_sitedir)" install
 	newbashcomp "${MISC_DIR}/equo-completion.bash" equo
-
-	python_optimize "${D}/usr/lib/entropy/client"
+	python_optimize
 }

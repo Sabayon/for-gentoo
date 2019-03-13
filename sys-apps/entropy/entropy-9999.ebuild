@@ -51,9 +51,14 @@ pkg_setup() {
 }
 
 src_install() {
-	emake DESTDIR="${D}" LIBDIR="usr/lib" install || die "make install failed"
-	python_optimize "${D}/usr/lib/entropy/lib/entropy"
-	python_optimize "${D}/usr/lib/entropy/entropy_path_loader"
+	emake DESTDIR="${D}" LIBDIR="usr/lib" PYTHON_SITEDIR="$(python_get_sitedir)" \
+		install || die "make install failed"
+	python_optimize
+}
+
+pkg_preinst() {
+	local pyc=${EROOT}/usr/lib/entropy/lib/kswitch/__init__.pyc
+	rm -fv "${pyc}"
 }
 
 pkg_postinst() {
