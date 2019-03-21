@@ -1,12 +1,12 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
 # latest gentoo apache files
-GENTOO_PATCHSTAMP="20180716"
+GENTOO_PATCHSTAMP="20190226"
 GENTOO_DEVELOPER="polynomial-c"
-GENTOO_PATCHNAME="gentoo-apache-2.4.34"
+GENTOO_PATCHNAME="gentoo-apache-2.4.38"
 
 # IUSE/USE_EXPAND magic
 IUSE_MPMS_FORK="prefork"
@@ -38,7 +38,7 @@ dbd deflate dir dumpio env expires ext_filter file_cache filter headers http2
 ident imagemap include info lbmethod_byrequests lbmethod_bytraffic lbmethod_bybusyness
 lbmethod_heartbeat log_config log_forensic logio macro md mime mime_magic negotiation
 proxy proxy_ajp proxy_balancer proxy_connect proxy_ftp proxy_html proxy_http proxy_scgi
-proxy_fcgi  proxy_wstunnel rewrite ratelimit remoteip reqtimeout setenvif
+proxy_http2 proxy_fcgi  proxy_wstunnel rewrite ratelimit remoteip reqtimeout setenvif
 slotmem_shm speling socache_shmcb status substitute unique_id userdir usertrack
 unixd version vhost_alias watchdog xml2enc"
 # The following are also in the source as of this version, but are not available
@@ -130,7 +130,7 @@ HOMEPAGE="https://httpd.apache.org/"
 # some helper scripts are Apache-1.1, thus both are here
 LICENSE="Apache-2.0 Apache-1.1"
 SLOT="2"
-KEYWORDS="~alpha amd64 arm ~arm64 ~hppa ia64 ~mips ~ppc ppc64 ~s390 ~sh sparc x86 ~amd64-linux ~x64-macos ~x86-macos ~m68k-mint ~sparc64-solaris ~x64-solaris"
+KEYWORDS="~alpha amd64 arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-linux ~x64-macos ~x86-macos ~m68k-mint ~sparc64-solaris ~x64-solaris"
 
 # Enable http2 by default (bug #563452)
 # FIXME: Move to apache-2.eclass once this has reached stable.
@@ -148,11 +148,6 @@ RDEPEND+="${CDEPEND}"
 
 REQUIRED_USE="apache2_modules_http2? ( ssl )
 	apache2_modules_md? ( ssl )"
-
-PATCHES=(
-	"${FILESDIR}/${PN}-2.4.34-suexec_parallel_install.patch" #661358
-	"${FILESDIR}"/${P}-PR62557.patch #663312
-)
 
 pkg_setup() {
 	# dependend critical modules which are not allowed in global scope due
@@ -200,7 +195,7 @@ src_install() {
 		/usr/share/man/man8/{rotatelogs.8,htcacheclean.8}
 	)
 	for i in ${apache_tools_prune_list[@]} ; do
-		rm "${ED%/}"/$i || die "Failed to prune apache-tools bits"
+		rm "${ED%/}"/${i} || die "Failed to prune apache-tools bits"
 	done
 
 	# install apxs in /usr/bin (bug #502384) and put a symlink into the
