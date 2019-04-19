@@ -3,7 +3,7 @@
 
 EAPI=6
 
-inherit linux-mod
+inherit linux-mod toolchain-funcs
 
 case ${PV} in
 9999)
@@ -29,25 +29,20 @@ CONFIG_CHECK="VIDEO_DEV"
 MODULE_NAMES="v4l2loopback(video:)"
 BUILD_TARGETS="all"
 
-DEPEND=""
-RDEPEND="${DEPEND}"
-
 pkg_setup() {
 	linux-mod_pkg_setup
 	export KERNELRELEASE=${KV_FULL}
 }
 
 src_prepare() {
-	epatch "${FILESDIR}/${PN}-0.10.0-linux-timer.patch"
-	eapply_user
 	default
+	sed -i -e 's/gcc /$(CC) /' examples/Makefile || die
 }
 
 src_compile() {
 	linux-mod_src_compile
 	if use examples; then
-		cd "${S}"/examples
-		emake
+		emake CC=$(tc-getCC) -C examples
 	fi
 }
 
