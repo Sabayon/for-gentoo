@@ -1,18 +1,19 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=5
 
-inherit systemd user versionator
+inherit systemd user
 
 MY_PN=${PN/-core-bin}
 
 DESCRIPTION="Qt/KDE IRC client - \"core\" (server) component (static build, no Qt dependency)"
-HOMEPAGE="http://quassel-irc.org/"
+HOMEPAGE="https://quassel-irc.org/"
 
-MY_FETCH_NAME="quasselcore-static-${PV}"
+FETCH_PV=0.13-pre-73abdb1
+MY_FETCH_NAME="quasselcore-static-${FETCH_PV}"
 
-SRC_URI="http://quassel-irc.org/pub/${MY_FETCH_NAME}.bz2"
+SRC_URI="https://quassel-irc.org/pub/${MY_FETCH_NAME}.bz2"
 
 LICENSE="GPL-3"
 KEYWORDS="~amd64 ~x86"
@@ -63,18 +64,6 @@ pkg_postinst() {
 
 	einfo "Quassel can use net-misc/oidentd package if installed on your system."
 	einfo "Consider installing it if you want to run quassel within identd daemon."
-
-	# temporary info mesage
-	if [[ $(get_version_component_range 2 ${REPLACING_VERSIONS}) -lt 7 ]]; then
-		echo
-		ewarn "Please note that all configuration moved from"
-		ewarn "/home/\${QUASSEL_USER}/.config/quassel-irc.org/"
-		ewarn "to: ${QUASSEL_DIR}."
-		echo
-		ewarn "For migration, stop the core, move quasselcore files (pretty much"
-		ewarn "everything apart from quasselclient.conf and settings.qss) into"
-		ewarn "new location and then start server again."
-	fi
 }
 
 pkg_config() {
