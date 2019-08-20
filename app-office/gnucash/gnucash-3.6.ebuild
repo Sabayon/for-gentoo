@@ -83,7 +83,10 @@ PDEPEND="doc? (
 	gnome-extra/yelp
 )"
 
-PATCHES=( "${FILESDIR}"/${PN}-3.2-no-gui.patch )
+PATCHES=(
+	"${FILESDIR}"/${PN}-3.2-no-gui.patch
+	"${FILESDIR}"/${PN}-cmake-symbol-exists.patch  # Gentoo bug 690270
+)
 
 pkg_setup() {
 	use python && python-single-r1_pkg_setup
