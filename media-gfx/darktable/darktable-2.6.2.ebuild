@@ -19,7 +19,7 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86"
 LANGS=" ca cs de es fi fr hu ja nb nl pl pt-BR ru sl"
 # TODO add lua once dev-lang/lua-5.2 is unmasked
-IUSE="colord cups cpu_flags_x86_sse3 doc flickr geolocation gnome-keyring gphoto2 graphicsmagick jpeg2k kwallet
+IUSE="colord +cpudetection cups cpu_flags_x86_sse3 doc flickr geolocation gnome-keyring gphoto2 graphicsmagick jpeg2k kwallet
 nls opencl openmp openexr pax_kernel webp
 ${LANGS// / l10n_}"
 
@@ -102,6 +102,7 @@ src_configure() {
 		-DUSE_OPENJPEG=$(usex jpeg2k)
 		-DUSE_OPENMP=$(usex openmp)
 		-DUSE_WEBP=$(usex webp)
+		-DBINARY_PACKAGE_BUILD=$(usex !cpudetection)
 	)
 	CMAKE_BUILD_TYPE="RELWITHDEBINFO"
 	cmake-utils_src_configure
