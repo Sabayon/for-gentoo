@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -35,8 +35,7 @@ src_prepare() {
 }
 
 src_install() {
-	emake DESTDIR="${D}" LIBDIR="usr/lib" install
+	emake DESTDIR="${D}" LIBDIR="usr/lib" PYTHON_SITEDIR="$(python_get_sitedir)" install
 	newbashcomp "${MISC_DIR}/equo-completion.bash" equo
-
-	python_optimize "${D}/usr/lib/entropy/client"
+	python_optimize
 }

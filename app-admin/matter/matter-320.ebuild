@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -31,11 +31,11 @@ src_prepare() {
 }
 
 src_install() {
-	emake DESTDIR="${D}" install
-	emake DESTDIR="${D}" base-install
+	emake DESTDIR="${D}" PYTHON_SITEDIR="$(python_get_sitedir)" install
+	emake DESTDIR="${D}" PYTHON_SITEDIR="$(python_get_sitedir)" base-install
 	if use entropy; then
-		emake DESTDIR="${D}" entropysrv-install
+		emake DESTDIR="${D}" PYTHON_SITEDIR="$(python_get_sitedir)" entropysrv-install
 	fi
 
-	python_optimize "${D}/usr/lib/matter"
+	python_optimize
 }

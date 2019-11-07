@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -35,13 +35,6 @@ src_prepare() {
 }
 
 src_install() {
-	emake DESTDIR="${D}" install
-	python_optimize "${D}/usr/lib/rigo/${MY_PN}"
-}
-
-pkg_preinst() {
-	# ask RigoDaemon to shutdown, if running
-	# TODO: this will be removed in future
-	local shutdown_exec=${EROOT}/usr/lib/rigo/${MY_PN}/shutdown.py
-	[[ -x "${shutdown_exec}" ]] && "${shutdown_exec}"
+	emake DESTDIR="${D}" PYTHON_SITEDIR="$(python_get_sitedir)" install
+	python_optimize
 }

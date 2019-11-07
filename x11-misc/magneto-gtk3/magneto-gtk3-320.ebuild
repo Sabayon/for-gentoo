@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -34,6 +34,7 @@ src_prepare() {
 }
 
 src_install() {
-	emake DESTDIR="${D}" LIBDIR="usr/lib" magneto-gtk3-install
-	python_optimize "${D}/usr/lib/entropy/magneto/magneto/gtk3"
+	emake DESTDIR="${D}" LIBDIR="usr/lib" PYTHON_SITEDIR="$(python_get_sitedir)" \
+		magneto-gtk3-install
+	python_optimize
 }
