@@ -1,0 +1,34 @@
+Upstream change leonerd@leonerd.org.uk-20181222224104-8h7x9wwcl94ryz2b
+=== modified file 'pangoterm.c'
+--- pangoterm.c	2017-11-02 18:42:43 +0000
++++ pangoterm.c	2018-12-22 22:41:04 +0000
+@@ -61,10 +61,10 @@
+ CONF_BOOL(chord_shift_enter,     0, TRUE, "Shift-Enter chording");
+ 
+ #define VTERM_COLOR_FROM_GDK_COLOR(c) \
+-  ((VTermColor){ .red = (c).red / 257, .green = (c).green / 257, .blue = (c).blue / 257 })
++  ((VTermColor){ .type = 0, .rgb.red = (c).red / 257, .rgb.green = (c).green / 257, .rgb.blue = (c).blue / 257 })
+ 
+ #define GDK_COLOR_FROM_VTERM_COLOR(c) \
+-  ((GdkColor){ .red = 257 * (c).red, .green = 257 * (c).green, .blue = 257 * (c).blue })
++  ((GdkColor){ .red = 257 * (c).rgb.red, .green = 257 * (c).rgb.green, .blue = 257 * (c).rgb.blue })
+ 
+ #ifdef DEBUG
+ # define DEBUG_PRINT_INPUT
+@@ -831,6 +831,7 @@
+     flush_pending(pt);
+   }
+ 
++  vterm_screen_convert_color_to_rgb(pt->vts, &cell->fg);
+   col = GDK_COLOR_FROM_VTERM_COLOR(cell->fg);
+ 
+   if(cursoroverride) {
+@@ -844,6 +845,7 @@
+     pt->pen.fg_col = col;
+   }
+ 
++  vterm_screen_convert_color_to_rgb(pt->vts, &cell->bg);
+   col = GDK_COLOR_FROM_VTERM_COLOR(cell->bg);
+ 
+   if(cursoroverride)
+
