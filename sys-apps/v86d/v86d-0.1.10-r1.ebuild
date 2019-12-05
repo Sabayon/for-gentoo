@@ -43,6 +43,11 @@ src_compile() {
 	# Disable stack protector, as it does not work with klibc (bug #346397).
 	filter-flags -fstack-protector -fstack-protector-all
 	#append-cflags "-nostdinc -I/usr/include -I/usr/local/include"
+	if [ "${KV_DIR}" == "" ] ; then
+		# This fix compilation on a fresh rootfs without linux sources.
+		# In this case use header from linux-headers package.
+		append-cflags "-I/usr/include"
+	fi
 	emake KDIR="${KV_DIR}" || die
 }
 
