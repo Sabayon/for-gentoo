@@ -1,11 +1,11 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
-PYTHON_COMPAT=( python2_7 )
+PYTHON_COMPAT=( python2_7 python3_6 )
 
-inherit eutils python-single-r1
+inherit eutils python-r1
 
 DESCRIPTION="Entropy Package Manager notification applet GTK3 frontend"
 HOMEPAGE="http://www.sabayon.org"
@@ -28,12 +28,11 @@ RDEPEND="${DEPEND}
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
-src_prepare() {
-	default
-	python_fix_shebang "${S}"
-}
-
 src_install() {
-	emake DESTDIR="${D}" LIBDIR="usr/lib" magneto-gtk3-install
-	python_optimize "${D}/usr/lib/entropy/magneto/magneto/gtk3"
+	installation() {
+		emake DESTDIR="${D}" LIBDIR="usr/lib" PYTHON_SITEDIR="$(python_get_sitedir)" \
+			magneto-gtk3-install
+		python_optimize
+	}
+	python_foreach_impl installation
 }
