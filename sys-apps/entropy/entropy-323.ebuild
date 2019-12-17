@@ -1,12 +1,12 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
-PYTHON_COMPAT=( python2_7 )
+PYTHON_COMPAT=( python2_7 python3_6 )
 PYTHON_REQ_USE="sqlite"
 
-inherit eutils python-single-r1 user
+inherit eutils python-r1 user
 
 DESCRIPTION="Entropy Package Manager foundation library"
 HOMEPAGE="http://www.sabayon.org"
@@ -41,7 +41,6 @@ REPO_D_CONFPATH="${ROOT}/etc/entropy/repositories.conf.d"
 ENTROPY_CACHEDIR="${ROOT}/var/lib/entropy/caches"
 
 pkg_setup() {
-	python-single-r1_pkg_setup
 	# Can:
 	# - update repos
 	# - update security advisories
@@ -53,9 +52,12 @@ pkg_setup() {
 }
 
 src_install() {
-	emake DESTDIR="${D}" LIBDIR="usr/lib" PYTHON_SITEDIR="$(python_get_sitedir)" \
-		install || die "make install failed"
-	python_optimize
+	installation() {
+		emake DESTDIR="${D}" LIBDIR="usr/lib" PYTHON_SITEDIR="$(python_get_sitedir)" \
+			install || die "make install failed"
+		python_optimize
+	}
+	python_foreach_impl installation
 }
 
 pkg_preinst() {

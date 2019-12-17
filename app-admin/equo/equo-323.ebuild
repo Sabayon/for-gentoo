@@ -1,11 +1,11 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
-PYTHON_COMPAT=( python2_7 )
+PYTHON_COMPAT=( python2_7 python3_6 )
 
-inherit eutils python-single-r1 bash-completion-r1
+inherit eutils python-r1 bash-completion-r1
 
 DESCRIPTION="Entropy Package Manager text-based client"
 HOMEPAGE="http://www.sabayon.org"
@@ -29,13 +29,12 @@ RDEPEND="${COMMON_DEPEND}
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
-src_prepare() {
-	default
-	python_fix_shebang "${S}"
-}
-
 src_install() {
-	emake DESTDIR="${D}" LIBDIR="usr/lib" PYTHON_SITEDIR="$(python_get_sitedir)" install
+	installation() {
+		emake DESTDIR="${D}" LIBDIR="usr/lib" PYTHON_SITEDIR="$(python_get_sitedir)" install
+		python_optimize
+	}
+	python_foreach_impl installation
+	python_replicate_script "${ED}usr/bin/equo" "${ED}usr/bin/kernel-switcher"
 	newbashcomp "${MISC_DIR}/equo-completion.bash" equo
-	python_optimize
 }

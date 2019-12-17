@@ -1,11 +1,11 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
-PYTHON_COMPAT=( python2_7 )
+PYTHON_COMPAT=( python2_7 python3_6 )
 
-inherit eutils python-single-r1
+inherit eutils python-r1
 
 DESCRIPTION="Official Sabayon Linux Entropy Notification Applet Loader"
 HOMEPAGE="http://www.sabayon.org"
@@ -25,11 +25,10 @@ RDEPEND="${DEPEND}"
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
-src_prepare() {
-	default
-	python_fix_shebang "${S}"
-}
-
 src_install() {
-	emake DESTDIR="${D}" LIBDIR="usr/lib" magneto-loader-install || die "make install failed"
+	installation() {
+		emake DESTDIR="${D}" LIBDIR="usr/lib" magneto-loader-install || die "make install failed"
+	}
+	python_foreach_impl installation
+	python_replicate_script "${ED}usr/bin/magneto"
 }
