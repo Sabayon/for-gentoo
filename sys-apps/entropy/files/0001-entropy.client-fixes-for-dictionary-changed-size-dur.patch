@@ -1,0 +1,43 @@
+From 08da648a202d3c8587fedf7ef83f557fef41e2d5 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?S=C5=82awomir=20Nizio?= <slawomir.nizio@sabayon.org>
+Date: Wed, 18 Dec 2019 22:20:29 +0100
+Subject: [PATCH] [entropy.client] fixes for "dictionary changed size during
+ iteration"
+
+---
+ lib/entropy/client/interfaces/db.py  | 4 ++--
+ lib/entropy/client/interfaces/dep.py | 3 ++-
+ 2 files changed, 4 insertions(+), 3 deletions(-)
+
+diff --git lib/entropy/client/interfaces/db.py lib/entropy/client/interfaces/db.py
+index 7e7856e65..2a03580da 100644
+--- lib/entropy/client/interfaces/db.py
++++ lib/entropy/client/interfaces/db.py
+@@ -2564,8 +2564,8 @@ class MaskableRepository(EntropyRepositoryBase):
+ 
+         # if we get here, it means we didn't find a match in repositories
+         # so we scan packages, last chance
+-        for keyword in keyword_pkg.keys():
+-            # use .keys() because keyword_pkg gets modified during iteration
++        for keyword in list(keyword_pkg.keys()):
++            # use list() because keyword_pkg gets modified during iteration
+ 
+             # first of all check if keyword is in mykeywords
+             if keyword not in mykeywords:
+diff --git lib/entropy/client/interfaces/dep.py lib/entropy/client/interfaces/dep.py
+index 52bc611c1..ecbae5e4d 100644
+--- lib/entropy/client/interfaces/dep.py
++++ lib/entropy/client/interfaces/dep.py
+@@ -2855,7 +2855,8 @@ class CalculatorsMixin:
+                 change = False
+                 # now try to deeply remove unused packages
+                 # iterate over a copy
+-                for pkg_match in deep_dep_map.keys():
++                # list() because the dict gets modified in setup_revdeps()
++                for pkg_match in list(deep_dep_map.keys()):
+                     deep_dep_map[pkg_match] -= flat_dep_tree
+                     if (not deep_dep_map[pkg_match]) and \
+                         (pkg_match not in flat_dep_tree):
+-- 
+2.23.0
+
