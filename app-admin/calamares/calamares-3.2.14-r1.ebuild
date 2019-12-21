@@ -1,9 +1,9 @@
 # Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
-PYTHON_COMPAT=( python{3_4,3_5,3_6} )
+PYTHON_COMPAT=( python{3_5,3_6} )
 inherit kde5 python-r1
 
 DESCRIPTION="Distribution-independent installer framework"
@@ -21,9 +21,13 @@ IUSE="+networkmanager pythonqt +upower"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
 DEPEND="${PYTHON_DEPS}
+	$(add_frameworks_dep kconfig)
 	$(add_frameworks_dep kcoreaddons)
+	$(add_frameworks_dep kcrash)
+	$(add_frameworks_dep kpackage)
 	$(add_frameworks_dep kparts)
 	$(add_frameworks_dep kservice)
+	$(add_qt_dep linguist-tools)
 	$(add_qt_dep qtdbus)
 	$(add_qt_dep qtdeclarative)
 	$(add_qt_dep qtgui)
@@ -31,8 +35,10 @@ DEPEND="${PYTHON_DEPS}
 	$(add_qt_dep qtsvg)
 	$(add_qt_dep qtwebengine 'widgets')
 	$(add_qt_dep qtwidgets)
+	$(add_qt_dep qtxml)
 	dev-cpp/yaml-cpp:=
 	>=dev-libs/boost-1.55:=[${PYTHON_USEDEP}]
+	dev-libs/libpwquality[${PYTHON_USEDEP}]
 	sys-apps/dbus
 	sys-apps/dmidecode
 	sys-auth/polkit-qt[qt5(+)]
@@ -48,6 +54,7 @@ RDEPEND="${DEPEND}
 	|| ( sys-boot/grub:2 sys-boot/systemd-boot )
 	sys-boot/os-prober
 	sys-fs/squashfs-tools
+	sys-libs/timezone-data
 	virtual/udev
 	networkmanager? ( net-misc/networkmanager )
 	upower? ( sys-power/upower )
@@ -57,9 +64,9 @@ src_prepare() {
 	cmake-utils_src_prepare
 	python_setup
 	export PYTHON_INCLUDE_DIRS="$(python_get_includedir)" \
-	       PYTHON_INCLUDE_PATH="$(python_get_library_path)"\
-	       PYTHON_CFLAGS="$(python_get_CFLAGS)"\
-	       PYTHON_LIBS="$(python_get_LIBS)"
+		PYTHON_INCLUDE_PATH="$(python_get_library_path)" \
+		PYTHON_CFLAGS="$(python_get_CFLAGS)" \
+		PYTHON_LIBS="$(python_get_LIBS)"
 }
 
 src_configure() {
