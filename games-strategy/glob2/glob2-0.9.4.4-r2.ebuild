@@ -27,7 +27,11 @@ RDEPEND="
 "
 DEPEND="${RDEPEND}"
 
-PATCHES=( "${FILESDIR}"/${P}-{gcc{44,49,6},scons-blows,underlinking}.patch )
+PATCHES=(
+	"${FILESDIR}"/${P}-{gcc{44,49,6},scons-blows,underlinking}.patch
+	# Sabayon
+	"${FILESDIR}"/opts.patch
+)
 
 src_configure() {
 	myesconsargs=(
