@@ -42,6 +42,8 @@ DOCS=(
 
 PATCHES=(
 	"${FILESDIR}"/${P}-poppler-0.76-{1,2,3}.patch
+	# Sabayon
+	"${FILESDIR}"/overloaded.patch
 )
 
 pkg_setup() {
