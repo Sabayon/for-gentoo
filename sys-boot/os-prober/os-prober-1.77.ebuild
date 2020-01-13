@@ -1,8 +1,4 @@
-<<<<<<<
-# Copyright 1999-2016 Gentoo Foundation
-=======
-# Copyright 1999-2019 Gentoo Authors
->>>>>>>
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
@@ -18,8 +14,6 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
 
-<<<<<<<
-=======
 # grub-mount needed per bug #607518
 RDEPEND="sys-boot/grub:2[mount]"
 DEPEND=""
@@ -35,7 +29,6 @@ DOC_CONTENTS="
 	NTFS filesystem. One way to do this is by installing sys-fs/ntfs3g
 "
 
->>>>>>>
 src_prepare() {
 	default
 	# use default GNU rules
