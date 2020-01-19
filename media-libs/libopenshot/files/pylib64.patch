@@ -1,0 +1,16 @@
+--- a/src/bindings/python/CMakeLists.txt	2020-01-19 17:36:53.192648421 +0100
++++ b/src/bindings/python/CMakeLists.txt	2020-01-19 17:37:33.846949757 +0100
+@@ -66,11 +66,11 @@
+ 	                      ${PYTHON_LIBRARIES} openshot)
+ 
+     ### Check if the following Debian-friendly python module path exists
+-	SET(PYTHON_MODULE_PATH "${CMAKE_INSTALL_PREFIX}/lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages")
++	SET(PYTHON_MODULE_PATH "${CMAKE_INSTALL_PREFIX}/lib64/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages")
+ 	if (NOT EXISTS ${PYTHON_MODULE_PATH})
+ 
+ 		### Check if another Debian-friendly python module path exists
+-		SET(PYTHON_MODULE_PATH "${CMAKE_INSTALL_PREFIX}/lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/dist-packages")
++		SET(PYTHON_MODULE_PATH "${CMAKE_INSTALL_PREFIX}/lib64/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/dist-packages")
+ 		if (NOT EXISTS ${PYTHON_MODULE_PATH})
+ 
+ 			### Calculate the python module path (using distutils)
