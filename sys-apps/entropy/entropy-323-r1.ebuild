@@ -3,10 +3,10 @@
 
 EAPI=6
 
-PYTHON_COMPAT=( python2_7 )
+PYTHON_COMPAT=( python2_7 python3_6 )
 PYTHON_REQ_USE="sqlite"
 
-inherit eutils python-single-r1 user
+inherit eutils python-r1 user
 
 DESCRIPTION="Entropy Package Manager foundation library"
 HOMEPAGE="http://www.sabayon.org"
@@ -56,9 +56,12 @@ pkg_setup() {
 }
 
 src_install() {
-	emake DESTDIR="${D}" LIBDIR="usr/lib" PYTHON_SITEDIR="$(python_get_sitedir)" \
-		install || die "make install failed"
-	python_optimize
+	installation() {
+		emake DESTDIR="${D}" LIBDIR="usr/lib" PYTHON_SITEDIR="$(python_get_sitedir)" \
+			install || die "make install failed"
+		python_optimize
+	}
+	python_foreach_impl installation
 }
 
 pkg_preinst() {
