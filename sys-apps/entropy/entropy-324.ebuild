@@ -40,10 +40,6 @@ REPO_CONFPATH="${ROOT}/etc/entropy/repositories.conf"
 REPO_D_CONFPATH="${ROOT}/etc/entropy/repositories.conf.d"
 ENTROPY_CACHEDIR="${ROOT}/var/lib/entropy/caches"
 
-PATCHES=(
-	"${FILESDIR}/0001-entropy.client-fixes-for-dictionary-changed-size-dur.patch"
-)
-
 pkg_setup() {
 	# Can:
 	# - update repos
