@@ -1,0 +1,44 @@
+From c06eb76644b1edfcfd614a279fa77a1278e717b4 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?S=C5=82awomir=20Nizio?= <slawomir.nizio@sabayon.org>
+Date: Sun, 9 Feb 2020 22:18:26 +0100
+Subject: [PATCH] [entropy.server] gpg related fix for Python 3
+
+With Python 3, data in sqlite from packagesignatures.gpg column was binary on
+read (because it was binary on write) but a string was actually required.
+
+The problem was visible with GPG signed packages: when injected into database
+using eit with Python 3, it would then explode during equo update/install on
+client side.
+
+error from Python 2:
+
+      File "/usr/lib64/python2.7/site-packages/entropy/client/interfaces/package/actions/fetch.py", line 1063, in do_signatures_validation
+	if hash_val in signatures:
+    TypeError: writable buffers are not hashable
+
+error from Python 3:
+
+      File "/usr/lib64/python3.6/site-packages/entropy/client/interfaces/package/actions/fetch.py", line 1023, in do_compare_gpg
+	tmp_f.write(hash_val)
+    TypeError: write() argument must be str, not bytes
+---
+ lib/entropy/server/interfaces/main.py | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git lib/entropy/server/interfaces/main.py lib/entropy/server/interfaces/main.py
+index 4a7103ff6..cac4fdb7e 100644
+--- lib/entropy/server/interfaces/main.py
++++ lib/entropy/server/interfaces/main.py
+@@ -7126,7 +7126,8 @@ class Server(Client):
+             return None
+         gpg_sign_path = repo_sec.sign_file(repo, pkg_path)
+         # read file content and add to 'gpg' signature
+-        with open(gpg_sign_path, "rb") as gpg_f:
++        enc = etpConst['conf_encoding']
++        with codecs.open(gpg_sign_path, "r", encoding = enc) as gpg_f:
+             gpg_signature = gpg_f.read()
+         os.remove(gpg_sign_path)
+         return gpg_signature
+-- 
+2.24.1
+
