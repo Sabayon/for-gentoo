@@ -1,4 +1,4 @@
-# Copyright 1999-2019 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -21,8 +21,8 @@ S="${WORKDIR}/entropy-${PV}/rigo/${MY_PN}"
 
 DEPEND="${PYTHON_DEPS}"
 RDEPEND="${PYTHON_DEPS}
-	dev-python/dbus-python
-	dev-python/pygobject:3
+	dev-python/dbus-python[${PYTHON_USEDEP}]
+	dev-python/pygobject:3[${PYTHON_USEDEP}]
 	~sys-apps/entropy-${PV}[${PYTHON_USEDEP}]
 	sys-auth/polkit[introspection]
 	sys-devel/gettext"
