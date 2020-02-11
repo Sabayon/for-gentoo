@@ -1,4 +1,4 @@
-# Copyright 1999-2019 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -20,7 +20,7 @@ S="${WORKDIR}/entropy-${PV}/magneto"
 
 DEPEND="${PYTHON_DEPS}"
 RDEPEND="~app-misc/magneto-loader-${PV}[${PYTHON_USEDEP}]
-	dev-python/PyQt5[dbus]
+	dev-python/PyQt5[${PYTHON_USEDEP},dbus]
 	${DEPEND}"
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
