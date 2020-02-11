@@ -29,6 +29,10 @@ RDEPEND="${PYTHON_DEPS}
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
+PATCHES=(
+	"${FILESDIR}/0001-entropy.spm-rigo-Rigo-related-Python-3-fixes.patch"
+)
+
 src_install() {
 	installation() {
 		emake DESTDIR="${D}" PYTHON_SITEDIR="$(python_get_sitedir)" install

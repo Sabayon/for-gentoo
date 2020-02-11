@@ -42,6 +42,7 @@ ENTROPY_CACHEDIR="${ROOT}/var/lib/entropy/caches"
 
 PATCHES=(
 	"${FILESDIR}/0001-entropy.server-gpg-related-fix-for-Python-3.patch"
+	"${FILESDIR}/0001-entropy.spm-rigo-Rigo-related-Python-3-fixes.patch"
 )
 
 pkg_setup() {

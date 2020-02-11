@@ -1,0 +1,43 @@
+(part of the commit)
+
+From 8700aade27cb4117bf102afc7bd22ba6acfd8aa8 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?S=C5=82awomir=20Nizio?= <slawomir.nizio@sabayon.org>
+Date: Tue, 11 Feb 2020 22:25:08 +0100
+Subject: [PATCH] [entropy.spm, rigo] Rigo related Python 3 fixes
+
+1)
+  File "/usr/lib/python-exec/python3.6/RigoDaemon_app.py", line 362, in _pusher
+    fobj.write(chunk)
+TypeError: write() argument must be str, not bytes
+
+2)
+  File "/usr/lib64/python3.6/site-packages/entropy/spm/plugins/interfaces/portage_plugin/__init__.py", line 77, in __init__
+    self.buffer = Writer(self, self._std.buffer)
+AttributeError: 'FakeOutFile' object has no attribute 'buffer'
+---
+ lib/entropy/spm/plugins/interfaces/portage_plugin/__init__.py | 4 +++-
+ rigo/RigoDaemon/app/RigoDaemon_app.py                         | 2 +-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
+
+diff --git lib/entropy/spm/plugins/interfaces/portage_plugin/__init__.py lib/entropy/spm/plugins/interfaces/portage_plugin/__init__.py
+index 83dca0b6e..a23e46290 100644
+--- lib/entropy/spm/plugins/interfaces/portage_plugin/__init__.py
++++ lib/entropy/spm/plugins/interfaces/portage_plugin/__init__.py
+@@ -10,6 +10,7 @@
+ 
+ """
+ import os
++import io
+ import errno
+ import bz2
+ import hashlib
+@@ -74,7 +75,8 @@ class StdoutSplitter(object):
+                     self._buf.flush()
+                     self._parent.flush()
+ 
+-            self.buffer = Writer(self, self._std.buffer)
++            if isinstance(self._std, io.TextIOWrapper):
++                self.buffer = Writer(self, self._std.buffer)
+ 
+     def __iter__(self):
+         return self._std
