@@ -3,7 +3,7 @@
 
 EAPI=6
 
-PYTHON_COMPAT=( python2_7 python3_6 )
+PYTHON_COMPAT=( python2_7 )
 
 inherit eutils python-r1
 
@@ -20,8 +20,8 @@ S="${WORKDIR}/entropy-${PV}/magneto"
 
 DEPEND="${PYTHON_DEPS}"
 RDEPEND="~app-misc/magneto-loader-${PV}[${PYTHON_USEDEP}]
-	dev-python/notify-python
-	dev-python/pygtk:2
+	dev-python/notify-python[${PYTHON_USEDEP}]
+	dev-python/pygtk:2[${PYTHON_USEDEP}]
 	${DEPEND}"
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
