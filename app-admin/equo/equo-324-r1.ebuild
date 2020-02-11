@@ -1,4 +1,4 @@
-# Copyright 1999-2019 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -25,7 +25,7 @@ DEPEND="${COMMON_DEPEND}
 	dev-util/intltool
 	app-text/asciidoc"
 RDEPEND="${COMMON_DEPEND}
-	sys-apps/file[python]"
+	sys-apps/file[${PYTHON_USEDEP},python]"
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
