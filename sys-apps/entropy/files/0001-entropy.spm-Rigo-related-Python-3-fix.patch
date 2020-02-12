@@ -1,0 +1,28 @@
+From 0869912ec4c630d2946e835b2585367e233c1c15 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?S=C5=82awomir=20Nizio?= <slawomir.nizio@sabayon.org>
+Date: Wed, 12 Feb 2020 21:44:01 +0100
+Subject: [PATCH] [entropy.spm] Rigo related Python 3 fix
+
+  File "/usr/lib64/python3.6/site-packages/entropy/spm/plugins/interfaces/portage_plugin/__init__.py", line 101, in _pusher
+    self._std.buffer.write(chunk)
+AttributeError: 'FakeOutFile' object has no attribute 'buffer'
+---
+ lib/entropy/spm/plugins/interfaces/portage_plugin/__init__.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git lib/entropy/spm/plugins/interfaces/portage_plugin/__init__.py lib/entropy/spm/plugins/interfaces/portage_plugin/__init__.py
+index a23e46290..d6d624fb0 100644
+--- lib/entropy/spm/plugins/interfaces/portage_plugin/__init__.py
++++ lib/entropy/spm/plugins/interfaces/portage_plugin/__init__.py
+@@ -97,7 +97,7 @@ class StdoutSplitter(object):
+                     break
+                 raise
+             try:
+-                if const_is_python3():
++                if const_is_python3() and isinstance(self._std, io.TextIOWrapper):
+                     self._std.buffer.write(chunk)
+                 else:
+                     self._std.write(chunk)
+-- 
+2.24.1
+
