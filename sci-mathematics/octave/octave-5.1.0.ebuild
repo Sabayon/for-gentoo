@@ -137,7 +137,7 @@ src_configure() {
 		$(use_enable fftw fftw-threads) \
 		$(use_with glpk) \
 		$(use_with hdf5) \
-		$(use_with imagemagick magick $(usex graphicsmagick GraphicsMagick ImageMagick)) \
+		$(use_with imagemagick magick $(usex graphicsmagick GraphicsMagick Magick)) \
 		$(use_with opengl) \
 		$(use_with opengl fltk) \
 		$(use_with ssl openssl) \
