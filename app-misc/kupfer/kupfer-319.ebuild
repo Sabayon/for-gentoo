@@ -31,7 +31,7 @@ DEPEND="
 	x11-libs/libwnck:3[introspection]
 	$(python_gen_cond_dep '
 		dev-python/docutils[${PYTHON_MULTI_USEDEP}]
-        dev-python/dbus-python[${PYTHON_MULTI_USEDEP}]
+		dev-python/dbus-python[${PYTHON_MULTI_USEDEP}]
 		dev-python/pyxdg[${PYTHON_MULTI_USEDEP}]
 		')
 "
@@ -40,7 +40,7 @@ RDEPEND="
 	${PYTHON_DEPS}
 	dev-libs/gobject-introspection
 	$(python_gen_cond_dep '
-        dev-python/pycairo[${PYTHON_MULTI_USEDEP}]
+		dev-python/pycairo[${PYTHON_MULTI_USEDEP}]
 		')
 "
 
