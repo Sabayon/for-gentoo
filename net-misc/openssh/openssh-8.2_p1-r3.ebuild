@@ -479,4 +479,16 @@ pkg_postinst() {
 		elog "Otherwise you maybe unable to connect to this sshd using any AES CTR cipher."
 		elog ""
 	fi
+
+	# Sabayon
+	for old_ver in ${REPLACING_VERSIONS}; do
+		if ver_test "${old_ver}" -lt "8.2"; then
+			if systemctl is-active sshd.service > /dev/null; then
+				ewarn
+				ewarn "Sabayon modification: restarting sshd"
+				ewarn "due to bug https://bugs.gentoo.org/709748"
+				systemctl restart sshd.service
+			fi
+		fi
+	done
 }
