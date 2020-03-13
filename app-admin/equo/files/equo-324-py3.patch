@@ -1,0 +1,25 @@
+From 09cb7b34961cf7a83d76115156844dac444d2c78 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?S=C5=82awomir=20Nizio?= <slawomir.nizio@sabayon.org>
+Date: Fri, 13 Mar 2020 20:18:04 +0100
+Subject: [PATCH] [solo.commands.query] fix "equo query orphans" with Python 3
+
+---
+ client/solo/commands/query.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git client/solo/commands/query.py client/solo/commands/query.py
+index 5a371e513..3c7b5e05d 100644
+--- client/solo/commands/query.py
++++ client/solo/commands/query.py
+@@ -1069,7 +1069,7 @@ Repository query tools.
+ 
+         system_dirs_mask_regexp = []
+         for mask in settings['system_dirs_mask']:
+-            reg_mask = re.compile(mask)
++            reg_mask = re.compile(const_convert_to_rawstring(mask))
+             system_dirs_mask_regexp.append(reg_mask)
+ 
+         file_data = set()
+-- 
+2.24.1
+

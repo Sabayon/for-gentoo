@@ -29,6 +29,10 @@ RDEPEND="${COMMON_DEPEND}
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
+PATCHES=(
+	"${FILESDIR}/${P}-py3.patch"
+)
+
 src_install() {
 	installation() {
 		emake DESTDIR="${D}" LIBDIR="usr/lib" PYTHON_SITEDIR="$(python_get_sitedir)" install
