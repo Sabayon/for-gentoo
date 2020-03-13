@@ -1,7 +1,7 @@
 # Copyright 1999-2020 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=6
 
 PYTHON_COMPAT=( python2_7 python3_6 )
 
@@ -33,6 +33,10 @@ RDEPEND="${PYTHON_DEPS}
 PDEPEND="passwordless-upgrade? ( app-misc/passwordless-upgrade )"
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
+
+PATCHES=(
+	"${FILESDIR}/${P}-py3.patch"
+)
 
 src_install() {
 	installation() {

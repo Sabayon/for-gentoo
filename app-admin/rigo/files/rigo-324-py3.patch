@@ -1,0 +1,19 @@
+commit e01746bc38a7d715d446e998ca06d88d23b90e69
+Author: Sławomir Nizio <slawomir.nizio@sabayon.org>
+Date:   Fri Mar 13 21:47:48 2020 +0100
+
+    [rigo] Python 3 fix in config files viewer / editor
+
+diff --git rigo/rigo/utils.py b/rigo/rigo/utils.py
+index c1aac8e72..cbe70d3f0 100644
+--- rigo/rigo/utils.py
++++ rigo/rigo/utils.py
+@@ -186,8 +186,6 @@ def open_editor(path):
+         exec_string += " \""
+         exec_string += path
+         exec_string += "\""
+-    # shlex split() wants raw string
+-    exec_string = const_convert_to_rawstring(exec_string)
+     args = shlex.split(exec_string)
+     proc = subprocess.Popen(args)
+     return proc
