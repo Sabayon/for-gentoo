@@ -1,0 +1,36 @@
+From b9e17e16cd55a43af90ab310380085911c131565 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?S=C5=82awomir=20Nizio?= <slawomir.nizio@sabayon.org>
+Date: Tue, 17 Mar 2020 19:45:26 +0100
+Subject: [PATCH] [entropy.client] fix equo pkg quickpkg
+
+- Python 3 fix
+- re-encoding the path actually made it skip files with funny names
+---
+ lib/entropy/client/interfaces/methods.py | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
+
+diff --git lib/entropy/client/interfaces/methods.py lib/entropy/client/interfaces/methods.py
+index 487a61d1b..89a45bb0e 100644
+--- lib/entropy/client/interfaces/methods.py
++++ lib/entropy/client/interfaces/methods.py
+@@ -2215,16 +2215,13 @@ class MiscMixin:
+ 
+             # collect files
+             for orig_path in contents:
+-                # convert back to filesystem str
+-                encoded_path = orig_path
+-                orig_path = const_convert_to_rawstring(orig_path)
+                 strip_orig_path = orig_path.lstrip(os.path.sep)
+                 path = os.path.join(shiftpath, strip_orig_path)
+                 try:
+                     exist = os.lstat(path)
+                 except OSError:
+                     continue # skip file
+-                ftype = entropy_package_metadata['content'][encoded_path]
++                ftype = entropy_package_metadata['content'][orig_path]
+                 if str(ftype) == '0':
+                     # force match below, '0' means databases without ftype
+                     ftype = 'dir'
+-- 
+2.24.1
+
