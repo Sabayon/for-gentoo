@@ -25,6 +25,7 @@ DEPEND="${RDEPEND}
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-1.430.0-legacy.patch
+	"${FILESDIR}"/${PN}-1.430.0-lib.patch
 )
 
 src_prepare() {

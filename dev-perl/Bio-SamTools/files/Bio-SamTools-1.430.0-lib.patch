@@ -1,0 +1,13 @@
+Index: Bio-SamTools-1.43/Build.PL
+===================================================================
+--- Bio-SamTools-1.43.orig/Build.PL
++++ Bio-SamTools-1.43/Build.PL
+@@ -95,6 +95,8 @@ sub find_sam {
+ 	for my $p (@search_path) {
+ 	    $sam_lib ||= "$p/lib" if
+ 		-e "$p/lib/$LibFile";
++	    $sam_lib ||= "$p/lib64" if
++		-e "$p/lib64/$LibFile";
+ 	}
+     }
+ 
