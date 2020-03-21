@@ -31,7 +31,7 @@ REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
 PATCHES=(
 	"${FILESDIR}/0001-entropy.spm-rigo-Rigo-related-Python-3-fixes.patch"
-	"${FILESDIR}/fileobj-rigo.patch"
+	"${FILESDIR}/fileobjs-rigo.patch"
 )
 
 src_install() {
