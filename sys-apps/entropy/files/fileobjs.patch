@@ -1,0 +1,100 @@
+(part of)
+commit 0019b6e68af9bda8b368a7073e5eb927607f00e2
+Author: Sławomir Nizio <slawomir.nizio@sabayon.org>
+Date:   Sat Mar 21 22:08:50 2020 +0100
+
+    [entropy.misc, rigo] fix file-like objects with Python 3
+    
+    FakeOutFile and LogFile need .buffer like Python 3 "text" file objects
+    which is needed when in rigo standard output/error is replaced, and then
+    it reaches Portage which does this:
+    
+                if sys.hexversion >= 0x3000000 and fd in (sys.stdout, sys.stderr):
+                        fd = fd.buffer
+        fd.write(mystr)
+    
+    (/usr/lib64/python3.6/site-packages/portage/util/__init__.py).
+    
+    Entropy internal code did not need this.
+    
+    Note, after this commit, changes done previously:
+        1)
+        commit 0869912ec4c630d2946e835b2585367e233c1c15
+    
+            [entropy.spm] Rigo related Python 3 fix
+    
+              File "/usr/lib64/python3.6/site-packages/entropy/spm/plugins/interfaces/portage_plugin/__init__.py", line 101, in _pusher
+                self._std.buffer.write(chunk)
+            AttributeError: 'FakeOutFile' object has no attribute 'buffer'
+    
+        2)
+        commit 8700aade27cb4117bf102afc7bd22ba6acfd8aa8
+    
+            [entropy.spm, rigo] Rigo related Python 3 fixes
+    
+            1)
+              File "/usr/lib/python-exec/python3.6/RigoDaemon_app.py", line 362, in _pusher
+                fobj.write(chunk)
+            TypeError: write() argument must be str, not bytes
+    
+            2)
+              File "/usr/lib64/python3.6/site-packages/entropy/spm/plugins/interfaces/portage_plugin/__init__.py", line 77, in __init__
+                self.buffer = Writer(self, self._std.buffer)
+            AttributeError: 'FakeOutFile' object has no attribute 'buffer'
+    
+        (...)
+    
+    could be likely reverted; not tested, it could be better to have them anyway to
+    avoid futher re/encoding/checks if conversions are needed (subjective).
+    
+    Fixes bug 5899.
+
+diff --git lib/entropy/misc.py lib/entropy/misc.py
+index bb4a94af8..d216bd693 100644
+--- lib/entropy/misc.py
++++ lib/entropy/misc.py
+@@ -35,7 +35,8 @@ import threading
+ from collections import deque
+ 
+ from entropy.const import etpConst, const_isunicode, \
+-    const_isfileobj, const_convert_log_level, const_setup_file
++    const_isfileobj, const_convert_log_level, const_setup_file, \
++    const_convert_to_unicode
+ from entropy.exceptions import EntropyException
+ 
+ import entropy.tools
+@@ -1665,6 +1666,24 @@ class FastRSS(object):
+         const_setup_file(self.__file, etpConst['entropygid'], 0o664)
+ 
+ 
++class FileobjCompatBuffer:
++
++    """
++    Compatibility shim for file object with the buffer attribute.
++    To be used with classes whose write method expect strings.
++    """
++
++    def __init__(self, parent):
++        self._parent = parent
++
++    def write(self, msg):
++        msg_str = const_convert_to_unicode(msg)
++        self._parent.write(msg_str)
++
++    def flush(self):
++        self._parent.flush()
++
++
+ class LogFile:
+ 
+     """ Entropy simple logging interface, works as file object """
+@@ -1715,6 +1734,9 @@ class LogFile:
+             LogFile.DATE_FORMAT))
+         self.__logger.addHandler(self.__handler)
+ 
++        if const_is_python3():
++            self.buffer = FileobjCompatBuffer(self)
++
+     def __enter__(self):
+         """
+         Just return self, configuration is done in __init__

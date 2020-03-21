@@ -45,6 +45,7 @@ PATCHES=(
 	"${FILESDIR}/0001-entropy.spm-rigo-Rigo-related-Python-3-fixes.patch"
 	"${FILESDIR}/0001-entropy.spm-Rigo-related-Python-3-fix.patch"
 	"${FILESDIR}/0001-entropy.client-fix-equo-pkg-quickpkg.patch"
+	"${FILESDIR}/fileobjs.patch"
 )
 
 pkg_setup() {
