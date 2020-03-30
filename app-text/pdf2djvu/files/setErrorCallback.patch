@@ -1,0 +1,74 @@
+From b3ccb5fcc76d05af27639762847a1311dd06aaaa Mon Sep 17 00:00:00 2001
+From: Jakub Wilk <jwilk@jwilk.net>
+Date: Tue, 7 Jan 2020 12:06:03 +0100
+Subject: [PATCH] =?UTF-8?q?pdf-backend:=20fix=20setErrorCallback()=20for?=
+ =?UTF-8?q?=20Poppler=20=E2=89=A5=200.85.?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Fixes:
+
+    pdf-backend.cc: In constructor ‘pdf::Environment::Environment()’:
+    pdf-backend.cc:121:20: error: invalid conversion from ‘void (*)(void*, ErrorCategory, pdf::Offset, const char*)’ {aka ‘void (*)(void*, ErrorCategory, long long int, const char*)’}
+    pdf-backend.cc:121:50: error: too many arguments to function ‘void setErrorCallback(ErrorCallback)’
+---
+ pdf-backend.cc | 23 ++++++++++++++++++++++-
+ 1 file changed, 22 insertions(+), 1 deletion(-)
+
+diff --git a/pdf-backend.cc b/pdf-backend.cc
+index 6fa69a2..7861969 100644
+--- a/pdf-backend.cc
++++ b/pdf-backend.cc
+@@ -48,7 +48,7 @@
+  * ======================
+  */
+ 
+-static void poppler_error_handler(void *data, ErrorCategory category, pdf::Offset pos, const char *message)
++static void poppler_error_handler_new(ErrorCategory category, pdf::Offset pos, const char *message)
+ {
+   std::string format;
+   const char *category_name = _("PDF error");
+@@ -94,6 +94,11 @@ static void poppler_error_handler(void *data, ErrorCategory category, pdf::Offse
+   error_log << std::endl;
+ }
+ 
++static void poppler_error_handler(void *data, ErrorCategory category, pdf::Offset pos, const char *message)
++{
++  poppler_error_handler_new(category, pos, message);
++}
++
+ #if POPPLER_VERSION < 7000
+ static void poppler_error_handler(void *data, ErrorCategory category, pdf::Offset pos, char *message)
+ {
+@@ -101,6 +106,18 @@ static void poppler_error_handler(void *data, ErrorCategory category, pdf::Offse
+ }
+ #endif
+ 
++// for POPPLER_VERSION >= 8500:
++template <typename T1, typename T2> static auto set_error_callback(T1 callback1, T2 callback2) -> decltype(setErrorCallback(callback2))
++{
++  setErrorCallback(callback2);
++}
++
++// for POPPLER_VERSION < 8500:
++template <typename T1, typename T2> static auto set_error_callback(T1 callback1, T2 callback2) -> decltype(setErrorCallback(callback1, nullptr))
++{
++  setErrorCallback(callback1, nullptr);
++}
++
+ pdf::Environment::Environment()
+ {
+ #if POPPLER_VERSION >= 8300
+@@ -108,7 +125,11 @@ pdf::Environment::Environment()
+ #else
+   globalParams = new GlobalParams;
+ #endif
++#if POPPLER_VERSION >= 7000
++  set_error_callback(poppler_error_handler, poppler_error_handler_new);
++#else
+   setErrorCallback(poppler_error_handler, nullptr);
++#endif
+ }
+ 
+ void pdf::Environment::set_antialias(bool value)

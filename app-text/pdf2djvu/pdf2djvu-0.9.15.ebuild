@@ -41,6 +41,7 @@ DOCS=(
 )
 
 PATCHES=(
+	"${FILESDIR}/setErrorCallback.patch"
 )
 
 pkg_setup() {
