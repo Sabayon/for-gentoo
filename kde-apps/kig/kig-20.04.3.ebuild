@@ -7,7 +7,7 @@ ECM_HANDBOOK="forceoptional"
 ECM_TEST="true"
 PYTHON_COMPAT=( python3_{6,7,8} )
 KFMIN=5.70.0
-QTMIN=5.14.1
+QTMIN=5.14.2
 inherit python-single-r1 ecm kde.org
 
 DESCRIPTION="KDE Interactive Geometry tool"
@@ -16,7 +16,7 @@ https://edu.kde.org/kig/"
 
 LICENSE="GPL-2" # TODO: CHECK
 SLOT="5"
-KEYWORDS="~amd64 ~arm64 ~x86"
+KEYWORDS="amd64 ~arm64 x86"
 IUSE="geogebra scripting"
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
