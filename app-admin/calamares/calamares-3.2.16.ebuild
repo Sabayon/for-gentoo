@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_6 )
+PYTHON_COMPAT=( python3_6 python3_7 )
 inherit ecm python-r1
 
 DESCRIPTION="Distribution-independent installer framework"
