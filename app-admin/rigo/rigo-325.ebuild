@@ -5,7 +5,7 @@ EAPI=6
 
 PYTHON_COMPAT=( python2_7 python3_6 python3_7 python3_8 )
 
-inherit eutils gnome2-utils fdo-mime python-r1 git-r3
+inherit eutils gnome2-utils python-r1 git-r3 xdg-utils
 
 DESCRIPTION="Rigo, the Sabayon Application Browser"
 HOMEPAGE="http://www.sabayon.org"
@@ -48,11 +48,11 @@ src_install() {
 }
 
 pkg_postinst() {
-	fdo-mime_mime_database_update
-	fdo-mime_desktop_database_update
+	xdg_mimeinfo_database_update
+        xdg_desktop_database_update
 }
 
 pkg_postrm() {
-	fdo-mime_mime_database_update
-	fdo-mime_desktop_database_update
+	xdg_mimeinfo_database_update
+	xdg_desktop_database_update
 }
